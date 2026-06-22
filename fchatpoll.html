@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FCOOPERATION_CHAT - Poll</title>
+
+<style>
+  body {
+    font-family: Arial;
+    background: #f9f9f9;
+    margin: 0;
+    padding: 20px;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    background: black;
+    color: white;
+    padding: 10px;
+    border-radius: 6px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+  }
+
+  .option {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .option input {
+    flex: 1;
+  }
+
+  .switch-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+
+  .switch-label {
+    font-size: 14px;
+  }
+
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+  }
+
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: #ccc;
+    border-radius: 20px;
+    transition: .4s;
+  }
+
+  .slider:before {
+    content: "";
+    position: absolute;
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    border-radius: 50%;
+    transition: .4s;
+  }
+
+  input:checked + .slider {
+    background-color: black;
+  }
+
+  input:checked + .slider:before {
+    transform: translateX(20px);
+  }
+
+  #send-btn {
+    padding: 10px 16px;
+    background: black;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  body.sending {
+    pointer-events: none;
+    opacity: 0.55;
+  }
+
+  #send-btn.sending {
+    pointer-events: none;
+    background: #444;
+    opacity: 0.8;
+  }
+</style>
+</head>
+
+<body>
+
+<h1>FCOOPERATION_CHAT - POLL</h1>
+
+<div class="form-group">
+  <input type="text" id="poll-question" placeholder="Enter your question…" />
+</div>
+
+<div id="options-container">
+  <div class="option">
+    <input type="text" class="poll-option" placeholder="Option 1" />
+  </div>
+  <div class="option">
+    <input type="text" class="poll-option" placeholder="Option 2" />
+  </div>
+</div>
+
+<div class="switch-container">
+  <label class="switch-label">Allow multiple selection</label>
+  <label class="switch">
+    <input type="checkbox" id="allow-multiple" />
+    <span class="slider"></span>
+  </label>
+  <button id="send-btn">Send</button>
+</div>
+
+<script>
+const MAX_OPTIONS = 20;
+const optionsContainer = document.getElementById("options-container");
+
+// AUTO ADD OPTIONS
+optionsContainer.addEventListener("input", (e) => {
+  if (!e.target.classList.contains("poll-option")) return;
+
+  const inputs = optionsContainer.querySelectorAll(".poll-option");
+  const last = inputs[inputs.length - 1];
+
+  if (inputs.length >= MAX_OPTIONS) return;
+
+  if (last.value.trim() !== "") {
+    const div = document.createElement("div");
+    div.className = "option";
+    div.innerHTML = `
+      <input
+        type="text"
+        class="poll-option"
+        placeholder="Option ${inputs.length + 1}"
+      />
+    `;
+    optionsContainer.appendChild(div);
+  }
+});
+
+// SEND POLL
+document.getElementById("send-btn").addEventListener("click", async () => {
+  const sendBtn = document.getElementById("send-btn");
+  if (sendBtn.classList.contains("sending")) return;
+
+  sendBtn.classList.add("sending");
+  sendBtn.textContent = "Sending…";
+  sendBtn.disabled = true;
+  document.body.classList.add("sending");
+
+  const question = document.getElementById("poll-question").value.trim();
+  const options = [...document.querySelectorAll(".poll-option")]
+    .map(o => o.value.trim())
+    .filter(Boolean);
+
+  if (!question || options.length < 2) {
+    alert("Please enter a question and at least two options.");
+    return;
+  }
+
+  const allowMultiple = document.getElementById("allow-multiple").checked;
+
+  const chatWith = JSON.parse(localStorage.getItem("chatting_with")) || {};
+  const account = JSON.parse(localStorage.getItem("faccount")) || {};
+
+  const pollId = Date.now();
+
+  // ✅ MESSAGE-SHAPED POLL
+  const pollMessage = {
+  id: pollId,
+  sender_id: account.id,
+  receiver_id: chatWith.id,
+  sent_at: new Date().toISOString(),
+  status: "pending",
+  isPoll: true,
+  votes: {},
+  pollData: {
+    id: pollId,
+    question,
+    options,
+    allowMultiple
+  }
+};
+
+  // Save locally
+  const POLL_STORAGE_KEY = `polls_${account.email}_${chatWith.id}`;
+  const polls = JSON.parse(localStorage.getItem(POLL_STORAGE_KEY)) || [];
+  polls.push(pollMessage);
+  localStorage.setItem(POLL_STORAGE_KEY, JSON.stringify(polls));
+
+  // Send to backend
+  try {
+    const res = await fetch("https://fweb-backend.onrender.com/fchat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "send_polls",
+
+        // ✅ REQUIRED FOR TIMELINE
+        id: pollId,
+        sender_id: account.id,
+        receiver_id: chatWith.id,
+        sent_at: pollMessage.sent_at,
+
+        // poll content
+        question,
+        options,
+        allowMultiple,
+
+        isPoll: true,
+        email: account.email
+      })
+    });
+
+    if (res.ok) {
+      pollMessage.status = "delivered";
+      localStorage.setItem(POLL_STORAGE_KEY, JSON.stringify(polls));
+    }
+  } catch (err) {
+    console.warn("Poll send failed, saved locally", err);
+  }
+
+  window.location.href = "chat.html";
+});
+</script>
+
+</body>
+</html>

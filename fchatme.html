@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fchat Settings</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f5f7fa;
+    margin: 0;
+    padding: 20px;
+  }
+
+  /* Top right broadcast/private box */
+  #broadcast-box {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: white;
+    color: #007bff;
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  /* Dropdown menu for broadcast/private */
+  #broadcast-menu {
+    position: absolute;
+    top: 50px;
+    right: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    display: none;
+    flex-direction: column;
+    width: 120px;
+    z-index: 100;
+  }
+
+  #broadcast-menu div {
+    padding: 8px 12px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  #broadcast-menu div:hover {
+    background: #f0f0f0;
+  }
+
+  .tick {
+    color: #007bff;
+    font-weight: bold;
+  }
+
+  /* Profile pic circular */
+  #profile-pic {
+    display: block;
+    margin: 80px auto 20px;
+    width: 320px;
+    height: 320px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #007bff;
+    cursor: pointer;
+  }
+
+  /* Profile modal */
+  #profile-modal {
+    position: fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background: rgba(0,0,0,0.85);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+  }
+
+  #profile-modal img {
+    max-width: 80%;
+    max-height: 80%;
+    border-radius: 50%;
+  }
+
+  /* Status box */
+  #status-box {
+    background: white;
+    color: #007bff;
+    padding: 12px 16px;
+    border-radius: 12px;
+    width: calc(100% - 40px);
+    max-width: 500px;
+    margin: 0 auto 20px auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14px;
+  }
+
+  .pen-icon {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+
+  /* Welcome text */
+  #welcome {
+    text-align: center;
+    font-size: 16px;
+    margin-bottom: 20px;
+  }
+
+  #welcome span.welcome-text {
+    color: #007bff;
+  }
+
+  #welcome span.username {
+    color: black;
+    font-weight: bold;
+  }
+
+  /* Chat settings card */
+  #chat-settings-card {
+    background: white;
+    color: #007bff;
+    padding: 16px;
+    border-radius: 12px;
+    width: calc(100% - 40px);
+    max-width: 500px;
+    margin: 0 auto;
+    text-align: center;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  }
+
+  #chat-settings-card:hover {
+    background: #f0f8ff;
+  }
+  
+  /* TOP RIGHT CONTAINER */
+#top-controls {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+/* XP BOX */
+#xp-box {
+  background: #1d9bf0;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* BROADCAST (shifted left already via flex) */
+#broadcast-box {
+  background: white;
+  color: #007bff;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  cursor: pointer;
+  position: static; /* IMPORTANT override */
+}
+
+/* XP MENU */
+#xp-menu {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  background: white;
+  width: 180px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  display: none;
+  flex-direction: column;
+  z-index: 999;
+}
+
+#xp-menu div {
+  padding: 10px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+#xp-menu div:hover {
+  background: #f0f0f0;
+}
+/* XP MENU ITEM */
+#xp-menu div {
+  padding: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  border-radius: 10px;
+  margin: 4px;
+}
+
+/* HOVER */
+#xp-menu div:hover {
+  background: #f0f0f0;
+}
+
+/* ACTIVE SELECTED LEVEL */
+#xp-menu .active-xp {
+  background: #1d9bf0;
+  color: white;
+  font-weight: bold;
+}
+
+</style>
+</head>
+<body>
+  
+  <div id="xp-menu">
+  <div data-xp="100">Beginner (100 XP)</div>
+  <div data-xp="1000">Mature (1000 XP)</div>
+  <div data-xp="5000">Intermediate (5000 XP)</div>
+  <div data-xp="10000">Professional (10,000 XP)</div>
+  <div data-xp="100000">World Class I (100,000 XP)</div>
+  <div data-xp="500000">World Class II (500,000 XP)</div>
+  <div data-xp="1000000">Grandmaster (1,000,000 XP)</div>
+  <div data-xp="5000000">Legendary (5,000,000 XP)</div>
+</div>
+
+<!-- TOP RIGHT AREA -->
+<div id="top-controls">
+
+  <!-- PRIVATE / BROADCAST -->
+  <div id="broadcast-box">Loading...</div>
+
+  <!-- XP BOX -->
+  <div id="xp-box">0 XP</div>
+
+</div>
+
+<div id="broadcast-menu">
+  <div id="private-option">Private <span class="tick" id="private-tick"></span></div>
+  <div id="broadcast-option">Broadcast <span class="tick" id="broadcast-tick"></span></div>
+</div>
+
+<!-- Profile picture -->
+<img id="profile-pic" src="" alt="Profile Picture">
+
+<!-- Profile modal -->
+<div id="profile-modal">
+  <img id="modal-img" src="" alt="Profile Picture">
+</div>
+
+<!-- Status box -->
+<div id="status-box">
+  <span id="status-text">Loading...</span>
+  <svg class="pen-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5h6m2 2l-7 7-4 1 1-4 7-7z"/>
+  </svg>
+</div>
+
+<!-- Welcome text -->
+<div id="welcome">
+  <span class="welcome-text">Welcome, </span>
+  <span class="username">Loading...</span>
+</div>
+
+<!-- Chat Settings Card -->
+<div id="chat-settings-card">Chat Settings</div>
+
+<script>
+  const account = JSON.parse(localStorage.getItem("faccount")) || {};
+  // Broadcast endpoint
+  async function updateBroadcastOnServer(newBroadcastValue) {
+  const payload = {
+    action: "update_broadcast",
+    email: account.email,
+    password: account.password,
+    broadcast: newBroadcastValue
+  };
+
+  const res = await fetch("https://fweb-backend.onrender.com/fchat", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  const data = await res.json();
+
+  if (!res.ok || data.error) {
+    throw new Error(data.error || "Failed to update broadcast");
+  }
+
+  return data;
+}
+
+// status text endpoint 
+async function updateStatusTextOnServer(newStatus) {
+  const payload = {
+    action: "update_status_text",
+    email: account.email,
+    password: account.password,
+    status_text: newStatus
+  };
+
+  const res = await fetch("https://fweb-backend.onrender.com/fchat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  const data = await res.json();
+
+  if (!res.ok || data.error) {
+    throw new Error(data.error || "Failed to update status text");
+  }
+
+  return data;
+}
+
+  // ---------- Broadcast / Private ----------
+  const broadcastBox = document.getElementById("broadcast-box");
+  const broadcastMenu = document.getElementById("broadcast-menu");
+  const privateTick = document.getElementById("private-tick");
+  const broadcastTick = document.getElementById("broadcast-tick");
+
+  function updateBroadcastUI() {
+    if(account.broadcast && account.broadcast.toLowerCase() === "yes"){
+      broadcastBox.textContent = "Broadcast";
+      broadcastTick.textContent = "✔";
+      privateTick.textContent = "";
+    }else{
+      broadcastBox.textContent = "Private";
+      privateTick.textContent = "✔";
+      broadcastTick.textContent = "";
+    }
+  }
+
+  updateBroadcastUI();
+
+  broadcastBox.addEventListener("click", () => {
+    broadcastMenu.style.display = broadcastMenu.style.display === "flex" ? "none" : "flex";
+  });
+
+  document.getElementById("private-option").addEventListener("click", async () => {
+  try {
+    await updateBroadcastOnServer(null);
+
+    account.broadcast = null;
+    localStorage.setItem("faccount", JSON.stringify(account));
+    updateBroadcastUI();
+    broadcastMenu.style.display = "none";
+  } catch (err) {
+    alert(err.message);
+  }
+});
+
+  document.getElementById("broadcast-option").addEventListener("click", async () => {
+  try {
+    await updateBroadcastOnServer("yes");
+
+    account.broadcast = "yes";
+    localStorage.setItem("faccount", JSON.stringify(account));
+    updateBroadcastUI();
+    broadcastMenu.style.display = "none";
+  } catch (err) {
+    alert(err.message);
+  }
+});
+
+
+  // ---------- Profile picture ----------
+  const profilePic = document.getElementById("profile-pic");
+  profilePic.src = account.profile_pic || "https://via.placeholder.com/120";
+
+  const profileModal = document.getElementById("profile-modal");
+  const modalImg = document.getElementById("modal-img");
+  profilePic.addEventListener("click", () => {
+    modalImg.src = profilePic.src;
+    profileModal.style.display = "flex";
+  });
+  profileModal.addEventListener("click", () => {
+    profileModal.style.display = "none";
+  });
+
+  // ---------- Status box ----------
+  const statusText = document.getElementById("status-text");
+  statusText.textContent = account.status_text || "No status set";
+
+  document.querySelector(".pen-icon").addEventListener("click", async () => {
+  const newStatus = prompt("Edit your status:", account.status_text || "");
+  if (newStatus !== null) {
+    const originalText = statusText.textContent;
+    statusText.textContent = "Sending..."; // block UI/spam
+    try {
+      await updateStatusTextOnServer(newStatus);
+      account.status_text = newStatus;
+      localStorage.setItem("faccount", JSON.stringify(account));
+      statusText.textContent = newStatus;
+    } catch (err) {
+      alert(err.message);
+      statusText.textContent = originalText; // revert if failed
+    }
+  }
+});
+  // ---------- Welcome text ----------
+  const welcomeUsername = document.querySelector("#welcome .username");
+  welcomeUsername.textContent = account.username || "User";
+
+  // ---------- Chat Settings card ----------
+  const chatCard = document.getElementById("chat-settings-card");
+  chatCard.addEventListener("click", () => {
+    window.location.href = "chatsettings.html";
+  });
+
+  // Close dropdown if clicked outside
+  document.addEventListener("click", function(e){
+    if(!broadcastBox.contains(e.target) && !broadcastMenu.contains(e.target)){
+      broadcastMenu.style.display = "none";
+    }
+  });
+  
+  // =========================
+  // XP SYSTEM (ADD HERE)
+  // =========================
+
+  const xpBox = document.getElementById("xp-box");
+  const xpMenu = document.getElementById("xp-menu");
+
+  // safety check (VERY IMPORTANT)
+  if (xpBox && xpMenu) {
+
+    let account = JSON.parse(localStorage.getItem("faccount")) || {};
+
+    // default XP
+    if (!account.xp) {
+      account.xp = 0;
+      localStorage.setItem("faccount", JSON.stringify(account));
+    }
+
+    // display XP
+    xpBox.textContent = `${account.xp} XP`;
+highlightXPMenu(account.xp);
+
+    // toggle menu
+    xpBox.addEventListener("click", () => {
+      xpMenu.style.display =
+        xpMenu.style.display === "flex" ? "none" : "flex";
+    });
+
+    // level function
+    function getLevel(xp) {
+      if (xp >= 5000000) return "Legendary";
+      if (xp >= 1000000) return "Grandmaster";
+      if (xp >= 500000) return "World Class II";
+      if (xp >= 100000) return "World Class I";
+      if (xp >= 10000) return "Professional";
+      if (xp >= 5000) return "Intermediate";
+      if (xp >= 1000) return "Mature";
+      return "Beginner";
+    }
+
+    function addXP(amount) {
+
+  let account = JSON.parse(localStorage.getItem("faccount")) || {};
+
+  if (!account.xp) account.xp = 0;
+
+  account.xp += amount;
+
+  localStorage.setItem("faccount", JSON.stringify(account));
+
+  // update UI
+  const xpBox = document.getElementById("xp-box");
+  if (xpBox) xpBox.textContent = `${account.xp} XP`;
+
+  highlightXPMenu(account.xp);
+
+  console.log("XP added:", amount, "Total:", account.xp);
+}
+    
+    // highlight level 
+    function highlightXPMenu(currentXP) {
+
+  const items = document.querySelectorAll("#xp-menu div");
+
+  items.forEach(item => {
+
+    const value = Number(item.dataset.xp);
+
+    item.classList.remove("active-xp");
+
+    if (value === currentXP) {
+      item.classList.add("active-xp");
+    }
+
+  });
+}
+
+    // close dropdown outside click
+    document.addEventListener("click", (e) => {
+      if (!xpBox.contains(e.target) && !xpMenu.contains(e.target)) {
+        xpMenu.style.display = "none";
+      }
+    });
+  }
+</script>
+
+</body>
+</html>
