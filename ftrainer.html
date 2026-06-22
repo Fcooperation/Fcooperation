@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FTrainer</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f5f7fa; margin: 0; padding: 20px; }
+  h2 { color: #007bff; }
+  .section { background: #fff; padding: 20px; border-radius: 8px; margin-bottom: 25px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+  .columns { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 10px; transition: all 0.3s ease; }
+  .column { background: #f1f3f6; padding: 15px; border-radius: 6px; display: flex; flex-direction: column; min-width: 250px; position: relative; transition: transform 0.2s ease; }
+  .column input { margin-bottom: 10px; padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
+  .column:hover { transform: scale(1.02); }
+  .remove-btn { position: absolute; top: 5px; right: 5px; background: #dc3545; color: #fff; border: none; border-radius: 4px; padding: 2px 6px; cursor: pointer; font-size: 12px; }
+  button { padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+  .add-btn { background: #28a745; color: #fff; margin-bottom: 15px; }
+  .add-btn:hover { background: #1e7e34; }
+  .send-btn { background: #007bff; color: #fff; }
+  .send-btn:hover { background: #0056b3; }
+  textarea { width: 100%; min-height: 120px; padding: 10px; border-radius: 6px; border: 1px solid #ccc; resize: vertical; font-family: monospace; }
+  #preview { background: #272822; color: #f8f8f2; font-family: monospace; padding: 15px; border-radius: 6px; max-height: 300px; overflow-y: auto; margin-top: 10px; white-space: pre-wrap; }
+  #feedback { margin-top: 15px; font-weight: bold; color: #333; }
+  #logs { margin-top: 15px; background: #f1f1f1; padding: 10px; border-radius: 6px; max-height: 250px; overflow-y: auto; font-family: monospace; white-space: pre-wrap; }
+  .train-settings { margin-top: 15px; display: flex; align-items: center; gap: 10px; }
+  .train-settings input, select { padding: 6px; border-radius: 4px; border: 1px solid #ccc; }
+</style>
+</head>
+<body>
+<h2>FTrainer - Train Your Model</h2>
+
+<!-- Section 1: Prompt/Response Columns -->
+<div class="section">
+  <h3>Prompt/Response Input</h3>
+  <div id="columns-container" class="columns"></div>
+  <button id="add-column" class="add-btn">➕ Add Prompt/Response</button>
+</div>
+
+<!-- Section 2: Raw JSON Input -->
+<div class="section">
+  <h3>Raw JSON Input</h3>
+  <textarea id="raw-json" placeholder='{"prompt": "repeat what you just said", "response": "repeat what you just said"}'></textarea>
+</div>
+
+<!-- Section 3: File Upload -->
+<div class="section">
+  <h3>Upload JSON File</h3>
+  <input type="file" id="file-upload" accept=".json,.txt">
+</div>
+
+<!-- Preview Section -->
+<div class="section">
+  <h3>Live JSON Preview</h3>
+  <div id="preview">{}</div>
+</div>
+
+<!-- Training Controls -->
+<div class="train-settings">
+  <label for="train-cycles">Training Cycles:</label>
+  <input type="number" id="train-cycles" value="1" min="1">
+
+  <label for="model-size">Model Size:</label>
+  <select id="model-size">
+    <option value="200M">200M</option>
+    <option value="500M">500M</option>
+    <option value="1B">1B</option>
+    <option value="2B">2B</option>
+    <option value="5B">5B</option>
+    <option value="10B">10B</option>
+  </select>
+
+  <button id="send-data" class="send-btn">🚀 Send to Train</button>
+</div>
+
+<div id="feedback"></div>
+
+<!-- Logs Section -->
+<div class="section">
+  <h3>Logs</h3>
+  <div id="logs">Logs will appear here...</div>
+</div>
+
+<!-- Download Section -->
+<div class="section" style="text-align:center;">
+  <button id="downloadModelBtn" style="padding:10px 20px; border:none; border-radius:8px; background:#007bff; color:white; cursor:pointer;">
+    ⬇️ Download Model
+  </button>
+</div>
+
+<script>
+const columnsContainer = document.getElementById("columns-container");
+const addColumnBtn = document.getElementById("add-column");
+const sendBtn = document.getElementById("send-data");
+const feedback = document.getElementById("feedback");
+const rawJson = document.getElementById("raw-json");
+const fileUpload = document.getElementById("file-upload");
+const preview = document.getElementById("preview");
+const logs = document.getElementById("logs");
+const trainCyclesInput = document.getElementById("train-cycles");
+const modelSizeSelect = document.getElementById("model-size");
+const downloadBtn = document.getElementById("downloadModelBtn");
+
+function log(message) {
+  logs.innerText += "\n" + message;
+  logs.scrollTop = logs.scrollHeight;
+}
+
+function createColumn(promptVal = "", responseVal = "") {
+  const col = document.createElement("div");
+  col.className = "column";
+
+  const promptInput = document.createElement("input");
+  promptInput.placeholder = "Prompt";
+  promptInput.value = promptVal;
+  promptInput.oninput = updatePreview;
+
+  const responseInput = document.createElement("input");
+  responseInput.placeholder = "Response";
+  responseInput.value = responseVal;
+  responseInput.oninput = updatePreview;
+
+  const removeBtn = document.createElement("button");
+  removeBtn.className = "remove-btn";
+  removeBtn.innerText = "✖";
+  removeBtn.onclick = () => { col.remove(); updatePreview(); };
+
+  col.appendChild(removeBtn);
+  col.appendChild(promptInput);
+  col.appendChild(responseInput);
+  columnsContainer.appendChild(col);
+
+  updatePreview();
+}
+
+createColumn();
+addColumnBtn.onclick = () => createColumn();
+
+async function collectData() {
+  let data = [];
+
+  document.querySelectorAll(".column").forEach(col => {
+    const prompt = col.children[1].value.trim();
+    const response = col.children[2].value.trim();
+    if (prompt && response) data.push({ prompt, response });
+  });
+
+  const raw = rawJson.value.trim();
+  if (raw) {
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) data = data.concat(parsed);
+      else if (parsed.prompt && parsed.response) data.push(parsed);
+    } catch (e) { log("⚠️ Invalid JSON in Raw Input"); }
+  }
+
+  if (fileUpload.files.length > 0) {
+    const file = fileUpload.files[0];
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      if (Array.isArray(parsed)) data = data.concat(parsed);
+      else if (parsed.prompt && parsed.response) data.push(parsed);
+    } catch (err) { log("❌ Could not parse file: " + err.message); }
+  }
+
+  return data;
+}
+
+async function updatePreview() {
+  const data = await collectData();
+  preview.innerText = JSON.stringify(data, null, 2);
+  log(`🖼 Preview updated with ${data.length} total entries.`);
+}
+
+async function sendTrainingRequest(data, round, totalRounds) {
+  const modelSize = modelSizeSelect.value;
+  log(`🔁 Training round ${round}/${totalRounds} with model size ${modelSize}...`);
+  feedback.innerText = `⏳ Training round ${round} of ${totalRounds}...`;
+
+  try {
+    const res = await fetch("https://fweb-backend.onrender.com/train", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ data, modelSize })
+    });
+
+    const result = await res.json();
+
+    // send logs to /logs
+    await fetch("https://fweb-backend.onrender.com/logs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ round, totalRounds, modelSize, entries: data.length, logs: logs.innerText })
+    });
+
+    if (result.success) log(`✅ Training round ${round} complete.`);
+    else log(`❌ Training round ${round} failed: ${result.error || "Unknown error"}`);
+
+    return result.success;
+  } catch (err) {
+    log(`❌ Training request failed: ${err.message}`);
+    return false;
+  }
+}
+
+sendBtn.onclick = async () => {
+  const data = await collectData();
+  const totalRounds = parseInt(trainCyclesInput.value) || 1;
+
+  if (data.length === 0) {
+    feedback.innerText = "❌ No valid data to send!";
+    log("❌ No valid data to send!");
+    return;
+  }
+
+  feedback.innerText = "⏳ Starting training...";
+  log(`🚀 Starting ${totalRounds} training cycle(s)...`);
+
+  for (let i = 1; i <= totalRounds; i++) {
+    const success = await sendTrainingRequest(data, i, totalRounds);
+    if (!success) break;
+  }
+
+  feedback.innerText = "✅ All training cycles complete.";
+  log("🏁 Training process finished.");
+};
+
+rawJson.addEventListener("input", updatePreview);
+fileUpload.addEventListener("change", updatePreview);
+
+// === Download ===
+downloadBtn.addEventListener("click", () => {
+  window.open(`https://fweb-backend.onrender.com/download_checkpoint`, "_blank");
+});
+</script>
+</body>
+</html>

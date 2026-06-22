@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fminers Dashboard</title>
+  <style>
+    body { 
+      margin: 0; 
+      font-family: Arial, sans-serif; 
+      background: #f5f7fa; 
+      text-align: center; 
+    }
+
+    /* Profile Section */
+    .profile-section {
+      width: 100%; 
+      padding: 40px 0; 
+      background: #007bff; 
+      color: #fff;
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: center;
+    }
+
+    .profile-section img {
+      width: 120px; 
+      height: 120px; 
+      object-fit: cover; 
+      border-radius: 50%; 
+      border: 4px solid #fff;
+      margin-bottom: 15px;
+    }
+
+    .username-balance {
+      display: flex; 
+      align-items: center; 
+      gap: 15px; 
+      font-size: 20px; 
+      font-weight: bold;
+    }
+
+    .fcoin {
+      background: #ffc107; 
+      color: #000; 
+      padding: 4px 10px; 
+      border-radius: 6px;
+    }
+
+    /* Dashboard Section */
+    .content-section {
+      max-width: 800px; 
+      margin: 30px auto; 
+      padding: 20px;
+      background: #fff; 
+      border-radius: 8px; 
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      text-align: left;
+    }
+
+    .main-btn {
+      width: 100%; 
+      padding: 15px; 
+      font-size: 18px;
+      border: none; 
+      border-radius: 8px; 
+      cursor: pointer; 
+      transition: 0.3s;
+    }
+
+    .wallet-btn { background: #28a745; color: white; }
+    .wallet-btn:hover { background: #1d9238; }
+    .check-btn { background: #ffc107; color: #000; }
+    .check-btn:hover { background: #e0ac06; }
+
+    /* Offer Boxes Section */
+    .offers-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 30px auto;
+      width: 90%;
+      max-width: 700px;
+    }
+
+    .offer-card {
+      background: #fff;
+      width: 100%;
+      max-width: 600px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 15px 20px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    .offer-card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transform: scale(1.01);
+    }
+
+    .offer-icon {
+      width: 50px; 
+      height: 50px; 
+      border-radius: 10px; 
+      background: #e9ecef;
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      margin-right: 15px;
+      font-size: 22px;
+      color: #6c757d;
+    }
+
+    .offer-info {
+      text-align: left;
+    }
+
+    .offer-info h4 {
+      margin: 0;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .offer-info p {
+      margin: 5px 0 0 0;
+      font-size: 13px;
+      color: #777;
+    }
+
+    iframe {
+      width: 100%;
+      height: 250px;
+      border: none;
+      border-radius: 8px;
+      margin: 10px 0 20px;
+      background: #fff;
+      color: #000;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Profile Section -->
+  <div class="profile-section">
+    <img id="profile-pic" src="default.png" alt="Profile Picture" />
+    <div class="username-balance">
+      <span id="username">Loading...</span>
+      <span class="fcoin" id="fcoin">0 Fcoins</span>
+    </div>
+  </div>
+
+  <!-- Dashboard Section -->
+  <div class="content-section">
+    <h3>Fminers Dashboard</h3>
+    <p>Earn Fcoins by completing verified tasks and offers from our partners (coming soon).</p>
+    <div style="margin-top: 20px;">
+      <button id="fwallet" class="main-btn wallet-btn">💼 FWallet</button>
+      <button id="check-rewards" class="main-btn check-btn" style="margin-top: 10px;">🔄 Check & Update Rewards</button>
+    </div>
+  </div>
+
+  <!-- Offers Section -->
+  <div class="offers-container" id="offers-container"></div>
+
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+    // Initialize Supabase
+    const supabase = createClient(
+      "https://pwsxezhugsxosbwhkdvf.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB3c3hlemh1Z3N4b3Nid2hrZHZmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTkyODM4NywiZXhwIjoyMDY3NTA0Mzg3fQ.u7lU9gAE-hbFprFIDXQlep4q2bhjj0QdlxXF-kylVBQ"
+    );
+
+    // Load account
+    const faccount = JSON.parse(localStorage.getItem("faccount"));
+    if (!faccount) {
+      alert("No account found in local storage. Please log in.");
+      window.location.href = "login.html";
+    }
+
+    document.getElementById("username").innerText = faccount.username || "No Username";
+    if (faccount.profile_pic) document.getElementById("profile-pic").src = faccount.profile_pic;
+
+    // Load Fcoins from Supabase
+    async function loadFcoins() {
+      const { data, error } = await supabase
+        .from("fwebaccount")
+        .select("fcoin")
+        .eq("email", faccount.email)
+        .single();
+
+      if (error) {
+        console.error("Error loading fcoins:", error.message);
+        return;
+      }
+
+      document.getElementById("fcoin").innerText = `${data.fcoin || 0} Fcoins`;
+      faccount.fcoin = data.fcoin || 0;
+      localStorage.setItem("faccount", JSON.stringify(faccount));
+    }
+    loadFcoins();
+
+    // Generate blank offers dynamically
+    const offersContainer = document.getElementById("offers-container");
+    for (let i = 1; i <= 10; i++) {
+      const offer = document.createElement("div");
+      offer.className = "offer-card";
+      offer.innerHTML = `
+        <div class="offer-icon">💠</div>
+        <div class="offer-info">
+          <h4>Offer #${i}</h4>
+          <p>Coming soon – Offers will be displayed here.</p>
+        </div>
+      `;
+      offer.onclick = () => toggleIframe(i);
+      offersContainer.appendChild(offer);
+
+      const iframe = document.createElement("iframe");
+      iframe.id = `iframe${i}`;
+      offersContainer.appendChild(iframe);
+    }
+
+    // Toggle iframe display
+    function toggleIframe(num) {
+      const iframe = document.getElementById(`iframe${num}`);
+      if (iframe.style.display === "none" || !iframe.style.display) {
+        iframe.style.display = "block";
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        doc.body.innerHTML = "<h3 style='text-align:center;'>Coming Soon</h3><p style='text-align:center;'>Offers will be displayed here.</p>";
+      } else {
+        iframe.style.display = "none";
+      }
+    }
+
+    // Wallet navigation
+    document.getElementById("fwallet").onclick = () => {
+      window.location.href = "fwallet.html";
+    };
+
+    // Check rewards simulation
+    document.getElementById("check-rewards").onclick = async () => {
+      const simulatedEarning = Math.random() * 0.05;
+      const userRewardUSD = simulatedEarning * 0.5;
+      const userRewardFcoin = Math.floor(userRewardUSD * 1000);
+
+      alert(`✅ Task verified!\nYour share: $${userRewardUSD.toFixed(3)} (${userRewardFcoin} Fcoins)`);
+
+      const newFcoin = (faccount.fcoin || 0) + userRewardFcoin;
+      const { error } = await supabase
+        .from("fwebaccount")
+        .update({ fcoin: newFcoin })
+        .eq("email", faccount.email);
+
+      if (error) {
+        alert("❌ Error updating reward: " + error.message);
+        return;
+      }
+
+      faccount.fcoin = newFcoin;
+      localStorage.setItem("faccount", JSON.stringify(faccount));
+      document.getElementById("fcoin").innerText = `${newFcoin} Fcoins`;
+    };
+  </script>
+  <script>
+  // Create footer container
+  const footer = document.createElement("div");
+  footer.innerHTML = `
+    <p style="
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      color: #555;
+      text-align: center;
+      margin: 40px 0 15px 0;
+      opacity: 0;
+      transition: opacity 2s ease;
+    ">
+      <strong>Built by <span style='color:#007bff;'>FCOOPERATION</span></strong> |
+      <span style='color:#28a745;'>Powered by OFFERTORO</span>
+    </p>
+  `;
+  document.body.appendChild(footer);
+
+  // Fade-in animation
+  setTimeout(() => {
+    footer.querySelector("p").style.opacity = 1;
+  }, 800);
+  </script>
+</body>
+</html>

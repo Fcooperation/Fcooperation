@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menu</title>
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #333;
+    color: #fff;
+    height: 100%;
+  }
+  .menu-container {
+    padding: 20px;
+    text-align: center;
+  }
+  .menu-container img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+    object-fit: cover;
+  }
+  .username {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #fff;
+  }
+  .menu-container a {
+    display: block;
+    padding: 12px 0;
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 16px;
+    border-radius: 6px;
+    margin: 5px 0;
+  }
+  .menu-container a:hover {
+    background: rgba(255,255,255,0.2);
+  }
+</style>
+</head>
+<body>
+<div class="menu-container">
+  <img id="profile-pic" src="default.png" alt="Profile Icon">
+  <div class="username" id="username">User</div>
+
+  <a href="home.html" target="_top">Home</a>
+  <a href="about.html" target="_top">About</a>
+  <a href="blog.html" target="_top">Blog</a>
+  <a href="faq.html" target="_top">FAQ</a>
+  <a href="help.html" target="_top">Help</a>
+  <a href="contact.html" target="_top">Contact</a>
+  <a href="settings.html" target="_top">Settings</a>
+</div>
+
+<script>
+  // Load user details from localStorage
+  const account = JSON.parse(localStorage.getItem("faccount"));
+
+  if (account) {
+    // Username
+    document.getElementById("username").textContent = account.username || "User";
+    // Profile Picture
+    if (account.profile_pic) {
+      document.getElementById("profile-pic").src = account.profile_pic;
+    }
+  }
+</script>
+</body>
+</html>
