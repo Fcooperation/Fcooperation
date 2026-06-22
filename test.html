@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>FVIDS Canvas Compressor</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #111;
+      color: white;
+      padding: 20px;
+    }
+
+    button {
+      padding: 12px 16px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    #log {
+      margin-top: 15px;
+      background: #222;
+      padding: 10px;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      max-height: 250px;
+      overflow-y: auto;
+    }
+
+    video {
+      width: 300px;
+      margin-top: 10px;
+      border-radius: 10px;
+    }
+
+    canvas {
+      display: none;
+    }
+
+    a {
+      display: block;
+      margin-top: 10px;
+      color: #4da3ff;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>🔥 Lightweight Video Compressor (Canvas)</h2>
+
+<input type="file" id="file" accept="video/*">
+
+<br>
+
+<button onclick="compress()">Compress Video</button>
+
+<div id="log">Waiting...</div>
+
+<h3>Original</h3>
+<video id="original" controls></video>
+
+<h3>Compressed</h3>
+<video id="compressed" controls></video>
+
+<h3>Temporary Link</h3>
+<a id="tempLink" target="_blank"></a>
+
+<h3>Download</h3>
+<button id="downloadBtn">Download Compressed Video</button>
+
+<canvas id="canvas"></canvas>
+
+<script>
+
+const logBox = document.getElementById("log");
+
+let compressedBlob = null;
+
+function log(msg) {
+  console.log(msg);
+  logBox.textContent += "\n" + msg;
+  logBox.scrollTop = logBox.scrollHeight;
+}
+
+async function compress() {
+
+  const file = document.getElementById("file").files[0];
+  if (!file) return alert("Select a video");
+
+  logBox.textContent = "";
+
+  const video = document.getElementById("original");
+
+  const url = URL.createObjectURL(file);
+  video.src = url;
+
+  log("Loading video metadata...");
+
+  await new Promise((resolve) => {
+    video.onloadedmetadata = () => resolve();
+    if (video.readyState >= 1) resolve();
+  });
+
+  log("Metadata loaded ✔");
+  log("Starting compression...");
+
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+
+  const width = 1280;
+  const height = 720;
+
+  canvas.width = width;
+  canvas.height = height;
+
+  const stream = canvas.captureStream(30);
+
+  const recorder = new MediaRecorder(stream, {
+    mimeType: "video/webm;codecs=vp9",
+    videoBitsPerSecond: 1000000
+  });
+
+  let chunks = [];
+
+  recorder.ondataavailable = (e) => {
+    if (e.data.size > 0) chunks.push(e.data);
+  };
+
+  recorder.onstop = () => {
+
+    compressedBlob = new Blob(chunks, { type: "video/webm" });
+
+    log("Compression complete ✔");
+
+    const outUrl = URL.createObjectURL(compressedBlob);
+
+    // preview video fix
+    const compressedVideo = document.getElementById("compressed");
+    compressedVideo.pause();
+    compressedVideo.src = outUrl;
+
+    compressedVideo.onloadedmetadata = () => {
+      compressedVideo.play().catch(() => {});
+    };
+
+    // temp link
+    const linkBox = document.getElementById("tempLink");
+    linkBox.href = outUrl;
+    linkBox.textContent = "Open compressed video in new tab";
+
+    const saved = ((file.size - compressedBlob.size) / file.size * 100).toFixed(1);
+
+    log(`Saved: ${saved}%`);
+  };
+
+  recorder.start();
+
+  let duration = video.duration;
+  let currentTime = 0;
+
+  function draw() {
+
+    if (currentTime >= duration) {
+      recorder.stop();
+      return;
+    }
+
+    video.currentTime = currentTime;
+
+    video.onseeked = () => {
+      ctx.drawImage(video, 0, 0, width, height);
+    };
+
+    currentTime += 1 / 30;
+  }
+
+  const interval = setInterval(draw, 1000 / 30);
+
+  setTimeout(() => {
+    clearInterval(interval);
+    recorder.stop();
+  }, duration * 1000 + 800);
+}
+
+// ---------------- DOWNLOAD BUTTON ----------------
+document.getElementById("downloadBtn").onclick = () => {
+
+  if (!compressedBlob) {
+    alert("No compressed video yet");
+    return;
+  }
+
+  const url = URL.createObjectURL(compressedBlob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "fvids-compressed.webm";
+
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+
+  URL.revokeObjectURL(url);
+
+  log("Download started ✔");
+};
+
+</script>
+
+</body>
+</html>
