@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat</title>
+<link rel="stylesheet" href="chat.css">
+</head>
+
+<body>
+
+<div id="chat-header">
+  <div id="left-box">
+    <div id="back-btn" onclick="goBack()">←</div>
+    <div id="profile-pic"></div>
+  </div>
+  <div id="center-info">
+    <div id="chat-username">Username</div>
+    <div id="chat-id">ID</div>
+    <div id="user-status" class="status">Loading...</div>
+  </div>
+</div>
+<div id="new-msg-box"></div>
+<!-- SELECTION MODE BOARD -->
+<div id="selection-board" style="display:none;">
+  <div id="board-back-btn">←</div>
+
+  <div id="board-title">Selection Mode</div>
+
+  <!-- ADD THIS -->
+  <div id="board-delete-btn">
+    Delete
+  </div>
+</div>
+
+<!-- DELETE OPTIONS MODAL -->
+<div id="delete-modal" style="display:none;">
+  <div class="delete-box">
+
+    <button class="delete-option delete-me">
+      Delete for me
+    </button>
+
+    <button class="delete-option delete-everyone">
+      Delete for everyone
+    </button>
+
+    <button class="delete-cancel">
+      Cancel
+    </button>
+
+  </div>
+</div>
+<div id="message-menu" style="display:none;">
+  <div class="menu-item" id="menu-reply">Reply</div>
+  <div class="menu-item" id="menu-select">Select</div>
+</div>
+
+<div id="chat-body"></div>
+<!-- MESSAGE PREVIEW -->
+<div id="reply-preview" style="display:none;">
+  <div id="reply-text"></div>
+  <span id="close-reply">✕</span>
+</div>
+
+<div id="chat-input">
+  <textarea id="messageInput" placeholder="Type a message..." rows="1"></textarea>
+  <button id="sendBtn">Send</button>
+</div>
+<script src="chat.script.js"></script>
+</body>
+</html>
