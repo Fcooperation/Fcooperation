@@ -284,22 +284,12 @@ const uploadData = {
   source: "local_upload"
 };
 
-// existing queue
-const uploadQueue = JSON.parse(
-  localStorage.getItem("fvids_upload_queue") || "[]"
-);
-
-// newest first
-uploadQueue.unshift(uploadData);
-
-// optional limit
-if (uploadQueue.length > 20) {
-  uploadQueue.length = 20;
-}
-
 localStorage.setItem(
   "fvids_upload_queue",
-  JSON.stringify(uploadQueue)
+  JSON.stringify({
+    ...uploadData,
+    status: "not_seen"
+  })
 );
 
 // STEP STATES (UX FLOW)
