@@ -267,17 +267,39 @@ formData.append(
 const uploadData = {
   video_url: data.video_url,
   public_id: data.public_id,
+
   category,
   language,
   hashtags: selectedHashtags,
   details,
-  createdAt: Date.now(),
-  user_id: localStorage.getItem("account_id") || null
+
+  duration: data.duration || null,
+
+  user_id: user.id || user.user_id || null,
+
+  uploaded_at: Date.now(),
+
+  status: "not_seen",
+
+  source: "local_upload"
 };
 
+// existing queue
+const uploadQueue = JSON.parse(
+  localStorage.getItem("fvids_upload_queue") || "[]"
+);
+
+// newest first
+uploadQueue.unshift(uploadData);
+
+// optional limit
+if (uploadQueue.length > 20) {
+  uploadQueue.length = 20;
+}
+
 localStorage.setItem(
-  "last_upload",
-  JSON.stringify(uploadData)
+  "fvids_upload_queue",
+  JSON.stringify(uploadQueue)
 );
 
 // STEP STATES (UX FLOW)
