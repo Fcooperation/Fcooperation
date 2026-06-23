@@ -76,6 +76,37 @@ function switchTab(tab) {
   }
 }
 
+// Get pending upload
+function getPendingUploadedVideo() {
+  const queue = JSON.parse(
+    localStorage.getItem("fvids_upload_queue") || "[]"
+  );
+
+  return queue.find(v => v.status === "not_seen");
+}
+
+function markUploadedVideoSeen(publicId) {
+  const queue = JSON.parse(
+    localStorage.getItem("fvids_upload_queue") || "[]"
+  );
+
+  const updated = queue.map(v => {
+    if (v.public_id === publicId) {
+      return {
+        ...v,
+        status: "seen"
+      };
+    }
+
+    return v;
+  });
+
+  localStorage.setItem(
+    "fvids_upload_queue",
+    JSON.stringify(updated)
+  );
+}
+
 // ---------------- LOAD VIDEOS FROM BACKEND ----------------
 async function loadVideos(page = 1, append = false) {
 
@@ -117,10 +148,33 @@ async function loadVideos(page = 1, append = false) {
 
     // ---------------- FIRST LOAD ----------------
     if (!append) {
-      videos = newVideos;
-      currentIndex = 0;
-      renderVideo(currentIndex);
-    }
+
+  const uploadedVideo =
+    getPendingUploadedVideo();
+
+  if (uploadedVideo) {
+
+    videos = [
+      uploadedVideo,
+      ...newVideos
+    ];
+
+    currentIndex = 0;
+
+    renderVideo(0);
+
+    markUploadedVideoSeen(
+      uploadedVideo.public_id
+    );
+
+  } else {
+
+    videos = newVideos;
+    currentIndex = 0;
+    renderVideo(0);
+
+  }
+}
 
     // ---------------- LOAD MORE ----------------
     else {
@@ -808,16 +862,35 @@ document.querySelectorAll(".tab").forEach(tab => {
 
 // ---------------- INIT ----------------
 window.onload = () => {
+
   createUploadItem();
 
-  // 🔥 If user opened shared link
   if (sharedVideoId) {
     loadSingleVideo(sharedVideoId);
-  } 
-  // normal app flow
-  else {
-    loadVideos();
+    return;
   }
+
+  const uploadedVideo =
+    getPendingUploadedVideo();
+
+  if (uploadedVideo) {
+
+    videos = [uploadedVideo];
+    currentIndex = 0;
+
+    renderVideo(0);
+
+    markUploadedVideoSeen(
+      uploadedVideo.public_id
+    );
+
+    // load normal feed in background
+    loadVideos(1, false);
+
+    return;
+  }
+
+  loadVideos();
 };
 
 // Stop vid on page or app exit
