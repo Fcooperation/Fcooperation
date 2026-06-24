@@ -227,16 +227,27 @@ followBtn.textContent = "+";
 followBtn.addEventListener("click", (e) => {
   e.stopPropagation();
 
-  if (followBtn.classList.contains("following")) {
+  const account =
+    JSON.parse(localStorage.getItem("faccount")) || {};
 
-    followBtn.classList.remove("following");
-    followBtn.textContent = "+";
+  const currentUserId =
+    account.userId || account.id;
 
-  } else {
-
-    followBtn.classList.add("following");
-    followBtn.textContent = "✓";
+  if (!currentUserId) {
+    showSigninBanner();
+    return;
   }
+
+  followBtn.classList.add("following");
+followBtn.textContent = "✓";
+
+// show tick briefly
+setTimeout(() => {
+
+  // hide tick
+  followBtn.style.display = "none";
+
+}, 800);
 });
 
 profileWrap.appendChild(profileImg);
@@ -796,6 +807,43 @@ function showToast(message) {
   setTimeout(() => {
     toast.className = "toast";
   }, 2500);
+}
+
+// ---------------- SIGN IN BANNER ----------------
+function showSigninBanner() {
+
+  let banner =
+    document.getElementById("signin-banner");
+
+  // create once
+  if (!banner) {
+
+    banner = document.createElement("div");
+    banner.id = "signin-banner";
+
+    banner.innerHTML = `
+      Sign in is required
+      <span id="signin-link">Sign In</span>
+    `;
+
+    document.body.appendChild(banner);
+
+    banner
+      .querySelector("#signin-link")
+      .addEventListener("click", () => {
+
+        window.location.href =
+          "login.html";
+      });
+  }
+
+  banner.classList.add("show");
+
+  clearTimeout(banner.hideTimer);
+
+  banner.hideTimer = setTimeout(() => {
+    banner.classList.remove("show");
+  }, 3000);
 }
 
 // Poping heart function 
