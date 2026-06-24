@@ -220,38 +220,41 @@ profileImg.src =
   vid.user?.profile_pic ||
   "https://via.placeholder.com/100";
 
-const followBtn = document.createElement("div");
-followBtn.className = "follow-btn";
-followBtn.textContent = "+";
+const loggedInUser =
+  JSON.parse(localStorage.getItem("faccount")) || {};
 
-followBtn.addEventListener("click", (e) => {
-  e.stopPropagation();
+const currentUserId =
+  String(loggedInUser.userId || loggedInUser.id || "");
 
-  const account =
-    JSON.parse(localStorage.getItem("faccount")) || {};
+const videoOwnerId =
+  String(vid.user_id || "");
 
-  const currentUserId =
-    account.userId || account.id;
+if (currentUserId !== videoOwnerId) {
 
-  if (!currentUserId) {
-    showSigninBanner();
-    return;
-  }
+  const followBtn = document.createElement("div");
+  followBtn.className = "follow-btn";
+  followBtn.textContent = "+";
 
-  followBtn.classList.add("following");
-followBtn.textContent = "✓";
+  followBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
 
-// show tick briefly
-setTimeout(() => {
+    if (!currentUserId) {
+      showSigninBanner();
+      return;
+    }
 
-  // hide tick
-  followBtn.style.display = "none";
+    followBtn.classList.add("following");
+    followBtn.textContent = "✓";
 
-}, 800);
-});
+    setTimeout(() => {
+      followBtn.style.display = "none";
+    }, 800);
+  });
+
+  profileWrap.appendChild(followBtn);
+}
 
 profileWrap.appendChild(profileImg);
-profileWrap.appendChild(followBtn);
 
 wrapper.appendChild(profileWrap);
   
