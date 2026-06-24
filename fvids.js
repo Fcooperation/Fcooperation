@@ -76,19 +76,6 @@ function switchTab(tab) {
   }
 }
 
-// Get pending upload
-function getPendingUploadedVideo() {
-  const video = JSON.parse(
-    localStorage.getItem("fvids_upload_queue") || "null"
-  );
-
-  if (!video) return null;
-
-  return video.status === "not_seen"
-    ? video
-    : null;
-}
-
 // ---------------- LOAD VIDEOS FROM BACKEND ----------------
 async function loadVideos(page = 1, append = false) {
 
@@ -130,33 +117,10 @@ async function loadVideos(page = 1, append = false) {
 
     // ---------------- FIRST LOAD ----------------
     if (!append) {
-
-  const uploadedVideo =
-    getPendingUploadedVideo();
-
-  if (uploadedVideo) {
-
-    videos = [
-      uploadedVideo,
-      ...newVideos
-    ];
-
-    currentIndex = 0;
-
-    renderVideo(0);
-
-    markUploadedVideoSeen(
-      uploadedVideo.public_id
-    );
-
-  } else {
-
-    videos = newVideos;
-    currentIndex = 0;
-    renderVideo(0);
-
-  }
-}
+      videos = newVideos;
+      currentIndex = 0;
+      renderVideo(currentIndex);
+    }
 
     // ---------------- LOAD MORE ----------------
     else {
@@ -844,31 +808,16 @@ document.querySelectorAll(".tab").forEach(tab => {
 
 // ---------------- INIT ----------------
 window.onload = () => {
-
   createUploadItem();
 
+  // 🔥 If user opened shared link
   if (sharedVideoId) {
     loadSingleVideo(sharedVideoId);
-    return;
+  } 
+  // normal app flow
+  else {
+    loadVideos();
   }
-
-  const uploadedVideo =
-    getPendingUploadedVideo();
-
-  if (uploadedVideo) {
-
-    videos = [uploadedVideo];
-    currentIndex = 0;
-
-    renderVideo(0);
-
-    // load normal feed in background
-    loadVideos(1, false);
-
-    return;
-  }
-
-  loadVideos();
 };
 
 // Stop vid on page or app exit
