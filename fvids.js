@@ -229,27 +229,71 @@ const currentUserId =
 const videoOwnerId =
   String(vid.user_id || "");
 
+  const followedUsers =
+  JSON.parse(localStorage.getItem("fvid_following")) || {};
+
+const alreadyFollowing =
+  followedUsers[videoOwnerId];
+
 if (currentUserId !== videoOwnerId) {
 
   const followBtn = document.createElement("div");
   followBtn.className = "follow-btn";
-  followBtn.textContent = "+";
+  followBtn.textContent = alreadyFollowing ? "✓" : "+";
 
-  followBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
+if (alreadyFollowing) {
+  followBtn.style.display = "none";
+}
 
-    if (!currentUserId) {
-      showSigninBanner();
-      return;
-    }
+  followBtn.addEventListener("click", async (e) => {
+  e.stopPropagation();
 
-    followBtn.classList.add("following");
-    followBtn.textContent = "✓";
+  if (!currentUserId) {
+    showSigninBanner();
+    return;
+  }
+
+  followBtn.classList.add("following");
+  followBtn.textContent = "✓";
+
+  try {
+
+    await fetch(
+      "https://fweb-backend.onrender.com/follow",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          followerId: currentUserId,
+          followingId: videoOwnerId
+        })
+      }
+    );
+
+    // save to local storage
+    followedUsers[videoOwnerId] = true;
+
+    localStorage.setItem(
+      "fvid_following",
+      JSON.stringify(followedUsers)
+    );
+
+    // save to current video object
+    vid.following = true;
 
     setTimeout(() => {
       followBtn.style.display = "none";
     }, 800);
-  });
+
+  } catch (err) {
+    console.error(err);
+
+    followBtn.classList.remove("following");
+    followBtn.textContent = "+";
+  }
+});
 
   profileWrap.appendChild(followBtn);
 }
