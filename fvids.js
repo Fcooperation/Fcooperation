@@ -89,10 +89,6 @@ function getPendingUploadedVideo() {
     : null;
 }
 
-function removeUploadedVideo() {
-  localStorage.removeItem("fvids_upload_queue");
-}
-
 // ---------------- LOAD VIDEOS FROM BACKEND ----------------
 async function loadVideos(page = 1, append = false) {
 
@@ -865,8 +861,6 @@ window.onload = () => {
     currentIndex = 0;
 
     renderVideo(0);
-
-    removeUploadedVideo();
 
     // load normal feed in background
     loadVideos(1, false);
