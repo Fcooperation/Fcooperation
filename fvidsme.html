@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>FVIDS Profile</title>
+
+  <link
+    rel="stylesheet"
+    href="fvidsme.css"
+  >
+</head>
+<body>
+
+  <div class="profile-page">
+
+    <!-- Header -->
+    <div class="profile-header">
+      <button id="back-btn">←</button>
+      <h2>Profile</h2>
+    </div>
+
+    <!-- Profile -->
+    <div class="profile-info">
+
+      <img
+        id="profile-pic"
+        class="profile-pic"
+        src="https://via.placeholder.com/150"
+        alt="Profile Picture"
+      >
+
+      <div
+        id="username"
+        class="username"
+      >
+        Guest
+      </div>
+
+    </div>
+
+    <!-- Logged In Stats -->
+    <div
+      id="profile-stats"
+      class="profile-stats hidden"
+    >
+
+      <div class="stat">
+        <div class="stat-number">0</div>
+        <div class="stat-label">Following</div>
+      </div>
+
+      <div class="stat">
+        <div class="stat-number">0</div>
+        <div class="stat-label">Followers</div>
+      </div>
+
+      <div class="stat">
+        <div class="stat-number">0</div>
+        <div class="stat-label">Likes</div>
+      </div>
+
+    </div>
+
+    <!-- Sign In Button -->
+    <div
+      id="signin-container"
+      class="hidden"
+    >
+
+      <button id="signin-btn">
+        Sign In
+      </button>
+
+    </div>
+
+    <!-- Videos Tab -->
+    <div
+      id="videos-tab"
+      class="videos-tab hidden"
+    >
+      Videos
+    </div>
+
+    <!-- User videos will go here later -->
+    <div id="videos-grid"></div>
+
+  </div>
+
+  <script src="fvidsme.js"></script>
+
+</body>
+</html>
