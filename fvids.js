@@ -237,9 +237,19 @@ const followedUsers =
     localStorage.getItem(followStorageKey)
   ) || {};
 
+// backend is source of truth
 const alreadyFollowing =
-  Boolean(vid.following) ||
-  Boolean(followedUsers[videoOwnerId]);
+  Boolean(vid.following);
+
+// sync local storage from backend
+if (vid.following) {
+  followedUsers[videoOwnerId] = true;
+
+  localStorage.setItem(
+    followStorageKey,
+    JSON.stringify(followedUsers)
+  );
+}
 
 if (currentUserId !== videoOwnerId) {
 
@@ -265,23 +275,26 @@ if (alreadyFollowing) {
   try {
 
     await fetch(
-      "https://fweb-backend.onrender.com/follow",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          followerId: currentUserId,
-          followingId: videoOwnerId
-        })
-      }
-    );
+  "https://fweb-backend.onrender.com/follow",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      followerId: currentUserId,
+      followingId: videoOwnerId
+    })
+  }
+);
 
-    // save to local storage
-    followedUsers[videoOwnerId] = true;
+// update backend copy in memory
+vid.following = true;
 
-    localStorage.setItem(
+// update local cache
+followedUsers[videoOwnerId] = true;
+
+localStorage.setItem(
   followStorageKey,
   JSON.stringify(followedUsers)
 );
@@ -927,9 +940,15 @@ async function loadSingleVideo(videoId) {
       </div>
     `;
 
-    const res = await fetch(
-      `https://fweb-backend.onrender.com/fvids/single?id=${videoId}`
-    );
+    const account =
+  JSON.parse(localStorage.getItem("faccount")) || {};
+
+const userId =
+  account.userId || account.id;
+
+const res = await fetch(
+  `https://fweb-backend.onrender.com/fvids/single?id=${videoId}&userId=${userId || ""}`
+);
 
     const video = await res.json();
 
