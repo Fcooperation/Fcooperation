@@ -229,11 +229,17 @@ const currentUserId =
 const videoOwnerId =
   String(vid.user_id || "");
 
-  const followedUsers =
-  JSON.parse(localStorage.getItem("fvid_following")) || {};
+  const followStorageKey =
+  `fvid_following_${currentUserId}`;
+
+const followedUsers =
+  JSON.parse(
+    localStorage.getItem(followStorageKey)
+  ) || {};
 
 const alreadyFollowing =
-  followedUsers[videoOwnerId];
+  Boolean(vid.following) ||
+  Boolean(followedUsers[videoOwnerId]);
 
 if (currentUserId !== videoOwnerId) {
 
@@ -276,9 +282,9 @@ if (alreadyFollowing) {
     followedUsers[videoOwnerId] = true;
 
     localStorage.setItem(
-      "fvid_following",
-      JSON.stringify(followedUsers)
-    );
+  followStorageKey,
+  JSON.stringify(followedUsers)
+);
 
     // save to current video object
     vid.following = true;
