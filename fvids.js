@@ -208,6 +208,41 @@ wrapper.appendChild(pauseIcon);
   wrapper.style.transition = "transform 0.25s ease";
 
   
+// ---------------- PROFILE PIC + FOLLOW ----------------
+
+const profileWrap = document.createElement("div");
+profileWrap.className = "video-profile-wrap";
+
+const profileImg = document.createElement("img");
+profileImg.className = "video-profile-pic";
+
+profileImg.src =
+  vid.user?.profile_pic ||
+  "https://via.placeholder.com/100";
+
+const followBtn = document.createElement("div");
+followBtn.className = "follow-btn";
+followBtn.textContent = "+";
+
+followBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+
+  if (followBtn.classList.contains("following")) {
+
+    followBtn.classList.remove("following");
+    followBtn.textContent = "+";
+
+  } else {
+
+    followBtn.classList.add("following");
+    followBtn.textContent = "✓";
+  }
+});
+
+profileWrap.appendChild(profileImg);
+profileWrap.appendChild(followBtn);
+
+wrapper.appendChild(profileWrap);
   
   const likeBtn = document.createElement("div");
 likeBtn.className = "like-heart";
