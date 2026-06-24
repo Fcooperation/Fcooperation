@@ -78,33 +78,19 @@ function switchTab(tab) {
 
 // Get pending upload
 function getPendingUploadedVideo() {
-  const queue = JSON.parse(
-    localStorage.getItem("fvids_upload_queue") || "[]"
+  const video = JSON.parse(
+    localStorage.getItem("fvids_upload_queue") || "null"
   );
 
-  return queue.find(v => v.status === "not_seen");
+  if (!video) return null;
+
+  return video.status === "not_seen"
+    ? video
+    : null;
 }
 
-function markUploadedVideoSeen(publicId) {
-  const queue = JSON.parse(
-    localStorage.getItem("fvids_upload_queue") || "[]"
-  );
-
-  const updated = queue.map(v => {
-    if (v.public_id === publicId) {
-      return {
-        ...v,
-        status: "seen"
-      };
-    }
-
-    return v;
-  });
-
-  localStorage.setItem(
-    "fvids_upload_queue",
-    JSON.stringify(updated)
-  );
+function removeUploadedVideo() {
+  localStorage.removeItem("fvids_upload_queue");
 }
 
 // ---------------- LOAD VIDEOS FROM BACKEND ----------------
@@ -880,9 +866,7 @@ window.onload = () => {
 
     renderVideo(0);
 
-    markUploadedVideoSeen(
-      uploadedVideo.public_id
-    );
+    removeUploadedVideo();
 
     // load normal feed in background
     loadVideos(1, false);
