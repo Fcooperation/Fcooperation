@@ -707,3 +707,42 @@ backdrop-filter: blur(6px);
 
   transform: translateX(-50%) scale(1.08);
 }
+#signin-banner {
+  position: fixed;
+
+  top: 20px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  background: #1e88ff;
+  color: white;
+
+  padding: 12px 18px;
+
+  border-radius: 10px;
+
+  z-index: 99999;
+
+  opacity: 0;
+  pointer-events: none;
+
+  transition: .25s;
+}
+
+#signin-banner.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#signin-link {
+  color: #fff;
+
+  text-decoration: underline;
+
+  font-weight: bold;
+
+  margin-left: 6px;
+
+  cursor: pointer;
+}
