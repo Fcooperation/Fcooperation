@@ -267,29 +267,17 @@ formData.append(
 const uploadData = {
   video_url: data.video_url,
   public_id: data.public_id,
-
   category,
   language,
   hashtags: selectedHashtags,
   details,
-
-  duration: data.duration || null,
-
-  user_id: user.id || user.user_id || null,
-
-  uploaded_at: Date.now(),
-
-  status: "not_seen",
-
-  source: "local_upload"
+  createdAt: Date.now(),
+  user_id: localStorage.getItem("account_id") || null
 };
 
 localStorage.setItem(
-  "fvids_upload_queue",
-  JSON.stringify({
-    ...uploadData,
-    status: "not_seen"
-  })
+  "last_upload",
+  JSON.stringify(uploadData)
 );
 
 // STEP STATES (UX FLOW)
