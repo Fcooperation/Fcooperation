@@ -289,6 +289,8 @@ setTimeout(() => {
   btn.textContent = "Done ✓";
 }, 1300);
 
+      localStorage.setItem("showUploadBanner", "true");
+      
 setTimeout(() => {
   window.location.href = "fvids.html";
 }, 1800);

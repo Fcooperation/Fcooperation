@@ -671,6 +671,39 @@ function preloadVideos(startIndex) {
   }
 }
 
+// Show Upload Banner
+function showUploadBanner() {
+
+  const shouldShow =
+    localStorage.getItem("showUploadBanner");
+
+  if (shouldShow !== "true") return;
+
+  const banner =
+    document.getElementById("upload-banner");
+
+  const viewBtn =
+    document.getElementById("view-upload-btn");
+
+  banner.classList.remove("hidden");
+
+  // show only once
+  localStorage.removeItem("showUploadBanner");
+
+  viewBtn.onclick = () => {
+
+    banner.classList.add("hidden");
+
+    window.location.href =
+      "fvidsme.html";
+  };
+
+  // auto hide after 8 seconds
+  setTimeout(() => {
+    banner.classList.add("hidden");
+  }, 8000);
+}
+
 // ---------------- UPLOAD QUEUE (DRAFT UI) ----------------
 function createUploadItem() {
 
@@ -808,14 +841,14 @@ document.querySelectorAll(".tab").forEach(tab => {
 
 // ---------------- INIT ----------------
 window.onload = () => {
+
   createUploadItem();
 
-  // 🔥 If user opened shared link
+  showUploadBanner();
+
   if (sharedVideoId) {
     loadSingleVideo(sharedVideoId);
-  } 
-  // normal app flow
-  else {
+  } else {
     loadVideos();
   }
 };
