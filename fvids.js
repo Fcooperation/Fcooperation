@@ -1083,40 +1083,27 @@ function showProfileViewerBar() {
   const redirect =
     localStorage.getItem("redirect");
 
-  // Tell CSS we're in profile-view mode
   document.body.classList.add(
     "profile-view-mode"
   );
 
-  const bar =
-    document.createElement("div");
+  const backBtn =
+    document.getElementById("back-btn");
 
-  bar.id = "profile-viewer-bar";
+  if (backBtn) {
 
-  bar.innerHTML = `
-    <button id="profile-back-btn">
-      ←
-    </button>
-  `;
+    backBtn.style.display = "block";
 
-  document.body.appendChild(bar);
+    backBtn.onclick = () => {
 
-  document
-    .getElementById("profile-back-btn")
-    .onclick = () => {
-
-      localStorage.removeItem(
-        "redirect"
-      );
-
-      document.body.classList.remove(
-        "profile-view-mode"
-      );
+      localStorage.removeItem("redirect");
 
       window.location.href =
         redirect || "fvidsme.html";
 
     };
+
+  }
 
 }
 
