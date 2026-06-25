@@ -80,8 +80,8 @@ if (account) {
   // ---------------- FETCH LATEST PROFILE ----------------
 
   fetch(
-    `/fvids-user-details?id=${encodeURIComponent(userId)}`
-  )
+  `https://fweb-backend.onrender.com/fvids-user-details?id=${encodeURIComponent(userId)}`
+)
     .then(res => res.json())
     .then(data => {
 
