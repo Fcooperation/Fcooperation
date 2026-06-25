@@ -1,5 +1,7 @@
 const account =
-  JSON.parse(localStorage.getItem("faccount"));
+  JSON.parse(
+    localStorage.getItem("faccount")
+  );
 
 const username =
   document.getElementById("username");
@@ -37,6 +39,10 @@ document
 // User logged in
 if (account) {
 
+  const userId =
+    account.userId ||
+    account.id;
+
   username.textContent =
     account.username ||
     account.name ||
@@ -49,13 +55,129 @@ if (account) {
 
   stats.classList.remove("hidden");
   videosTab.classList.remove("hidden");
+
+  // ---------------- LOAD CACHED PROFILE ----------------
+
+  const cachedProfile =
+    JSON.parse(
+      localStorage.getItem(
+        "fvids-profile"
+      )
+    );
+
+  if (cachedProfile) {
+
+    console.log(
+      "📦 Loaded cached profile:",
+      cachedProfile
+    );
+
+    updateProfile(
+      cachedProfile
+    );
+  }
+
+  // ---------------- FETCH LATEST PROFILE ----------------
+
+  fetch(
+    `/fvids-user-details?id=${encodeURIComponent(userId)}`
+  )
+    .then(res => res.json())
+    .then(data => {
+
+      console.log(
+        "👤 User details:",
+        data
+      );
+
+      // Save for offline render
+      localStorage.setItem(
+        "fvids-profile",
+        JSON.stringify(data)
+      );
+
+      updateProfile(data);
+
+    })
+    .catch(err => {
+
+      console.error(
+        "❌ Failed to load profile:",
+        err
+      );
+
+    });
+
 }
 
 // User not logged in
 else {
 
-  username.textContent = "Guest";
+  username.textContent =
+    "Guest";
 
   signInContainer
     .classList.remove("hidden");
+
+}
+
+// ---------------- PROFILE UPDATE ----------------
+
+function updateProfile(data) {
+
+  if (!data) return;
+
+  const followersEl =
+    document.getElementById(
+      "followers-count"
+    );
+
+  const followingEl =
+    document.getElementById(
+      "following-count"
+    );
+
+  const likesEl =
+    document.getElementById(
+      "likes-count"
+    );
+
+  const videosCountEl =
+    document.getElementById(
+      "videos-count"
+    );
+
+  if (followersEl) {
+
+    followersEl.textContent =
+      data.followers_count || 0;
+
+  }
+
+  if (followingEl) {
+
+    followingEl.textContent =
+      data.following_count || 0;
+
+  }
+
+  if (likesEl) {
+
+    likesEl.textContent =
+      data.likes_received || 0;
+
+  }
+
+  if (videosCountEl) {
+
+    videosCountEl.textContent =
+      data.videos_count || 0;
+
+  }
+
+  console.log(
+    "🎬 User videos:",
+    data.videos
+  );
+
 }
