@@ -1077,6 +1077,49 @@ document.querySelectorAll(".tab").forEach(tab => {
   });
 });
 
+// Show bar
+function showProfileViewerBar() {
+
+  const redirect =
+    localStorage.getItem("redirect");
+
+  // Tell CSS we're in profile-view mode
+  document.body.classList.add(
+    "profile-view-mode"
+  );
+
+  const bar =
+    document.createElement("div");
+
+  bar.id = "profile-viewer-bar";
+
+  bar.innerHTML = `
+    <button id="profile-back-btn">
+      ←
+    </button>
+  `;
+
+  document.body.appendChild(bar);
+
+  document
+    .getElementById("profile-back-btn")
+    .onclick = () => {
+
+      localStorage.removeItem(
+        "redirect"
+      );
+
+      document.body.classList.remove(
+        "profile-view-mode"
+      );
+
+      window.location.href =
+        redirect || "fvidsme.html";
+
+    };
+
+}
+
 // ---------------- INIT ----------------
 window.onload = () => {
 
@@ -1084,11 +1127,39 @@ window.onload = () => {
 
   showUploadBanner();
 
+  // ---------------- PROFILE OPEN ----------------
+
+  const currentVideo =
+    JSON.parse(
+      localStorage.getItem(
+        "currently_viewing"
+      )
+    );
+
+  if (currentVideo) {
+
+    videos = [currentVideo];
+    currentIndex = 0;
+
+    renderVideo(0);
+
+    localStorage.removeItem(
+      "currently_viewing"
+    );
+
+    showProfileViewerBar();
+
+    return;
+  }
+
+  // ---------------- SHARED LINK ----------------
+
   if (sharedVideoId) {
     loadSingleVideo(sharedVideoId);
   } else {
     loadVideos();
   }
+
 };
 
 // Stop vid on page or app exit
