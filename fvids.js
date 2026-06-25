@@ -759,7 +759,7 @@ function prevVideo() {
 // Preload vid function 
 function preloadVideos(startIndex) {
 
-  for (let i = 1; i <= 3; i++) {
+  for (let i = 1; i <= 2; i++) {
 
     const nextIndex = startIndex + i;
 
