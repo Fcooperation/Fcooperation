@@ -28,14 +28,20 @@ async function loadFollowingVideos(
 
     if (!newVideos.length) {
 
-      feed.innerHTML = `
-        <div style="text-align:center;color:white;padding:40px;">
-          Follow creators to see videos here
-        </div>
-      `;
+  hasMoreVideos = false;
 
-      return;
-    }
+  if (!append) {
+
+    feed.innerHTML = `
+      <div style="text-align:center;color:white;padding:40px;">
+        Follow creators to see videos here
+      </div>
+    `;
+
+  }
+
+  return;
+}
 
     if (!append) {
 
