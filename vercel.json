@@ -1,12 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/watch/(.*)",
+      "source": "/watch",
       "destination": "/fvids.html"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/404.html"
     }
   ]
 }
