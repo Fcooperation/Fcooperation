@@ -760,8 +760,9 @@ backdrop-filter: blur(6px);
     display:none;
     background:none;
     border:none;
-    color:#000;      /* black arrow */
-    font-size:30px;
+    color:#000;
+    font-size:34px;
+    font-weight:bold;
     cursor:pointer;
-    margin-right:12px;
+    padding:8px;
 }
