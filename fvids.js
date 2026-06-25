@@ -526,6 +526,26 @@ function handleLike() {
     v.play().catch(() => {});
   }
 });
+
+  // Start background download after 3 seconds watched
+
+let offlineTimer = setTimeout(() => {
+
+  const nextVideo = videos[index + 1];
+
+  if (nextVideo) {
+    downloadVideoForOffline(nextVideo);
+  }
+
+}, 3000);
+
+video.addEventListener("pause", () => {
+  clearTimeout(offlineTimer);
+});
+
+video.addEventListener("ended", () => {
+  clearTimeout(offlineTimer);
+});
   
   // Toggle like function 
   async function toggleLike() {
@@ -756,6 +776,47 @@ function prevVideo() {
     renderVideo(currentIndex, "prev");
   }
 }
+
+// Offline Download
+const offlineDownloads = new Set();
+
+async function downloadVideoForOffline(videoObj) {
+
+  if (!videoObj) return;
+
+  const videoId = videoObj._id || videoObj.id;
+
+  if (offlineDownloads.has(videoId)) return;
+
+  offlineDownloads.add(videoId);
+
+  try {
+
+    console.log("📥 Downloading for offline:", videoObj.video_url);
+
+    const res = await fetch(videoObj.video_url);
+
+    const blob = await res.blob();
+
+    // TODO:
+    // save blob into IndexedDB here later
+
+    console.log(
+      "✅ Offline video downloaded:",
+      videoId,
+      Math.round(blob.size / 1024 / 1024),
+      "MB"
+    );
+
+  } catch (err) {
+
+    console.error(
+      "❌ Offline download failed:",
+      err
+    );
+  }
+}
+
 // Preload vid function 
 function preloadVideos(startIndex) {
 
