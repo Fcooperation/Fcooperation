@@ -147,6 +147,11 @@ function updateProfile(data) {
       "videos-count"
     );
 
+  const videosGrid =
+  document.getElementById(
+    "videos-grid"
+  );
+  
   if (followersEl) {
 
     followersEl.textContent =
@@ -179,5 +184,32 @@ function updateProfile(data) {
     "🎬 User videos:",
     data.videos
   );
+
+  // ---------------- RENDER VIDEOS ----------------
+
+if (videosGrid) {
+
+  videosGrid.innerHTML = "";
+
+  (data.videos || []).forEach(video => {
+
+    videosGrid.innerHTML += `
+      <div
+        class="video-card"
+      >
+
+        <video
+          src="${video.video_url}"
+          muted
+          playsinline
+          preload="metadata"
+        ></video>
+
+      </div>
+    `;
+
+  });
+
+}
 
 }
