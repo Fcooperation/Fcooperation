@@ -196,6 +196,7 @@ if (videosGrid) {
     videosGrid.innerHTML += `
       <div
         class="video-card"
+        data-public-id="${video.public_id}"
       >
 
         <video
@@ -209,6 +210,34 @@ if (videosGrid) {
     `;
 
   });
+
+  // ---------------- OPEN VIDEO ----------------
+
+  videosGrid
+    .querySelectorAll(".video-card")
+    .forEach((card, index) => {
+
+      card.onclick = () => {
+
+        // Save the selected video
+        localStorage.setItem(
+          "currently_viewing",
+          JSON.stringify(data.videos[index])
+        );
+
+        // Tell FVIDS where to return
+        localStorage.setItem(
+          "redirect",
+          "fvidsme.html"
+        );
+
+        // Open FVIDS
+        window.location.href =
+          "fvids.html";
+
+      };
+
+    });
 
 }
 
