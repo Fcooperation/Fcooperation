@@ -21,8 +21,8 @@ async function loadFollowingVideos(
     }
 
     const res = await fetch(
-      `https://fweb-backend.onrender.com/following-feed?userId=${userId}&page=${page}`
-    );
+  `https://fweb-backend.onrender.com/fvids/following-feed?userId=${userId}&page=${page}`
+);
 
     const newVideos = await res.json();
 
