@@ -74,6 +74,9 @@ function switchTab(tab) {
   if (tab === "tutorials") {
     loadTutorialVideos();
   }
+  if (tab === "following") {
+  loadFollowingVideos();
+  }
 }
 
 // ---------------- LOAD VIDEOS FROM BACKEND ----------------
@@ -737,10 +740,29 @@ async function loadMoreVideos() {
   try {
 
     if (currentFeed === "tutorials") {
-      await loadTutorialVideos(currentPage, true);
-    } else {
-      await loadVideos(currentPage, true);
-    }
+
+  await loadTutorialVideos(
+    currentPage,
+    true
+  );
+
+}
+else if (currentFeed === "following") {
+
+  await loadFollowingVideos(
+    currentPage,
+    true
+  );
+
+}
+else {
+
+  await loadVideos(
+    currentPage,
+    true
+  );
+
+}
 
   } finally {
     isLoadingMore = false;
