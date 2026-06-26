@@ -517,7 +517,7 @@ html, body {
 #reload-page-btn {
   position: fixed;
   top: 12px;
-  right: 12px;
+  right: 60px;
 
   z-index: 9999;
 
