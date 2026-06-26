@@ -1,0 +1,184 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:#000;
+    color:#fff;
+    font-family:Arial,sans-serif;
+}
+
+/* ---------------- HEADER ---------------- */
+
+.header{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:60px;
+
+    display:flex;
+    align-items:center;
+
+    padding:0 15px;
+
+    background:#000;
+
+    border-bottom:1px solid #222;
+
+    z-index:1000;
+}
+
+#back-btn{
+    background:none;
+    border:none;
+
+    color:#fff;
+
+    font-size:30px;
+
+    cursor:pointer;
+
+    margin-right:15px;
+}
+
+.title{
+    font-size:20px;
+    font-weight:bold;
+}
+
+/* ---------------- LIST ---------------- */
+
+.followers-list{
+    margin-top:70px;
+    padding:10px;
+}
+
+/* ---------------- CARD ---------------- */
+
+.follow-card{
+    display:flex;
+    align-items:center;
+
+    padding:12px 0;
+
+    border-bottom:1px solid #222;
+}
+
+/* ---------------- PROFILE PIC ---------------- */
+
+.follow-pic{
+    width:56px;
+    height:56px;
+
+    border-radius:50%;
+
+    object-fit:cover;
+
+    background:#333;
+
+    margin-right:12px;
+
+    flex-shrink:0;
+}
+
+/* ---------------- INFO ---------------- */
+
+.follow-info{
+    flex:1;
+
+    overflow:hidden;
+}
+
+.follow-name{
+    font-size:16px;
+    font-weight:bold;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+/* ---------------- BUTTONS ---------------- */
+
+.message-btn{
+
+    background:#fff;
+
+    color:#000;
+
+    border:none;
+
+    border-radius:8px;
+
+    padding:8px 14px;
+
+    font-size:14px;
+
+    cursor:pointer;
+
+    margin-right:8px;
+}
+
+.follow-btn{
+
+    background:#0095f6;
+
+    color:#fff;
+
+    border:none;
+
+    border-radius:8px;
+
+    padding:8px 14px;
+
+    font-size:14px;
+
+    cursor:pointer;
+}
+
+.follow-btn.following{
+    background:#0095f6;
+}
+
+/* ---------------- LOAD MORE ---------------- */
+
+.load-more-wrap{
+    padding:20px;
+    text-align:center;
+}
+
+#load-more-btn{
+
+    background:#0095f6;
+
+    color:#fff;
+
+    border:none;
+
+    border-radius:8px;
+
+    padding:10px 20px;
+
+    cursor:pointer;
+}
+
+/* ---------------- STATES ---------------- */
+
+.loading{
+    text-align:center;
+    padding:40px 0;
+    color:#888;
+}
+
+.hidden{
+    display:none;
+}
+
+.empty{
+    text-align:center;
+    color:#888;
+    padding:40px 20px;
+}

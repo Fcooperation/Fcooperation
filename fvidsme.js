@@ -56,6 +56,38 @@ if (account) {
   stats.classList.remove("hidden");
   videosTab.classList.remove("hidden");
 
+  // ---------------- OPEN FOLLOWING ----------------
+
+document
+  .getElementById("following-stat")
+  .onclick = () => {
+
+    localStorage.setItem(
+      "view-follow-user",
+      userId
+    );
+
+    window.location.href =
+      "following.html";
+
+  };
+
+// ---------------- OPEN FOLLOWERS ----------------
+
+document
+  .getElementById("followers-stat")
+  .onclick = () => {
+
+    localStorage.setItem(
+      "view-follow-user",
+      userId
+    );
+
+    window.location.href =
+      "followers.html";
+
+  };
+  
   // ---------------- LOAD CACHED PROFILE ----------------
 
   const cachedProfile =
