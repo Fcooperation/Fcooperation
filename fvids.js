@@ -55,19 +55,16 @@ function stopAllVideos() {
 
 // save feed state
 function saveFeedState() {
-
-  const currentVideo = videos[currentIndex];
-
   localStorage.setItem(
     RESUME_KEY,
     JSON.stringify({
-      page: currentPage,
-      index: currentIndex,
-      publicId: currentVideo?.public_id || null,
-      seen: false
+      currentPage,
+      currentIndex,
+      videos,          // <-- save the whole page
+      seen: false,
+      timestamp: Date.now()
     })
   );
-
 }
 
 // ---------------- TAB SWITCH ----------------
@@ -1230,6 +1227,27 @@ window.onload = () => {
 
     return;
   }
+
+  // Resume saved video
+  const resume =
+  JSON.parse(localStorage.getItem(RESUME_KEY));
+
+if (resume && resume.seen === false) {
+
+    videos = resume.videos;
+    currentPage = resume.currentPage;
+    currentIndex = resume.currentIndex;
+
+    renderVideo(currentIndex);
+
+    resume.seen = true;
+    localStorage.setItem(
+      RESUME_KEY,
+      JSON.stringify(resume)
+    );
+
+    return;
+}
 
   // ---------------- SHARED LINK ----------------
 
