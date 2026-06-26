@@ -199,12 +199,11 @@ if (videosGrid) {
         data-public-id="${video.public_id}"
       >
 
-        <video
-          src="${video.video_url}"
-          muted
-          playsinline
-          preload="metadata"
-        ></video>
+        <img
+  src="${video.thumbnail_url}"
+  alt="Video thumbnail"
+  class="video-thumbnail"
+/>
 
       </div>
     `;
