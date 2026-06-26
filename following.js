@@ -83,15 +83,20 @@ Unfollow
     // profile
     card.onclick = () => {
 
-      localStorage.setItem(
-        "view_profile",
-        user.following_id
-      );
+  localStorage.setItem(
+    "view_profile",
+    user.following_id
+  );
 
-      window.location.href =
-        "fvidsprofile.html";
+  localStorage.setItem(
+    "profile_source",
+    "following"
+  );
 
-    };
+  window.location.href =
+    "fvidsprofile.html";
+
+};
 
     // message
     card.querySelector(".message-btn")

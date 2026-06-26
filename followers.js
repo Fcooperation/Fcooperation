@@ -95,15 +95,21 @@ user.following
     // profile
     card.onclick = () => {
 
-      localStorage.setItem(
-        "view_profile",
-        user.follower_id
-      );
+  localStorage.setItem(
+    "view_profile",
+    user.follower_id
+  );
 
-      window.location.href =
-        "fvidsprofile.html";
+  // optional: track where you came from
+  localStorage.setItem(
+    "profile_source",
+    "followers"
+  );
 
-    };
+  window.location.href =
+    "fvidsprofile.html";
+
+};
 
     // message
     card.querySelector(".message-btn")
