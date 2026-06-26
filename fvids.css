@@ -769,7 +769,7 @@ backdrop-filter: blur(6px);
 .video-user-info{
     position:absolute;
     left:15px;
-    bottom:35px;
+    bottom:20px;
     width:65%;
     color:#fff;
     z-index:5;
@@ -786,7 +786,16 @@ backdrop-filter: blur(6px);
     opacity:.95;
     line-height:1.4;
     margin-bottom:6px;
-    white-space:pre-wrap;
+
+    display:-webkit-box;
+    -webkit-box-orient:vertical;
+    -webkit-line-clamp:1;
+    overflow:hidden;
+}
+
+.read-more{
+    font-weight:bold;
+    cursor:pointer;
 }
 
 .video-hashtags{
@@ -796,8 +805,4 @@ backdrop-filter: blur(6px);
 
 .hashtag{
     cursor:pointer;
-}
-
-.read-more{
-    font-weight:bold;
 }
