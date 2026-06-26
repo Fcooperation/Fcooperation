@@ -37,6 +37,9 @@ let currentIndex = 0;
 let currentPage = 1;
 let isLoadingMore = false;
 let hasMoreVideos = true;
+let swipeStartX = 0;
+let swipeStartY = 0;
+let swipeActive = false;
 
 // Stop all vids 
 function stopAllVideos() {
@@ -1106,6 +1109,70 @@ function showProfileViewerBar() {
   }
 
 }
+
+// Open Current video profile
+function openCurrentVideoProfile() {
+
+  const vid = videos[currentIndex];
+  if (!vid) return;
+
+  const account =
+    JSON.parse(localStorage.getItem("faccount")) || {};
+
+  const viewerId =
+    account.userId || account.id;
+
+  const userId = vid.user_id;
+
+  if (!userId) return;
+
+  // save WHO you're viewing
+  localStorage.setItem("view_profile", userId);
+
+  // optional: save viewer context (for back navigation or analytics)
+  localStorage.setItem("profile_viewer", viewerId || "");
+
+  // optional: store minimal cached user for instant UI
+  if (vid.user) {
+    localStorage.setItem(
+      "viewing_user_profile",
+      JSON.stringify({
+        id: userId,
+        username: vid.user.username,
+        profile_pic: vid.user.profile_pic
+      })
+    );
+  }
+
+  // go to profile page
+  window.location.href = "fvidsprofile.html";
+}
+
+// Swipe logic
+document.addEventListener("touchstart", (e) => {
+  swipeStartX = e.touches[0].clientX;
+  swipeStartY = e.touches[0].clientY;
+  swipeActive = true;
+}, { passive: true });
+
+document.addEventListener("touchend", (e) => {
+  if (!swipeActive) return;
+  swipeActive = false;
+
+  const endX = e.changedTouches[0].clientX;
+  const endY = e.changedTouches[0].clientY;
+
+  const diffX = endX - swipeStartX;
+  const diffY = endY - swipeStartY;
+
+  // ignore vertical scroll
+  if (Math.abs(diffY) > Math.abs(diffX)) return;
+
+  // 🔥 LEFT SWIPE → OPEN PROFILE
+  if (diffX < -70) {
+    openCurrentVideoProfile();
+  }
+});
 
 // ---------------- INIT ----------------
 window.onload = () => {
