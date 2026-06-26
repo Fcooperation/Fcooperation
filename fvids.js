@@ -344,6 +344,92 @@ localStorage.setItem(
 profileWrap.appendChild(profileImg);
 
 wrapper.appendChild(profileWrap);
+
+  // ---------------- USER INFO ----------------
+
+const userInfo = document.createElement("div");
+userInfo.className = "video-user-info";
+
+// Username
+const username = document.createElement("div");
+username.className = "video-username";
+username.textContent = vid.user?.username || "Unknown";
+
+// Description
+const description = document.createElement("div");
+description.className = "video-description";
+
+const fullDescription = vid.details || "";
+
+description.textContent = fullDescription;
+
+// Check after it's rendered
+requestAnimationFrame(() => {
+
+  if (description.scrollHeight > description.clientHeight + 2) {
+
+    description.innerHTML =
+      fullDescription +
+      ` <span class="read-more">...more</span>`;
+
+    description.dataset.expanded = "false";
+
+    description.addEventListener("click", () => {
+
+      if (description.dataset.expanded === "false") {
+
+        description.style.webkitLineClamp = "unset";
+        description.querySelector(".read-more").textContent = " ";
+        description.dataset.expanded = "true";
+
+      } else {
+
+        description.style.webkitLineClamp = "1";
+        description.querySelector(".read-more").textContent = "...more";
+        description.dataset.expanded = "false";
+
+      }
+
+    });
+
+  }
+
+});
+  
+// Hashtags
+const hashtags = document.createElement("div");
+hashtags.className = "video-hashtags";
+
+(vid.hashtags || []).forEach(tag => {
+
+  const span = document.createElement("span");
+
+  span.textContent = "#" + tag;
+  span.className = "hashtag";
+
+  span.addEventListener("click", (e) => {
+
+    e.stopPropagation();
+
+    localStorage.setItem(
+      "fvidsearchtag",
+      tag
+    );
+
+    window.location.href = "fvidsearch.html";
+
+  });
+
+  hashtags.appendChild(span);
+  hashtags.append(" ");
+
+});
+
+userInfo.appendChild(username);
+userInfo.appendChild(description);
+userInfo.appendChild(hashtags);
+
+wrapper.appendChild(userInfo);
   
   const likeBtn = document.createElement("div");
 likeBtn.className = "like-heart";

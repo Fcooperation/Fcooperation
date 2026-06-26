@@ -766,3 +766,38 @@ backdrop-filter: blur(6px);
     cursor:pointer;
     padding:8px;
 }
+.video-user-info{
+    position:absolute;
+    left:15px;
+    bottom:35px;
+    width:65%;
+    color:#fff;
+    z-index:5;
+}
+
+.video-username{
+    font-size:17px;
+    font-weight:bold;
+    margin-bottom:6px;
+}
+
+.video-description{
+    font-size:14px;
+    opacity:.95;
+    line-height:1.4;
+    margin-bottom:6px;
+    white-space:pre-wrap;
+}
+
+.video-hashtags{
+    font-size:14px;
+    font-weight:bold;
+}
+
+.hashtag{
+    cursor:pointer;
+}
+
+.read-more{
+    font-weight:bold;
+}
