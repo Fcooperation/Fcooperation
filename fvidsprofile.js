@@ -13,6 +13,8 @@ const viewerId =
   account.id ||
   null;
 
+const isLoggedIn = !!viewerId;
+
 const cachedProfile =
   JSON.parse(
     localStorage.getItem(
@@ -58,6 +60,11 @@ const videosGrid =
 const followBtn =
   document.getElementById(
     "follow-btn"
+  );
+
+const messageBtn =
+  document.getElementById(
+    "message-btn"
   );
 
 // ---------------- BACK ----------------
@@ -295,6 +302,75 @@ followBtn.onclick = async () => {
     console.error(err);
 
   }
+
+};
+
+  //Message button on click 
+  messageBtn.onclick = () => {
+
+  // NOT LOGGED IN
+  if (!isLoggedIn) {
+
+    messageBtn.textContent =
+      "Must sign in to message";
+
+    messageBtn.style.background =
+      "gray";
+
+    // create login button if not exists
+    let loginBtn =
+      document.getElementById("login-btn");
+
+    if (!loginBtn) {
+
+      loginBtn =
+        document.createElement("button");
+
+      loginBtn.id = "login-btn";
+
+      loginBtn.textContent =
+        "Sign In";
+
+      loginBtn.style.marginTop =
+        "10px";
+
+      loginBtn.onclick = () => {
+
+        // save redirect back
+        localStorage.setItem(
+          "redirect_after_login",
+          "fvidsprofile.html"
+        );
+
+        window.location.href =
+          "login.html";
+
+      };
+
+      messageBtn.parentElement.appendChild(
+        loginBtn
+      );
+
+    }
+
+    return;
+  }
+
+  // LOGGED IN → OPEN CHAT
+
+  localStorage.setItem(
+    "chatting_with",
+    JSON.stringify({
+
+      id: userId,
+      username: username.textContent,
+      profile_pic: profilePic.src
+
+    })
+  );
+
+  window.location.href =
+    "chat.html";
 
 };
 
