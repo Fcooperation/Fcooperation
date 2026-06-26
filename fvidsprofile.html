@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>FVIDS Profile</title>
+
+<link
+rel="stylesheet"
+href="fvidsprofile.css">
+
+</head>
+
+<body>
+
+<div class="profile-page">
+
+  <!-- Header -->
+
+  <div class="profile-header">
+
+    <button id="back-btn">
+      ←
+    </button>
+
+    <h2>Profile</h2>
+
+  </div>
+
+  <!-- Profile -->
+
+  <div class="profile-info">
+
+    <img
+      id="profile-pic"
+      class="profile-pic"
+      src="https://via.placeholder.com/150"
+      alt="Profile Picture"
+    >
+
+    <div
+      id="username"
+      class="username"
+    >
+      User
+    </div>
+
+    <!-- Buttons -->
+
+    <div class="profile-actions">
+
+      <button
+        id="follow-btn"
+        class="follow-btn"
+      >
+        Follow
+      </button>
+
+      <button
+        id="message-btn"
+        class="message-btn"
+      >
+        Message
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- Stats -->
+
+  <div
+    id="profile-stats"
+    class="profile-stats"
+  >
+
+    <div
+      class="stat"
+      id="following-stat"
+    >
+
+      <div
+        id="following-count"
+        class="stat-number"
+      >
+        0
+      </div>
+
+      <div class="stat-label">
+        Following
+      </div>
+
+    </div>
+
+    <div
+      class="stat"
+      id="followers-stat"
+    >
+
+      <div
+        id="followers-count"
+        class="stat-number"
+      >
+        0
+      </div>
+
+      <div class="stat-label">
+        Followers
+      </div>
+
+    </div>
+
+    <div class="stat">
+
+      <div
+        id="likes-count"
+        class="stat-number"
+      >
+        0
+      </div>
+
+      <div class="stat-label">
+        Likes
+      </div>
+
+    </div>
+
+    <div class="stat">
+
+      <div
+        id="videos-count"
+        class="stat-number"
+      >
+        0
+      </div>
+
+      <div class="stat-label">
+        Videos
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Videos -->
+
+  <div
+    class="videos-tab"
+  >
+    Videos
+  </div>
+
+  <div
+    id="videos-grid"
+    class="videos-grid"
+  ></div>
+
+</div>
+
+<script src="fvidsprofile.js"></script>
+
+</body>
+</html>
