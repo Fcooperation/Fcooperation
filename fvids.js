@@ -1225,19 +1225,26 @@ function openCurrentVideoProfile() {
     JSON.parse(localStorage.getItem("faccount")) || {};
 
   const viewerId =
-    account.userId || account.id;
+    String(account.userId || account.id || "");
 
-  const userId = vid.user_id;
+  const userId =
+    String(vid.user_id || "");
 
   if (!userId) return;
+
+  // 🚫 Viewing your own video
+  if (viewerId === userId) {
+    return;
+  }
 
   // save WHO you're viewing
   localStorage.setItem("view_profile", userId);
 
-  // optional: save viewer context (for back navigation or analytics)
-  localStorage.setItem("profile_viewer", viewerId || "");
+  localStorage.setItem(
+    "profile_viewer",
+    viewerId || ""
+  );
 
-  // optional: store minimal cached user for instant UI
   if (vid.user) {
     localStorage.setItem(
       "viewing_user_profile",
@@ -1249,10 +1256,8 @@ function openCurrentVideoProfile() {
     );
   }
 
-  //save feed state 
   saveFeedState();
 
-  // go to profile page
   window.location.href = "fvidsprofile.html";
 }
 
