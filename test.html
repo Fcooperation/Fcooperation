@@ -1,74 +1,119 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FVIDS Storage Test</title>
-
-<style>
-body{
-  background:#111;
-  color:#fff;
-  font-family:monospace;
-  padding:20px;
-}
-
-button{
-  padding:10px 16px;
-  margin-bottom:15px;
-}
-
-pre{
-  background:#222;
-  padding:15px;
-  border-radius:10px;
-  white-space:pre-wrap;
-  word-break:break-word;
-}
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FVIDS Followers Test</title>
 </head>
 <body>
 
-<h2>FVIDS Upload Storage Test</h2>
-
-<button onclick="checkStorage()">
-Check Storage
+<h2>Followers</h2>
+<button onclick="loadFollowers()">
+Load Followers
 </button>
 
-<pre id="output">Click button...</pre>
+<pre id="followers-output">
+Waiting...
+</pre>
+
+<hr>
+
+<h2>Following</h2>
+<button onclick="loadFollowing()">
+Load Following
+</button>
+
+<pre id="following-output">
+Waiting...
+</pre>
 
 <script>
-function checkStorage() {
 
-  const raw =
-    localStorage.getItem("fvids_upload_queue");
+const userId =
+  "684807070436154";
 
-  const output =
-    document.getElementById("output");
+// ---------------- FOLLOWERS ----------------
 
-  if (!raw) {
-    output.textContent =
-      "No fvids_upload_queue found.";
-    return;
-  }
+async function loadFollowers() {
 
   try {
 
-    const parsed = JSON.parse(raw);
+    const res = await fetch(
+      `https://fweb-backend.onrender.com/fvids/followers?id=${userId}&page=1&limit=20`
+    );
 
-    output.textContent =
+    const data = await res.json();
+
+    console.log(
+      "Followers:",
+      data
+    );
+
+    document.getElementById(
+      "followers-output"
+    ).textContent =
       JSON.stringify(
-        parsed,
+        data,
         null,
         2
       );
 
-  } catch(err) {
+  } catch (err) {
 
-    output.textContent =
-      "Invalid JSON:\n\n" + raw;
+    console.error(err);
+
+    document.getElementById(
+      "followers-output"
+    ).textContent =
+      err.message;
+
   }
+
 }
+
+// ---------------- FOLLOWING ----------------
+
+async function loadFollowing() {
+
+  try {
+
+    const res = await fetch(
+      `https://fweb-backend.onrender.com/fvids/following?id=${userId}&page=1&limit=20`
+    );
+
+    const data = await res.json();
+
+    console.log(
+      "Following:",
+      data
+    );
+
+    document.getElementById(
+      "following-output"
+    ).textContent =
+      JSON.stringify(
+        data,
+        null,
+        2
+      );
+
+  } catch (err) {
+
+    console.error(err);
+
+    document.getElementById(
+      "following-output"
+    ).textContent =
+      err.message;
+
+  }
+
+}
+
+// Auto-load both on page open
+loadFollowers();
+loadFollowing();
+
 </script>
 
 </body>
