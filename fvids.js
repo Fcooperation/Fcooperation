@@ -40,6 +40,9 @@ let hasMoreVideos = true;
 let swipeStartX = 0;
 let swipeStartY = 0;
 let swipeActive = false;
+const RESUME_KEY = "fvids_resume";
+
+
 
 // Stop all vids 
 function stopAllVideos() {
@@ -48,6 +51,23 @@ function stopAllVideos() {
       v.pause();
     } catch (e) {}
   });
+}
+
+// save feed state
+function saveFeedState() {
+
+  const currentVideo = videos[currentIndex];
+
+  localStorage.setItem(
+    RESUME_KEY,
+    JSON.stringify({
+      page: currentPage,
+      index: currentIndex,
+      publicId: currentVideo?.public_id || null,
+      seen: false
+    })
+  );
+
 }
 
 // ---------------- TAB SWITCH ----------------
@@ -169,6 +189,7 @@ feed.innerHTML = "";
 
   const vid = videos[index];
   if (!vid) return;
+  saveFeedState();
 
   const wrapper = document.createElement("div");
   wrapper.className = "video-wrapper";
@@ -1100,7 +1121,8 @@ function showProfileViewerBar() {
     backBtn.onclick = () => {
 
       localStorage.removeItem("redirect");
-
+      
+      saveFeedState();
       window.location.href =
         redirect || "fvidsme.html";
 
@@ -1143,6 +1165,9 @@ function openCurrentVideoProfile() {
       })
     );
   }
+
+  //save feed state 
+  saveFeedState();
 
   // go to profile page
   window.location.href = "fvidsprofile.html";
