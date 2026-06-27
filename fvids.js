@@ -1156,6 +1156,9 @@ const res = await fetch(
 
     renderVideo(0);
 
+    //hide tabs plus bottom nav 
+    showProfileViewerBar("fvids.html");
+
   } catch (err) {
     console.error("Shared video load failed:", err);
 
@@ -1185,7 +1188,7 @@ document.querySelectorAll(".tab").forEach(tab => {
 });
 
 // Show bar
-function showProfileViewerBar() {
+function showProfileViewerBar(fallback = "fvidsme.html") {
 
   const redirect =
     localStorage.getItem("redirect");
@@ -1204,10 +1207,11 @@ function showProfileViewerBar() {
     backBtn.onclick = () => {
 
       localStorage.removeItem("redirect");
-      
+
       saveFeedState();
+
       window.location.href =
-        redirect || "fvidsme.html";
+        redirect || fallback;
 
     };
 
