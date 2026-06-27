@@ -226,21 +226,20 @@ if (videosGrid) {
   (data.videos || []).forEach(video => {
 
   videosGrid.innerHTML += `
-    <div
-      class="video-card"
-      data-public-id="${video.public_id}"
+  <div
+    class="video-card"
+    data-public-id="${video.public_id}"
+  >
+
+    <img
+      src="${video.thumbnail_url}"
+      class="video-thumbnail"
+      loading="lazy"
+      alt="Video thumbnail"
     >
 
-      <video
-        src="${video.video_url}"
-        class="video-thumbnail"
-        muted
-        playsinline
-        preload="metadata"
-      ></video>
-
-    </div>
-  `;
+  </div>
+`;
 
 });
 
