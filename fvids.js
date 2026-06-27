@@ -630,9 +630,12 @@ function handleLike() {
     wrapper.style.transform = "translateY(0)";
   });
 
-  video.addEventListener("loadeddata", () => {
-  video.play().catch(console.error);
-}, { once: true });
+  requestAnimationFrame(() => {
+  const v = wrapper.querySelector("video");
+  if (v) {
+    v.play().catch(() => {});
+  }
+});
 
   // Start background download after 3 seconds watched
 
