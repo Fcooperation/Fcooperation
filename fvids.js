@@ -40,7 +40,7 @@ let hasMoreVideos = true;
 let swipeStartX = 0;
 let swipeStartY = 0;
 let swipeActive = false;
-const RESUME_KEY = "fvids_resume";
+const RESUME_KEY = "fvids_saved_video";
 
 
 
@@ -54,21 +54,23 @@ function stopAllVideos() {
 }
 
 // save feed state
-function saveFeedState() {
+function saveCurrentVideo() {
+
+  const currentVideo = videos[currentIndex];
+
+  if (!currentVideo) return;
+
   localStorage.setItem(
     RESUME_KEY,
-    JSON.stringify({
-      currentPage,
-      currentIndex,
-      videos,          // <-- save the whole page
-      seen: false,
-      timestamp: Date.now()
-    })
+    JSON.stringify(currentVideo)
   );
+
 }
 
 // ---------------- TAB SWITCH ----------------
 function switchTab(tab) {
+
+  saveCurrentVideo();
 
   currentFeed = tab;
 
@@ -140,10 +142,21 @@ async function loadVideos(page = 1, append = false) {
 
     // ---------------- FIRST LOAD ----------------
     if (!append) {
-      videos = newVideos;
-      currentIndex = 0;
-      renderVideo(currentIndex);
+
+    // If we're currently showing one saved video,
+    // don't interrupt it. Just replace the feed data.
+    if (videos.length === 1) {
+
+        videos = newVideos;
+
+        return;
     }
+
+    videos = newVideos;
+    currentIndex = 0;
+    renderVideo(currentIndex);
+
+}
 
     // ---------------- LOAD MORE ----------------
     else {
@@ -186,7 +199,7 @@ feed.innerHTML = "";
 
   const vid = videos[index];
   if (!vid) return;
-  saveFeedState();
+  
 
   const wrapper = document.createElement("div");
   wrapper.className = "video-wrapper";
@@ -434,7 +447,10 @@ hashtags.className = "video-hashtags";
       tag
     );
 
-    window.location.href = "fvidsearch.html";
+    saveCurrentVideo();
+
+window.location.href = 
+  "fvidsearch.html";
 
   });
 
@@ -1247,7 +1263,7 @@ function showProfileViewerBar() {
 
       localStorage.removeItem("redirect");
       
-      saveFeedState();
+      saveCurrentVideo();
       window.location.href =
         redirect || "fvidsme.html";
 
@@ -1298,7 +1314,7 @@ function openCurrentVideoProfile() {
     );
   }
 
-  saveFeedState();
+  saveCurrentVideo();
 
   window.location.href = "fvidsprofile.html";
 }
@@ -1362,22 +1378,19 @@ window.onload = () => {
   }
 
   // Resume saved video
-  const resume =
-  JSON.parse(localStorage.getItem(RESUME_KEY));
+  const savedVideo =
+JSON.parse(localStorage.getItem(RESUME_KEY));
 
-if (resume && resume.seen === false) {
+if (savedVideo) {
 
-    videos = resume.videos;
-    currentPage = resume.currentPage;
-    currentIndex = resume.currentIndex;
+    videos = [savedVideo];
+    currentIndex = 0;
 
-    renderVideo(currentIndex);
+    renderVideo(0);
 
-    resume.seen = true;
-    localStorage.setItem(
-      RESUME_KEY,
-      JSON.stringify(resume)
-    );
+    localStorage.removeItem(RESUME_KEY);
+
+    loadVideos();
 
     return;
 }
