@@ -177,8 +177,6 @@ function applyVideoFit(video) {
 // ---------------- RENDER SINGLE VIDEO ----------------
 function renderVideo(index, direction = "next") {
 
-  console.log("🎬 Rendering video:", index, videos[index]?.video_url);
-
   // stop previous video ONLY
 const currentVideo = feed.querySelector("video");
 if (currentVideo) currentVideo.pause();
@@ -1158,9 +1156,6 @@ const res = await fetch(
 
     renderVideo(0);
 
-    //hide tabs plus bottom nav 
-    showProfileViewerBar("fvids.html");
-
   } catch (err) {
     console.error("Shared video load failed:", err);
 
@@ -1190,7 +1185,7 @@ document.querySelectorAll(".tab").forEach(tab => {
 });
 
 // Show bar
-function showProfileViewerBar(fallback = "fvidsme.html") {
+function showProfileViewerBar() {
 
   const redirect =
     localStorage.getItem("redirect");
@@ -1209,11 +1204,10 @@ function showProfileViewerBar(fallback = "fvidsme.html") {
     backBtn.onclick = () => {
 
       localStorage.removeItem("redirect");
-
+      
       saveFeedState();
-
       window.location.href =
-        redirect || fallback;
+        redirect || "fvidsme.html";
 
     };
 
