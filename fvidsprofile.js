@@ -201,11 +201,9 @@ if (viewerId && viewerId !== userId) {
 
   videosGrid.innerHTML = "";
 
-  (
-    data.videos || []
-  ).forEach(video => {
+(data.videos || []).forEach(video => {
 
-    videosGrid.innerHTML += `
+  videosGrid.innerHTML += `
 
 <div
 class="video-card">
@@ -217,6 +215,43 @@ src="${video.thumbnail_url}">
 </div>
 
 `;
+
+});
+
+// ---------------- OPEN VIDEO ----------------
+
+videosGrid
+  .querySelectorAll(".video-card")
+  .forEach((card, index) => {
+
+    card.onclick = () => {
+
+      const selectedVideo = {
+        ...data.videos[index],
+
+        user: {
+          username: data.username,
+          profile_pic: data.profile_pic
+        }
+      };
+
+      // Save selected video
+      localStorage.setItem(
+        "currently_viewing",
+        JSON.stringify(selectedVideo)
+      );
+
+      // Tell FVIDS where to return
+      localStorage.setItem(
+        "redirect",
+        "fvidsprofile.html"
+      );
+
+      // Open video
+      window.location.href =
+        "fvids.html";
+
+    };
 
   });
 

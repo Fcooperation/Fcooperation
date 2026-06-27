@@ -253,10 +253,19 @@ if (videosGrid) {
       card.onclick = () => {
 
         // Save the selected video
-        localStorage.setItem(
-          "currently_viewing",
-          JSON.stringify(data.videos[index])
-        );
+        const selectedVideo = {
+  ...data.videos[index],
+
+  user: {
+    username: account.username,
+    profile_pic: account.profile_pic
+  }
+};
+
+localStorage.setItem(
+  "currently_viewing",
+  JSON.stringify(selectedVideo)
+);
 
         // Tell FVIDS where to return
         localStorage.setItem(
