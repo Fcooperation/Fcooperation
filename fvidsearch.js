@@ -217,10 +217,11 @@ const users = data.filter(item => item.type === "user");
 
           <div class="user-stats">
 
-            ${user.followers || 0} Followers •
-            ${user.following || 0} Following
+  ${user.followers || 0} Followers •
+  ${user.following || 0} Following •
+  ${user.videos_count || 0} Videos
 
-          </div>
+</div>
 
         </div>
 
