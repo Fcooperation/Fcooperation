@@ -218,7 +218,17 @@ video.playsInline = true;
 video.autoplay = true;
   applyVideoFit(video);
 
+  video.addEventListener("playing", () => {
+  playOverlay.style.display = "none";
+});
+
   wrapper.appendChild(video);
+
+  const playOverlay = document.createElement("div");
+playOverlay.className = "play-overlay";
+playOverlay.innerHTML = "▶";
+
+wrapper.appendChild(playOverlay);
   
   const pauseIcon = document.createElement("div");
 pauseIcon.className = "pause-icon";
@@ -631,11 +641,34 @@ function handleLike() {
   });
 
   requestAnimationFrame(() => {
-  const v = wrapper.querySelector("video");
-  if (v) {
-    v.play().catch(() => {});
-  }
+
+  video.play().then(() => {
+
+    // autoplay succeeded
+    playOverlay.style.display = "none";
+
+  }).catch(() => {
+
+    // browser blocked autoplay
+    playOverlay.style.display = "flex";
+
+  });
+
 });
+
+// Play button
+  playOverlay.onclick = (e) => {
+
+  e.stopPropagation();
+
+  video.play().then(() => {
+
+    playOverlay.style.display = "none";
+
+  });
+
+};
+
 
   // Start background download after 3 seconds watched
 
