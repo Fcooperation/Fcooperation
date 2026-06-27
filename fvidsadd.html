@@ -17,12 +17,42 @@
 <!-- PREVIEW -->
 <div id="preview-screen">
 
-  <video
-    id="preview-video"
-    controls
-    playsinline>
-  </video>
+  <div id="preview-video-wrapper">
+
+    <video
+        id="preview-video"
+        controls
+        playsinline>
+    </video>
+
+    <div id="thumbnail-preview">
+        <img id="thumbnail-preview-img">
+    </div>
+
+  </div>
+  
   <button id="cancel-preview">✕ Cancel</button>
+
+  
+
+  <!-- Thumbnail Picker -->
+<div id="thumbnail-picker" style="display:none;">
+
+    <input
+        id="thumb-slider"
+        type="range"
+        min="0"
+        value="0">
+
+    <button id="use-thumbnail">
+        Use This Frame
+    </button>
+
+</div>
+
+<canvas
+id="thumb-canvas"
+style="display:none;"></canvas>
   
     <!-- OVERLAY (blocks everything) -->
 <div id="upload-overlay" class="hidden"></div>

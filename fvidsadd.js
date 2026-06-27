@@ -8,6 +8,23 @@ const recordBtn = document.getElementById("record-btn");
 const switchBtn = document.getElementById("switch-btn");
 const controls = document.getElementById("controls");
 
+const thumbPicker =
+document.getElementById("thumbnail-picker");
+
+const thumbSlider =
+document.getElementById("thumb-slider");
+
+const thumbCanvas =
+document.getElementById("thumb-canvas");
+
+const thumbPreview =
+document.getElementById("thumbnail-preview");
+
+const thumbPreviewImg =
+document.getElementById("thumbnail-preview-img");
+
+let thumbnailBlob = null;
+
 function getCurrentUser() {
   return JSON.parse(localStorage.getItem("faccount"));
 }
@@ -130,6 +147,18 @@ function showPreview(url) {
 }
 
   previewVideo.src = url;
+  
+  previewVideo.onloadedmetadata = () => {
+
+    thumbSlider.max = previewVideo.duration;
+    thumbSlider.value = 0;
+
+    thumbPicker.style.display = "block";
+
+    // Force the first frame to load
+    previewVideo.currentTime = 0.1;
+
+};
 
   // DON'T mirror preview
   previewVideo.style.transform = "scaleX(1)";
@@ -143,22 +172,106 @@ function showPreview(url) {
   postBtn.style.display = "block";
 }
 
+// ---------------- THUMBNAIL SLIDER ----------------
+thumbSlider.oninput = () => {
+
+    previewVideo.currentTime =
+        thumbSlider.value;
+
+};
+
+// ---------------- USE SELECTED THUMBNAIL ----------------
+document.getElementById("use-thumbnail").onclick = () => {
+
+    thumbCanvas.toBlob(blob => {
+
+        thumbnailBlob = blob;
+
+        thumbPicker.style.display = "none";
+
+        alert("Thumbnail selected ✓");
+
+    }, "image/jpeg", 0.95);
+
+};
+
+// thumbnail preview 
+previewVideo.addEventListener("seeked", () => {
+
+    const ctx = thumbCanvas.getContext("2d");
+
+    thumbCanvas.width = previewVideo.videoWidth;
+    thumbCanvas.height = previewVideo.videoHeight;
+
+    ctx.drawImage(
+        previewVideo,
+        0,
+        0,
+        thumbCanvas.width,
+        thumbCanvas.height
+    );
+
+    thumbPreviewImg.src = thumbCanvas.toDataURL("image/jpeg", 0.95);
+
+    thumbPreview.style.display = "block";
+
+});
+
+
 // Post video function
 postBtn.onclick = () => {
 
-  if (!recordedBlob) return;
+    if (!recordedBlob) return;
 
-  // hide preview buttons
-  postBtn.style.display = "none";
-  cancelBtn.style.display = "none";
-  controls.style.display = "none";
+  async function generateThumbnail() {
+  if (!thumbnailBlob) {
 
-  // show upload UI
-  document.getElementById("upload-overlay")
-    .classList.remove("hidden");
+    // Jump to 2 seconds (or end if video is shorter)
+    previewVideo.currentTime =
+      Math.min(2, previewVideo.duration - 0.1);
 
-  document.getElementById("details-sheet")
-    .classList.remove("hidden");
+    await new Promise(resolve => {
+
+      previewVideo.onseeked = () => {
+
+        const ctx = thumbCanvas.getContext("2d");
+
+        thumbCanvas.width = previewVideo.videoWidth;
+        thumbCanvas.height = previewVideo.videoHeight;
+
+        ctx.drawImage(
+          previewVideo,
+          0,
+          0,
+          thumbCanvas.width,
+          thumbCanvas.height
+        );
+
+        thumbCanvas.toBlob(blob => {
+          thumbnailBlob = blob;
+          resolve();
+        }, "image/jpeg", 0.95);
+
+      };
+
+    });
+  }
+}
+
+    postBtn.style.display = "none";
+    cancelBtn.style.display = "none";
+    controls.style.display = "none";
+
+    document
+        .getElementById("upload-overlay")
+        .classList.remove("hidden");
+
+    document
+        .getElementById("details-sheet")
+        .classList.remove("hidden");
+
+    thumbPicker.style.display = "block";
+
 };
 
 // Cancel button function 
@@ -194,6 +307,8 @@ cancelBtn.onclick = () => {
 // Confirm upload logic 
 document.getElementById("confirm-upload").onclick = async () => {
 
+  thumbPreview.style.display = "none";
+
   const btn = document.getElementById("confirm-upload");
 
   const category = document.getElementById("category").value;
@@ -209,6 +324,16 @@ document.getElementById("confirm-upload").onclick = async () => {
   const formData = new FormData();
 
 formData.append("file", recordedBlob, "video.mp4");
+
+  if (thumbnailBlob) {
+
+    formData.append(
+        "thumbnail",
+        thumbnailBlob,
+        "thumbnail.jpg"
+    );
+
+  }
 
 // 🔥 ADD ALL METADATA
 formData.append("category", category);
