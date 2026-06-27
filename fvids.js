@@ -177,6 +177,8 @@ function applyVideoFit(video) {
 // ---------------- RENDER SINGLE VIDEO ----------------
 function renderVideo(index, direction = "next") {
 
+  console.log("🎬 Rendering video:", index, videos[index]?.video_url);
+
   // stop previous video ONLY
 const currentVideo = feed.querySelector("video");
 if (currentVideo) currentVideo.pause();
