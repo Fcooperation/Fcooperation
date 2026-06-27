@@ -806,3 +806,16 @@ backdrop-filter: blur(6px);
 .hashtag{
     cursor:pointer;
 }
+.play-overlay{
+    position:absolute;
+    inset:0;
+    display:none;
+    justify-content:center;
+    align-items:center;
+    font-size:80px;
+    color:#fff;
+    background:rgba(0,0,0,.15);
+    z-index:50;
+    cursor:pointer;
+    user-select:none;
+}
