@@ -41,6 +41,7 @@ let swipeStartX = 0;
 let swipeStartY = 0;
 let swipeActive = false;
 const RESUME_KEY = "fvids_resume";
+let refreshAfterResume = false;
 
 
 
@@ -55,16 +56,19 @@ function stopAllVideos() {
 
 // save feed state
 function saveFeedState() {
+
+  const currentVideo = videos[currentIndex];
+
+  if (!currentVideo) return;
+
   localStorage.setItem(
     RESUME_KEY,
     JSON.stringify({
-      currentPage,
-      currentIndex,
-      videos,          // <-- save the whole page
-      seen: false,
+      public_id: currentVideo.public_id,
       timestamp: Date.now()
     })
   );
+
 }
 
 // ---------------- TAB SWITCH ----------------
@@ -139,11 +143,27 @@ async function loadVideos(page = 1, append = false) {
     }
 
     // ---------------- FIRST LOAD ----------------
-    if (!append) {
-      videos = newVideos;
-      currentIndex = 0;
-      renderVideo(currentIndex);
-    }
+if (!append) {
+
+  const existingId = videos[0]?.public_id;
+
+  videos = newVideos;
+
+  if (refreshAfterResume && existingId) {
+
+    const index = videos.findIndex(
+      v => v.public_id === existingId
+    );
+
+    currentIndex = index >= 0 ? index : 0;
+
+    // Wait for swipe before rendering
+    return;
+  }
+
+  currentIndex = 0;
+  renderVideo(0);
+}
 
     // ---------------- LOAD MORE ----------------
     else {
@@ -919,16 +939,30 @@ else {
 }
 
 // ---------------- NAVIGATION ----------------
-function nextVideo() {
+async function nextVideo() {
+
+  if (refreshAfterResume) {
+
+    refreshAfterResume = false;
+
+    await loadVideos();
+
+    currentIndex++;
+
+    renderVideo(currentIndex, "next");
+
+    return;
+  }
+
   if (currentIndex < videos.length - 1) {
 
     const currentVideo = feed.querySelector("video");
     if (currentVideo) currentVideo.pause();
 
     currentIndex++;
+
     renderVideo(currentIndex, "next");
 
-    // 👇 LOAD NEXT PAGE EARLY (IMPORTANT)
     if (currentIndex >= videos.length - 5) {
       loadMoreVideos();
     }
@@ -1329,6 +1363,49 @@ document.addEventListener("touchend", (e) => {
   }
 });
 
+// Resume video
+async function resumeVideo(publicId) {
+
+  try {
+
+    const account =
+      JSON.parse(localStorage.getItem("faccount")) || {};
+
+    const userId =
+      account.userId || account.id || "";
+
+    const res = await fetch(
+      `https://fweb-backend.onrender.com/fvids/single?id=${publicId}&userId=${userId}`
+    );
+
+    const video = await res.json();
+
+    if (!video || (!video._id && !video.id)) {
+      localStorage.removeItem(RESUME_KEY);
+      loadVideos();
+      return;
+    }
+
+    videos = [video];
+    currentIndex = 0;
+
+    renderVideo(0);
+
+// Load the normal feed in the background
+refreshAfterResume = true;
+
+  } catch (err) {
+
+    console.error(err);
+
+    localStorage.removeItem(RESUME_KEY);
+
+    loadVideos();
+
+  }
+
+}
+
 // ---------------- INIT ----------------
 window.onload = () => {
 
@@ -1365,21 +1442,24 @@ window.onload = () => {
   const resume =
   JSON.parse(localStorage.getItem(RESUME_KEY));
 
-if (resume && resume.seen === false) {
+const RESUME_EXPIRE_TIME = 1000 * 60 * 30; // 30 minutes
 
-    videos = resume.videos;
-    currentPage = resume.currentPage;
-    currentIndex = resume.currentIndex;
+if (resume) {
 
-    renderVideo(currentIndex);
+  const expired =
+    Date.now() - resume.timestamp >
+    RESUME_EXPIRE_TIME;
 
-    resume.seen = true;
-    localStorage.setItem(
-      RESUME_KEY,
-      JSON.stringify(resume)
-    );
+  if (expired) {
 
-    return;
+    localStorage.removeItem(RESUME_KEY);
+
+  } else {
+
+    resumeVideo(resume.public_id);
+return;
+  }
+
 }
 
   // ---------------- SHARED LINK ----------------
