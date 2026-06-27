@@ -224,6 +224,14 @@ video.autoplay = true;
 
   wrapper.appendChild(video);
 
+  const thumbnail = document.createElement("img");
+
+thumbnail.className = "video-thumbnail-overlay";
+
+thumbnail.src = vid.thumbnail_url || "";
+
+wrapper.appendChild(thumbnail);
+  
   const playOverlay = document.createElement("div");
 playOverlay.className = "play-overlay";
 playOverlay.innerHTML = "▶";
@@ -644,28 +652,29 @@ function handleLike() {
 
   video.play().then(() => {
 
-    // autoplay succeeded
     playOverlay.style.display = "none";
+    thumbnail.style.display = "none";
 
-  }).catch(() => {
+}).catch(() => {
 
-    // browser blocked autoplay
     playOverlay.style.display = "flex";
+    thumbnail.style.display = "block";
 
-  });
+});
 
 });
 
 // Play button
   playOverlay.onclick = (e) => {
 
-  e.stopPropagation();
+    e.stopPropagation();
 
-  video.play().then(() => {
+    video.play().then(() => {
 
-    playOverlay.style.display = "none";
+        playOverlay.style.display = "none";
+        thumbnail.style.display = "none";
 
-  });
+    });
 
 };
 
