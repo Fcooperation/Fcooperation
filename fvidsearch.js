@@ -75,6 +75,100 @@ async function searchVideos(query) {
 
 }
 
+// Create video card
+function createVideoCard(video) {
+
+  const card = document.createElement("div");
+  card.className = "video-card";
+
+  card.innerHTML = `
+
+<div class="video-thumb-wrap">
+
+  <img
+    class="video-thumb"
+    src="${video.thumbnail_url}"
+  >
+
+  <div class="video-views">
+
+    <svg
+      class="view-icon"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="white"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round">
+
+      <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"></path>
+
+      <circle cx="12" cy="12" r="3"></circle>
+
+    </svg>
+
+    <span class="view-count">
+      ${video.views_count || 0}
+    </span>
+
+  </div>
+
+</div>
+
+<div class="video-meta">
+
+  <div class="video-user">
+
+    <img
+      class="mini-profile"
+      src="${video.profile_pic}"
+    >
+
+    <span>${video.username}</span>
+
+  </div>
+
+  <div class="video-details">
+
+    ${video.details || ""}
+
+  </div>
+
+</div>
+
+`;
+
+  card.onclick = () => {
+
+    const selectedVideo = {
+
+      ...video,
+
+      user: {
+        username: video.username,
+        profile_pic: video.profile_pic
+      }
+
+    };
+
+    localStorage.setItem(
+      "currently_viewing",
+      JSON.stringify(selectedVideo)
+    );
+
+    localStorage.setItem(
+      "redirect",
+      "fvidsearch.html"
+    );
+
+    window.location.href = "fvids.html";
+
+  };
+
+  return card;
+
+}
+
 // ---------------- RENDER ----------------
 
 function render(data) {
@@ -84,6 +178,18 @@ function render(data) {
   const videos = data.filter(item => item.type === "video");
 const users = data.filter(item => item.type === "user");
 
+  // Top 3 users by followers
+const topUsers = [...users]
+  .sort((a, b) => (b.followers || 0) - (a.followers || 0))
+  .slice(0, 3);
+
+// First 6 videos
+const firstVideos = videos.slice(0, 6);
+
+// Remaining videos
+const remainingVideos = videos.slice(6);
+
+  
   // ---------------- NO RESULTS ----------------
 
   if (!videos.length && !users.length) {
@@ -112,191 +218,103 @@ const users = data.filter(item => item.type === "user");
     const grid = document.createElement("div");
     grid.className = "video-grid";
 
-    videos.forEach(video => {
-
-      const card = document.createElement("div");
-      card.className = "video-card";
-
-      card.innerHTML = `
-
-  <div class="video-thumb-wrap">
-
-    <img
-      class="video-thumb"
-      src="${video.thumbnail_url}"
-    >
-
-    <div class="video-views">
-
-      <svg
-        class="view-icon"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="white"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round">
-
-        <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"></path>
-
-        <circle cx="12" cy="12" r="3"></circle>
-
-      </svg>
-
-      <span class="view-count">
-        ${video.views_count || 0}
-      </span>
-
-    </div>
-
-  </div>
-
-  <div class="video-meta">
-
-    <div class="video-user">
-
-      <img
-        class="mini-profile"
-        src="${video.profile_pic}"
-      >
-
-      <span>${video.username}</span>
-
-    </div>
-
-    <div class="video-details">
-
-      ${video.details || ""}
-
-    </div>
-
-  </div>
-
-`;
-
-      card.onclick = () => {
-
-        const selectedVideo = {
-
-          ...video,
-
-          user: {
-            username: video.username,
-            profile_pic: video.profile_pic
-          }
-
-        };
-
-        localStorage.setItem(
-          "currently_viewing",
-          JSON.stringify(selectedVideo)
-        );
-
-        localStorage.setItem(
-          "redirect",
-          "fvidsearch.html"
-        );
-
-        window.location.href = "fvids.html";
-
-      };
-
-      grid.appendChild(card);
-
-    });
+     firstVideos.forEach(video => {
+  grid.appendChild(createVideoCard(video));
+});
 
     results.appendChild(grid);
 
-  }
+    // ==========================================
+// TOP USERS
+// ==========================================
 
-  // ==================================================
-  // USERS
-  // ==================================================
+if (topUsers.length) {
 
-  if (users.length) {
+  const title = document.createElement("h3");
+  title.className = "search-heading";
+  title.textContent = "Popular Users";
 
-    const title = document.createElement("h3");
-    title.className = "search-heading";
-    title.textContent = "Users";
+  results.appendChild(title);
 
-    results.appendChild(title);
+  topUsers.forEach(user => {
 
-    users.forEach(user => {
+    const card = document.createElement("div");
+    card.className = "user-card";
 
-      const card = document.createElement("div");
+    card.innerHTML = `
 
-      card.className = "user-card";
+      <img
+        class="user-pic"
+        src="${user.profile_pic}"
+      >
 
-      card.innerHTML = `
+      <div class="user-info">
 
-        <img
-          class="user-pic"
-          src="${user.profile_pic}"
-        >
-
-        <div class="user-info">
-
-          <div class="user-name">
-
-            ${user.username}
-
-          </div>
-
-          <div class="user-stats">
-
-  ${user.followers || 0} Followers •
-  ${user.following || 0} Following •
-  ${user.videos_count || 0} Videos
-
-</div>
-
+        <div class="user-name">
+          ${user.username}
         </div>
 
-      `;
+        <div class="user-stats">
+          ${user.followers || 0} Followers •
+          ${user.following || 0} Following •
+          ${user.videos_count || 0} Videos
+        </div>
 
-      // Card on click 
-      card.onclick = () => {
+      </div>
 
-  const account =
-    JSON.parse(localStorage.getItem("faccount")) || {};
+    `;
 
-  const viewerId = String(
-    account.userId || account.id || ""
-  );
+    card.onclick = () => {
 
-  const userId = String(user.user_id || "");
+      const account =
+        JSON.parse(localStorage.getItem("faccount")) || {};
 
-  if (!userId) return;
+      const viewerId = String(
+        account.userId || account.id || ""
+      );
 
-  // Save whose profile is being viewed
-  localStorage.setItem(
-    "view_profile",
-    userId
-  );
+      const userId = String(user.user_id || "");
 
-  // Save viewer (logged in) or empty string
-  localStorage.setItem(
-    "profile_viewer",
-    viewerId || ""
-  );
+      if (!userId) return;
 
-  // Save profile details
-  localStorage.setItem(
-    "viewing_user_profile",
-    JSON.stringify({
-      id: userId,
-      username: user.username,
-      profile_pic: user.profile_pic
-    })
-  );
+      localStorage.setItem("view_profile", userId);
 
-  window.location.href = "fvidsprofile.html";
+      localStorage.setItem(
+        "profile_viewer",
+        viewerId || ""
+      );
 
-};
+      localStorage.setItem(
+        "viewing_user_profile",
+        JSON.stringify({
+          id: userId,
+          username: user.username,
+          profile_pic: user.profile_pic
+        })
+      );
 
-      results.appendChild(card);
+      window.location.href = "fvidsprofile.html";
 
-    });
+    };
+
+    results.appendChild(card);
+
+  });
+
+}
+
+if (remainingVideos.length) {
+
+  const grid2 = document.createElement("div");
+  grid2.className = "video-grid";
+
+    remainingVideos.forEach(video => {
+  grid2.appendChild(createVideoCard(video));
+});
+
+  results.appendChild(grid2);
+
+}
 
   }
 
