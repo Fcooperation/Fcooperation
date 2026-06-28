@@ -316,8 +316,12 @@ if (alreadyFollowing) {
   }
 );
 
-// update backend copy in memory
-vid.following = true;
+// Update every loaded video from this creator
+videos.forEach(v => {
+  if (String(v.user_id) === videoOwnerId) {
+    v.following = true;
+  }
+});
 
 // update local cache
 followedUsers[videoOwnerId] = true;
@@ -327,8 +331,7 @@ localStorage.setItem(
   JSON.stringify(followedUsers)
 );
 
-    // save to current video object
-    vid.following = true;
+    
 
     setTimeout(() => {
       followBtn.style.display = "none";
