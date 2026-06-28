@@ -349,3 +349,54 @@ transform:scale(.97);
 background:#1976d2;
 
 }
+.video-thumb-wrap{
+    position:relative;
+}
+
+.video-thumb{
+    display:block;
+    width:100%;
+}
+
+.video-views{
+
+    position:absolute;
+
+    right:8px;
+    bottom:8px;
+
+    display:flex;
+    align-items:center;
+    gap:4px;
+
+    padding:3px 6px;
+
+    border-radius:20px;
+
+    background:rgba(0,0,0,.25);
+
+    backdrop-filter:blur(3px);
+}
+
+.view-icon{
+
+    width:18px;
+    height:18px;
+
+    opacity:.9;
+}
+
+.view-count{
+
+    color:#fff;
+
+    font-weight:700;
+
+    font-size:14px;
+
+    -webkit-text-stroke:.6px rgba(0,0,0,.8);
+
+    text-shadow:
+        0 0 3px #000,
+        0 0 6px #000;
+}

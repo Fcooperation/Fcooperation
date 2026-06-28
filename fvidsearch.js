@@ -119,33 +119,60 @@ const users = data.filter(item => item.type === "user");
 
       card.innerHTML = `
 
-        <img
-          class="video-thumb"
-          src="${video.thumbnail_url}"
-        >
+  <div class="video-thumb-wrap">
 
-        <div class="video-meta">
+    <img
+      class="video-thumb"
+      src="${video.thumbnail_url}"
+    >
 
-          <div class="video-user">
+    <div class="video-views">
 
-            <img
-              class="mini-profile"
-              src="${video.profile_pic}"
-            >
+      <svg
+        class="view-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="white"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round">
 
-            <span>${video.username}</span>
+        <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"></path>
 
-          </div>
+        <circle cx="12" cy="12" r="3"></circle>
 
-          <div class="video-details">
+      </svg>
 
-            ${video.details || ""}
+      <span class="view-count">
+        ${video.views_count || 0}
+      </span>
 
-          </div>
+    </div>
 
-        </div>
+  </div>
 
-      `;
+  <div class="video-meta">
+
+    <div class="video-user">
+
+      <img
+        class="mini-profile"
+        src="${video.profile_pic}"
+      >
+
+      <span>${video.username}</span>
+
+    </div>
+
+    <div class="video-details">
+
+      ${video.details || ""}
+
+    </div>
+
+  </div>
+
+`;
 
       card.onclick = () => {
 
