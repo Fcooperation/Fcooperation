@@ -40,9 +40,6 @@ let hasMoreVideos = true;
 let swipeStartX = 0;
 let swipeStartY = 0;
 let swipeActive = false;
-const RESUME_KEY = "fvids_resume";
-let refreshAfterResume = false;
-
 
 
 // Stop all vids 
@@ -54,22 +51,6 @@ function stopAllVideos() {
   });
 }
 
-// save feed state
-function saveFeedState() {
-
-  const currentVideo = videos[currentIndex];
-
-  if (!currentVideo) return;
-
-  localStorage.setItem(
-    RESUME_KEY,
-    JSON.stringify({
-      public_id: currentVideo.public_id,
-      timestamp: Date.now()
-    })
-  );
-
-}
 
 // ---------------- TAB SWITCH ----------------
 function switchTab(tab) {
@@ -145,24 +126,9 @@ async function loadVideos(page = 1, append = false) {
     // ---------------- FIRST LOAD ----------------
 if (!append) {
 
-  const existingId = videos[0]?.public_id;
-
-  videos = newVideos;
-
-  if (refreshAfterResume && existingId) {
-
-    const index = videos.findIndex(
-      v => v.public_id === existingId
-    );
-
-    currentIndex = index >= 0 ? index : 0;
-
-    // Wait for swipe before rendering
-    return;
-  }
-
-  currentIndex = 0;
-  renderVideo(0);
+videos = newVideos;
+currentIndex = 0;
+renderVideo(0);
 }
 
     // ---------------- LOAD MORE ----------------
@@ -206,7 +172,7 @@ feed.innerHTML = "";
 
   const vid = videos[index];
   if (!vid) return;
-  saveFeedState();
+  
 
   const wrapper = document.createElement("div");
   wrapper.className = "video-wrapper";
@@ -941,19 +907,6 @@ else {
 // ---------------- NAVIGATION ----------------
 async function nextVideo() {
 
-  if (refreshAfterResume) {
-
-    refreshAfterResume = false;
-
-    await loadVideos();
-
-    currentIndex++;
-
-    renderVideo(currentIndex, "next");
-
-    return;
-  }
-
   if (currentIndex < videos.length - 1) {
 
     const currentVideo = feed.querySelector("video");
@@ -1281,7 +1234,7 @@ function showProfileViewerBar() {
 
       localStorage.removeItem("redirect");
       
-      saveFeedState();
+      
       window.location.href =
         redirect || "fvidsme.html";
 
@@ -1332,7 +1285,7 @@ function openCurrentVideoProfile() {
     );
   }
 
-  saveFeedState();
+  
 
   window.location.href = "fvidsprofile.html";
 }
@@ -1362,49 +1315,6 @@ document.addEventListener("touchend", (e) => {
     openCurrentVideoProfile();
   }
 });
-
-// Resume video
-async function resumeVideo(publicId) {
-
-  try {
-
-    const account =
-      JSON.parse(localStorage.getItem("faccount")) || {};
-
-    const userId =
-      account.userId || account.id || "";
-
-    const res = await fetch(
-      `https://fweb-backend.onrender.com/fvids/single?id=${publicId}&userId=${userId}`
-    );
-
-    const video = await res.json();
-
-    if (!video || (!video._id && !video.id)) {
-      localStorage.removeItem(RESUME_KEY);
-      loadVideos();
-      return;
-    }
-
-    videos = [video];
-    currentIndex = 0;
-
-    renderVideo(0);
-
-// Load the normal feed in the background
-refreshAfterResume = true;
-
-  } catch (err) {
-
-    console.error(err);
-
-    localStorage.removeItem(RESUME_KEY);
-
-    loadVideos();
-
-  }
-
-}
 
 // ---------------- INIT ----------------
 window.onload = () => {
@@ -1438,29 +1348,6 @@ window.onload = () => {
     return;
   }
 
-  // Resume saved video
-  const resume =
-  JSON.parse(localStorage.getItem(RESUME_KEY));
-
-const RESUME_EXPIRE_TIME = 1000 * 60 * 30; // 30 minutes
-
-if (resume) {
-
-  const expired =
-    Date.now() - resume.timestamp >
-    RESUME_EXPIRE_TIME;
-
-  if (expired) {
-
-    localStorage.removeItem(RESUME_KEY);
-
-  } else {
-
-    resumeVideo(resume.public_id);
-return;
-  }
-
-}
 
   // ---------------- SHARED LINK ----------------
 
