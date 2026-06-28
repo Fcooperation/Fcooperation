@@ -160,6 +160,75 @@ function applyVideoFit(video) {
   }
 }
 
+// ---------------- DEVICE ID ----------------
+
+function getDeviceId() {
+
+  let deviceId =
+    localStorage.getItem("fvid_device_id");
+
+  if (!deviceId) {
+
+    deviceId =
+      crypto.randomUUID();
+
+    localStorage.setItem(
+      "fvid_device_id",
+      deviceId
+    );
+
+  }
+
+  return deviceId;
+
+}
+
+// ---------------- SEND VIEW ----------------
+
+async function sendView(video) {
+
+  try {
+
+    const account =
+      JSON.parse(localStorage.getItem("faccount")) || {};
+
+    const userId =
+      account.userId || account.id || null;
+
+    const deviceId =
+      getDeviceId();
+
+    await fetch(
+      "https://fweb-backend.onrender.com/fviews",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+
+          videoPublicId:
+            video.public_id,
+
+          userId,
+
+          deviceId
+
+        })
+      }
+    );
+
+  } catch (err) {
+
+    console.error(
+      "View failed",
+      err
+    );
+
+  }
+
+}
+
 // ---------------- RENDER SINGLE VIDEO ----------------
 function renderVideo(index, direction = "next") {
 
@@ -202,13 +271,39 @@ video.loop = true;
 video.muted = false;
 video.playsInline = true;
 video.autoplay = true;
-  applyVideoFit(video);
 
-  video.addEventListener("playing", () => {
+applyVideoFit(video);
+
+video.addEventListener("playing", () => {
   playOverlay.style.display = "none";
 });
 
-  wrapper.appendChild(video);
+// ---------------- VIEW TRACKING ----------------
+
+let viewSent = false;
+
+video.addEventListener("timeupdate", () => {
+
+  if (viewSent) return;
+
+  if (!video.duration) return;
+
+  const watched =
+    video.currentTime / video.duration;
+
+  if (watched >= 0.4) {
+
+    viewSent = true;
+
+    sendView(vid);
+
+  }
+
+});
+
+// ---------------- END VIEW TRACKING ----------------
+
+wrapper.appendChild(video);
 
   const thumbnail = document.createElement("img");
 
