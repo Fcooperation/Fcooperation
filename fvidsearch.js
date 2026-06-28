@@ -4,6 +4,9 @@ document.getElementById("searchInput");
 const results =
 document.getElementById("results");
 
+let currentData = [];
+let activeTab = "Top";
+
 document
 .getElementById("back-btn")
 .onclick = () => history.back();
@@ -41,6 +44,27 @@ input.addEventListener("keydown", e => {
 
 });
 
+//Tabs
+const tabs = document.querySelectorAll(".tab");
+
+tabs.forEach(tab => {
+
+  tab.onclick = () => {
+
+    tabs.forEach(t =>
+      t.classList.remove("active")
+    );
+
+    tab.classList.add("active");
+
+    activeTab = tab.textContent.trim();
+
+    render(currentData);
+
+  };
+
+});
+
 // ---------------- CALL BACKEND ----------------
 
 async function searchVideos(query) {
@@ -59,7 +83,8 @@ async function searchVideos(query) {
 
     const data = await res.json();
 
-    render(data || []);
+    currentData = data || [];
+    render(currentData);
 
   } catch (err) {
 
@@ -175,13 +200,32 @@ function render(data) {
 
   results.innerHTML = "";
 
-  const videos = data.filter(item => item.type === "video");
-const users = data.filter(item => item.type === "user");
+  let videos =
+  data.filter(item => item.type === "video");
+
+let users =
+  data.filter(item => item.type === "user");
+
+  // ---------------- TAB FILTER ----------------
+
+if (activeTab === "Videos") {
+
+  users = [];
+
+}
+
+if (activeTab === "Users") {
+
+  videos = [];
+
+}
 
   // Top 3 users by followers
 const topUsers = [...users]
   .sort((a, b) => (b.followers || 0) - (a.followers || 0))
   .slice(0, 3);
+
+  
 
 // First 6 videos
 const firstVideos = videos.slice(0, 6);
@@ -224,11 +268,13 @@ const remainingVideos = videos.slice(6);
 
     results.appendChild(grid);
 
-    // ==========================================
+  }
+
+  // ==========================================
 // TOP USERS
 // ==========================================
 
-if (topUsers.length) {
+if (activeTab === "Top" && topUsers.length) {
 
   const title = document.createElement("h3");
   title.className = "search-heading";
@@ -303,7 +349,7 @@ if (topUsers.length) {
 
 }
 
-if (remainingVideos.length) {
+  if (remainingVideos.length) {
 
   const grid2 = document.createElement("div");
   grid2.className = "video-grid";
@@ -314,8 +360,83 @@ if (remainingVideos.length) {
 
   results.appendChild(grid2);
 
-}
-
   }
+
+  if (activeTab === "Users" && users.length) {
+
+  const title = document.createElement("h3");
+  title.className = "search-heading";
+  title.textContent = "Users";
+
+  results.appendChild(title);
+
+  users
+    .sort((a, b) => (b.followers || 0) - (a.followers || 0))
+    .forEach(user => {
+
+      const card = document.createElement("div");
+      card.className = "user-card";
+
+      card.innerHTML = `
+
+        <img
+          class="user-pic"
+          src="${user.profile_pic}"
+        >
+
+        <div class="user-info">
+
+          <div class="user-name">
+            ${user.username}
+          </div>
+
+          <div class="user-stats">
+            ${user.followers || 0} Followers •
+            ${user.following || 0} Following •
+            ${user.videos_count || 0} Videos
+          </div>
+
+        </div>
+
+      `;
+
+      card.onclick = () => {
+
+        const account =
+          JSON.parse(localStorage.getItem("faccount")) || {};
+
+        const viewerId = String(
+          account.userId || account.id || ""
+        );
+
+        const userId = String(user.user_id || "");
+
+        if (!userId) return;
+
+        localStorage.setItem("view_profile", userId);
+
+        localStorage.setItem(
+          "profile_viewer",
+          viewerId
+        );
+
+        localStorage.setItem(
+          "viewing_user_profile",
+          JSON.stringify({
+            id: userId,
+            username: user.username,
+            profile_pic: user.profile_pic
+          })
+        );
+
+        window.location.href = "fvidsprofile.html";
+
+      };
+
+      results.appendChild(card);
+
+    });
+
+}
 
 }
