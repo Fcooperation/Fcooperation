@@ -220,6 +220,13 @@ if (activeTab === "Users") {
 
 }
 
+  if (activeTab === "Hashtags") {
+
+  // Hide user results
+  users = [];
+
+  }
+
   // Top 3 users by followers
 const topUsers = [...users]
   .sort((a, b) => (b.followers || 0) - (a.followers || 0))
@@ -438,5 +445,31 @@ if (activeTab === "Top" && topUsers.length) {
     });
 
 }
+  }
+
+  // ---------------- AUTO HASHTAG SEARCH ----------------
+
+const savedTag =
+  localStorage.getItem("fvidsearchtag");
+
+if (savedTag) {
+
+  input.value = savedTag;
+
+  activeTab = "Hashtags";
+
+  tabs.forEach(tab => {
+
+    tab.classList.toggle(
+      "active",
+      tab.textContent.trim() === "Hashtags"
+    );
+
+  });
+
+  doSearch();
+
+  localStorage.removeItem("fvidsearchtag");
 
 }
+
