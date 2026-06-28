@@ -207,14 +207,14 @@ async function sendView(video) {
         },
         body: JSON.stringify({
 
-          videoPublicId:
-            video.public_id,
+  publicId:
+    video.public_id,
 
-          userId,
+  userId,
 
-          deviceId
+  deviceId
 
-        })
+})
       }
     );
 
