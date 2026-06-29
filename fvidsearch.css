@@ -451,3 +451,39 @@ color:#999;
   font-size: 12px;
   color: #888;
 }
+#search-history {
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background: #111;
+  color: white;
+  margin-bottom: 5px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.history-item span {
+  flex: 1;
+}
+
+.history-remove {
+  background: transparent;
+  border: none;
+  color: red;
+  font-size: 16px;
+}
+
+.clear-history-btn {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 8px;
+}

@@ -4,6 +4,9 @@ document.getElementById("searchInput");
 const results =
 document.getElementById("results");
 
+const tabsContainer =
+document.getElementById("tabsContainer");
+
 const suggestionsBox =
 document.getElementById("suggestions");
 
@@ -32,9 +35,16 @@ function doSearch(){
   const q = input.value.trim();
 
   if(!q){
-    results.innerHTML = "";
-    return;
+
+  results.innerHTML = "";
+
+  if (tabsContainer) {
+    tabsContainer.style.display = "none";
   }
+
+  return;
+
+}
 
   searchVideos(q);
 
@@ -63,6 +73,9 @@ input.addEventListener("input", () => {
     suggestionsBox.innerHTML = "";
     return;
   }
+  
+  const historyBox = document.getElementById("search-history");
+if (historyBox) historyBox.style.display = "none";
 
   clearTimeout(debounceTimer);
 
@@ -112,7 +125,14 @@ async function searchVideos(query) {
     const data = await res.json();
 
     currentData = data || [];
+
+// SHOW TABS AFTER SEARCH
+if (tabsContainer) {
+  tabsContainer.style.display = "block";
+}
+
     render(currentData);
+    saveSearchHistory(query);
 
   } catch (err) {
 
@@ -156,6 +176,9 @@ function renderSuggestions(items) {
     suggestionsBox.style.display = "none";
     return;
   }
+
+  const historyBox = document.getElementById("search-history");
+if (historyBox) historyBox.style.display = "none";
 
   suggestionsBox.style.display = "block";
 
@@ -639,6 +662,78 @@ if (activeTab === "Hashtags") {
 }
   }
 
+// Render Search history 
+function renderSearchHistory() {
+
+  // Remove existing history UI first
+  document.getElementById("search-history")?.remove();
+
+  const history =
+    JSON.parse(localStorage.getItem("fvid_search_history")) || [];
+
+  if (!history.length) return;
+
+  const wrapper = document.createElement("div");
+  wrapper.id = "search-history";
+
+  history.forEach(item => {
+
+    const div = document.createElement("div");
+    div.className = "history-item";
+
+    div.innerHTML = `
+      <span>${item}</span>
+      <button class="history-remove">✕</button>
+    `;
+
+    // click = search again
+    div.querySelector("span").onclick = () => {
+      input.value = item;
+      doSearch();
+    };
+
+    // remove single item
+    div.querySelector(".history-remove").onclick = (e) => {
+
+  e.stopPropagation();
+
+  let history =
+    JSON.parse(localStorage.getItem("fvid_search_history")) || [];
+
+  history = history.filter(h => h !== item);
+
+  localStorage.setItem(
+    "fvid_search_history",
+    JSON.stringify(history)
+  );
+
+  renderSearchHistory();
+
+};
+
+    wrapper.appendChild(div);
+
+  });
+
+  // clear button at bottom
+  const clearBtn = document.createElement("button");
+  clearBtn.textContent = "Clear history";
+  clearBtn.className = "clear-history-btn";
+
+  clearBtn.onclick = () => {
+
+  localStorage.removeItem("fvid_search_history");
+
+  renderSearchHistory();
+
+};
+
+  wrapper.appendChild(clearBtn);
+
+  results.appendChild(wrapper);
+
+}
+
   // ---------------- AUTO HASHTAG SEARCH ----------------
 
 const savedTag =
@@ -666,3 +761,28 @@ if (savedTag) {
 
 }
 
+// Save search history
+function saveSearchHistory(query) {
+
+  let history =
+    JSON.parse(localStorage.getItem("fvid_search_history")) || [];
+
+  // remove duplicates
+  history = history.filter(item => item !== query);
+
+  // add newest on top
+  history.unshift(query);
+
+  // limit to 8
+  history = history.slice(0, 8);
+
+  localStorage.setItem(
+    "fvid_search_history",
+    JSON.stringify(history)
+  );
+
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  renderSearchHistory();
+});
