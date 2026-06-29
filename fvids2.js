@@ -354,8 +354,10 @@ const existing =
   JSON.parse(localStorage.getItem(localKey)) || [];
 
 existing.unshift({
+  id: data.comment.id,
   text,
   userId,
+  comment_likes_count: 0,
   createdAt: Date.now()
 });
 
@@ -606,6 +608,27 @@ window.addEventListener("popstate", () => {
 
   countEl.textContent =
     Math.max(0, count);
+
+    // ---------------- UPDATE LOCAL STORAGE ----------------
+const localKey = `fvid_comments_${currentVideoId}`;
+
+const localComments =
+  JSON.parse(localStorage.getItem(localKey)) || [];
+
+const comment = localComments.find(
+  c => String(c.id) === String(commentId)
+);
+
+if (comment) {
+  comment.comment_likes_count = Math.max(0, count);
+
+  localStorage.setItem(
+    localKey,
+    JSON.stringify(localComments)
+  );
+}
+
+
 
   try {
 
