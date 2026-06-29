@@ -7,6 +7,7 @@ let startY = 0;
   let commentPage = 1;
 let commentHasMore = true;
 let loadingComments = false;
+let replyingTo = null;
   
 const COMMENT_PREVIEW_LENGTH = 120;
 const USERNAME_LIMIT = 16;
@@ -236,6 +237,30 @@ div.innerHTML = `
 `;
 
   list.appendChild(div);
+      
+      div.addEventListener("click", () => {
+
+  replyingTo = c;
+
+  let replyName = username;
+
+  if (replyName.length > 15) {
+
+    replyName =
+      replyName.slice(0,15) + "...";
+
+  }
+
+  commentInput.placeholder =
+    `Reply to ${replyName}`;
+
+  commentInput.focus();
+
+  document.body.classList.add(
+    "reply-mode"
+  );
+
+});
 });
 
     commentHasMore = data.hasMore;
@@ -291,7 +316,9 @@ loadingComments = false;
   // ---------------- POST COMMENT ----------------
   const postBtn =
   document.getElementById("post-comment");
-
+const commentInput =
+document.getElementById("comment-input");
+  
 let postingComment = false;
 
   postBtn.addEventListener("click", async () => {
@@ -535,6 +562,14 @@ if (currentVideo) {
 window.addEventListener("popstate", () => {
 
   if (sheet.classList.contains("show")) {
+    replyingTo = null;
+
+commentInput.placeholder =
+"Write a comment...";
+
+document.body.classList.remove(
+"reply-mode"
+);
     closeComments();
   }
 });
@@ -545,6 +580,14 @@ window.addEventListener("popstate", () => {
   function closeComments() {
 
   sheet.classList.remove("show");
+    replyingTo = null;
+
+commentInput.placeholder =
+"Write a comment...";
+
+document.body.classList.remove(
+"reply-mode"
+);
 
   setTimeout(() => {
     sheet.classList.add("hidden");
@@ -672,6 +715,29 @@ if (comment) {
 
 });
 
+  // Cancel reply mode
+document.addEventListener("click",(e)=>{
+
+  if(!replyingTo) return;
+
+  if(
+    e.target.closest(".comment-item") ||
+    e.target.closest("#comment-input") ||
+    e.target.closest("#post-comment")
+  ){
+    return;
+  }
+
+  replyingTo = null;
+
+  commentInput.placeholder =
+    "Write a comment...";
+
+  document.body.classList.remove(
+    "reply-mode"
+  );
+
+});
   
   // ---------------- TOAST ----------------
   function showToast(message) {
