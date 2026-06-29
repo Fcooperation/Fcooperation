@@ -685,43 +685,34 @@ if (replyingTo) {
 
 `;
 
-    let repliesContainer =
-      parent.querySelector(".replies-container");
+    
+let repliesContainer =
+  parent.querySelector(".replies-container");
 
-    if (!repliesContainer) {
+if (!repliesContainer) {
 
-      repliesContainer =
-        document.createElement("div");
+  repliesContainer =
+    document.createElement("div");
 
-      repliesContainer.className =
-        "replies-container";
+  repliesContainer.className =
+    "replies-container";
 
-      parent.appendChild(repliesContainer);
+  parent.appendChild(repliesContainer);
 
-    }
+}
 
-    repliesContainer.prepend(reply);
-
-    // view replies button
-    const btn =
-parent.querySelector(".view-replies-btn");
-
-if(btn.classList.contains("hidden")){
+// Show the button if it was hidden
+const btn =
+  parent.querySelector(".view-replies-btn");
 
 btn.classList.remove("hidden");
 
-btn.textContent="View 1 reply";
+// Reload replies from the server
+replyPages[replyingTo.id] = 1;
 
-}else{
+repliesContainer.innerHTML = "";
 
-const num =
-parseInt(btn.textContent.match(/\d+/)?.[0]||0)+1;
-
-btn.textContent=
-
-`View ${num} repl${num===1?"y":"ies"}`;
-
-}
+loadReplies(replyingTo.id, parent);
 
   }
 
