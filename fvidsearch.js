@@ -4,6 +4,10 @@ document.getElementById("searchInput");
 const results =
 document.getElementById("results");
 
+const suggestionsBox =
+document.getElementById("suggestions");
+
+let debounceTimer;
 let currentData = [];
 let activeTab = "Top";
 let hashtagSearch = false;
@@ -18,6 +22,9 @@ document.getElementById("search-btn");
 // DoSearch function
 function doSearch(){
 
+  suggestionsBox.style.display = "none";
+  suggestionsBox.innerHTML = "";
+
   if (activeTab !== "Hashtags") {
     hashtagSearch = false;
   }
@@ -25,11 +32,8 @@ function doSearch(){
   const q = input.value.trim();
 
   if(!q){
-
     results.innerHTML = "";
-
     return;
-
   }
 
   searchVideos(q);
@@ -47,6 +51,24 @@ input.addEventListener("keydown", e => {
     doSearch();
 
   }
+
+});
+
+input.addEventListener("input", () => {
+
+  const q = input.value.trim();
+
+  if (!q) {
+    suggestionsBox.style.display = "none";
+    suggestionsBox.innerHTML = "";
+    return;
+  }
+
+  clearTimeout(debounceTimer);
+
+  debounceTimer = setTimeout(() => {
+    fetchSuggestions(q);
+  }, 300);
 
 });
 
@@ -103,6 +125,72 @@ async function searchVideos(query) {
     `;
 
   }
+
+}
+
+// Fetch suggestions
+async function fetchSuggestions(query) {
+
+  try {
+
+    const res = await fetch(
+      `https://fweb-backend.onrender.com/fvidsearch/suggestions?q=${encodeURIComponent(query)}`
+    );
+
+    const data = await res.json();
+
+    renderSuggestions(data || []);
+
+  } catch (err) {
+    console.error("Suggestion error:", err);
+  }
+
+}
+
+// Show suggestions 
+function renderSuggestions(items) {
+
+  suggestionsBox.innerHTML = "";
+
+  if (!items.length) {
+    suggestionsBox.style.display = "none";
+    return;
+  }
+
+  suggestionsBox.style.display = "block";
+
+  items.slice(0, 5).forEach(item => {
+
+    const div = document.createElement("div");
+    div.className = "suggestion-item";
+
+    // clean display (NO #, NO user labels)
+    const label =
+      item.type === "hashtag"
+        ? item.value
+        : item.value;
+
+    div.innerHTML = `
+      <span>${label}</span>
+      <span class="suggestion-type">
+        ${item.type}
+      </span>
+    `;
+
+    div.onclick = () => {
+
+      input.value = label;
+
+      suggestionsBox.style.display = "none";
+      suggestionsBox.innerHTML = "";
+
+      doSearch(); // 🔥 instant search
+
+    };
+
+    suggestionsBox.appendChild(div);
+
+  });
 
 }
 
