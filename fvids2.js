@@ -255,12 +255,12 @@ div.innerHTML = `
       const viewBtn =
 div.querySelector(".view-replies-btn");
 
-if ((c.reply_count || 0) > 0) {
+if ((c.comment_replies_count || 0) > 0) {
 
-viewBtn.classList.remove("hidden");
+  viewBtn.classList.remove("hidden");
 
-viewBtn.textContent =
-`View ${c.reply_count} repl${c.reply_count===1?"y":"ies"}`;
+  viewBtn.textContent =
+    `View ${c.comment_replies_count} repl${c.comment_replies_count === 1 ? "y" : "ies"}`;
 
 }
       
