@@ -837,3 +837,46 @@ backdrop-filter: blur(6px);
 .play-overlay{
     z-index:2;
 }
+.comment-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.comment-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #222;
+}
+
+.comment-user-block {
+  display: flex;
+  flex-direction: column;
+}
+.comment-avatar,
+.comment-avatar-fallback {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.comment-avatar {
+  object-fit: cover;
+}
+
+.comment-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #444;
+  color: #fff;
+
+  font-size: 13px;
+  font-weight: bold;
+
+  user-select: none;
+}

@@ -163,18 +163,53 @@ spinner.classList.remove("hidden");
 `;
   }
 
-  div.innerHTML = `
-    <div class="comment-username">
-      ${username}
-      ${creatorBadge}
+const profilePic = c.profile_pic;
+
+const initials = (username || "U")
+  .replace("You", account.username || "You")
+  .trim()
+  .split(/\s+/)
+  .map(name => name[0])
+  .join("")
+  .slice(0, 2)
+  .toUpperCase();
+
+div.innerHTML = `
+  <div class="comment-header">
+
+    ${
+  profilePic
+    ? `
+      <img
+        class="comment-avatar"
+        src="${profilePic}"
+        alt="profile"
+      >
+    `
+    : `
+      <div class="comment-avatar comment-avatar-fallback">
+        ${initials}
+      </div>
+    `
+}
+
+    <div class="comment-user-block">
+
+      <div class="comment-username">
+        ${username}
+        ${creatorBadge}
+      </div>
+
+      <div class="comment-text">
+        ${previewText}
+      </div>
+
     </div>
 
-    <div class="comment-text">
-      ${previewText}
-    </div>
+  </div>
 
-    ${readMoreHTML}
-  `;
+  ${readMoreHTML}
+`;
 
   list.appendChild(div);
 });
