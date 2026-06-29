@@ -218,57 +218,68 @@ function updateProfile(data) {
   );
 
   // ---------------- RENDER VIDEOS ----------------
-
 if (videosGrid) {
 
   videosGrid.innerHTML = "";
 
-  (data.videos || []).forEach(video => {
+  (data.videos || []).forEach((video) => {
 
-  videosGrid.innerHTML += `
-  <div
-    class="video-card"
-    data-public-id="${video.public_id}"
-  >
-
-    <div class="thumb-wrap">
-
-      <img
-        src="${video.thumbnail_url}"
-        class="video-thumbnail"
-        loading="lazy"
-        alt="Video thumbnail"
+    videosGrid.innerHTML += `
+      <div
+        class="video-card"
+        data-public-id="${video.public_id}"
       >
 
-      <div class="video-views">
+        <div class="thumb-wrap">
 
-        <svg
-          class="view-icon"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="white"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
+          <img
+            src="${video.thumbnail_url}"
+            class="video-thumbnail"
+            loading="lazy"
+            alt="Video thumbnail"
+          >
 
-          <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"></path>
-          <circle cx="12" cy="12" r="3"></circle>
+          <!-- 👁 VIEWS -->
+          <div class="video-views">
 
-        </svg>
+            <svg
+              class="view-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="white"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
 
-        <span class="view-count">
-          ${video.views_count || 0}
-        </span>
+            <span class="view-count">
+              ${video.views_count || 0}
+            </span>
+
+          </div>
+
+          <!-- ❤️ LIKES -->
+<div class="video-likes">
+
+  <span class="like-icon">
+    ${video.liked ? "❤️" : "🤍"}
+  </span>
+
+  <span class="like-count">
+    ${video.likes_count || 0}
+  </span>
+
+</div>
+
+        </div>
 
       </div>
+    `;
 
-    </div>
-
-  </div>
-`;
-
-});
+  });
 
   // ---------------- OPEN VIDEO ----------------
 
@@ -278,35 +289,29 @@ if (videosGrid) {
 
       card.onclick = () => {
 
-        // Save the selected video
         const selectedVideo = {
-  ...data.videos[index],
+          ...data.videos[index],
+          user: {
+            username: account.username,
+            profile_pic: account.profile_pic
+          }
+        };
 
-  user: {
-    username: account.username,
-    profile_pic: account.profile_pic
-  }
-};
+        localStorage.setItem(
+          "currently_viewing",
+          JSON.stringify(selectedVideo)
+        );
 
-localStorage.setItem(
-  "currently_viewing",
-  JSON.stringify(selectedVideo)
-);
-
-        // Tell FVIDS where to return
         localStorage.setItem(
           "redirect",
           "fvidsme.html"
         );
 
-        // Open FVIDS
-        window.location.href =
-          "fvids.html";
+        window.location.href = "fvids.html";
 
       };
 
     });
 
 }
-
 }
