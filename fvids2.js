@@ -8,6 +8,9 @@ let startY = 0;
 let commentHasMore = true;
 let loadingComments = false;
 let replyingTo = null;
+const replyPages = {};
+const replyHasMore = {};
+const loadingReplies = {};
   
 const COMMENT_PREVIEW_LENGTH = 120;
 const USERNAME_LIMIT = 16;
@@ -114,6 +117,9 @@ const res = await fetch(
 div.className = "comment-item";
 
 div.dataset.commentId = c.id;
+  replyPages[c.id] = 1;
+  replyHasMore[c.id] = true;
+  loadingReplies[c.id] = false;
 
   let username = c.username || "Unknown";
 
@@ -235,10 +241,28 @@ div.innerHTML = `
 
   </div>
 
+  <div class="replies-container"></div>
+
+  <button
+    class="view-replies-btn hidden"
+    data-comment-id="${c.id}">
+  </button>
+
   ${readMoreHTML}
 `;
 
   list.appendChild(div);
+      const viewBtn =
+div.querySelector(".view-replies-btn");
+
+if ((c.reply_count || 0) > 0) {
+
+viewBtn.classList.remove("hidden");
+
+viewBtn.textContent =
+`View ${c.reply_count} repl${c.reply_count===1?"y":"ies"}`;
+
+}
       
       div.addEventListener("click", () => {
 
@@ -275,6 +299,132 @@ loadingComments = false;
   }
 }
 
+  // Load replies function 
+  async function loadReplies(commentId,parent){
+
+if(loadingReplies[commentId]) return;
+
+if(replyHasMore[commentId]===false) return;
+
+loadingReplies[commentId]=true;
+
+const container =
+parent.querySelector(".replies-container");
+
+const btn =
+parent.querySelector(".view-replies-btn");
+
+try{
+
+const res =
+await fetch(
+
+`https://fweb-backend.onrender.com/fvids-reply-comments?commentId=${commentId}&page=${replyPages[commentId]}&limit=5`
+
+);
+
+const data =
+await res.json();
+
+const replies =
+data.replies || [];
+
+if(replies.length===0){
+
+replyHasMore[commentId]=false;
+
+btn.remove();
+
+return;
+
+}
+
+replies.forEach(r=>{
+
+const username =
+r.username || "Unknown";
+
+const initials =
+username
+.split(/\s+/)
+.map(x=>x[0])
+.join("")
+.slice(0,2)
+.toUpperCase();
+
+const div =
+document.createElement("div");
+
+div.className="reply-item";
+
+div.innerHTML=`
+
+<div class="comment-header">
+
+${
+
+r.profile_pic ?
+
+`<img class="reply-avatar" src="${r.profile_pic}">`
+
+:
+
+`<div class="reply-avatar reply-avatar-fallback">${initials}</div>`
+
+}
+
+<div class="comment-user-block">
+
+<div class="comment-username">
+
+${username}
+
+</div>
+
+<div class="comment-body">
+
+<div class="comment-text">
+
+${r.text}
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+`;
+
+container.appendChild(div);
+
+});
+
+replyPages[commentId]++;
+
+if(data.hasMore){
+
+btn.textContent="View more replies";
+
+}else{
+
+replyHasMore[commentId]=false;
+
+btn.remove();
+
+}
+
+}catch(err){
+
+console.error(err);
+
+}
+
+loadingReplies[commentId]=false;
+
+}
+  
   // Scroll to load more comments 
   document.getElementById("comments-list").addEventListener("scroll", () => {
 
@@ -313,6 +463,27 @@ loadingComments = false;
   commentText.textContent = fullText;
 
   btn.remove();
+});
+
+  // view replies button logic
+  document.addEventListener("click",e=>{
+
+const btn=
+e.target.closest(".view-replies-btn");
+
+if(!btn) return;
+
+const parent=
+btn.closest(".comment-item");
+
+loadReplies(
+
+btn.dataset.commentId,
+
+parent
+
+);
+
 });
 
   // ---------------- POST COMMENT ----------------
@@ -505,6 +676,27 @@ if (replyingTo) {
     }
 
     repliesContainer.prepend(reply);
+
+    // view replies button
+    const btn =
+parent.querySelector(".view-replies-btn");
+
+if(btn.classList.contains("hidden")){
+
+btn.classList.remove("hidden");
+
+btn.textContent="View 1 reply";
+
+}else{
+
+const num =
+parseInt(btn.textContent.match(/\d+/)?.[0]||0)+1;
+
+btn.textContent=
+
+`View ${num} repl${num===1?"y":"ies"}`;
+
+}
 
   }
 
