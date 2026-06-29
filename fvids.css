@@ -882,9 +882,9 @@ backdrop-filter: blur(6px);
 }
 .comment-body{
 display:flex;
-justify-content:space-between;
 align-items:flex-start;
-gap:10px;
+width:100%;
+gap:12px;
 }
 
 .comment-like{
@@ -895,6 +895,9 @@ justify-content:center;
 cursor:pointer;
 user-select:none;
 min-width:34px;
+
+margin-left:auto;
+flex-shrink:0;
 }
 
 .comment-like-icon{
@@ -948,6 +951,10 @@ position:relative;
 
 z-index:2;
 
+}
+.comment-text{
+    flex: 1;
+    word-break: break-word;
 }
 .replies-container{
     margin-left:48px;
