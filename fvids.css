@@ -995,3 +995,43 @@ z-index:2;
     line-height:1.4;
     word-break:break-word;
 }
+.view-replies-btn{
+
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+
+  margin-top:8px;
+  margin-left:50px;
+
+  padding:7px 14px;
+
+  background:#1877f2;
+
+  color:#fff;
+
+  border:none;
+
+  border-radius:999px;
+
+  font-size:13px;
+
+  font-weight:600;
+
+  cursor:pointer;
+
+  transition:.2s;
+
+}
+
+.view-replies-btn:hover{
+  background:#1669d8;
+}
+
+.view-replies-btn:active{
+  transform:scale(.96);
+}
+
+.view-replies-btn.hidden{
+  display:none;
+}

@@ -264,17 +264,22 @@ if ((c.comment_replies_count || 0) > 0) {
 
 }
       
-      div.addEventListener("click", () => {
+      div.addEventListener("click", (e) => {
+
+  if (
+    e.target.closest(".view-replies-btn") ||
+    e.target.closest(".comment-like") ||
+    e.target.closest(".read-more-btn")
+  ) {
+    return;
+  }
 
   replyingTo = c;
 
   let replyName = username;
 
   if (replyName.length > 15) {
-
-    replyName =
-      replyName.slice(0,15) + "...";
-
+    replyName = replyName.slice(0, 15) + "...";
   }
 
   commentInput.placeholder =
@@ -282,9 +287,7 @@ if ((c.comment_replies_count || 0) > 0) {
 
   commentInput.focus();
 
-  document.body.classList.add(
-    "reply-mode"
-  );
+  document.body.classList.add("reply-mode");
 
 });
 });
@@ -314,6 +317,16 @@ parent.querySelector(".replies-container");
 const btn =
 parent.querySelector(".view-replies-btn");
 
+    const originalText = btn.textContent;
+
+btn.disabled = true;
+
+btn.textContent = "Viewing...";
+
+btn.style.opacity = "0.6";
+
+btn.style.cursor = "wait";
+    
 try{
 
 const res =
@@ -403,21 +416,35 @@ container.appendChild(div);
 
 replyPages[commentId]++;
 
-if(data.hasMore){
+if (data.hasMore) {
 
-btn.textContent="View more replies";
+  btn.disabled = false;
 
-}else{
+  btn.style.opacity = "1";
 
-replyHasMore[commentId]=false;
+  btn.style.cursor = "pointer";
 
-btn.remove();
+  btn.textContent = "View more replies";
+
+} else {
+
+  replyHasMore[commentId] = false;
+
+  btn.remove();
 
 }
 
 }catch(err){
 
 console.error(err);
+  
+  btn.disabled = false;
+
+btn.style.opacity = "1";
+
+btn.style.cursor = "pointer";
+
+btn.textContent = originalText;
 
 }
 
@@ -466,23 +493,21 @@ loadingReplies[commentId]=false;
 });
 
   // view replies button logic
-  document.addEventListener("click",e=>{
+  document.addEventListener("click", (e) => {
 
-const btn=
-e.target.closest(".view-replies-btn");
+  const btn = e.target.closest(".view-replies-btn");
 
-if(!btn) return;
+  if (!btn) return;
 
-const parent=
-btn.closest(".comment-item");
+  e.stopPropagation();
 
-loadReplies(
+  const parent =
+    btn.closest(".comment-item");
 
-btn.dataset.commentId,
-
-parent
-
-);
+  loadReplies(
+    btn.dataset.commentId,
+    parent
+  );
 
 });
 
