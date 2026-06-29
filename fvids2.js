@@ -111,7 +111,9 @@ const res = await fetch(
 
   const div = document.createElement("div");
 
-  div.className = "comment-item";
+div.className = "comment-item";
+
+div.dataset.commentId = c.id;
 
   let username = c.username || "Unknown";
 
@@ -353,16 +355,52 @@ postBtn.textContent = "Posting...";
 
     try {
 
-      const payload = {
-        videoId: currentVideoId,
-        videoUrl: currentVideoUrl,
-        userId,
-        commentText: text
-      };
+      let url;
+let payload;
+
+if (replyingTo) {
+
+  url =
+    "https://fweb-backend.onrender.com/fvids-reply-comments";
+
+  payload = {
+
+    videoId: currentVideoId,
+
+    commentId: replyingTo.id,
+
+    commentUser: replyingTo.userId,
+
+    videoUrl: currentVideoUrl,
+
+    userId,
+
+    replyText: text
+
+  };
+
+} else {
+
+  url =
+    "https://fweb-backend.onrender.com/fvids/comment";
+
+  payload = {
+
+    videoId: currentVideoId,
+
+    videoUrl: currentVideoUrl,
+
+    userId,
+
+    commentText: text
+
+  };
+
+}
       
 
       const res = await fetch(
-        "https://fweb-backend.onrender.com/fvids/comment",
+  url,
         {
           method: "POST",
           headers: {
@@ -379,6 +417,120 @@ postBtn.textContent = "Posting...";
           data.error || "Failed to post comment"
         );
       } 
+
+      // ---------------- REPLY ----------------
+
+if (replyingTo) {
+
+  const parent = document.querySelector(
+    `.comment-item[data-comment-id="${replyingTo.id}"]`
+  );
+
+  if (parent) {
+
+    let username = account.username || "You";
+
+    if (username.length > 15) {
+      username =
+        username.slice(0, 15) + "...";
+    }
+
+    const profilePic =
+      account.profile_pic;
+
+    const initials = username
+      .trim()
+      .split(/\s+/)
+      .map(n => n[0])
+      .join("")
+      .slice(0,2)
+      .toUpperCase();
+
+    const reply = document.createElement("div");
+
+    reply.className = "reply-item";
+
+    reply.innerHTML = `
+
+<div class="reply-header">
+
+${
+profilePic ?
+
+`
+<img
+class="reply-avatar"
+src="${profilePic}">
+`
+
+:
+
+`
+<div class="reply-avatar reply-avatar-fallback">
+${initials}
+</div>
+`
+}
+
+<div class="reply-content">
+
+<div class="reply-username">
+
+You
+
+</div>
+
+<div class="reply-text">
+
+${text}
+
+</div>
+
+</div>
+
+</div>
+
+`;
+
+    let repliesContainer =
+      parent.querySelector(".replies-container");
+
+    if (!repliesContainer) {
+
+      repliesContainer =
+        document.createElement("div");
+
+      repliesContainer.className =
+        "replies-container";
+
+      parent.appendChild(repliesContainer);
+
+    }
+
+    repliesContainer.prepend(reply);
+
+  }
+
+  replyingTo = null;
+
+  commentInput.placeholder =
+    "Write a comment...";
+
+  document.body.classList.remove(
+    "reply-mode"
+  );
+
+  input.value = "";
+
+  postingComment = false;
+
+  postBtn.disabled = false;
+
+  postBtn.textContent = "Post";
+
+  return;
+
+}
 
       // ---------- SAVE TO LOCAL STORAGE ----------
 const localKey = `fvid_comments_${currentVideoId}`;
@@ -405,9 +557,12 @@ localStorage.setItem(
         document.getElementById("comments-list");
 
       const div =
-        document.createElement("div");
+document.createElement("div");
 
-      div.className = "comment-item";
+div.className = "comment-item";
+
+div.dataset.commentId =
+data.comment.id;
 
       const profilePic = account.profile_pic;
 
