@@ -841,6 +841,7 @@ backdrop-filter: blur(6px);
   display: flex;
   align-items: flex-start;
   gap: 10px;
+  width: 100%;
 }
 
 .comment-avatar {
@@ -854,6 +855,8 @@ backdrop-filter: blur(6px);
 .comment-user-block {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-width: 0;
 }
 .comment-avatar,
 .comment-avatar-fallback {
@@ -880,24 +883,27 @@ backdrop-filter: blur(6px);
 
   user-select: none;
 }
-.comment-body{
-display:flex;
-align-items:flex-start;
-width:100%;
-gap:12px;
+.comment-body {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  gap: 12px;
 }
 
-.comment-like{
-display:flex;
-flex-direction:column;
-align-items:center;
-justify-content:center;
-cursor:pointer;
-user-select:none;
-min-width:34px;
+.comment-like {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 
-margin-left:auto;
-flex-shrink:0;
+  margin-left: auto;
+  flex-shrink: 0;
+
+  min-width: 34px;
+  padding-left: 16px;
+
+  cursor: pointer;
+  user-select: none;
 }
 
 .comment-like-icon{
