@@ -1,7 +1,8 @@
 const account =
-  JSON.parse(
-    localStorage.getItem("faccount")
-  );
+  JSON.parse(localStorage.getItem("faccount"));
+
+const viewerId =
+  account?.userId || account?.id;
 
 const username =
   document.getElementById("username");
@@ -112,7 +113,7 @@ document
   // ---------------- FETCH LATEST PROFILE ----------------
 
   fetch(
-  `https://fweb-backend.onrender.com/fvids-user-details?id=${encodeURIComponent(userId)}`
+  `https://fweb-backend.onrender.com/fvids-user-details?id=${encodeURIComponent(userId)}&viewerId=${encodeURIComponent(viewerId)}`
 )
     .then(res => res.json())
     .then(data => {
