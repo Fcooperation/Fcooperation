@@ -6,6 +6,7 @@ document.getElementById("results");
 
 let currentData = [];
 let activeTab = "Top";
+let hashtagSearch = false;
 
 document
 .getElementById("back-btn")
@@ -14,7 +15,12 @@ document
 const searchBtn =
 document.getElementById("search-btn");
 
+// DoSearch function
 function doSearch(){
+
+  if (activeTab !== "Hashtags") {
+    hashtagSearch = false;
+  }
 
   const q = input.value.trim();
 
@@ -194,6 +200,48 @@ function createVideoCard(video) {
 
 }
 
+// Hashtag cards
+function createHashtagCard(item) {
+
+  const card = document.createElement("div");
+  card.className = "hashtag-card";
+
+  card.innerHTML = `
+
+    <div class="hashtag-name">
+      #${item.tag}
+    </div>
+
+    <div class="hashtag-count">
+      ${item.count} videos
+    </div>
+
+  `;
+
+  card.onclick = () => {
+
+    input.value = item.tag;
+
+    activeTab = "Hashtags";
+
+    tabs.forEach(tab => {
+
+      tab.classList.toggle(
+        "active",
+        tab.textContent.trim() === "Hashtags"
+      );
+
+    });
+
+    hashtagSearch = true;
+    doSearch();
+
+  };
+
+  return card;
+
+}
+
 // ---------------- RENDER ----------------
 
 function render(data) {
@@ -206,6 +254,9 @@ function render(data) {
 let users =
   data.filter(item => item.type === "user");
 
+  let hashtags =
+  data.filter(item => item.type === "hashtag");
+  
   // ---------------- TAB FILTER ----------------
 
 if (activeTab === "Videos") {
@@ -222,8 +273,13 @@ if (activeTab === "Users") {
 
   if (activeTab === "Hashtags") {
 
-  // Hide user results
-  users = [];
+    if (!hashtagSearch) {
+
+        // Normal hashtag search
+        videos = [];
+        users = [];
+
+    }
 
   }
 
@@ -243,16 +299,21 @@ const remainingVideos = videos.slice(6);
   
   // ---------------- NO RESULTS ----------------
 
-  if (!videos.length && !users.length) {
+  if (
+    !videos.length &&
+    !users.length &&
+    !hashtags.length
+) {
 
-    results.innerHTML = `
-      <div class="empty-search">
-        No results found
-      </div>
-    `;
+  results.innerHTML = `
+    <div class="empty-search">
+      No results found
+    </div>
+  `;
 
-    return;
-  }
+  return;
+
+}
 
   // ==================================================
   // VIDEOS
@@ -445,6 +506,49 @@ if (activeTab === "Top" && topUsers.length) {
     });
 
 }
+
+  // ==========================================
+// HASHTAGS
+// ==========================================
+
+if (activeTab === "Hashtags") {
+
+    if (!hashtagSearch) {
+
+        // Show hashtag suggestions
+        const title = document.createElement("h3");
+        title.className = "search-heading";
+        title.textContent = "Hashtags";
+
+        results.appendChild(title);
+
+        hashtags.forEach(tag => {
+            results.appendChild(createHashtagCard(tag));
+        });
+
+    } else {
+
+        // Show the selected hashtag
+        const title = document.createElement("h3");
+        title.className = "search-heading";
+        title.textContent = "#" + input.value;
+
+        results.appendChild(title);
+
+        const count = hashtags[0]?.count || videos.length;
+
+        const info = document.createElement("div");
+        info.className = "hashtag-count";
+        info.textContent = `${count} videos`;
+
+        results.appendChild(info);
+
+        // Don't render hashtag cards anymore.
+        // The existing Videos and Popular Users sections
+        // further down in render() will display automatically.
+    }
+
+}
   }
 
   // ---------------- AUTO HASHTAG SEARCH ----------------
@@ -466,7 +570,8 @@ if (savedTag) {
     );
 
   });
-
+  
+  hashtagSearch = true;
   doSearch();
 
   localStorage.removeItem("fvidsearchtag");

@@ -400,3 +400,26 @@ background:#1976d2;
         0 0 3px #000,
         0 0 6px #000;
 }
+.hashtag-card{
+
+padding:16px;
+border-bottom:1px solid #222;
+cursor:pointer;
+
+}
+
+.hashtag-name{
+
+font-size:17px;
+font-weight:600;
+color:white;
+
+}
+
+.hashtag-count{
+
+margin-top:4px;
+font-size:13px;
+color:#999;
+
+}
