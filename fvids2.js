@@ -73,9 +73,15 @@ spinner.classList.remove("hidden");
 
   try {
 
-    const res = await fetch(
-      `https://fweb-backend.onrender.com/fvids/comments?videoId=${videoId}&page=${page}&limit=20`
-    );
+    const account =
+  JSON.parse(localStorage.getItem("faccount")) || {};
+
+const myId =
+  account.userId || account.id || "";
+
+const res = await fetch(
+  `https://fweb-backend.onrender.com/fvids/comments?videoId=${videoId}&userId=${myId}&page=${page}&limit=20`
+);
 
     const data = await res.json();
 
@@ -164,7 +170,7 @@ spinner.classList.remove("hidden");
   }
 
 const profilePic = c.profile_pic;
-
+const likeIcon = c.liked ? "❤️" : "🤍";
 const initials = (username || "U")
   .replace("You", account.username || "You")
   .trim()
@@ -212,7 +218,7 @@ div.innerHTML = `
     data-comment-user="${c.userId}"
   >
 
-    <span class="comment-like-icon">🤍</span>
+    <span class="comment-like-icon">${likeIcon}</span>
 
     <span class="comment-like-count">
       ${c.comment_likes_count || 0}
