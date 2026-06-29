@@ -200,9 +200,27 @@ div.innerHTML = `
         ${creatorBadge}
       </div>
 
-      <div class="comment-text">
-        ${previewText}
-      </div>
+      <div class="comment-body">
+
+  <div class="comment-text">
+    ${previewText}
+  </div>
+
+  <div
+    class="comment-like"
+    data-comment-id="${c.id}"
+    data-comment-user="${c.userId}"
+  >
+
+    <span class="comment-like-icon">🤍</span>
+
+    <span class="comment-like-count">
+      ${c.comment_likes_count || 0}
+    </span>
+
+  </div>
+
+</div>
 
     </div>
 
@@ -391,9 +409,27 @@ div.innerHTML = `
         You
       </div>
 
-      <div class="comment-text">
-        ${text}
-      </div>
+      <div class="comment-body">
+
+  <div class="comment-text">
+    ${text}
+  </div>
+
+  <div
+    class="comment-like"
+    data-comment-id="${data.comment.id}"
+    data-comment-user="${userId}"
+  >
+
+    <span class="comment-like-icon">🤍</span>
+
+    <span class="comment-like-count">
+      0
+    </span>
+
+  </div>
+
+</div>
 
     </div>
 
@@ -506,6 +542,106 @@ window.addEventListener("popstate", () => {
     sheet.classList.add("hidden");
   }, 200);
   }
+
+  // Comments like function
+  document.addEventListener("click", async (e) => {
+
+  const likeBtn =
+    e.target.closest(".comment-like");
+
+  if (!likeBtn) return;
+
+  const account =
+    JSON.parse(
+      localStorage.getItem("faccount")
+    ) || {};
+
+  const userId =
+    account.userId || account.id;
+
+  if (!userId) {
+    showToast("Login required");
+    return;
+  }
+
+  const icon =
+    likeBtn.querySelector(
+      ".comment-like-icon"
+    );
+
+  const countEl =
+    likeBtn.querySelector(
+      ".comment-like-count"
+    );
+
+  const commentId =
+    likeBtn.dataset.commentId;
+
+  const commentUser =
+    likeBtn.dataset.commentUser;
+
+  let count =
+    parseInt(countEl.textContent) || 0;
+
+  const liked =
+    icon.textContent === "❤️";
+
+  if (liked) {
+
+    icon.textContent = "🤍";
+    count--;
+
+  } else {
+
+    icon.textContent = "❤️";
+    count++;
+
+    icon.classList.remove("liked-pop");
+
+    void icon.offsetWidth;
+
+    icon.classList.add("liked-pop");
+
+  }
+
+  countEl.textContent =
+    Math.max(0, count);
+
+  try {
+
+    await fetch(
+      "https://fweb-backend.onrender.com/fvids-like-comments",
+      {
+
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json"
+        },
+
+        body: JSON.stringify({
+
+          videoId: currentVideoId,
+
+          commentId,
+
+          commentUser,
+
+          userId
+
+        })
+
+      }
+    );
+
+  } catch (err) {
+
+    console.error(err);
+
+  }
+
+});
 
   
   // ---------------- TOAST ----------------
