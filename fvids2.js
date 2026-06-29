@@ -356,14 +356,49 @@ localStorage.setItem(
 
       div.className = "comment-item";
 
-      div.innerHTML = `
-        <div style="font-size:14px;color:white;">
-          ${text}
-        </div>
-        <div class="comment-username">
-  You
-</div>
-      `;
+      const profilePic = account.profile_pic;
+
+const initials = (account.username || "U")
+  .trim()
+  .split(/\s+/)
+  .map(name => name[0])
+  .join("")
+  .slice(0, 2)
+  .toUpperCase();
+
+div.innerHTML = `
+  <div class="comment-header">
+
+    ${
+      profilePic
+        ? `
+          <img
+            class="comment-avatar"
+            src="${profilePic}"
+            alt="profile"
+          >
+        `
+        : `
+          <div class="comment-avatar comment-avatar-fallback">
+            ${initials}
+          </div>
+        `
+    }
+
+    <div class="comment-user-block">
+
+      <div class="comment-username">
+        You
+      </div>
+
+      <div class="comment-text">
+        ${text}
+      </div>
+
+    </div>
+
+  </div>
+`;
 
       list.prepend(div);
 
