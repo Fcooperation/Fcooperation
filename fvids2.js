@@ -452,41 +452,38 @@ if (replyingTo) {
 
     reply.innerHTML = `
 
-<div class="reply-header">
+<div class="comment-header">
 
-${
-profilePic ?
+  ${
+    profilePic
+      ? `
+      <img
+        class="reply-avatar"
+        src="${profilePic}"
+        alt="profile">
+      `
+      : `
+      <div class="reply-avatar reply-avatar-fallback">
+        ${initials}
+      </div>
+      `
+  }
 
-`
-<img
-class="reply-avatar"
-src="${profilePic}">
-`
+  <div class="comment-user-block">
 
-:
+    <div class="reply-username">
+      You
+    </div>
 
-`
-<div class="reply-avatar reply-avatar-fallback">
-${initials}
-</div>
-`
-}
+    <div class="comment-body">
 
-<div class="reply-content">
+      <div class="reply-text">
+        ${text}
+      </div>
 
-<div class="reply-username">
+    </div>
 
-You
-
-</div>
-
-<div class="reply-text">
-
-${text}
-
-</div>
-
-</div>
+  </div>
 
 </div>
 

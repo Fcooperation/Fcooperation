@@ -949,3 +949,49 @@ position:relative;
 z-index:2;
 
 }
+.replies-container{
+    margin-left:48px;
+    margin-top:10px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.reply-item{
+    padding:2px 0;
+}
+
+.reply-avatar,
+.reply-avatar-fallback{
+    width:24px;
+    height:24px;
+    border-radius:50%;
+    flex-shrink:0;
+}
+
+.reply-avatar{
+    object-fit:cover;
+}
+
+.reply-avatar-fallback{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#555;
+    color:#fff;
+    font-size:10px;
+    font-weight:bold;
+}
+
+.reply-username{
+    font-size:10px;
+    color:#aaa;
+    margin-bottom:4px;
+}
+
+.reply-text{
+    color:#fff;
+    font-size:13px;
+    line-height:1.4;
+    word-break:break-word;
+}
