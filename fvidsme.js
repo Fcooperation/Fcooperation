@@ -231,12 +231,39 @@ if (videosGrid) {
     data-public-id="${video.public_id}"
   >
 
-    <img
-      src="${video.thumbnail_url}"
-      class="video-thumbnail"
-      loading="lazy"
-      alt="Video thumbnail"
-    >
+    <div class="thumb-wrap">
+
+      <img
+        src="${video.thumbnail_url}"
+        class="video-thumbnail"
+        loading="lazy"
+        alt="Video thumbnail"
+      >
+
+      <div class="video-views">
+
+        <svg
+          class="view-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="white"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+
+          <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"></path>
+          <circle cx="12" cy="12" r="3"></circle>
+
+        </svg>
+
+        <span class="view-count">
+          ${video.views_count || 0}
+        </span>
+
+      </div>
+
+    </div>
 
   </div>
 `;
