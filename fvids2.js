@@ -396,11 +396,24 @@ ${username}
 
 <div class="comment-body">
 
-<div class="comment-text">
+  <div class="comment-text">
+    ${r.text}
+  </div>
 
-${r.text}
+  <div
+    class="reply-like"
+    data-reply-id="${r.id}"
+  >
 
-</div>
+    <span class="reply-like-icon">
+      ${r.liked ? "❤️" : "🤍"}
+    </span>
+
+    <span class="reply-like-count">
+      ${r.reply_likes_count || 0}
+    </span>
+
+  </div>
 
 </div>
 
@@ -1078,6 +1091,85 @@ if (comment) {
   // Cancel reply mode
 document.addEventListener("click",(e)=>{
 
+  // ---------------- REPLY LIKES ----------------
+document.addEventListener("click", async (e) => {
+
+  const likeBtn =
+    e.target.closest(".reply-like");
+
+  if (!likeBtn) return;
+
+  const account =
+    JSON.parse(localStorage.getItem("faccount")) || {};
+
+  const userId =
+    account.userId || account.id;
+
+  if (!userId) {
+    showToast("Login required");
+    return;
+  }
+
+  const icon =
+    likeBtn.querySelector(".reply-like-icon");
+
+  const countEl =
+    likeBtn.querySelector(".reply-like-count");
+
+  const replyId =
+    likeBtn.dataset.replyId;
+
+  let count =
+    parseInt(countEl.textContent) || 0;
+
+  const liked =
+    icon.textContent === "❤️";
+
+  if (liked) {
+
+    icon.textContent = "🤍";
+    count--;
+
+  } else {
+
+    icon.textContent = "❤️";
+    count++;
+
+    icon.classList.remove("liked-pop");
+
+    void icon.offsetWidth;
+
+    icon.classList.add("liked-pop");
+
+  }
+
+  countEl.textContent =
+    Math.max(0, count);
+
+  try {
+
+    await fetch(
+      "https://fweb-backend.onrender.com/fvids-like-replies",
+      {
+        method: "POST",
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+          replyId,
+          userId
+        })
+      }
+    );
+
+  } catch(err){
+
+    console.error(err);
+
+  }
+
+});
+  
   if(!replyingTo) return;
 
   if(
