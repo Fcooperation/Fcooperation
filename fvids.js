@@ -190,33 +190,33 @@ async function sendView(video) {
   try {
 
     const account =
-  JSON.parse(localStorage.getItem("faccount")) || {};
+      JSON.parse(localStorage.getItem("faccount")) || {};
 
-const userId =
-  account.userId || account.id;
+    const userId =
+      account.userId || account.id || null;
 
-const payload = {
-  publicId: video.public_id
-};
+    const deviceId =
+      getDeviceId();
 
-if (userId) {
-  // Logged in → identify by account only
-  payload.userId = userId;
-} else {
-  // Logged out → identify by device only
-  payload.deviceId = getDeviceId();
-}
+    await fetch(
+      "https://fweb-backend.onrender.com/fviews",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
 
-await fetch(
-  "https://fweb-backend.onrender.com/fviews",
-  {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(payload)
-  }
-);
+  publicId:
+    video.public_id,
+
+  userId,
+
+  deviceId
+
+})
+      }
+    );
 
   } catch (err) {
 
@@ -282,20 +282,16 @@ video.addEventListener("playing", () => {
 
 let viewSent = false;
 
-  function ensureViewSent() {
-
-  if (viewSent) return;
-
-  viewSent = true;
-  sendView(vid);
-
-  }
-
 video.addEventListener("timeupdate", () => {
 
   if (viewSent) return;
 
-  if (video.currentTime >= 3) {
+  if (!video.duration) return;
+
+  const watched =
+    video.currentTime / video.duration;
+
+  if (watched >= 0.4) {
 
     viewSent = true;
 
@@ -559,7 +555,12 @@ const userId = account.userId || account.id;
 const videoKey = vid._id || vid.id;
 
 // get per-account storage
-const isLiked = Boolean(vid.liked);
+const likedVideos =
+  JSON.parse(localStorage.getItem(`fvid_likes_${userId}`)) || {};
+
+// IMPORTANT: fallback priority = backend first, then local
+const isLiked =
+  Boolean(vid.liked) || Boolean(likedVideos[videoKey]);
 
 // apply UI
 if (isLiked) {
@@ -800,15 +801,13 @@ video.addEventListener("ended", () => {
   let currentCount = parseInt(likeCount.textContent || "0");
 
   // ---------- UPDATE UI FIRST (Optimistic UI) ----------
-if (wasLiked) {
-  likeBtn.classList.remove("liked");
-  likeBtn.innerHTML = "🤍";
-} else {
-  likeBtn.classList.add("liked");
-  likeBtn.innerHTML = "❤️";
-
-  ensureViewSent();
-}
+  if (wasLiked) {
+    likeBtn.classList.remove("liked");
+    likeBtn.innerHTML = "🤍";
+  } else {
+    likeBtn.classList.add("liked");
+    likeBtn.innerHTML = "❤️";
+  }
 
   try {
     const res = await fetch("https://fweb-backend.onrender.com/fvids/like", {
@@ -825,18 +824,18 @@ if (wasLiked) {
     if (!res.ok) throw new Error(data.error || "Failed");
 
     // ---------- SYNC IN-MEMORY GLOBAL ARRAY ----------
-    vid.liked = data.liked;
-vid.likes_count = data.likes_count;
-
-if (data.likes_count <= 0) {
-  likeCount.style.display = "none";
-  likeCount.textContent = "0";
-} else {
-  likeCount.style.display = "block";
-  likeCount.textContent = data.likes_count;
-}
+    vid.liked = !wasLiked;
+    vid.likes_count = wasLiked ? Math.max(0, currentCount - 1) : currentCount + 1;
 
     // ---------- SAVE TO STORAGE (Using matching user-specific key) ----------
+    const storageKey = `fvid_likes_${userId}`;
+    const likedVideos = JSON.parse(localStorage.getItem(storageKey)) || {};
+    
+    if (wasLiked) {
+      delete likedVideos[videoId];
+    } else {
+      likedVideos[videoId] = true;
+    }
 
     updateLikeUI(wrapper, wasLiked ? -1 : 1);
 
@@ -849,7 +848,7 @@ if (safe === 0) {
   likeCount.style.display = "none";
   likeCount.textContent = "0"; 
 }
-    
+    localStorage.setItem(storageKey, JSON.stringify(likedVideos));
 
   } catch (err) {
     console.error(err);
@@ -868,9 +867,6 @@ if (safe === 0) {
 
 // Handle double click to send like 
 async function sendDoubleTapLike() {
-  
-  ensureViewSent();
-  
   const account = JSON.parse(localStorage.getItem("faccount")) || {};
   const userId = account.userId || account.id;
   if (!userId) return;
@@ -900,6 +896,11 @@ async function sendDoubleTapLike() {
     }
 
     // ---------- SAVE TO STORAGE (Using matching user-specific key) ----------
+    const storageKey = `fvid_likes_${userId}`;
+    const likedVideos = JSON.parse(localStorage.getItem(storageKey)) || {};
+    likedVideos[videoId] = true;
+    
+    localStorage.setItem(storageKey, JSON.stringify(likedVideos));
 
   } catch (err) {
     console.error("Double tap like failed:", err);
