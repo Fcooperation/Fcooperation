@@ -330,11 +330,14 @@ btn.style.cursor = "wait";
     
 try{
 
-const res =
-await fetch(
+const account =
+  JSON.parse(localStorage.getItem("faccount")) || {};
 
-`https://fweb-backend.onrender.com/fvids-reply-comments?commentId=${commentId}&page=${replyPages[commentId]}&limit=5`
+const userId =
+  account.userId || account.id || "";
 
+const res = await fetch(
+  `https://fweb-backend.onrender.com/fvids-reply-comments?commentId=${commentId}&userId=${userId}&page=${replyPages[commentId]}&limit=5`
 );
 
 const data =
