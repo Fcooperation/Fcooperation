@@ -267,12 +267,13 @@ if ((c.comment_replies_count || 0) > 0) {
       div.addEventListener("click", (e) => {
 
   if (
-    e.target.closest(".view-replies-btn") ||
-    e.target.closest(".comment-like") ||
-    e.target.closest(".read-more-btn")
-  ) {
-    return;
-  }
+  e.target.closest(".view-replies-btn") ||
+  e.target.closest(".comment-like") ||
+  e.target.closest(".reply-like") ||
+  e.target.closest(".read-more-btn")
+) {
+  return;
+}
 
   replyingTo = c;
 
@@ -1088,9 +1089,6 @@ if (comment) {
 
 });
 
-  // Cancel reply mode
-document.addEventListener("click",(e)=>{
-
   // ---------------- REPLY LIKES ----------------
 document.addEventListener("click", async (e) => {
 
@@ -1169,7 +1167,10 @@ document.addEventListener("click", async (e) => {
   }
 
 });
+
   
+  // Cancel reply mode
+document.addEventListener("click",(e)=>{
   if(!replyingTo) return;
 
   if(
