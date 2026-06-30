@@ -8,10 +8,12 @@ let startY = 0;
 let commentHasMore = true;
 let loadingComments = false;
 let replyingTo = null;
+let replyingToReply = false;
+let replyingReplyId = null;
+  
 const replyPages = {};
 const replyHasMore = {};
-const loadingReplies = {};
-  
+const loadingReplies = {}; 
 const COMMENT_PREVIEW_LENGTH = 120;
 const USERNAME_LIMIT = 16;
   
@@ -211,9 +213,9 @@ div.innerHTML = `
     <div class="comment-user-block">
 
       <div class="comment-username">
-        ${username}
-        ${creatorBadge}
-      </div>
+  ${username}
+  ${creatorBadge}
+</div>
 
       <div class="comment-body">
 
@@ -276,6 +278,8 @@ if ((c.comment_replies_count || 0) > 0) {
 }
 
   replyingTo = c;
+  replyingToReply = false;
+  replyingReplyId = null;
 
   let replyName = username;
 
@@ -394,7 +398,13 @@ r.profile_pic ?
 
 <div class="comment-username">
 
-${username}
+${
+r.reply
+?
+`${username} → ${r.replyingToUsername}`
+:
+username
+}
 
 </div>
 
@@ -428,6 +438,27 @@ ${username}
 `;
 
 container.appendChild(div);
+ 
+  div.addEventListener("click", (e) => {
+
+  if (
+    e.target.closest(".reply-like")
+  ) return;
+
+  replyingTo = r;
+
+  replyingToReply = true;
+
+  replyingReplyId = r.id;
+
+  commentInput.placeholder =
+    `Reply to ${r.username}`;
+
+  commentInput.focus();
+
+  document.body.classList.add("reply-mode");
+
+});
 
 });
 
@@ -580,7 +611,10 @@ if (replyingTo) {
 
     videoId: currentVideoId,
 
-    commentId: replyingTo.id,
+    commentId:
+      replyingToReply
+        ? replyingTo.commentId
+        : replyingTo.id,
 
     commentUser: replyingTo.userId,
 
@@ -588,9 +622,13 @@ if (replyingTo) {
 
     userId,
 
-    replyText: text
+    replyText: text,
 
-  };
+    reply: replyingToReply,
+
+    replyId: replyingReplyId
+
+};
 
 } else {
 
@@ -635,9 +673,14 @@ if (replyingTo) {
 
 if (replyingTo) {
 
-  const parent = document.querySelector(
-    `.comment-item[data-comment-id="${replyingTo.id}"]`
-  );
+const parentCommentId =
+  replyingToReply
+    ? replyingTo.commentId
+    : replyingTo.id;
+
+const parent = document.querySelector(
+  `.comment-item[data-comment-id="${parentCommentId}"]`
+);
 
   if (parent) {
 
@@ -685,8 +728,16 @@ if (replyingTo) {
   <div class="comment-user-block">
 
     <div class="reply-username">
-      You
-    </div>
+
+${
+replyingToReply
+?
+`You → ${replyingTo.username}`
+:
+`You`
+}
+
+</div>
 
     <div class="comment-body">
 
@@ -725,22 +776,16 @@ const btn =
 btn.classList.remove("hidden");
 
 // Reload replies from the server
-replyPages[replyingTo.id] = 1;
+
+replyPages[parentCommentId] = 1;
 
 repliesContainer.innerHTML = "";
 
-loadReplies(replyingTo.id, parent);
+loadReplies(parentCommentId, parent);
 
   }
 
-  replyingTo = null;
-
-  commentInput.placeholder =
-    "Write a comment...";
-
-  document.body.classList.remove(
-    "reply-mode"
-  );
+  clearReplyMode();
 
   input.value = "";
 
@@ -939,18 +984,26 @@ if (currentVideo) {
 window.addEventListener("popstate", () => {
 
   if (sheet.classList.contains("show")) {
-    replyingTo = null;
-
-commentInput.placeholder =
-"Write a comment...";
-
-document.body.classList.remove(
-"reply-mode"
-);
+    clearReplyMode();
     closeComments();
   }
 });
 
+  // Clear reply mode
+  function clearReplyMode(){
+
+  replyingTo = null;
+
+  replyingToReply = false;
+
+  replyingReplyId = null;
+
+  commentInput.placeholder =
+    "Write a comment...";
+
+  document.body.classList.remove("reply-mode");
+
+  }
 
   // Close function 
 
@@ -1184,14 +1237,7 @@ document.addEventListener("click",(e)=>{
     return;
   }
 
-  replyingTo = null;
-
-  commentInput.placeholder =
-    "Write a comment...";
-
-  document.body.classList.remove(
-    "reply-mode"
-  );
+  clearReplyMode();
 
 });
   
