@@ -559,12 +559,7 @@ const userId = account.userId || account.id;
 const videoKey = vid._id || vid.id;
 
 // get per-account storage
-const likedVideos =
-  JSON.parse(localStorage.getItem(`fvid_likes_${userId}`)) || {};
-
-// IMPORTANT: fallback priority = backend first, then local
-const isLiked =
-  Boolean(vid.liked) || Boolean(likedVideos[videoKey]);
+const isLiked = Boolean(vid.liked);
 
 // apply UI
 if (isLiked) {
@@ -830,18 +825,18 @@ if (wasLiked) {
     if (!res.ok) throw new Error(data.error || "Failed");
 
     // ---------- SYNC IN-MEMORY GLOBAL ARRAY ----------
-    vid.liked = !wasLiked;
-    vid.likes_count = wasLiked ? Math.max(0, currentCount - 1) : currentCount + 1;
+    vid.liked = data.liked;
+vid.likes_count = data.likes_count;
+
+if (data.likes_count <= 0) {
+  likeCount.style.display = "none";
+  likeCount.textContent = "0";
+} else {
+  likeCount.style.display = "block";
+  likeCount.textContent = data.likes_count;
+}
 
     // ---------- SAVE TO STORAGE (Using matching user-specific key) ----------
-    const storageKey = `fvid_likes_${userId}`;
-    const likedVideos = JSON.parse(localStorage.getItem(storageKey)) || {};
-    
-    if (wasLiked) {
-      delete likedVideos[videoId];
-    } else {
-      likedVideos[videoId] = true;
-    }
 
     updateLikeUI(wrapper, wasLiked ? -1 : 1);
 
@@ -854,7 +849,7 @@ if (safe === 0) {
   likeCount.style.display = "none";
   likeCount.textContent = "0"; 
 }
-    localStorage.setItem(storageKey, JSON.stringify(likedVideos));
+    
 
   } catch (err) {
     console.error(err);
@@ -905,11 +900,6 @@ async function sendDoubleTapLike() {
     }
 
     // ---------- SAVE TO STORAGE (Using matching user-specific key) ----------
-    const storageKey = `fvid_likes_${userId}`;
-    const likedVideos = JSON.parse(localStorage.getItem(storageKey)) || {};
-    likedVideos[videoId] = true;
-    
-    localStorage.setItem(storageKey, JSON.stringify(likedVideos));
 
   } catch (err) {
     console.error("Double tap like failed:", err);
