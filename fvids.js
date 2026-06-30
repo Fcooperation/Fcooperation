@@ -282,16 +282,20 @@ video.addEventListener("playing", () => {
 
 let viewSent = false;
 
+  function ensureViewSent() {
+
+  if (viewSent) return;
+
+  viewSent = true;
+  sendView(vid);
+
+  }
+
 video.addEventListener("timeupdate", () => {
 
   if (viewSent) return;
 
-  if (!video.duration) return;
-
-  const watched =
-    video.currentTime / video.duration;
-
-  if (watched >= 0.4) {
+  if (video.currentTime >= 3) {
 
     viewSent = true;
 
@@ -801,13 +805,15 @@ video.addEventListener("ended", () => {
   let currentCount = parseInt(likeCount.textContent || "0");
 
   // ---------- UPDATE UI FIRST (Optimistic UI) ----------
-  if (wasLiked) {
-    likeBtn.classList.remove("liked");
-    likeBtn.innerHTML = "🤍";
-  } else {
-    likeBtn.classList.add("liked");
-    likeBtn.innerHTML = "❤️";
-  }
+if (wasLiked) {
+  likeBtn.classList.remove("liked");
+  likeBtn.innerHTML = "🤍";
+} else {
+  likeBtn.classList.add("liked");
+  likeBtn.innerHTML = "❤️";
+
+  ensureViewSent();
+}
 
   try {
     const res = await fetch("https://fweb-backend.onrender.com/fvids/like", {
@@ -867,6 +873,9 @@ if (safe === 0) {
 
 // Handle double click to send like 
 async function sendDoubleTapLike() {
+  
+  ensureViewSent();
+  
   const account = JSON.parse(localStorage.getItem("faccount")) || {};
   const userId = account.userId || account.id;
   if (!userId) return;
