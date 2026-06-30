@@ -1075,3 +1075,39 @@ font-size:11px;
 color:#bbb;
 margin-top:2px;
 }
+#cancel-reply{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  min-width:70px;
+  height:42px;
+
+  padding:0 16px;
+
+  border:none;
+  border-radius:999px;
+
+  background:#2196F3;
+  color:#fff;
+
+  font-size:14px;
+  font-weight:600;
+
+  cursor:pointer;
+
+  transition:background .2s ease,
+             transform .15s ease;
+}
+
+#cancel-reply:hover{
+  background:#1976D2;
+}
+
+#cancel-reply:active{
+  transform:scale(.96);
+}
+
+#cancel-reply[hidden]{
+  display:none !important;
+}

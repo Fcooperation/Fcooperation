@@ -297,6 +297,7 @@ if ((c.comment_replies_count || 0) > 0) {
   commentInput.focus();
 
   document.body.classList.add("reply-mode");
+        cancelReplyBtn.hidden = false;
 
 });
 });
@@ -447,11 +448,11 @@ container.appendChild(div);
  
   div.addEventListener("click", (e) => {
 
-  e.stopPropagation();
-
   if (
     e.target.closest(".reply-like")
   ) return;
+
+    e.stopPropagation();
 
   replyingTo = r;
 
@@ -465,6 +466,7 @@ container.appendChild(div);
   commentInput.focus();
 
   document.body.classList.add("reply-mode");
+    cancelReplyBtn.hidden = false;
 
 });
 
@@ -572,6 +574,8 @@ loadingReplies[commentId]=false;
   document.getElementById("post-comment");
 const commentInput =
 document.getElementById("comment-input");
+  const cancelReplyBtn =
+document.getElementById("cancel-reply");
   
 let postingComment = false;
 
@@ -999,7 +1003,7 @@ window.addEventListener("popstate", () => {
 });
 
   // Clear reply mode
-  function clearReplyMode(){
+  function clearReplyMode() {
 
   replyingTo = null;
 
@@ -1011,6 +1015,8 @@ window.addEventListener("popstate", () => {
     "Write a comment...";
 
   document.body.classList.remove("reply-mode");
+
+  cancelReplyBtn.hidden = true;
 
   }
 
