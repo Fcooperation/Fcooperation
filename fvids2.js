@@ -1147,7 +1147,7 @@ document.addEventListener("click", async (e) => {
   try {
 
     await fetch(
-      "https://fweb-backend.onrender.com/fvids-like-replies",
+      "https://fweb-backend.onrender.com/fvids-like-reply",
       {
         method: "POST",
         headers:{
