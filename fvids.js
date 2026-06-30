@@ -190,33 +190,33 @@ async function sendView(video) {
   try {
 
     const account =
-      JSON.parse(localStorage.getItem("faccount")) || {};
+  JSON.parse(localStorage.getItem("faccount")) || {};
 
-    const userId =
-      account.userId || account.id || null;
+const userId =
+  account.userId || account.id;
 
-    const deviceId =
-      getDeviceId();
+const payload = {
+  publicId: video.public_id
+};
 
-    await fetch(
-      "https://fweb-backend.onrender.com/fviews",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
+if (userId) {
+  // Logged in → identify by account only
+  payload.userId = userId;
+} else {
+  // Logged out → identify by device only
+  payload.deviceId = getDeviceId();
+}
 
-  publicId:
-    video.public_id,
-
-  userId,
-
-  deviceId
-
-})
-      }
-    );
+await fetch(
+  "https://fweb-backend.onrender.com/fviews",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  }
+);
 
   } catch (err) {
 
