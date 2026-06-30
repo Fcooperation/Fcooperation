@@ -268,6 +268,10 @@ if ((c.comment_replies_count || 0) > 0) {
       
       div.addEventListener("click", (e) => {
 
+        if (e.target.closest(".reply-item")) {
+  return;
+        }
+
   if (
   e.target.closest(".view-replies-btn") ||
   e.target.closest(".comment-like") ||
@@ -440,6 +444,8 @@ username
 container.appendChild(div);
  
   div.addEventListener("click", (e) => {
+
+  e.stopPropagation();
 
   if (
     e.target.closest(".reply-like")
