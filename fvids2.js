@@ -324,16 +324,18 @@ const container =
 parent.querySelector(".replies-container");
 
 const btn =
-parent.querySelector(".view-replies-btn");
+  parent.querySelector(".view-replies-btn");
 
-    const originalText = btn.textContent;
+if (!btn) {
+  loadingReplies[commentId] = false;
+  return;
+}
+
+const originalText = btn.textContent;
 
 btn.disabled = true;
-
 btn.textContent = "Viewing...";
-
 btn.style.opacity = "0.6";
-
 btn.style.cursor = "wait";
     
 try{
@@ -358,7 +360,7 @@ if(replies.length===0){
 
 replyHasMore[commentId]=false;
 
-btn.remove();
+btn.classList.add("hidden");
 
 return;
 
@@ -484,7 +486,7 @@ if (data.hasMore) {
 
   replyHasMore[commentId] = false;
 
-  btn.remove();
+  btn.classList.add("hidden");
 
 }
 
@@ -776,18 +778,19 @@ if (!repliesContainer) {
 }
 
 // Show the button if it was hidden
-const btn =
-  parent.querySelector(".view-replies-btn");
+const btn = parent.querySelector(".view-replies-btn");
 
-btn.classList.remove("hidden");
-
-// Reload replies from the server
+if (btn) {
+  btn.classList.remove("hidden");
+  btn.textContent = "View replies";
+}
 
 replyPages[parentCommentId] = 1;
+replyHasMore[parentCommentId] = true;
 
 repliesContainer.innerHTML = "";
 
-loadReplies(parentCommentId, parent);
+await loadReplies(parentCommentId, parent);
 
   }
 
