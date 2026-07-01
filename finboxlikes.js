@@ -178,7 +178,11 @@ ${like.username}
 </div>
 
 <div class="action">
-liked your video ❤️
+${
+  like.type === "comment_like"
+    ? `liked your comment "${like.comment_text || ""}" `
+    : "liked your video ❤️"
+}
 </div>
 
 <div class="time">

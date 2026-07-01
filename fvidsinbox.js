@@ -194,7 +194,9 @@ count.innerText = "";
 
   }
 
-  const last = list[0];
+  const last = [...list].sort(
+  (a, b) => new Date(b.created_at) - new Date(a.created_at)
+)[0];
 
 let actionText;
 
@@ -314,31 +316,39 @@ newData.system = (newData.system || []).map(item => ({
 
   const merged = {
 
-    likes: merge(
-      newData.likes,
-      oldData.likes,
-      "user_id"
-    ),
+  likes: merge(
+    newData.likes,
+    oldData.likes,
+    "user_id"
+  ).sort(
+    (a, b) => new Date(b.created_at) - new Date(a.created_at)
+  ),
 
-    comments: merge(
-      newData.comments,
-      oldData.comments,
-      "user_id"
-    ),
+  comments: merge(
+    newData.comments,
+    oldData.comments,
+    "user_id"
+  ).sort(
+    (a, b) => new Date(b.created_at) - new Date(a.created_at)
+  ),
 
-    follows: merge(
-      newData.follows,
-      oldData.follows,
-      "follower_id"
-    ),
+  follows: merge(
+    newData.follows,
+    oldData.follows,
+    "follower_id"
+  ).sort(
+    (a, b) => new Date(b.created_at) - new Date(a.created_at)
+  ),
 
-    system: merge(
-      newData.system,
-      oldData.system,
-      "id"
-    )
+  system: merge(
+    newData.system,
+    oldData.system,
+    "id"
+  ).sort(
+    (a, b) => new Date(b.created_at) - new Date(a.created_at)
+  )
 
-  };
+};
 
   localStorage.setItem(
     "finbox-main",

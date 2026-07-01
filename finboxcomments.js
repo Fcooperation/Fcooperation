@@ -178,13 +178,23 @@ ${comment.username}
 </div>
 
 <div class="action">
-commented on your video 💬
+${
+  comment.type === "comment_reply"
+    ? "replied to your comment "
+  : comment.type === "reply_reply"
+    ? "replied to your reply "
+  : "commented on your video 💬"
+}
 </div>
 
 <div class="comment-text">
-"${comment.comment_text || ""}"
+"${
+  comment.type === "comment_reply" ||
+  comment.type === "reply_reply"
+    ? (comment.reply_text || "")
+    : (comment.comment_text || "")
+}"
 </div>
-
 <div class="time">
 ${time}
 </div>
