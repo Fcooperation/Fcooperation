@@ -126,6 +126,10 @@ ${comment.username}
 commented on your video 💬
 </div>
 
+<div class="comment-text">
+"${comment.comment_text || ""}"
+</div>
+
 </div>
 
 <div class="video-thumb">
