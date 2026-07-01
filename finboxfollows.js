@@ -1,17 +1,13 @@
 const container =
-document.getElementById(
-"followsContainer"
-);
+document.getElementById("followsContainer");
 
 const inbox =
 JSON.parse(
-localStorage.getItem(
-"finbox-main"
-)
-);
+localStorage.getItem("finbox-main")
+) || {};
 
 const follows =
-inbox?.follows || [];
+inbox.follows || [];
 
 if(follows.length===0){
 
@@ -27,12 +23,70 @@ No new followers
 
 }else{
 
-follows.forEach(follow=>{
+const newFollows =
+follows.filter(follow => follow.is_new);
 
-const card=
+const oldFollows =
+follows.filter(follow => !follow.is_new);
+
+// Show NEW banner
+if(newFollows.length){
+
+const banner =
 document.createElement("div");
 
-card.className=
+banner.className =
+"new-banner";
+
+banner.innerText =
+"New";
+
+container.appendChild(banner);
+
+}
+
+renderFollows(newFollows);
+
+// Show Earlier banner
+if(newFollows.length && oldFollows.length){
+
+const banner =
+document.createElement("div");
+
+banner.className =
+"new-banner";
+
+banner.innerText =
+"Earlier";
+
+container.appendChild(banner);
+
+}
+
+renderFollows(oldFollows);
+
+// Mark all as viewed
+inbox.follows =
+follows.map(follow => ({
+...follow,
+is_new:false
+}));
+
+localStorage.setItem(
+"finbox-main",
+JSON.stringify(inbox)
+);
+
+}
+
+function renderFollows(list){
+
+list.forEach(follow=>{
+
+const card =
+document.createElement("div");
+
+card.className =
 "follow-card";
 
 let avatar;
@@ -42,8 +96,7 @@ if(follow.profile_pic){
 avatar=`
 <div class="avatar">
 <img src="${follow.profile_pic}">
-</div>
-`;
+</div>`;
 
 }else{
 
@@ -55,8 +108,7 @@ const initials=
 avatar=`
 <div class="avatar">
 ${initials}
-</div>
-`;
+</div>`;
 
 }
 
@@ -67,15 +119,11 @@ ${avatar}
 <div class="details">
 
 <div class="username">
-
 ${follow.username}
-
 </div>
 
 <div class="action">
-
 started following you 👤
-
 </div>
 
 </div>

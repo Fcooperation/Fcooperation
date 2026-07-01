@@ -115,3 +115,28 @@ font-size:13px;
 color:#bdbdbd;
 
 }
+.new-banner{
+
+background:#2b7cff;
+color:#fff;
+padding:8px 14px;
+border-radius:999px;
+font-size:13px;
+font-weight:600;
+margin:16px 0 10px;
+
+}
+
+.like-card{
+
+display:flex;
+align-items:center;
+gap:12px;
+
+}
+
+.details{
+
+flex:1;
+
+}
