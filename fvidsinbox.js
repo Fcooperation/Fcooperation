@@ -53,35 +53,74 @@ function setupInboxNavigation() {
 
   likesBox.onclick = () => {
 
-    localStorage.setItem(
-        "finbox-page",
-        "likes"
-    );
+  const inbox = loadInbox() || {};
 
-    window.location.href =
-      "finboxlikes.html";
+  inbox.likes = (inbox.likes || []).map(item => ({
+    ...item,
+    is_new: false
+  }));
+
+  localStorage.setItem(
+    "finbox-main",
+    JSON.stringify(inbox)
+  );
+
+  renderInbox(inbox, false);
+
+  localStorage.setItem(
+    "finbox-page",
+    "likes"
+  );
+
+  window.location.href = "finboxlikes.html";
 
 };
   commentsBox.onclick = () => {
 
-    localStorage.setItem(
-        "finbox-page",
-        "comments"
-    );
+  const inbox = loadInbox() || {};
 
-    window.location.href =
-      "finboxcomments.html";
+  inbox.comments = (inbox.comments || []).map(item => ({
+    ...item,
+    is_new: false
+  }));
+
+  localStorage.setItem(
+    "finbox-main",
+    JSON.stringify(inbox)
+  );
+
+  renderInbox(inbox, false);
+
+  localStorage.setItem(
+    "finbox-page",
+    "comments"
+  );
+
+  window.location.href = "finboxcomments.html";
 
 };
   followsBox.onclick = () => {
 
-    localStorage.setItem(
-        "finbox-page",
-        "follows"
-    );
+  const inbox = loadInbox() || {};
 
-    window.location.href =
-      "finboxfollows.html";
+  inbox.follows = (inbox.follows || []).map(item => ({
+    ...item,
+    is_new: false
+  }));
+
+  localStorage.setItem(
+    "finbox-main",
+    JSON.stringify(inbox)
+  );
+
+
+
+  localStorage.setItem(
+    "finbox-page",
+    "follows"
+  );
+
+  window.location.href = "finboxfollows.html";
 
 };
   systemBox.onclick = () => {
@@ -98,37 +137,37 @@ function setupInboxNavigation() {
 }
 
 // Render inbox data 
-function renderInbox(data, showDots = true) {
+function renderInbox(data) {
 
   renderCard(
-    data.likes || [],
-    "likesAvatar",
-    "likesPreview",
-    "likesDot",
-    "likesCount",
-    "liked your video",
-    showDots
-  );
+  data.likes || [],
+  "likesAvatar",
+  "likesPreview",
+  "likesDot",
+  "likesCount",
+  "liked your video",
+  hasUnread(data.likes)
+);
 
-  renderCard(
-    data.comments || [],
-    "commentsAvatar",
-    "commentsPreview",
-    "commentsDot",
-    "commentsCount",
-    "commented on your video",
-    showDots
-  );
+renderCard(
+  data.comments || [],
+  "commentsAvatar",
+  "commentsPreview",
+  "commentsDot",
+  "commentsCount",
+  "commented on your video",
+  hasUnread(data.comments)
+);
 
-  renderCard(
-    data.follows || [],
-    "followsAvatar",
-    "followsPreview",
-    "followsDot",
-    "followsCount",
-    "started following you",
-    showDots
-  );
+renderCard(
+  data.follows || [],
+  "followsAvatar",
+  "followsPreview",
+  "followsDot",
+  "followsCount",
+  "started following you",
+  hasUnread(data.follows)
+);
 }
 
 // Render Cards
@@ -161,8 +200,22 @@ count.innerText = "";
 
   const last = list[0];
 
+if (list.length === 1) {
+
   preview.innerText =
     `${last.username} ${actionText}`;
+
+} else if (list.length === 2) {
+
+  preview.innerText =
+    `${last.username} and 1 other ${actionText}`;
+
+} else {
+
+  preview.innerText =
+    `${last.username} and ${list.length - 1} others ${actionText}`;
+
+}
 
   if(showDot){
 
@@ -280,6 +333,11 @@ function loadInbox(){
   );
 
 }
+
+function hasUnread(list = []) {
+  return list.some(item => item.is_new);
+}
+
 function showLoading(){
 
 document
@@ -321,11 +379,13 @@ async function fetchInbox() {
 
     const data = await res.json();
 
-    const hasNewLikes = (data.data.likes || []).length > 0;
-const hasNewComments = (data.data.comments || []).length > 0;
-const hasNewFollows = (data.data.follows || []).length > 0;
-    
     saveInbox(data.data);
+
+const inbox = loadInbox();
+
+const hasNewLikes = hasUnread(inbox.likes);
+const hasNewComments = hasUnread(inbox.comments);
+const hasNewFollows = hasUnread(inbox.follows);
 
     console.log("📩 FinBox data:", data);
 
@@ -335,37 +395,7 @@ const likes = data.data.likes || [];
 const comments = data.data.comments || [];
 const follows = data.data.follows || [];
 
-const inbox = loadInbox();
-
-renderCard(
-  inbox.likes || [],
-  "likesAvatar",
-  "likesPreview",
-  "likesDot",
-  "likesCount",
-  "liked your video",
-  hasNewLikes
-);
-
-renderCard(
-  inbox.comments || [],
-  "commentsAvatar",
-  "commentsPreview",
-  "commentsDot",
-  "commentsCount",
-  "commented on your video",
-  hasNewComments
-);
-
-renderCard(
-  inbox.follows || [],
-  "followsAvatar",
-  "followsPreview",
-  "followsDot",
-  "followsCount",
-  "started following you",
-  hasNewFollows
-);
+renderInbox(inbox);
 
     hideLoading();
     
