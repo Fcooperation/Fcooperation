@@ -229,7 +229,7 @@ newData.system = (newData.system || []).map(item => ({
 
     const map = new Map();
 
-    [...newList, ...oldList].forEach(item => {
+    [...oldList, ...newList].forEach(item => {
       map.set(
         item[idField] + "_" + item.created_at,
         item
