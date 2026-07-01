@@ -4,6 +4,16 @@ const inboxContainer = document.getElementById("inbox-container");
 // NEW: create reload button state
 let canReload = true;
 
+function getInboxKey() {
+  const account = JSON.parse(localStorage.getItem("faccount"));
+
+  if (!account) return "finbox-main-guest";
+
+  const userId = account.userId || account.id;
+
+  return `finbox-main-${userId}`;
+}
+
 function render() {
 
   const account = JSON.parse(localStorage.getItem("faccount"));
@@ -61,9 +71,9 @@ function setupInboxNavigation() {
   }));
 
   localStorage.setItem(
-    "finbox-main",
-    JSON.stringify(inbox)
-  );
+  getInboxKey(),
+  JSON.stringify(inbox)
+);
 
   renderInbox(inbox, false);
 
@@ -85,9 +95,9 @@ function setupInboxNavigation() {
   }));
 
   localStorage.setItem(
-    "finbox-main",
-    JSON.stringify(inbox)
-  );
+  getInboxKey(),
+  JSON.stringify(inbox)
+);
 
   renderInbox(inbox, false);
 
@@ -109,9 +119,9 @@ function setupInboxNavigation() {
   }));
 
   localStorage.setItem(
-    "finbox-main",
-    JSON.stringify(inbox)
-  );
+  getInboxKey(),
+  JSON.stringify(inbox)
+);
 
 
 
@@ -355,16 +365,16 @@ newData.system = (newData.system || []).map(item => ({
 };
 
   localStorage.setItem(
-    "finbox-main",
-    JSON.stringify(merged)
-  );
+  getInboxKey(),
+  JSON.stringify(merged)
+);
 
 }
 function loadInbox(){
 
   return JSON.parse(
-    localStorage.getItem("finbox-main")
-  );
+  localStorage.getItem(getInboxKey())
+);
 
 }
 

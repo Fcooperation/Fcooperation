@@ -3,11 +3,19 @@ document.getElementById("followsContainer");
 
 const inbox =
 JSON.parse(
-localStorage.getItem("finbox-main")
+  localStorage.getItem(getInboxKey())
 ) || {};
 
 const follows =
 inbox.follows || [];
+
+function getInboxKey() {
+  const account = JSON.parse(localStorage.getItem("faccount"));
+
+  if (!account) return "finbox-main-guest";
+
+  return `finbox-main-${account.userId || account.id}`;
+}
 
 function formatTime(dateString) {
 
@@ -125,8 +133,8 @@ is_new:false
 }));
 
 localStorage.setItem(
-"finbox-main",
-JSON.stringify(inbox)
+  getInboxKey(),
+  JSON.stringify(inbox)
 );
 
 }

@@ -3,11 +3,19 @@ document.getElementById("commentsContainer");
 
 const inbox =
 JSON.parse(
-localStorage.getItem("finbox-main")
+  localStorage.getItem(getInboxKey())
 ) || {};
 
 const comments =
 inbox.comments || [];
+
+function getInboxKey() {
+  const account = JSON.parse(localStorage.getItem("faccount"));
+
+  if (!account) return "finbox-main-guest";
+
+  return `finbox-main-${account.userId || account.id}`;
+}
 
 // Time logic 
 function formatTime(dateString) {
@@ -126,8 +134,8 @@ is_new:false
 }));
 
 localStorage.setItem(
-"finbox-main",
-JSON.stringify(inbox)
+  getInboxKey(),
+  JSON.stringify(inbox)
 );
 
 }
