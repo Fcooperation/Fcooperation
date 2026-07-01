@@ -152,7 +152,7 @@ function renderCard(
 
   }
 
-  const last = list[list.length - 1];
+  const last = list[0];
 
   preview.innerText =
     `${last.username} ${actionText}`;

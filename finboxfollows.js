@@ -13,8 +13,6 @@ localStorage.getItem(
 const follows =
 inbox?.follows || [];
 
-follows.reverse();
-
 if(follows.length===0){
 
 container.innerHTML=`

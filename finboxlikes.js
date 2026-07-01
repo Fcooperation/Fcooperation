@@ -13,9 +13,6 @@ localStorage.getItem(
 const likes =
 inbox?.likes || [];
 
-// latest first
-likes.reverse();
-
 if(likes.length===0){
 
 container.innerHTML=`

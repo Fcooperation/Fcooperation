@@ -13,9 +13,6 @@ localStorage.getItem(
 const comments =
 inbox?.comments || [];
 
-// Latest first
-comments.reverse();
-
 if(comments.length===0){
 
 container.innerHTML=`

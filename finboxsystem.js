@@ -13,8 +13,6 @@ localStorage.getItem(
 const system =
 inbox?.system || [];
 
-system.reverse();
-
 if(system.length===0){
 
 container.innerHTML=`
