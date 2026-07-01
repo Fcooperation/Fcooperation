@@ -105,6 +105,10 @@ ${item.title}
 ${item.message}
 </div>
 
+<div class="time">
+${time}
+</div>
+
 </div>
 
 `;

@@ -9,6 +9,58 @@ localStorage.getItem("finbox-main")
 const follows =
 inbox.follows || [];
 
+function formatTime(dateString) {
+
+  const now = new Date();
+  const date = new Date(dateString);
+
+  const diff = now - date;
+
+  const minute = 60 * 1000;
+  const hour = 60 * minute;
+  const day = 24 * hour;
+
+  if (diff < hour) {
+
+    const mins = Math.max(1, Math.floor(diff / minute));
+    return `${mins}m ago`;
+
+  }
+
+  if (diff < day) {
+
+    const hrs = Math.floor(diff / hour);
+    return `${hrs}h ago`;
+
+  }
+
+  if (diff < day * 2) {
+
+    return `Yesterday ${date.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false
+    })}`;
+
+  }
+
+  if (date.getFullYear() === now.getFullYear()) {
+
+    return date.toLocaleDateString([], {
+      day: "numeric",
+      month: "short"
+    });
+
+  }
+
+  return date.toLocaleDateString([], {
+    day: "numeric",
+    month: "short",
+    year: "numeric"
+  });
+
+}
+
 if(follows.length===0){
 
 container.innerHTML=`
@@ -112,6 +164,8 @@ ${initials}
 
 }
 
+  const time = formatTime(follow.created_at);
+
 card.innerHTML=`
 
 ${avatar}
@@ -126,9 +180,44 @@ ${follow.username}
 started following you 👤
 </div>
 
+<div class="time">
+${time}
+</div>
+
 </div>
 
 `;
+
+  card.addEventListener("click", () => {
+
+  // Save the profile being viewed
+  localStorage.setItem(
+    "view_profile",
+    String(follow.follower_id || follow.user_id || follow.id)
+  );
+
+  // Save profile details for instant UI
+  localStorage.setItem(
+    "viewing_user_profile",
+    JSON.stringify({
+      id: String(follow.follower_id || follow.user_id || follow.id),
+      username: follow.username,
+      profile_pic: follow.profile_pic
+    })
+  );
+
+  // Save where user came from
+  localStorage.setItem(
+    "redirect",
+    "finboxfollows.html"
+  );
+
+  // Open profile
+  window.location.href = "fvidsprofile.html";
+
+});
+
+
 
 container.appendChild(card);
 
