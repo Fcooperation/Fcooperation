@@ -183,11 +183,55 @@ function renderCard(
 }
 
 // Helper to fetch or load data from localstorage
-function saveInbox(data){
+function saveInbox(newData){
+
+  const oldData = loadInbox() || {};
+
+  function merge(newList = [], oldList = [], idField){
+
+    const map = new Map();
+
+    [...newList, ...oldList].forEach(item => {
+      map.set(
+        item[idField] + "_" + item.created_at,
+        item
+      );
+    });
+
+    return [...map.values()];
+  }
+
+  const merged = {
+
+    likes: merge(
+      newData.likes,
+      oldData.likes,
+      "user_id"
+    ),
+
+    comments: merge(
+      newData.comments,
+      oldData.comments,
+      "user_id"
+    ),
+
+    follows: merge(
+      newData.follows,
+      oldData.follows,
+      "follower_id"
+    ),
+
+    system: merge(
+      newData.system,
+      oldData.system,
+      "id"
+    )
+
+  };
 
   localStorage.setItem(
     "finbox-main",
-    JSON.stringify(data)
+    JSON.stringify(merged)
   );
 
 }
@@ -230,7 +274,7 @@ const likes = data.data.likes || [];
 const comments = data.data.comments || [];
 const follows = data.data.follows || [];
 
-renderInbox(data.data, true);
+renderInbox(loadInbox(), true);
     
   } catch (err) {
     console.error("Inbox fetch error:", err);
