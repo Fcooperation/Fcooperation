@@ -283,6 +283,10 @@ async function fetchInbox() {
 
     const data = await res.json();
 
+    const hasNewLikes = (data.data.likes || []).length > 0;
+const hasNewComments = (data.data.comments || []).length > 0;
+const hasNewFollows = (data.data.follows || []).length > 0;
+    
     saveInbox(data.data);
 
     console.log("📩 FinBox data:", data);
@@ -293,7 +297,34 @@ const likes = data.data.likes || [];
 const comments = data.data.comments || [];
 const follows = data.data.follows || [];
 
-renderInbox(loadInbox(), true);
+const inbox = loadInbox();
+
+renderCard(
+  inbox.likes || [],
+  "likesAvatar",
+  "likesPreview",
+  "likesDot",
+  "liked your video",
+  hasNewLikes
+);
+
+renderCard(
+  inbox.comments || [],
+  "commentsAvatar",
+  "commentsPreview",
+  "commentsDot",
+  "commented on your video",
+  hasNewComments
+);
+
+renderCard(
+  inbox.follows || [],
+  "followsAvatar",
+  "followsPreview",
+  "followsDot",
+  "started following you",
+  hasNewFollows
+);
 
     hideLoading();
     
