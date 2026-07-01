@@ -131,7 +131,7 @@ liked your video ❤️
 <div class="video-thumb">
 
 <img
-src="${like.thumbnail_url}"
+src="${like.video?.thumbnail_url || ""}"
 alt=""
 >
 

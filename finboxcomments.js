@@ -135,7 +135,7 @@ commented on your video 💬
 <div class="video-thumb">
 
 <img
-src="${comment.thumbnail_url}"
+src="${comment.video?.thumbnail_url || ""}"
 alt=""
 >
 
