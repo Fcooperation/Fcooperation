@@ -143,6 +143,20 @@ alt=""
 
 `;
 
+  // Card redirect function 
+  card.addEventListener("click", () => {
+
+  if (!comment.video) return;
+
+  localStorage.setItem(
+    "currently_viewing",
+    JSON.stringify(comment.video)
+  );
+
+  window.location.href = "fvids.html";
+
+});
+
 container.appendChild(card);
 
 });

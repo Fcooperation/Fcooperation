@@ -139,6 +139,20 @@ alt=""
 
 `;
 
+  // Card redirect function
+card.addEventListener("click", () => {
+
+  if (!like.video) return;
+
+  localStorage.setItem(
+    "currently_viewing",
+    JSON.stringify(like.video)
+  );
+
+  window.location.href = "fvids.html";
+
+});
+  
 container.appendChild(card);
 
 });
