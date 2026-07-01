@@ -218,6 +218,10 @@ switch (last.type) {
     actionText = "replied to your reply";
     break;
 
+    case "follow":
+  actionText = "started following you";
+  break;
+
   default:
     actionText = "commented on your video";
 }
