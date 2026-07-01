@@ -10,11 +10,11 @@
 <body>
 
   <div class="topbar">
-  <h1>INBOX</h1>
+    <h1>INBOX</h1>
 
-  <button id="reloadBtn" class="reload-btn" onclick="reloadInbox()">
-  Reload
-  </button>
+    <button id="reloadBtn" class="reload-btn" onclick="reloadInbox()">
+      Reload
+    </button>
   </div>
 
   <div id="auth-area"></div>
@@ -22,65 +22,72 @@
   <div id="inbox-container" class="hidden">
 
     <div id="loadingBanner" class="loading-banner hidden">
-  Loading new notifications...
-</div>
+      Loading new notifications...
+    </div>
 
     <div class="box-grid">
 
-  <!-- Likes -->
-  <div class="inbox-box">
-    <h2>
-      Likes
-      <span id="likesDot" class="notify-dot hidden"></span>
-    </h2>
+      <!-- Likes -->
+      <div class="inbox-box">
+        <h2>
+          Likes
+          <span id="likesCount" class="notify-count hidden"></span>
+          <span id="likesDot" class="notify-dot hidden"></span>
+        </h2>
 
-    <div class="preview-row">
-      <div id="likesAvatar" class="avatar"></div>
-      <p id="likesPreview">No new likes</p>
+        <div class="preview-row">
+          <div id="likesAvatar" class="avatar"></div>
+          <p id="likesPreview">No new likes</p>
+        </div>
+      </div>
+
+      <!-- Comments -->
+      <div class="inbox-box">
+        <h2>
+          Comments
+          <span id="commentsCount" class="notify-count hidden"></span>
+          <span id="commentsDot" class="notify-dot hidden"></span>
+        </h2>
+
+        <div class="preview-row">
+          <div id="commentsAvatar" class="avatar"></div>
+          <p id="commentsPreview">No new comments</p>
+        </div>
+      </div>
+
+      <!-- Follows -->
+      <div class="inbox-box">
+        <h2>
+          Follows
+          <span id="followsCount" class="notify-count hidden"></span>
+          <span id="followsDot" class="notify-dot hidden"></span>
+        </h2>
+
+        <div class="preview-row">
+          <div id="followsAvatar" class="avatar"></div>
+          <p id="followsPreview">No new follows</p>
+        </div>
+      </div>
+
+      <!-- System -->
+      <div class="inbox-box">
+        <h2>
+          System
+          <span id="systemCount" class="notify-count hidden"></span>
+          <span id="systemDot" class="notify-dot hidden"></span>
+        </h2>
+
+        <div class="preview-row">
+          <div id="systemAvatar" class="avatar">S</div>
+          <p id="systemPreview">No new system messages</p>
+        </div>
+      </div>
+
     </div>
+
   </div>
-
-  <!-- Comments -->
-  <div class="inbox-box">
-    <h2>
-      Comments
-      <span id="commentsDot" class="notify-dot hidden"></span>
-    </h2>
-
-    <div class="preview-row">
-      <div id="commentsAvatar" class="avatar"></div>
-      <p id="commentsPreview">No new comments</p>
-    </div>
-  </div>
-
-  <!-- Follows -->
-  <div class="inbox-box">
-    <h2>
-      Follows
-      <span id="followsDot" class="notify-dot hidden"></span>
-    </h2>
-
-    <div class="preview-row">
-      <div id="followsAvatar" class="avatar"></div>
-      <p id="followsPreview">No new follows</p>
-    </div>
-  </div>
-
-  <!-- System -->
-  <div class="inbox-box">
-    <h2>
-      System
-      <span id="systemDot" class="notify-dot hidden"></span>
-    </h2>
-
-    <div class="preview-row">
-      <div id="systemAvatar" class="avatar">S</div>
-      <p id="systemPreview">No new system messages</p>
-    </div>
-  </div>
-
-</div>
 
   <script src="fvidsinbox.js"></script>
+
 </body>
 </html>

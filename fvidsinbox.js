@@ -101,32 +101,34 @@ function setupInboxNavigation() {
 function renderInbox(data, showDots = true) {
 
   renderCard(
-  data.likes || [],
-  "likesAvatar",
-  "likesPreview",
-  "likesDot",
-  "liked your video",
-  showDots
-);
+    data.likes || [],
+    "likesAvatar",
+    "likesPreview",
+    "likesDot",
+    "likesCount",
+    "liked your video",
+    showDots
+  );
 
   renderCard(
-  data.comments || [],
-  "commentsAvatar",
-  "commentsPreview",
-  "commentsDot",
-  "commented on your video",
-  showDots
-);
+    data.comments || [],
+    "commentsAvatar",
+    "commentsPreview",
+    "commentsDot",
+    "commentsCount",
+    "commented on your video",
+    showDots
+  );
 
   renderCard(
-  data.follows || [],
-  "followsAvatar",
-  "followsPreview",
-  "followsDot",
-  "started following you",
-  showDots
-);
-
+    data.follows || [],
+    "followsAvatar",
+    "followsPreview",
+    "followsDot",
+    "followsCount",
+    "started following you",
+    showDots
+  );
 }
 
 // Render Cards
@@ -135,6 +137,7 @@ function renderCard(
   avatarId,
   previewId,
   dotId,
+  countId,
   actionText,
   showDot
 ) {
@@ -142,12 +145,16 @@ function renderCard(
   const avatar = document.getElementById(avatarId);
   const preview = document.getElementById(previewId);
   const dot = document.getElementById(dotId);
+  const count =
+  document.getElementById(countId);
 
   if (!list.length) {
 
     avatar.innerHTML = "";
     preview.innerText = "No new notifications";
     dot.classList.add("hidden");
+    count.classList.add("hidden");
+count.innerText = "";
     return;
 
   }
@@ -158,9 +165,19 @@ function renderCard(
     `${last.username} ${actionText}`;
 
   if(showDot){
-    dot.classList.remove("hidden");
+
+  dot.classList.remove("hidden");
+
+  count.classList.remove("hidden");
+  count.innerText = list.length;
+
 }else{
-    dot.classList.add("hidden");
+
+  dot.classList.add("hidden");
+
+  count.classList.add("hidden");
+  count.innerText = "";
+
   }
 
   if (last.profile_pic) {
@@ -304,6 +321,7 @@ renderCard(
   "likesAvatar",
   "likesPreview",
   "likesDot",
+  "likesCount",
   "liked your video",
   hasNewLikes
 );
@@ -313,6 +331,7 @@ renderCard(
   "commentsAvatar",
   "commentsPreview",
   "commentsDot",
+  "commentsCount",
   "commented on your video",
   hasNewComments
 );
@@ -322,6 +341,7 @@ renderCard(
   "followsAvatar",
   "followsPreview",
   "followsDot",
+  "followsCount",
   "started following you",
   hasNewFollows
 );
