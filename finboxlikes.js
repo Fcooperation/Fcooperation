@@ -9,6 +9,59 @@ localStorage.getItem("finbox-main")
 const likes =
 inbox.likes || [];
 
+// Time logic
+function formatTime(dateString) {
+
+  const now = new Date();
+  const date = new Date(dateString);
+
+  const diff = now - date;
+
+  const minute = 60 * 1000;
+  const hour = 60 * minute;
+  const day = 24 * hour;
+
+  if (diff < hour) {
+
+    const mins = Math.max(1, Math.floor(diff / minute));
+    return `${mins}m ago`;
+
+  }
+
+  if (diff < day) {
+
+    const hrs = Math.floor(diff / hour);
+    return `${hrs}h ago`;
+
+  }
+
+  if (diff < day * 2) {
+
+    return `Yesterday ${date.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false
+    })}`;
+
+  }
+
+  if (date.getFullYear() === now.getFullYear()) {
+
+    return date.toLocaleDateString([], {
+      day: "numeric",
+      month: "short"
+    });
+
+  }
+
+  return date.toLocaleDateString([], {
+    day: "numeric",
+    month: "short",
+    year: "numeric"
+  });
+
+}
+
 if(likes.length===0){
 
 container.innerHTML=`
@@ -112,6 +165,8 @@ ${initials}
 
 }
 
+const time = formatTime(like.created_at);
+
 card.innerHTML = `
 
 ${avatar}
@@ -124,6 +179,10 @@ ${like.username}
 
 <div class="action">
 liked your video ❤️
+</div>
+
+<div class="time">
+${time}
 </div>
 
 </div>

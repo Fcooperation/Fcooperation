@@ -170,3 +170,8 @@ object-fit:cover;
     -webkit-box-orient:vertical;
     overflow:hidden;
 }
+.time{
+font-size:12px;
+color:#888;
+margin-top:4px;
+}
