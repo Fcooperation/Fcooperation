@@ -224,3 +224,39 @@ display:none;
   flex:1;
   word-break:break-word;
 }
+
+.loading-banner{
+
+background:#1e40af;
+
+color:white;
+
+padding:10px;
+
+text-align:center;
+
+font-size:14px;
+
+margin:15px 20px;
+
+border-radius:8px;
+
+animation:pulse 1s infinite;
+
+}
+
+@keyframes pulse{
+
+0%{
+opacity:.6;
+}
+
+50%{
+opacity:1;
+}
+
+100%{
+opacity:.6;
+}
+
+}

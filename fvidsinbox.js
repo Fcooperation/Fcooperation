@@ -242,6 +242,21 @@ function loadInbox(){
   );
 
 }
+function showLoading(){
+
+document
+.getElementById("loadingBanner")
+.classList.remove("hidden");
+
+}
+
+function hideLoading(){
+
+document
+.getElementById("loadingBanner")
+.classList.add("hidden");
+
+}
 
 // ==========================
 // NEW: FETCH INBOX FUNCTION
@@ -250,6 +265,10 @@ async function fetchInbox() {
 
   const account = JSON.parse(localStorage.getItem("faccount"));
   if (!account) return;
+
+  showLoading();
+
+
 
   try {
 
@@ -275,8 +294,13 @@ const comments = data.data.comments || [];
 const follows = data.data.follows || [];
 
 renderInbox(loadInbox(), true);
+
+    hideLoading();
     
   } catch (err) {
+
+    hideLoading();
+    
     console.error("Inbox fetch error:", err);
   }
 }
