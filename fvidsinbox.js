@@ -145,7 +145,6 @@ function renderInbox(data) {
   "likesPreview",
   "likesDot",
   "likesCount",
-  "liked your video",
   hasUnread(data.likes)
 );
 
@@ -155,7 +154,6 @@ renderCard(
   "commentsPreview",
   "commentsDot",
   "commentsCount",
-  "commented on your video",
   hasUnread(data.comments)
 );
 
@@ -165,7 +163,6 @@ renderCard(
   "followsPreview",
   "followsDot",
   "followsCount",
-  "started following you",
   hasUnread(data.follows)
 );
 }
@@ -177,7 +174,6 @@ function renderCard(
   previewId,
   dotId,
   countId,
-  actionText,
   showDot
 ) {
 
@@ -199,6 +195,30 @@ count.innerText = "";
   }
 
   const last = list[0];
+
+let actionText;
+
+switch (last.type) {
+
+  case "video_like":
+    actionText = "liked your video";
+    break;
+
+  case "comment_like":
+    actionText = "liked your comment";
+    break;
+
+  case "comment_reply":
+    actionText = "replied to your comment";
+    break;
+
+  case "reply_reply":
+    actionText = "replied to your reply";
+    break;
+
+  default:
+    actionText = "commented on your video";
+}
 
 if (list.length === 1) {
 
