@@ -204,6 +204,27 @@ function saveInbox(newData){
 
   const oldData = loadInbox() || {};
 
+  // Mark newly fetched notifications
+newData.likes = (newData.likes || []).map(item => ({
+  ...item,
+  is_new: true
+}));
+
+newData.comments = (newData.comments || []).map(item => ({
+  ...item,
+  is_new: true
+}));
+
+newData.follows = (newData.follows || []).map(item => ({
+  ...item,
+  is_new: true
+}));
+
+newData.system = (newData.system || []).map(item => ({
+  ...item,
+  is_new: true
+}));
+
   function merge(newList = [], oldList = [], idField){
 
     const map = new Map();
