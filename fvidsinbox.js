@@ -27,11 +27,38 @@ function render() {
 
     setupInboxNavigation();
 
-// Show cached inbox first
+// Show only the latest cached notification (without unread badge)
 const cached = loadInbox();
 
-if(cached){
-  renderInbox(cached, false);
+if (cached) {
+
+  renderCard(
+    cached.likes ? [cached.likes[0]] : [],
+    "likesAvatar",
+    "likesPreview",
+    "likesDot",
+    "likesCount",
+    false
+  );
+
+  renderCard(
+    cached.comments ? [cached.comments[0]] : [],
+    "commentsAvatar",
+    "commentsPreview",
+    "commentsDot",
+    "commentsCount",
+    false
+  );
+
+  renderCard(
+    cached.follows ? [cached.follows[0]] : [],
+    "followsAvatar",
+    "followsPreview",
+    "followsDot",
+    "followsCount",
+    false
+  );
+
 }
 
 // Then check server
@@ -398,6 +425,23 @@ document
 
 }
 
+function getNewItems(newList = [], oldList = [], idField) {
+
+  const existing = new Set(
+    oldList.map(
+      item => item[idField] + "_" + item.created_at
+    )
+  );
+
+  return newList.filter(
+    item =>
+      !existing.has(
+        item[idField] + "_" + item.created_at
+      )
+  );
+
+}
+
 // ==========================
 // NEW: FETCH INBOX FUNCTION
 // ==========================
@@ -423,9 +467,33 @@ async function fetchInbox() {
 
     const data = await res.json();
 
-    saveInbox(data.data);
+    const oldInbox = loadInbox() || {};
+
+saveInbox(data.data);
 
 const inbox = loadInbox();
+
+    const newBatch = {
+
+  likes: getNewItems(
+    data.data.likes || [],
+    oldInbox.likes || [],
+    "user_id"
+  ),
+
+  comments: getNewItems(
+    data.data.comments || [],
+    oldInbox.comments || [],
+    "user_id"
+  ),
+
+  follows: getNewItems(
+    data.data.follows || [],
+    oldInbox.follows || [],
+    "follower_id"
+  )
+
+};
 
 const hasNewLikes = hasUnread(inbox.likes);
 const hasNewComments = hasUnread(inbox.comments);
@@ -439,7 +507,17 @@ const likes = data.data.likes || [];
 const comments = data.data.comments || [];
 const follows = data.data.follows || [];
 
-renderInbox(inbox);
+if (
+  newBatch.likes.length ||
+  newBatch.comments.length ||
+  newBatch.follows.length
+) {
+
+  renderInbox(newBatch);
+
+} else {
+
+}
 
     hideLoading();
     
