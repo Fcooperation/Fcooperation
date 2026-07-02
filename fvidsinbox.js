@@ -90,20 +90,6 @@ function setupInboxNavigation() {
 
   likesBox.onclick = () => {
 
-  const inbox = loadInbox() || {};
-
-  inbox.likes = (inbox.likes || []).map(item => ({
-    ...item,
-    is_new: false
-  }));
-
-  localStorage.setItem(
-  getInboxKey(),
-  JSON.stringify(inbox)
-);
-
-  renderInbox(inbox, false);
-
   localStorage.setItem(
     "finbox-page",
     "likes"
@@ -114,20 +100,6 @@ function setupInboxNavigation() {
 };
   commentsBox.onclick = () => {
 
-  const inbox = loadInbox() || {};
-
-  inbox.comments = (inbox.comments || []).map(item => ({
-    ...item,
-    is_new: false
-  }));
-
-  localStorage.setItem(
-  getInboxKey(),
-  JSON.stringify(inbox)
-);
-
-  renderInbox(inbox, false);
-
   localStorage.setItem(
     "finbox-page",
     "comments"
@@ -137,20 +109,6 @@ function setupInboxNavigation() {
 
 };
   followsBox.onclick = () => {
-
-  const inbox = loadInbox() || {};
-
-  inbox.follows = (inbox.follows || []).map(item => ({
-    ...item,
-    is_new: false
-  }));
-
-  localStorage.setItem(
-  getInboxKey(),
-  JSON.stringify(inbox)
-);
-
-
 
   localStorage.setItem(
     "finbox-page",
