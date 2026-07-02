@@ -51,6 +51,22 @@ function stopAllVideos() {
   });
 }
 
+function debugLog(msg){
+
+  const box =
+    document.getElementById("debug-log");
+
+  if(!box) return;
+
+  const time =
+    new Date().toLocaleTimeString();
+
+  box.innerHTML += `
+    <div>[${time}] ${msg}</div>
+  `;
+
+  box.scrollTop = box.scrollHeight;
+}
 
 // ---------------- TAB SWITCH ----------------
 function switchTab(tab) {
@@ -190,33 +206,33 @@ async function sendView(video) {
   try {
 
     const account =
-      JSON.parse(localStorage.getItem("faccount")) || {};
+  JSON.parse(localStorage.getItem("faccount")) || {};
 
-    const userId =
-      account.userId || account.id || null;
+const userId =
+  account.userId || account.id;
 
-    const deviceId =
-      getDeviceId();
+const payload = {
+  publicId: video.public_id
+};
 
-    await fetch(
-      "https://fweb-backend.onrender.com/fviews",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
+if (userId) {
+  // Logged in → identify by account only
+  payload.userId = userId;
+} else {
+  // Logged out → identify by device only
+  payload.deviceId = getDeviceId();
+}
 
-  publicId:
-    video.public_id,
-
-  userId,
-
-  deviceId
-
-})
-      }
-    );
+await fetch(
+  "https://fweb-backend.onrender.com/fviews",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  }
+);
 
   } catch (err) {
 
@@ -282,16 +298,20 @@ video.addEventListener("playing", () => {
 
 let viewSent = false;
 
+  function ensureViewSent() {
+
+  if (viewSent) return;
+
+  viewSent = true;
+  sendView(vid);
+
+  }
+
 video.addEventListener("timeupdate", () => {
 
   if (viewSent) return;
 
-  if (!video.duration) return;
-
-  const watched =
-    video.currentTime / video.duration;
-
-  if (watched >= 0.4) {
+  if (video.currentTime >= 3) {
 
     viewSent = true;
 
@@ -555,12 +575,7 @@ const userId = account.userId || account.id;
 const videoKey = vid._id || vid.id;
 
 // get per-account storage
-const likedVideos =
-  JSON.parse(localStorage.getItem(`fvid_likes_${userId}`)) || {};
-
-// IMPORTANT: fallback priority = backend first, then local
-const isLiked =
-  Boolean(vid.liked) || Boolean(likedVideos[videoKey]);
+const isLiked = Boolean(vid.liked);
 
 // apply UI
 if (isLiked) {
@@ -801,46 +816,55 @@ video.addEventListener("ended", () => {
   let currentCount = parseInt(likeCount.textContent || "0");
 
   // ---------- UPDATE UI FIRST (Optimistic UI) ----------
-  if (wasLiked) {
-    likeBtn.classList.remove("liked");
-    likeBtn.innerHTML = "🤍";
-  } else {
-    likeBtn.classList.add("liked");
-    likeBtn.innerHTML = "❤️";
-  }
+if (wasLiked) {
+  likeBtn.classList.remove("liked");
+  likeBtn.innerHTML = "🤍";
+} else {
+  likeBtn.classList.add("liked");
+  likeBtn.innerHTML = "❤️";
+
+  ensureViewSent();
+}
 
   try {
+    debugLog("Sending like request...");
+debugLog(JSON.stringify({
+  videoId,
+  userId,
+  action: wasLiked ? "unlike" : "like"
+}));
     const res = await fetch("https://fweb-backend.onrender.com/fvids/like", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        videoId,
-        userId,
-        action: wasLiked ? "unlike" : "like"
-      })
+  videoId,
+  userId,
+  action: wasLiked ? "unlike" : "like"
+})
     });
 
     const data = await res.json();
+    debugLog("Response:");
+debugLog(JSON.stringify(data));
     if (!res.ok) throw new Error(data.error || "Failed");
 
     // ---------- SYNC IN-MEMORY GLOBAL ARRAY ----------
-    vid.liked = !wasLiked;
-    vid.likes_count = wasLiked ? Math.max(0, currentCount - 1) : currentCount + 1;
+    vid.liked = data.liked;
+vid.likes_count = data.likes_count;
+
+if (data.likes_count <= 0) {
+  likeCount.style.display = "none";
+  likeCount.textContent = "0";
+} else {
+  likeCount.style.display = "block";
+  likeCount.textContent = data.likes_count;
+}
 
     // ---------- SAVE TO STORAGE (Using matching user-specific key) ----------
-    const storageKey = `fvid_likes_${userId}`;
-    const likedVideos = JSON.parse(localStorage.getItem(storageKey)) || {};
-    
-    if (wasLiked) {
-      delete likedVideos[videoId];
-    } else {
-      likedVideos[videoId] = true;
-    }
 
     updateLikeUI(wrapper, wasLiked ? -1 : 1);
 
 // extra safety clamp (prevents backend weirdness)
-const likeCount = wrapper.querySelector(".like-count");
 let safe = parseInt(likeCount.textContent || "0");
 safe = Math.max(0, safe);
 
@@ -848,10 +872,14 @@ if (safe === 0) {
   likeCount.style.display = "none";
   likeCount.textContent = "0"; 
 }
-    localStorage.setItem(storageKey, JSON.stringify(likedVideos));
+    
 
   } catch (err) {
+
     console.error(err);
+
+    debugLog("ERROR:");
+    debugLog(err.message);
     // rollback UI on failure
     if (wasLiked) {
       likeBtn.classList.add("liked");
@@ -867,6 +895,9 @@ if (safe === 0) {
 
 // Handle double click to send like 
 async function sendDoubleTapLike() {
+  
+  ensureViewSent();
+  
   const account = JSON.parse(localStorage.getItem("faccount")) || {};
   const userId = account.userId || account.id;
   if (!userId) return;
@@ -878,10 +909,11 @@ async function sendDoubleTapLike() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        videoId,
-        userId,
-        action: "like"
-      })
+  videoId,
+  userId,
+  ownerId: videoOwnerId,
+  action: "like"
+})
     });
 
     const data = await res.json();
@@ -896,11 +928,6 @@ async function sendDoubleTapLike() {
     }
 
     // ---------- SAVE TO STORAGE (Using matching user-specific key) ----------
-    const storageKey = `fvid_likes_${userId}`;
-    const likedVideos = JSON.parse(localStorage.getItem(storageKey)) || {};
-    likedVideos[videoId] = true;
-    
-    localStorage.setItem(storageKey, JSON.stringify(likedVideos));
 
   } catch (err) {
     console.error("Double tap like failed:", err);
