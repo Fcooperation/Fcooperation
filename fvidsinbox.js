@@ -88,47 +88,25 @@ function setupInboxNavigation() {
   const followsBox = document.querySelectorAll(".inbox-box")[2];
   const systemBox = document.querySelectorAll(".inbox-box")[3];
 
-  likesBox.onclick = () => {
-
-  localStorage.setItem(
-    "finbox-page",
-    "likes"
-  );
-
+  likesBox.addEventListener("click", () => {
+  localStorage.setItem("finbox-page", "likes");
   window.location.href = "finboxlikes.html";
+});
 
-};
-  commentsBox.onclick = () => {
-
-  localStorage.setItem(
-    "finbox-page",
-    "comments"
-  );
-
+commentsBox.addEventListener("click", () => {
+  localStorage.setItem("finbox-page", "comments");
   window.location.href = "finboxcomments.html";
+});
 
-};
-  followsBox.onclick = () => {
-
-  localStorage.setItem(
-    "finbox-page",
-    "follows"
-  );
-
+followsBox.addEventListener("click", () => {
+  localStorage.setItem("finbox-page", "follows");
   window.location.href = "finboxfollows.html";
+});
 
-};
-  systemBox.onclick = () => {
-
-    localStorage.setItem(
-        "finbox-page",
-        "system"
-    );
-
-    window.location.href =
-      "finboxsystem.html";
-
-};
+systemBox.addEventListener("click", () => {
+  localStorage.setItem("finbox-page", "system");
+  window.location.href = "finboxsystem.html";
+});
 }
 
 // Render inbox data 
@@ -177,6 +155,8 @@ function renderCard(
   const dot = document.getElementById(dotId);
   const count =
   document.getElementById(countId);
+  
+  const card = dot.closest(".inbox-box");
 
   if (!list.length) {
 
@@ -270,6 +250,14 @@ if (list.length === 1) {
       `<span>${initials}</span>`;
 
   }
+
+  card.onclick = () => {
+
+  dot.classList.add("hidden");
+  count.classList.add("hidden");
+  count.innerText = "";
+
+};
 
 }
 
