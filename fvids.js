@@ -119,12 +119,47 @@ async function loadVideos(page = 1, append = false) {
       `;
     }
 
-    const res = await fetch(
-      `https://fweb-backend.onrender.com/fvids?userId=${userId || ""}&page=${page}`
-    );
+    const category =
+  localStorage.getItem("fvid_category") || "";
+
+const params = new URLSearchParams({
+  page
+});
+
+if (userId) {
+  // Logged in
+  params.append("userId", userId);
+} else if (category) {
+  // Logged out
+  params.append("category", category);
+}
+
+const res = await fetch(
+  `https://fweb-backend.onrender.com/fvids?${params.toString()}`
+);
 
     const newVideos = await res.json();
+    
+    // User hasn't selected a category yet
+if (newVideos.category === false) {
 
+  const account =
+    JSON.parse(localStorage.getItem("faccount")) || {};
+
+  const userId = account.userId || account.id;
+
+  // Logged in -> per-user key
+  const categorySelected = userId
+    ? localStorage.getItem(`fvid_category_selected_${userId}`)
+    : localStorage.getItem("fvid_category_selected");
+
+  if (categorySelected !== "true") {
+    window.location.href = "fvidcategory.html";
+    return;
+  }
+
+}
+    
     if (!newVideos || newVideos.length === 0) {
       hasMoreVideos = false;
 
