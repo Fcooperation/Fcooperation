@@ -396,6 +396,63 @@ trendingList.addEventListener("scroll",()=>{
 
 });
 
+const categoriesList =
+document.getElementById("categoriesList");
+
+categoriesList.addEventListener("scroll", () => {
+
+    if (
+
+        categoriesList.scrollLeft +
+        categoriesList.clientWidth >=
+        categoriesList.scrollWidth - 300
+
+    ) {
+
+        loadExplore("categories");
+
+    }
+
+});
+
+const creatorsList =
+document.getElementById("creatorsList");
+
+creatorsList.addEventListener("scroll", () => {
+
+    if (
+
+        creatorsList.scrollLeft +
+        creatorsList.clientWidth >=
+        creatorsList.scrollWidth - 300
+
+    ) {
+
+        loadExplore("creators");
+
+    }
+
+});
+
+const hashtagsList =
+document.getElementById("hashtagsList");
+
+hashtagsList.addEventListener("scroll", () => {
+
+    if (
+
+        hashtagsList.scrollLeft +
+        hashtagsList.clientWidth >=
+        hashtagsList.scrollWidth - 300
+
+    ) {
+
+        loadExplore("hashtags");
+
+    }
+
+});
+
 document
 .getElementById("searchBtn")
 .addEventListener("click", () => {
