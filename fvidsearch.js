@@ -28,6 +28,13 @@ function doSearch(){
   suggestionsBox.style.display = "none";
   suggestionsBox.innerHTML = "";
 
+  const historyBox =
+    document.getElementById("search-history");
+
+if (historyBox) {
+    historyBox.style.display = "none";
+}
+
   if (activeTab !== "Hashtags") {
     hashtagSearch = false;
   }
@@ -758,6 +765,31 @@ if (savedTag) {
   doSearch();
 
   localStorage.removeItem("fvidsearchtag");
+
+}
+
+//Auto Category Search
+const savedCategory =
+    localStorage.getItem("fvid_category");
+
+if (savedCategory) {
+
+    input.value = savedCategory;
+
+    activeTab = "Top";
+
+    tabs.forEach(tab => {
+
+        tab.classList.toggle(
+            "active",
+            tab.textContent.trim() === "Top"
+        );
+
+    });
+
+    doSearch();
+
+    localStorage.removeItem("fvid_category");
 
 }
 

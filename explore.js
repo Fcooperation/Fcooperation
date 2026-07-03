@@ -186,16 +186,29 @@ function renderTrending(videos){
 
 `;
 
-        card.onclick=()=>{
+        card.onclick = () => {
 
-            localStorage.setItem(
-                "currentlyViewing",
-                JSON.stringify(video)
-            );
+    const selectedVideo = {
+        ...video,
+        user: {
+            username: video.username,
+            profile_pic: video.profile_pic
+        }
+    };
 
-            location.href="fvids.html";
+    localStorage.setItem(
+        "currently_viewing",
+        JSON.stringify(selectedVideo)
+    );
 
-        };
+    localStorage.setItem(
+        "redirect",
+        "fvidexplore.html"
+    );
+
+    location.href = "fvids.html";
+
+};
 
         container.appendChild(card);
 
@@ -333,12 +346,21 @@ function renderCreators(users){
         card.onclick=()=>{
 
             localStorage.setItem(
-                "fvidprofile",
-                JSON.stringify(user)
-            );
+    "view_profile",
+    user.id
+);
 
-            location.href="fprofile.html";
+localStorage.setItem(
+    "viewing_user_profile",
+    JSON.stringify(user)
+);
 
+localStorage.setItem(
+    "redirect",
+    "explore.html"
+);
+
+location.href = "fvidsprofile.html";
         };
 
         container.appendChild(card);
@@ -371,5 +393,13 @@ trendingList.addEventListener("scroll",()=>{
         loadExplore("trending");
 
     }
+
+});
+
+document
+.getElementById("searchBtn")
+.addEventListener("click", () => {
+
+    location.href = "fvidsearch.html";
 
 });
