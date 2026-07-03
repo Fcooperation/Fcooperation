@@ -43,6 +43,9 @@ button.querySelector(".btn-spinner");
 
 let selected = [];
 
+const allCategories =
+  categories.map(c => c[2]);
+
 categories.forEach(c=>{
 
 const item=document.createElement("div");
@@ -97,10 +100,7 @@ button.onclick = async () => {
   const userId =
     account.userId || account.id;
 
-  const category =
-    selected.length
-      ? selected
-      : ["all"];
+  const category = [...selected];
 
   // Show loading
   button.classList.add("loading");
@@ -109,41 +109,50 @@ button.onclick = async () => {
 
     if (userId) {
 
-      const res = await fetch(
-        "https://fweb-backend.onrender.com/fvidscategory",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            userId,
-            category
-          })
-        }
-      );
+  // Only save to backend if user selected categories
+  if (category.length > 0) {
 
-      if (!res.ok) {
-        throw new Error("Request failed");
+    const res = await fetch(
+      "https://fweb-backend.onrender.com/fvidscategory",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          userId,
+          category
+        })
       }
+    );
 
-      const data = await res.json();
+    if (!res.ok) {
+      throw new Error("Request failed");
+    }
 
-      if (!data.success) {
-        throw new Error(data.message || "Failed");
-      }
+    const data = await res.json();
+
+    if (!data.success) {
+      throw new Error(data.message || "Failed");
+    }
+
+  }
+
+  localStorage.setItem(
+    `fvid_category_selected_${userId}`,
+    "true"
+  );
+
+} else {
 
       localStorage.setItem(
-        `fvid_category_selected_${userId}`,
-        "true"
-      );
-
-    } else {
-
-      localStorage.setItem(
-        "fvid_category",
-        JSON.stringify(category)
-      );
+  "fvid_category",
+  JSON.stringify(
+    category.length
+      ? category
+      : allCategories
+  )
+);
 
       localStorage.setItem(
         "fvid_category_selected",
