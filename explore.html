@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+  <title>Explore</title>
+
+  <link rel="stylesheet" href="explore.css">
+</head>
+<body>
+
+<div class="explore-page">
+
+  <!-- Search -->
+  <div class="search-container">
+
+    <div class="search-box">
+
+      <span class="search-icon">🔍</span>
+
+      <input
+        id="searchInput"
+        type="text"
+        placeholder="Search videos, creators, hashtags..."
+      >
+
+    </div>
+
+  </div>
+
+  <!-- Trending -->
+  <section class="section">
+
+    <div class="section-title">
+      🔥 Trending
+    </div>
+
+    <div
+      class="horizontal-list"
+      id="trendingList">
+    </div>
+
+  </section>
+
+  <!-- Hashtags -->
+  <section class="section">
+
+    <div class="section-title">
+      # Popular Hashtags
+    </div>
+
+    <div
+      class="horizontal-list"
+      id="hashtagsList">
+    </div>
+
+  </section>
+
+  <!-- Categories -->
+  <section class="section">
+
+    <div class="section-title">
+      📂 Categories
+    </div>
+
+    <div
+      class="horizontal-list"
+      id="categoriesList">
+    </div>
+
+  </section>
+
+  <!-- Suggested Creators -->
+  <section class="section">
+
+    <div class="section-title">
+      👤 Suggested Creators
+    </div>
+
+    <div
+      class="horizontal-list creators"
+      id="creatorsList">
+    </div>
+
+  </section>
+
+</div>
+
+<script src="explore.js"></script>
+
+</body>
+</html>
