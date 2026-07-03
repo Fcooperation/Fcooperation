@@ -49,7 +49,19 @@ window.shareVideo = async function(video) {
 
 // Send to backend
 async function sendShare(publicId, type) {
+
   try {
+
+    const account =
+      JSON.parse(
+        localStorage.getItem("faccount")
+      ) || {};
+
+    const userId =
+      account.userId ||
+      account.id ||
+      null;
+
     const response = await fetch(
       "https://fweb-backend.onrender.com/fvids/share",
       {
@@ -59,6 +71,7 @@ async function sendShare(publicId, type) {
         },
         body: JSON.stringify({
           publicId,
+          userId,
           type
         })
       }
@@ -67,7 +80,14 @@ async function sendShare(publicId, type) {
     return await response.json();
 
   } catch (err) {
-    console.error("Share tracking failed:", err);
+
+    console.error(
+      "Share tracking failed:",
+      err
+    );
+
     return null;
+
   }
+
 }
