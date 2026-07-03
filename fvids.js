@@ -895,17 +895,12 @@ if (data.likes_count <= 0) {
   likeCount.textContent = data.likes_count;
 }
 
-    // ---------- SAVE TO STORAGE (Using matching user-specific key) ----------
-
-    updateLikeUI(wrapper, wasLiked ? -1 : 1);
-
-// extra safety clamp (prevents backend weirdness)
-let safe = parseInt(likeCount.textContent || "0");
-safe = Math.max(0, safe);
-
-if (safe === 0) {
+    if (data.likes_count <= 0) {
   likeCount.style.display = "none";
-  likeCount.textContent = "0"; 
+  likeCount.textContent = "0";
+} else {
+  likeCount.style.display = "block";
+  likeCount.textContent = String(data.likes_count);
 }
     
 
