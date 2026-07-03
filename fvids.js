@@ -950,12 +950,21 @@ async function sendDoubleTapLike() {
     if (!res.ok) throw new Error(data.error || "Failed");
 
     // ---------- SYNC IN-MEMORY GLOBAL ARRAY ----------
-    // Since double tap ONLY likes, we force true
-    const alreadyLiked = vid.liked;
-    vid.liked = true;
-    if (!alreadyLiked) {
-      vid.likes_count = (vid.likes_count || 0) + 1;
-    }
+    vid.liked = data.liked;
+vid.likes_count = data.likes_count;
+
+likeBtn.classList.add("liked");
+likeBtn.innerHTML = "❤️";
+
+const likeCount = wrapper.querySelector(".like-count");
+
+if (data.likes_count <= 0) {
+  likeCount.style.display = "none";
+  likeCount.textContent = "0";
+} else {
+  likeCount.style.display = "block";
+  likeCount.textContent = String(data.likes_count);
+}
 
     // ---------- SAVE TO STORAGE (Using matching user-specific key) ----------
 
