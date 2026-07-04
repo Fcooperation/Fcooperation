@@ -1,13 +1,25 @@
-const menuBtn = document.getElementById("menuBtn");
-const dropdown = document.getElementById("dropdown");
+const menuBtn =
+document.getElementById("menuBtn");
 
-menuBtn.addEventListener("click", () => {
-  dropdown.classList.toggle("show");
-});
+const dropdown =
+document.getElementById("menuDropdown");
 
-// close menu when clicking outside
-document.addEventListener("click", (e) => {
-  if (!menuBtn.contains(e.target) && !dropdown.contains(e.target)) {
-    dropdown.classList.remove("show");
-  }
-});
+menuBtn.onclick = ()=>{
+
+dropdown.classList.toggle("show");
+
+};
+
+document.onclick = e=>{
+
+if(
+!menuBtn.contains(e.target)
+&&
+!dropdown.contains(e.target)
+){
+
+dropdown.classList.remove("show");
+
+}
+
+};
