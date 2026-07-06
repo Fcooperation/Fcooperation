@@ -3,6 +3,10 @@
     {
       "source": "/watch",
       "destination": "/fvids.html"
+    },
+    {
+      "source": "/:page",
+      "destination": "/:page.html"
     }
   ]
 }
