@@ -100,7 +100,10 @@ button.onclick = async () => {
   const userId =
     account.userId || account.id;
 
-  const category = [...selected];
+  const category =
+  selected.length
+    ? [...selected]
+    : [...allCategories];
 
   // Show loading
   button.classList.add("loading");
@@ -109,34 +112,29 @@ button.onclick = async () => {
 
     if (userId) {
 
-  // Only save to backend if user selected categories
-  if (category.length > 0) {
-
-    const res = await fetch(
-      "https://fweb-backend.onrender.com/fvidscategory",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          userId,
-          category
-        })
-      }
-    );
-
-    if (!res.ok) {
-      throw new Error("Request failed");
-    }
-
-    const data = await res.json();
-
-    if (!data.success) {
-      throw new Error(data.message || "Failed");
-    }
-
+const res = await fetch(
+  "https://fweb-backend.onrender.com/fvidscategory",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      userId,
+      category
+    })
   }
+);
+
+if (!res.ok) {
+  throw new Error("Request failed");
+}
+
+const data = await res.json();
+
+if (!data.success) {
+  throw new Error(data.message || "Failed");
+}
 
   localStorage.setItem(
     `fvid_category_selected_${userId}`,
