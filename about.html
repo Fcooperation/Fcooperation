@@ -1,266 +1,488 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fweb — About</title>
-  <link rel="icon" type="image/png" href="/favicon.png">
-<style>
-  :root {
-    --page-bg: #ffffff;
-    --text: #000000;
-    --muted: #6b6b6b;
-    --accent: #000000; /* Buttons black */
-    --container: 1100px;
-    --radius: 10px;
-  }
-  html, body {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-    background: var(--page-bg);
-    color: var(--text);
-  }
-  .wrap {
-    max-width: var(--container);
-    margin: 36px auto;
-    padding: 28px;
-    box-sizing: border-box;
-  }
-  header {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    margin-bottom: 24px;
-  }
-  .logo {
-    width: 64px;
-    height: 64px;
-    border-radius: 12px;
-    background: var(--accent);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-weight: 700;
-    font-size: 20px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-  }
-  h1 { margin: 0; font-size: 28px; }
-  p.lead { margin: 8px 0 0; color: var(--muted); }
-  nav {
-    margin-top: 18px;
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-  nav a {
-    color: #fff;
-    text-decoration: none;
-    font-weight: 600;
-    padding: 8px 12px;
-    border-radius: 8px;
-    background: var(--accent);
-  }
-  nav a:hover {
-    background: rgba(0,0,0,0.7);
-  }
-  section.card {
-    margin: 18px 0;
-    padding: 18px;
-    border-radius: var(--radius);
-    border: 1px solid rgba(0,0,0,0.04);
-    box-shadow: 0 6px 20px rgba(10,10,10,0.02);
-    background: #f9f9f9;
-  }
-  section.card h2 {
-    margin: 0 0 10px;
-    font-size: 20px;
-    color: var(--text);
-  }
-  .hint {
-    font-size: 13px;
-    color: var(--muted);
-    margin-bottom: 12px;
-  }
-  .btn {
-    display: inline-block;
-    margin-top: 10px;
-    padding: 10px 14px;
-    background: #000;
-    color: #fff;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 700;
-  }
-  .btn:hover { background: #333; }
-  footer {
-    margin-top: 34px;
-    padding-top: 20px;
-    border-top: 1px solid rgba(0,0,0,0.04);
-    color: var(--muted);
-    font-size: 14px;
-    text-align: center;
-  }
-  @media (max-width:700px){
-    header { flex-direction: column; align-items: flex-start; gap: 8px; }
-  }
-  body.dark-mode, html.dark-mode {
-  background: #111;
-  color: #f5f5f5;
-}
 
-body.dark-mode * {
-  background: inherit !important;
-  color: inherit !important;
-            }
-</style>
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>About • FCOOPERATION</title>
+
+<link
+rel="icon"
+type="image/png"
+href="favicon.png">
+
+<link
+rel="stylesheet"
+href="about.css">
+
 </head>
+
 <body>
-<div class="wrap">
-  <header>
-    <div class="logo">F</div>
-    <div>
-      <h1>About Fweb</h1>
-      <p class="lead">Learn more about our mission, vision, and what makes Fweb unique.</p>
-    </div>
-  </header>
 
-  <nav aria-label="Primary">
-    <a href="home.html">Home</a>
-    <a href="fweb.html">Search</a>
-    <a href="blog.html">Blog</a>
-    <a href="faq.html">FAQ</a>
-    <a href="help.html">Help</a>
-    <a href="settings.html">Settings</a>
-    <a href="contact.html">Contact</a>
-    <a href="privacy.html">Privacy</a>
-  </nav>
+<header class="hero">
 
-  <!-- About Sections -->
-<section class="card" id="intro">
-  <h2>Introduction to Fweb</h2>
-  <p class="hint"></p>
-  <p>
-    Fweb is a fast, private, and user-friendly search engine designed to provide clear, relevant results for everyone. Produced by FCOOPERATION, a technology initiative focused on building tools for Africa, Fweb aims to make information accessible while respecting privacy. With a simple interface, secure browsing, and locally relevant content, Fweb is built to serve African users first but remains accessible globally. Our goal is to create a reliable and welcoming search experience that combines simplicity, security, and meaningful results, empowering users to explore the web confidently and efficiently.
-  </p>
-</section>
+<div class="container">
 
-<section class="card" id="mission-vision">
-  <h2>Mission & Vision</h2>
-  <p class="hint">~</p>
-  <p>
-    Fweb exists mainly to serve Africa, providing a fast, secure, and private search experience tailored to local needs. Our mission is to make information accessible for everyone, from students and entrepreneurs to casual users exploring the web. We prioritize user privacy, ensuring that searches are never tracked or shared with advertisers. With a simple, intuitive interface, Fweb makes finding answers effortless while highlighting content that is locally relevant. Our vision is to empower African users with a reliable and trustworthy search engine, while remaining open and useful to users worldwide. By combining security, simplicity, and regional focus, Fweb strives to set a new standard for search engines built by Africans for Africa.
-  </p>
-</section>
+<nav class="navbar">
 
-  <section class="card" id="features">
-    <h2>Key Features & Uniqueness</h2>
-    <p class="hint"></p>
-    <ul>
-      <li>Friendly Interface — Easy to use for everyone</li>
-      <li>Secure & Private — No tracking or data selling</li>
-      <li>Local Relevance — Focused on African content</li>
-      <li>Global Access — Open for anyone around the world</li>
-    </ul>
-  </section>
-<section class="card" id="core-values">
-  <h2>Core Values</h2>
-  <p class="hint"></p>
-  <p>
-    At Fweb, we stand for trust, simplicity, and relevance. Trust means providing a secure search experience where your data is never sold or tracked. Simplicity ensures our interface is clean and easy to use, so anyone can search without confusion. Relevance reflects our commitment to delivering content that matters most to African users, from news and education to cultural insights. We believe in building a search engine that respects privacy, supports local communities, and empowers users with clear, accurate information. Our core values guide every decision, making Fweb not just a tool, but a safe and reliable platform for all searches.
-  </p>
-</section>
+<a href="index" class="logo">
 
-  <div class="cta">
-    <a href="home.html" class="btn">Go to Home</a>
-    <a href="search.html" class="btn">Start Searching</a>
-    <a href="blog.html" class="btn">Visit Blog</a>
-  </div>
-
-  <footer>
-    © 2025 Fcooperation • Meant for Africa • <a href="privacy.html" style="color:#000;text-decoration:none;">Privacy</a>
-  </footer>
+<div class="logo-box">
+F
 </div>
-  <style>
-  :root {
-    --bg-color-light: #fff;
-    --text-color-light: #000;
-    --bg-color-dark: #111;
-    --text-color-dark: #f5f5f5;
-  }
 
-  body.light-mode {
-    background: var(--bg-color-light);
-    color: var(--text-color-light);
-  }
+<span class="logo-text">
+FCOOPERATION
+</span>
 
-  body.dark-mode {
-    background: var(--bg-color-dark);
-    color: var(--text-color-dark);
-  }
+</a>
 
-  body.dark-mode .btn,
-  body.dark-mode nav a {
-    background: #1f1f1f !important;
-    color: #f5f5f5 !important;
-    border: 1px solid rgba(255,255,255,0.2) !important;
-  }
+<div class="menu-wrapper">
 
-  body.light-mode .btn,
-  body.light-mode nav a {
-    background: #000 !important;
-    color: #fff !important;
-    border: 1px solid rgba(0,0,0,0.1) !important;
-  }
+<button
+id="menuBtn"
+class="menu-btn">
 
-  body.dark-mode label {
-    color: #f5f5f5 !important;
-  }
-</style>
+☰
 
-<script>
-(function(){
-  const savedTheme = localStorage.getItem('theme') || 'light';
-  const savedFont = localStorage.getItem('fontsize') || '16px';
-  const savedSafe = localStorage.getItem('safesearch') === 'true';
+</button>
 
-  // --- Apply theme ---
-  function applyTheme(theme){
-    document.body.classList.remove("light-mode", "dark-mode");
-    document.body.classList.add(theme + "-mode");
-  }
+<div
+id="menuDropdown"
+class="dropdown">
 
-  // --- Apply font size ---
-  function applyFont(size){
-    document.body.style.fontSize = size;
-  }
+<a href="index">
+HOME
+</a>
 
-  // --- Apply Safe Search ---
-  function applySafeSearch(on){
-    const preview = document.querySelector('.preview');
-    if(preview) preview.innerText = 'Safe Search: ' + (on ? 'On' : 'Off');
-  }
+<a href="fweb">
+FWEB
+</a>
 
-  // --- Apply all saved settings ---
-  applyTheme(savedTheme);
-  applyFont(savedFont);
-  applySafeSearch(savedSafe);
+<a href="fchat">
+FCHAT
+</a>
 
-  // --- Optional: set radio states ---
-  const themeRadio = document.getElementById(savedTheme==='dark' ? 'darkmode' : 'lightmode');
-  if(themeRadio) themeRadio.checked = true;
+<a href="study">
+FSTUDY
+</a>
 
-  const fontRadio = document.getElementById({
-    '14px':'fontsize-small',
-    '16px':'fontsize-medium',
-    '18px':'fontsize-large'
-  }[savedFont]);
-  if(fontRadio) fontRadio.checked = true;
+<a href="fvids">
+FVIDS
+</a>
 
-  const safeCheckbox = document.getElementById('safesearch');
-  if(safeCheckbox) safeCheckbox.checked = savedSafe;
-})();
-</script>
+</div>
+
+</div>
+
+</nav>
+
+
+<div class="hero-content">
+
+<p class="hero-subtitle">
+ABOUT
+</p>
+
+<h1>
+
+About FCOOPERATION
+
+</h1>
+
+<p class="hero-description">
+
+FCOOPERATION is the organization behind a growing ecosystem of independent digital platforms built to make technology more useful, accessible, and meaningful. Every project is created with a clear purpose, designed to stand on its own while contributing to a larger vision of connected experiences. From search and communication to education, artificial intelligence, and creativity, each platform reflects a shared commitment to thoughtful design, continuous improvement, and building technology that empowers people across Africa and beyond.
+
+</p>
+
+</div>
+
+</div>
+
+</header>
+
+  <section class="founder-section">
+
+<div class="container">
+
+<p class="section-label">
+MEET THE FOUNDER
+</p>
+
+<h2 class="section-title">
+The Vision Behind the Builder
+</h2>
+
+<div class="founder-card">
+
+<div class="founder-avatar">
+F
+</div>
+
+<div class="founder-content">
+
+<h3>
+Francis Nwankwo
+</h3>
+
+<p>
+
+FCOOPERATION was founded by <strong>Francis Nwankwo</strong>, an independent software developer driven by the belief that meaningful technology can be built anywhere. Inspired by the growing opportunities for innovation across Africa, he set out to create digital platforms that are practical, accessible, and capable of solving real everyday problems. Rather than focusing on a single application, his vision is to build an ecosystem where independent platforms work together to educate, connect, inspire creativity, and make technology more useful for people across Africa and beyond. Every project within FCOOPERATION represents another step toward that long-term mission of building software with purpose, consistency, and lasting impact.
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+  </section>
+
+  <section class="principles-section">
+
+<div class="container">
+
+<p class="section-label">
+OUR PRINCIPLES
+</p>
+
+<h2 class="section-title">
+The Principles That Guide Everything We Build
+</h2>
+
+<p class="section-intro">
+
+Every decision within FCOOPERATION is guided by a shared set of principles rather than short-term trends. These ideas influence how products are designed, how new features are introduced, and how every platform continues to evolve. While technologies change over time, these values remain the foundation of every project within the ecosystem.
+
+</p>
+
+<div class="principles-grid">
+
+<div class="principle-card">
+
+<div class="principle-icon">
+👥
+</div>
+
+<h3>
+Build for People
+</h3>
+
+<p>
+
+Technology should solve meaningful problems and improve everyday experiences rather than add unnecessary complexity.
+
+</p>
+
+</div>
+
+
+
+<div class="principle-card">
+
+<div class="principle-icon">
+📖
+</div>
+
+<h3>
+Keep Learning
+</h3>
+
+<p>
+
+Every platform continues to evolve through learning, experimentation, feedback, and continuous improvement.
+
+</p>
+
+</div>
+
+
+
+<div class="principle-card">
+
+<div class="principle-icon">
+⭐
+</div>
+
+<h3>
+Quality Over Speed
+</h3>
+
+<p>
+
+Thoughtful design, reliability, and long-term stability will always take priority over rushing new releases.
+
+</p>
+
+</div>
+
+
+
+<div class="principle-card">
+
+<div class="principle-icon">
+🌍
+</div>
+
+<h3>
+Accessibility Matters
+</h3>
+
+<p>
+
+Useful technology should remain simple, inclusive, and accessible to people regardless of background or experience.
+
+</p>
+
+</div>
+
+
+
+<div class="principle-card">
+
+<div class="principle-icon">
+🔗
+</div>
+
+<h3>
+One Connected Ecosystem
+</h3>
+
+<p>
+
+Every platform is designed to succeed independently while contributing to a larger ecosystem built around one shared vision.
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+  </section>
+
+  <section class="ecosystem-section">
+
+<div class="container">
+
+<p class="section-label">
+THE ECOSYSTEM
+</p>
+
+<h2 class="section-title">
+The FCOOPERATION Ecosystem
+</h2>
+
+<p class="section-intro">
+
+Every platform within FCOOPERATION is created with a distinct purpose, yet none exists in isolation. Each application is capable of serving its own community while contributing to a broader ecosystem built around learning, discovery, communication, creativity, and innovation. Together, they represent a long-term vision of connected digital experiences that remain useful individually and become even stronger collectively.
+
+</p>
+
+<!-- FWEB -->
+
+<div class="ecosystem-card">
+
+<div class="ecosystem-icon">🌐</div>
+
+<div class="ecosystem-content">
+
+<span class="ecosystem-label">
+Project 01
+</span>
+
+<h3>FWEB</h3>
+
+<h4>The Web, Reimagined.</h4>
+
+<p>
+
+FWEB is a modern search and discovery platform designed to help people find websites, definitions, and useful online resources through a cleaner and more meaningful experience. Rather than acting as another search engine alone, it focuses on improving how information is organized and discovered. Within the FCOOPERATION ecosystem, FWEB serves as the gateway to knowledge, helping users explore ideas while naturally connecting them to other platforms when relevant.
+
+</p>
+
+<a href="fweb">
+Visit FWEB →
+</a>
+
+</div>
+
+</div>
+
+<!-- FCHAT -->
+
+<div class="ecosystem-card">
+
+<div class="ecosystem-icon">💬</div>
+
+<div class="ecosystem-content">
+
+<span class="ecosystem-label">
+Project 02
+</span>
+
+<h3>FCHAT</h3>
+
+<h4>Meaningful Communication.</h4>
+
+<p>
+
+FCHAT is designed to make conversations feel natural, engaging, and community-driven. Beyond simple messaging, it encourages collaboration through features that strengthen interaction between individuals and groups. As part of the wider ecosystem, it provides the communication layer that connects users, creators, and communities across the growing family of FCOOPERATION platforms.
+
+</p>
+
+<a href="fchat">
+Visit FCHAT →
+</a>
+
+</div>
+
+</div>
+
+<!-- FVIDS -->
+
+<div class="ecosystem-card">
+
+<div class="ecosystem-icon">🎥</div>
+
+<div class="ecosystem-content">
+
+<span class="ecosystem-label">
+Project 03
+</span>
+
+<h3>FVIDS</h3>
+
+<h4>Creativity in Motion.</h4>
+
+<p>
+
+FVIDS is a short-form video platform created to encourage creativity, education, and entertainment in one accessible space. Its recommendation system, creator tools, and community-focused design help meaningful content reach the right audience. Within the FCOOPERATION ecosystem, it represents the home of visual storytelling while complementing learning, search, and communication across the other platforms.
+
+</p>
+
+<a href="fvids">
+Visit FVIDS →
+</a>
+
+</div>
+
+</div>
+
+<!-- FSTUDY -->
+
+<div class="ecosystem-card">
+
+<div class="ecosystem-icon">📚</div>
+
+<div class="ecosystem-content">
+
+<span class="ecosystem-label">
+Project 04
+</span>
+
+<h3>FSTUDY</h3>
+
+<h4>Learning Without Limits.</h4>
+
+<p>
+
+FSTUDY is dedicated to helping students learn more effectively through structured educational resources and practical study tools. It focuses on making knowledge easier to understand while supporting learners at different stages of their academic journey. Within the ecosystem, it serves as the educational foundation that empowers continuous learning and personal development.
+
+</p>
+
+<a href="study">
+Visit FSTUDY →
+</a>
+
+</div>
+
+</div>
+
+<!-- FAI -->
+
+<div class="ecosystem-card">
+
+<div class="ecosystem-icon">🤖</div>
+
+<div class="ecosystem-content">
+
+<span class="ecosystem-label">
+Project 05
+</span>
+
+<h3>FAI</h3>
+
+<h4>Artificial Intelligence for Everyone.</h4>
+
+<p>
+
+FAI brings intelligent assistance into the FCOOPERATION ecosystem by making artificial intelligence practical, approachable, and genuinely useful. From explanations and productivity to creative problem solving, it is designed to simplify complex tasks without replacing human curiosity. It strengthens every other platform by making knowledge and assistance available whenever users need it.
+
+</p>
+
+<a href="fai">
+Visit FAI →
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+  <footer class="footer">
+
+<div class="container">
+
+<a href="#" class="footer-logo">
+
+<div class="footer-logo-box">
+
+F
+
+</div>
+
+<span>
+
+FCOOPERATION
+
+</span>
+
+</a>
+
+<p class="footer-tagline">
+
+Building the future,<br>
+one project at a time.
+
+</p>
+
+<p class="footer-copy">
+
+© 2026 FCOOPERATION.<br>
+
+All rights reserved.
+
+</p>
+
+</div>
+
+  </footer>
+
+
+<script src="about.js"></script>
+
 </body>
+
 </html>
