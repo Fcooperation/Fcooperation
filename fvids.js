@@ -126,11 +126,13 @@ const params = new URLSearchParams({
   page
 });
 
+// Always send userId if logged in
 if (userId) {
-  // Logged in
   params.append("userId", userId);
-} else if (category) {
-  // Logged out
+}
+
+// Always send category if available
+if (category) {
   params.append("category", category);
 }
 
