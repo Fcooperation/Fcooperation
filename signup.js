@@ -100,6 +100,14 @@ if(
   message.innerText =
   "Please enter a valid email address";
 
+  message.classList.remove(
+  "success-message"
+);
+
+message.classList.add(
+  "error-message"
+);
+  
   window.scrollTo({
     top:0,
     behavior:"smooth"
@@ -119,6 +127,14 @@ if(
   message.innerText =
   "Passwords do not match";
 
+  message.classList.remove(
+  "success-message"
+);
+
+message.classList.add(
+  "error-message"
+);
+  
   window.scrollTo({
     top:0,
     behavior:"smooth"
@@ -171,15 +187,63 @@ if(
     );
 
     const data =
-    await res.json();
+await res.json();
 
-    message.innerText =
-    data.message;
+message.style.display =
+"block";
+
+message.innerText =
+data.message;
+
+window.scrollTo({
+  top:0,
+  behavior:"smooth"
+});
+
+if(
+  res.ok
+){
+
+  message.classList.remove(
+    "error-message"
+  );
+
+  message.classList.add(
+    "success-message"
+  );
+
+}else{
+
+  message.classList.remove(
+    "success-message"
+  );
+
+  message.classList.add(
+    "error-message"
+  );
+
+}
 
   } catch {
 
-    message.innerText =
-    "Signup failed";
+  message.style.display =
+  "block";
+
+  message.innerText =
+  "Signup failed";
+
+  message.classList.remove(
+    "success-message"
+  );
+
+  message.classList.add(
+    "error-message"
+  );
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
 
   }
 
@@ -213,7 +277,8 @@ async () => {
     options: {
 
       redirectTo:
-      window.location.href
+window.location.origin +
+"/dashboard.html"
 
     }
 

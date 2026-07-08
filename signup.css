@@ -126,13 +126,23 @@ color:#2563eb;
 }
 #message{
   display:none;
+  padding:12px 15px;
+  border-radius:8px;
+  margin-bottom:15px;
+  font-size:14px;
+  font-weight:600;
+}
+
+.error-message{
   background:#ffebee;
   color:#c62828;
   border:1px solid #ef5350;
   border-left:5px solid #d32f2f;
-  padding:12px 15px;
-  margin-bottom:15px;
-  border-radius:8px;
-  font-size:14px;
-  font-weight:600;
+}
+
+.success-message{
+  background:#e8f5e9;
+  color:#2e7d32;
+  border:1px solid #66bb6a;
+  border-left:5px solid #2e7d32;
 }
