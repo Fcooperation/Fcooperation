@@ -1,0 +1,118 @@
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  padding:0;
+  font-family:sans-serif;
+  background:#f5f6fa;
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  min-height:100vh;
+}
+
+.container{
+  width:100%;
+  max-width:420px;
+  padding:25px;
+}
+
+.logo{
+  width:80px;
+  display:block;
+  margin:auto;
+  margin-bottom:20px;
+}
+
+h1{
+  text-align:center;
+  margin-bottom:10px;
+}
+
+.subtitle{
+  text-align:center;
+  color:gray;
+  margin-bottom:25px;
+}
+
+.message{
+  display:none;
+  padding:14px;
+  border-radius:10px;
+  margin-bottom:18px;
+  font-weight:bold;
+}
+
+.message.error{
+  background:#ffe5e5;
+  color:#b00020;
+}
+
+.message.success{
+  background:#d4edda;
+  color:#155724;
+}
+
+input{
+  width:100%;
+  padding:15px;
+  border:none;
+  border-radius:12px;
+  margin-bottom:15px;
+  font-size:16px;
+}
+
+.password-box{
+  position:relative;
+}
+
+.toggle-eye{
+  position:absolute;
+  right:18px;
+  top:18px;
+  cursor:pointer;
+  color:gray;
+}
+
+#loginBtn,
+.google-btn{
+  width:100%;
+  padding:15px;
+  border:none;
+  border-radius:12px;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+#loginBtn{
+  background:black;
+  color:white;
+}
+
+.google-btn{
+  background:white;
+  margin-top:15px;
+}
+
+.divider{
+  text-align:center;
+  margin:20px 0;
+  color:gray;
+}
+
+.forgot{
+  display:block;
+  text-align:center;
+  margin-top:20px;
+  text-decoration:none;
+}
+
+.bottom-text{
+  text-align:center;
+  margin-top:25px;
+}
