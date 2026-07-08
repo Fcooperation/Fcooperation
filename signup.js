@@ -241,38 +241,39 @@ if (
 
   const payload = {
 
-    username:
-    user.user_metadata
-    ?.full_name
-    ?.replace(/\s+/g, "")
-    ?.toLowerCase(),
+  id:
+  user.id,
 
-    firstName:
-    user.user_metadata
-    ?.given_name ||
-    "",
+  username:
+  user.user_metadata
+  ?.full_name
+  ?.replace(/\s+/g, "")
+  ?.toLowerCase(),
 
-    lastName:
-    user.user_metadata
-    ?.family_name ||
-    "",
+  firstName:
+  user.user_metadata
+  ?.given_name || "",
 
-    email:
-    user.email,
+  lastName:
+  user.user_metadata
+  ?.family_name || "",
 
-    googleId:
-    user.id,
+  email:
+  user.email,
 
-    avatar:
-    user.user_metadata
-    ?.avatar_url ||
+  provider:
+  "google",
 
-    user.user_metadata
-    ?.picture ||
+  avatar:
+  user.user_metadata
+  ?.avatar_url ||
 
-    ""
+  user.user_metadata
+  ?.picture ||
 
-  };
+  ""
+
+};
 
   try {
 
