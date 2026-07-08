@@ -118,23 +118,44 @@ async e=>{
     data.message;
 
     if(
-      data.success
-    ){
+  data.success
+){
 
-      message.className =
-      "message success";
+  // Save session into browser
+  await supabase
+  .auth
+  .setSession({
 
-      setTimeout(
-        ()=>{
+    access_token:
+    data.access_token,
 
-          location.href =
-          "/dashboard";
+    refresh_token:
+    data.refresh_token
 
-        },
-        330
-      );
+  });
 
-    }
+  // Optional local account cache
+  localStorage.setItem(
+    "faccount",
+    JSON.stringify(
+      data.user
+    )
+  );
+
+  message.className =
+  "message success";
+
+  setTimeout(
+    ()=>{
+
+      location.href =
+      "/dashboard";
+
+    },
+    330
+  );
+
+}
     else{
 
       message.className =
