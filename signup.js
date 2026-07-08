@@ -85,6 +85,14 @@ async e => {
 message.style.display =
 "none";
 
+message.classList.remove(
+  "error-message"
+);
+
+message.classList.remove(
+  "success-message"
+);
+
 const emailRegex =
 /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -195,6 +203,14 @@ message.style.display =
 message.innerText =
 data.message;
 
+message.classList.remove(
+  "error-message"
+);
+
+message.classList.remove(
+  "success-message"
+);
+
 window.scrollTo({
   top:0,
   behavior:"smooth"
@@ -211,6 +227,16 @@ if(
   message.classList.add(
     "success-message"
   );
+
+  setTimeout(
+  () => {
+
+    location.href =
+    "/dashboard";
+
+  },
+  330
+);
 
 }else{
 
