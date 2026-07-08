@@ -1,119 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FVIDS Followers Test</title>
-<link rel="icon" type="image/png" href="/favicon.png">
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
+
+  <title>Google Login Test</title>
+
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Arial,sans-serif;
+    }
+
+    body{
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:#f5f5f5;
+    }
+
+    .card{
+      width:350px;
+      background:white;
+      padding:40px;
+      border-radius:24px;
+      box-shadow:0 15px 40px rgba(0,0,0,.1);
+      text-align:center;
+    }
+
+    .logo{
+      width:70px;
+      height:70px;
+      background:#111;
+      color:white;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:38px;
+      font-weight:700;
+      border-radius:20px;
+      margin:auto;
+      margin-bottom:20px;
+    }
+
+    h1{
+      margin-bottom:15px;
+    }
+
+    p{
+      color:#666;
+      margin-bottom:30px;
+      line-height:1.6;
+    }
+
+    button{
+      width:100%;
+      height:55px;
+      border:none;
+      border-radius:14px;
+      background:#111;
+      color:white;
+      font-size:16px;
+      cursor:pointer;
+    }
+
+    button:hover{
+      opacity:.9;
+    }
+  </style>
 </head>
 <body>
 
-<h2>Followers</h2>
-<button onclick="loadFollowers()">
-Load Followers
-</button>
+<div class="card">
 
-<pre id="followers-output">
-Waiting...
-</pre>
+  <div class="logo">F</div>
 
-<hr>
+  <h1>Google Login Test</h1>
 
-<h2>Following</h2>
-<button onclick="loadFollowing()">
-Load Following
-</button>
+  <p>
+    Testing Google authentication with Supabase.
+  </p>
 
-<pre id="following-output">
-Waiting...
-</pre>
+  <button id="googleBtn">
+    Continue with Google
+  </button>
 
-<script>
+</div>
 
-const userId =
-  "684807070436154";
+<script type="module">
 
-// ---------------- FOLLOWERS ----------------
+import {
+  createClient
+} from "https://esm.sh/@supabase/supabase-js";
 
-async function loadFollowers() {
+const supabase = createClient(
+  "https://pwsxezhugsxosbwhkdvf.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJz..."
+);
 
-  try {
+document
+  .getElementById("googleBtn")
+  .onclick = async () => {
 
-    const res = await fetch(
-      `https://fweb-backend.onrender.com/fvids/followers?id=${userId}&page=1&limit=20`
-    );
+    const {
+      data,
+      error
+    } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo:
+          "https://pwsxezhugsxosbwhkdvf.supabase.co/auth/v1/callback"
+      }
+    });
 
-    const data = await res.json();
-
-    console.log(
-      "Followers:",
-      data
-    );
-
-    document.getElementById(
-      "followers-output"
-    ).textContent =
-      JSON.stringify(
-        data,
-        null,
-        2
-      );
-
-  } catch (err) {
-
-    console.error(err);
-
-    document.getElementById(
-      "followers-output"
-    ).textContent =
-      err.message;
-
-  }
-
-}
-
-// ---------------- FOLLOWING ----------------
-
-async function loadFollowing() {
-
-  try {
-
-    const res = await fetch(
-      `https://fweb-backend.onrender.com/fvids/following?id=${userId}&page=1&limit=20`
-    );
-
-    const data = await res.json();
-
-    console.log(
-      "Following:",
-      data
-    );
-
-    document.getElementById(
-      "following-output"
-    ).textContent =
-      JSON.stringify(
-        data,
-        null,
-        2
-      );
-
-  } catch (err) {
-
-    console.error(err);
-
-    document.getElementById(
-      "following-output"
-    ).textContent =
-      err.message;
-
-  }
-
-}
-
-// Auto-load both on page open
-loadFollowers();
-loadFollowing();
+    if(error){
+      alert(error.message);
+    }
+};
 
 </script>
 
