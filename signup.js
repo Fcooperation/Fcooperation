@@ -1,163 +1,167 @@
-const SUPABASE_URL =
-"https://pwsxezhugsxosbwhkdvf.supabase.co";
-
-const SUPABASE_KEY =
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB3c3hlemh1Z3N4b3Nid2hrZHZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE5MjgzODcsImV4cCI6MjA2NzUwNDM4N30.T170FX8tC5iZEmdzyY_NjuFQDZ9_7GxxVSrVLzhvnQ0";
+import {
+createClient
+}
+from "https://esm.sh/@supabase/supabase-js";
 
 const supabase =
-window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
-
-const signupForm =
-document.getElementById(
-  "signupForm"
+createClient(
+"https://pwsxezhugsxosbwhkdvf.supabase.co",
+"YOUR_ANON_KEY"
 );
 
 const signupBtn =
 document.getElementById(
-  "signupBtn"
+"signupBtn"
+);
+
+const googleBtn =
+document.getElementById(
+"googleBtn"
 );
 
 const message =
 document.getElementById(
-  "message"
+"message"
 );
 
-signupForm.addEventListener(
-"submit",
-async (e)=>{
+/* PASSWORD VISIBILITY */
+
+document
+.querySelectorAll(
+".toggle-eye"
+)
+.forEach(
+eye => {
+
+eye.onclick = () => {
+
+const input =
+document.getElementById(
+eye.dataset.target
+);
+
+if(
+input.type ===
+"password"
+){
+
+input.type = "text";
+
+eye.classList.remove(
+"fa-eye"
+);
+
+eye.classList.add(
+"fa-eye-slash"
+);
+
+}else{
+
+input.type =
+"password";
+
+eye.classList.remove(
+"fa-eye-slash"
+);
+
+eye.classList.add(
+"fa-eye"
+);
+
+}
+
+};
+
+}
+);
+
+/* NORMAL SIGNUP */
+
+signupBtn.onclick =
+async e => {
 
 e.preventDefault();
+
+signupBtn.disabled =
+true;
 
 signupBtn.textContent =
 "Signing Up...";
 
-signupBtn.disabled = true;
+const payload = {
 
-const username =
-document.getElementById(
-"username"
-).value.trim();
+username:
+username.value,
 
-const firstName =
-document.getElementById(
-"firstName"
-).value.trim();
+firstName:
+firstName.value,
 
-const lastName =
-document.getElementById(
-"lastName"
-).value.trim();
+lastName:
+lastName.value,
 
-const email =
-document.getElementById(
-"email"
-).value.trim();
+email:
+email.value,
 
-const password =
-document.getElementById(
-"password"
-).value;
+password:
+password.value
 
-const confirmPassword =
-document.getElementById(
-"confirmPassword"
-).value;
+};
 
-if(password !== confirmPassword){
-
-message.textContent =
-"Passwords do not match.";
-
-signupBtn.textContent =
-"Sign Up";
-
-signupBtn.disabled = false;
-
-return;
-
-}
-
-const {
-data,
-error
-} =
-await supabase.auth.signUp({
-
-email,
-password,
-
-options:{
-emailRedirectTo:
-`${window.location.origin}/login`,
-
-data:{
-username,
-first_name:firstName,
-last_name:lastName
-}
-
-}
-
-});
-
-if(error){
-
-message.textContent =
-error.message;
-
-signupBtn.textContent =
-"Sign Up";
-
-signupBtn.disabled = false;
-
-return;
-
-}
-
-message.textContent =
-"Verification email sent.";
-
-signupBtn.textContent =
-"Check your email";
-
+const res =
+await fetch(
+"https://fweb-backend.onrender.com/signup",
+{
+method:"POST",
+headers:{
+"Content-Type":
+"application/json"
+},
+body:
+JSON.stringify(
+payload
+)
 }
 );
 
-document
-.getElementById(
-"googleBtn"
-)
-.onclick =
-async ()=>{
+const data =
+await res.json();
 
-await supabase.auth.signInWithOAuth({
+message.innerText =
+data.message;
 
-provider:"google",
+signupBtn.disabled =
+false;
+
+signupBtn.textContent =
+"Sign Up";
+
+};
+
+/* GOOGLE LOGIN */
+
+googleBtn.onclick =
+async () => {
+
+googleBtn.disabled =
+true;
+
+googleBtn.textContent =
+"Continuing...";
+
+await supabase
+.auth
+.signInWithOAuth({
+
+provider:
+"google",
 
 options:{
 
 redirectTo:
-`${window.location.origin}`
+"https://pwsxezhugsxosbwhkdvf.supabase.co/auth/v1/callback"
 
 }
 
 });
 
 };
-
-function togglePassword(
-id
-){
-
-const input =
-document.getElementById(id);
-
-input.type =
-input.type === "password"
-? "text"
-: "password";
-
-}

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 
 <meta charset="UTF-8">
+
 <meta
 name="viewport"
 content="width=device-width, initial-scale=1.0">
@@ -12,9 +12,9 @@ content="width=device-width, initial-scale=1.0">
 
 <link rel="stylesheet" href="signup.css">
 
-<script
-src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-</script>
+<link
+rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/all.min.css">
 
 </head>
 
@@ -26,12 +26,10 @@ src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
 F
 </div>
 
-<h1>
-FCOOPERATION
-</h1>
+<h1>FCOOPERATION</h1>
 
 <p class="subtitle">
-Create your ecosystem account
+Create your F_account
 </p>
 
 <form id="signupForm">
@@ -62,73 +60,75 @@ required>
 
 <label>Password</label>
 
-<div class="password-wrapper">
+<div class="password-box">
+
 <input
 type="password"
 id="password"
 required>
 
-<button
-type="button"
-class="eye-btn"
-onclick="togglePassword('password',this)">
-<svg viewBox="0 0 24 24">
-<path d="M12 5C6 5 2 12 2 12s4 7 10 7 10-7 10-7-4-7-10-7z"/>
-<circle cx="12" cy="12" r="3"/>
-</svg>
-</button>
+<i
+class="fa-regular fa-eye toggle-eye"
+data-target="password"></i>
+
 </div>
 
 <label>Confirm Password</label>
 
-<div class="password-wrapper">
+<div class="password-box">
+
 <input
 type="password"
 id="confirmPassword"
 required>
 
-<button
-type="button"
-class="eye-btn"
-onclick="togglePassword('confirmPassword',this)">
-<svg viewBox="0 0 24 24">
-<path d="M12 5C6 5 2 12 2 12s4 7 10 7 10-7 10-7-4-7-10-7z"/>
-<circle cx="12" cy="12" r="3"/>
-</svg>
-</button>
+<i
+class="fa-regular fa-eye toggle-eye"
+data-target="confirmPassword"></i>
+
 </div>
 
 <button
 type="submit"
-id="signupBtn"
-class="signup-btn">
+id="signupBtn">
+
 Sign Up
+
 </button>
 
 </form>
 
 <div class="divider">
+
 <span>OR</span>
+
 </div>
 
 <button
 id="googleBtn"
 class="google-btn">
+
 Continue with Google
+
 </button>
 
 <p class="login-text">
+
 Already have an account?
+
 <a href="login">
+
 Login
+
 </a>
+
 </p>
 
 <div id="message"></div>
 
 </div>
 
-<script src="signup.js"></script>
+<script type="module" src="signup.js"></script>
 
 </body>
 </html>
