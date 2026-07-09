@@ -116,3 +116,26 @@ input{
   text-align:center;
   margin-top:25px;
 }
+#verifyBtn{
+  display:none;
+  width:100%;
+  margin-top:12px;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  background:#ff9800;
+  color:white;
+  font-size:15px;
+  font-weight:600;
+  cursor:pointer;
+  transition:.2s;
+}
+
+#verifyBtn:active{
+  transform:scale(0.98);
+}
+
+#verifyBtn:disabled{
+  opacity:.7;
+  cursor:not-allowed;
+}
