@@ -95,20 +95,18 @@ async ()=>{
     }
 
   }
-  catch(
+  catch{
 
-  ){
+  message.style.display =
+  "block";
 
-    message.style.display =
-    "block";
+  message.className =
+  "message error";
 
-    message.className =
-    "message error";
+  message.innerText =
+  "Network error. Please try again.";
 
-    message.innerText =
-    "Network error. Please try again.";
-
-  }
+}
 
   resetBtn.disabled =
   false;
