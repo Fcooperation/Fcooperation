@@ -237,3 +237,79 @@ body{
   font-size:14px;
   text-align:center;
 }
+/* PROFILE BUTTON */
+
+#profileBtn{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  background:#2563eb;
+  color:white;
+  font-size:15px;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.2s;
+  margin-top:12px;
+}
+
+#profileBtn:hover{
+  opacity:0.9;
+}
+
+#profileBtn:disabled{
+  opacity:0.6;
+  cursor:not-allowed;
+}
+
+
+/* LOGOUT BUTTON */
+
+#logoutBtn{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  background:#f59e0b;
+  color:white;
+  font-size:15px;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.2s;
+  margin-top:16px;
+}
+
+#logoutBtn:hover{
+  opacity:0.9;
+}
+
+#logoutBtn:disabled{
+  opacity:0.6;
+  cursor:not-allowed;
+}
+
+
+/* DELETE ACCOUNT BUTTON */
+
+#deleteBtn{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  background:#dc2626;
+  color:white;
+  font-size:15px;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.2s;
+  margin-top:12px;
+}
+
+#deleteBtn:hover{
+  opacity:0.9;
+}
+
+#deleteBtn:disabled{
+  opacity:0.6;
+  cursor:not-allowed;
+}

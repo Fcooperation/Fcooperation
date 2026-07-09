@@ -79,6 +79,16 @@ document.getElementById(
   "saveMessage"
 );
 
+const logoutBtn =
+document.getElementById(
+  "logoutBtn"
+);
+
+const deleteBtn =
+document.getElementById(
+  "deleteBtn"
+);
+
 let selectedFile =
 null;
 
@@ -505,5 +515,137 @@ async ()=>{
 
   saveBtn.innerText =
   "Save Changes";
+
+};
+
+// Logout
+logoutBtn.onclick =
+async ()=>{
+
+  const confirmLogout =
+  confirm(
+    "Are you sure you want to logout?"
+  );
+
+  if(
+    !confirmLogout
+  ){
+    return;
+  }
+
+  await supabase
+  .auth
+  .signOut();
+
+  localStorage.removeItem(
+    "faccount"
+  );
+
+  location.href =
+  "/login";
+
+};
+
+// Delete account
+deleteBtn.onclick =
+async ()=>{
+
+  const confirmDelete =
+  confirm(
+    "This will permanently delete your account. Continue?"
+  );
+
+  if(
+    !confirmDelete
+  ){
+    return;
+  }
+
+  deleteBtn.disabled =
+  true;
+
+  deleteBtn.innerText =
+  "Deleting...";
+
+  try{
+
+    const {
+      data:{
+        session
+      }
+    } =
+    await supabase
+    .auth
+    .getSession();
+
+    const res =
+    await fetch(
+      "https://fweb-backend.onrender.com/dashboard",
+      {
+        method:"POST",
+
+        headers:{
+          Authorization:
+          `Bearer ${session.access_token}`,
+
+          "Content-Type":
+          "application/json"
+        },
+
+        body:
+        JSON.stringify({
+          action:
+          "delete_account"
+        })
+      }
+    );
+
+    const data =
+    await res.json();
+
+    if(
+      data.success
+    ){
+
+      await supabase
+      .auth
+      .signOut();
+
+      localStorage.removeItem(
+        "faccount"
+      );
+
+      alert(
+        "Account deleted successfully."
+      );
+
+      location.href =
+      "/signup";
+
+    }
+    else{
+
+      alert(
+        data.message
+      );
+
+    }
+
+  }
+  catch(err){
+
+    console.log(err);
+
+    alert(
+      "Failed to delete account."
+    );
+
+  }
+
+  deleteBtn.disabled =
+  false;
+
+  deleteBtn.innerText =
+  "Delete Account";
 
 };
