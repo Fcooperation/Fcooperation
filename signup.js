@@ -228,16 +228,6 @@ if(
     "success-message"
   );
 
-  setTimeout(
-  () => {
-
-    location.href =
-    "/dashboard";
-
-  },
-  330
-);
-
 }else{
 
   message.classList.remove(
