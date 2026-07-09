@@ -10,8 +10,6 @@
 
   <title>Dashboard</title>
 
-    <link rel="icon" type="image/png" href="/favicon.png">
-  
   <link
     rel="stylesheet"
     href="dashboard.css"
@@ -41,6 +39,17 @@
         class="profile-pic"
         src="default.png"
       >
+
+      <input
+  type="file"
+  id="profileInput"
+  accept="image/*"
+  hidden
+>
+
+<button id="profileBtn">
+  Upload Photo
+</button>
 
       <h2
         id="username"
