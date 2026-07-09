@@ -44,6 +44,19 @@ document.getElementById(
   "resendBtn"
 );
 
+const profileInput =
+document.getElementById(
+  "profileInput"
+);
+
+const profileBtn =
+document.getElementById(
+  "profileBtn"
+);
+
+let selectedFile =
+null;
+
 /* GREETING */
 
 const hour =
@@ -228,5 +241,136 @@ async ()=>{
 
   resendBtn.innerText =
   data.message;
+
+};
+
+//Profile pic 
+profileInput.onchange =
+()=>{
+
+  const file =
+  profileInput.files[0];
+
+  if(
+    !file
+  ){
+    return;
+  }
+
+  selectedFile =
+  file;
+
+  profilePic.src =
+  URL.createObjectURL(
+    file
+  );
+
+  profileBtn.innerText =
+  "Save Photo";
+
+};
+
+async function
+uploadProfilePic(){
+
+  try{
+
+    profileBtn.disabled =
+    true;
+
+    profileBtn.innerText =
+    "Uploading...";
+
+    const {
+      data:{
+        session
+      }
+    } =
+    await supabase
+    .auth
+    .getSession();
+
+    const formData =
+    new FormData();
+
+    formData.append(
+      "profile_pic",
+      selectedFile
+    );
+
+    const res =
+    await fetch(
+      "https://fweb-backend.onrender.com/dashboard",
+      {
+        method:"POST",
+
+        headers:{
+          Authorization:
+          `Bearer ${
+            session.access_token
+          }`
+        },
+
+        body:
+        formData
+      }
+    );
+
+    const data =
+    await res.json();
+
+    if(
+      data.success
+    ){
+
+        profilePic.src =
+        data.profile_pic;
+
+        profileBtn.innerText =
+        "Update Photo";
+
+        selectedFile =
+        null;
+
+    }
+    else{
+
+      alert(
+        data.message
+      );
+
+      profileBtn.innerText =
+      "Save Photo";
+
+    }
+
+  }
+  catch(err){
+
+    console.log(err);
+
+    profileBtn.innerText =
+    "Save Photo";
+
+  }
+
+  profileBtn.disabled =
+  false;
+
+}
+
+profileBtn.onclick =
+()=>{
+
+  if(
+    !selectedFile
+  ){
+
+    profileInput.click();
+    return;
+
+  }
+
+  uploadProfilePic();
 
 };

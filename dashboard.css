@@ -173,3 +173,31 @@ body{
   }
 
 }
+#profileBtn{
+  margin-top:12px;
+  padding:10px 18px;
+  border:none;
+  border-radius:10px;
+  background:#4a6cf7;
+  color:white;
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+  transition:
+    opacity .2s ease,
+    transform .15s ease;
+}
+
+#profileBtn:hover{
+  opacity:.9;
+}
+
+#profileBtn:active{
+  transform:
+    scale(0.97);
+}
+
+#profileBtn:disabled{
+  opacity:.7;
+  cursor:not-allowed;
+}
