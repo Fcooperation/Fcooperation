@@ -24,6 +24,11 @@ document.getElementById(
   "message"
 );
 
+const verifyBtn =
+document.getElementById(
+  "verifyBtn"
+);
+
 /* PASSWORD EYE */
 
 document
@@ -80,6 +85,9 @@ async e=>{
 
   message.style.display =
   "none";
+
+  verifyBtn.style.display =
+"none";
 
   loginBtn.disabled =
   true;
@@ -158,15 +166,28 @@ async e=>{
 }
     else{
 
-      message.className =
-      "message error";
+  message.className =
+  "message error";
 
-      window.scrollTo({
-        top:0,
-        behavior:"smooth"
-      });
+  if(
+    data.message
+    .toLowerCase()
+    .includes(
+      "email not confirmed"
+    )
+  ){
 
-    }
+    verifyBtn.style.display =
+    "block";
+
+  }
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+
+}
 
   }
   catch{
@@ -187,6 +208,19 @@ async e=>{
 
   loginBtn.innerText =
   "Login";
+
+};
+
+verifyBtn.onclick =
+()=>{
+
+  const emailAddress =
+  encodeURIComponent(
+    email.value.trim()
+  );
+
+  location.href =
+  `/resend-verification.html?email=${emailAddress}`;
 
 };
 
