@@ -154,15 +154,6 @@ body{
   max-width:360px
 ){
 
-  .profile-pic{
-    width:85px;
-    height:85px;
-  }
-
-  #username{
-    font-size:19px;
-  }
-
   .service-card{
     padding:16px 8px;
     font-size:24px;
