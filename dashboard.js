@@ -54,6 +54,31 @@ document.getElementById(
   "profileBtn"
 );
 
+const fullNameInput =
+document.getElementById(
+  "fullNameInput"
+);
+
+const usernameInput =
+document.getElementById(
+  "usernameInput"
+);
+
+const passwordInput =
+document.getElementById(
+  "passwordInput"
+);
+
+const saveBtn =
+document.getElementById(
+  "saveBtn"
+);
+
+const saveMessage =
+document.getElementById(
+  "saveMessage"
+);
+
 let selectedFile =
 null;
 
@@ -157,6 +182,12 @@ loadAccount(){
     username.innerText =
       "@" +
       data.username;
+
+    fullNameInput.value =
+data.full_name || "";
+
+usernameInput.value =
+data.username || "";
 
     createdAt.innerText =
       "Joined " +
@@ -372,5 +403,107 @@ profileBtn.onclick =
   }
 
   uploadProfilePic();
+
+};
+
+// Save details button 
+saveBtn.onclick =
+async ()=>{
+
+  saveBtn.disabled =
+  true;
+
+  saveBtn.innerText =
+  "Saving...";
+
+  saveMessage.innerText =
+  "";
+
+  try{
+
+    const {
+      data:{
+        session
+      }
+    } =
+    await supabase
+    .auth
+    .getSession();
+
+    const res =
+    await fetch(
+      "https://fweb-backend.onrender.com/dashboard",
+      {
+        method:"POST",
+
+        headers:{
+          "Content-Type":
+          "application/json",
+
+          Authorization:
+          `Bearer ${
+            session.access_token
+          }`
+        },
+
+        body:JSON.stringify({
+
+          action:
+          "update_details",
+
+          full_name:
+          fullNameInput.value.trim(),
+
+          username:
+          usernameInput.value.trim(),
+
+          password:
+          passwordInput.value.trim()
+
+        })
+
+      }
+    );
+
+    const data =
+    await res.json();
+
+    if(
+      data.success
+    ){
+
+      saveMessage.innerText =
+      "Changes saved.";
+
+      username.innerText =
+      "@" +
+      usernameInput.value;
+
+      passwordInput.value =
+      "";
+
+    }
+    else{
+
+      saveMessage.innerText =
+      data.message;
+
+    }
+
+  }
+  catch(err){
+
+    console.log(err);
+
+    saveMessage.innerText =
+    "Failed to save changes.";
+
+  }
+
+  saveBtn.disabled =
+  false;
+
+  saveBtn.innerText =
+  "Save Changes";
 
 };
