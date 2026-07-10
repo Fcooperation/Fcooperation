@@ -2,6 +2,9 @@
 const feed = document.getElementById("video-feed");
 const uploadQueue = document.getElementById("upload-queue");
 const videoCache = {};
+let prevWrapper = null;
+let currentWrapper = null;
+let nextWrapper = null;
 
 // ---------------- DEEP LINK SUPPORT ----------------
 const urlParams = new URLSearchParams(window.location.search);
@@ -201,7 +204,23 @@ if (!append) {
 
 videos = newVideos;
 currentIndex = 0;
-renderVideo(0);
+
+currentWrapper = renderVideo(0);
+
+if (videos[1]) {
+  nextWrapper = renderVideo(1);
+}
+
+feed.innerHTML = "";
+
+if (currentWrapper) {
+  feed.appendChild(currentWrapper);
+}
+
+if (nextWrapper) {
+  nextWrapper.style.transform = "translateY(100%)";
+  feed.appendChild(nextWrapper);
+}
 }
 
     // ---------------- LOAD MORE ----------------
@@ -305,20 +324,19 @@ await fetch(
 // ---------------- RENDER SINGLE VIDEO ----------------
 function renderVideo(index, direction = "next") {
 
-  // stop previous video ONLY
-const currentVideo = feed.querySelector("video");
-if (currentVideo) currentVideo.pause();
-
-// clear UI safely
-feed.innerHTML = "";
-
   const vid = videos[index];
   if (!vid) return;
   
 
+  // stop previous video ONLY
+const currentVideo = feed.querySelector("video");
+if (currentVideo) currentVideo.pause();
+
+
   const wrapper = document.createElement("div");
   wrapper.className = "video-wrapper";
-
+wrapper.dataset.index = index;
+  
   let video;
 
 if (videoCache[vid.video_url]) {
@@ -798,7 +816,7 @@ function handleLike() {
   likeBtn.classList.add("liked");
   likeBtn.innerHTML = "❤️";
 }
-  feed.appendChild(wrapper);
+  
 
   requestAnimationFrame(() => {
     wrapper.style.transform = "translateY(0)";
@@ -854,6 +872,8 @@ video.addEventListener("pause", () => {
 video.addEventListener("ended", () => {
   clearTimeout(offlineTimer);
 });
+  
+  return wrapper;
   
   // Toggle like function 
   async function toggleLike() {
@@ -1093,32 +1113,143 @@ else {
 // ---------------- NAVIGATION ----------------
 async function nextVideo() {
 
-  if (currentIndex < videos.length - 1) {
+  if (currentIndex >= videos.length - 1) return;
 
-    const currentVideo = feed.querySelector("video");
-    if (currentVideo) currentVideo.pause();
+  // pause old current video
+  const oldVideo =
+    currentWrapper?.querySelector("video");
 
-    currentIndex++;
-
-    renderVideo(currentIndex, "next");
-
-    if (currentIndex >= videos.length - 5) {
-      loadMoreVideos();
-    }
+  if (oldVideo) {
+    oldVideo.pause();
   }
+
+  // remove oldest wrapper
+  if (prevWrapper) {
+    prevWrapper.remove();
+  }
+
+  // shift wrappers
+  prevWrapper = currentWrapper;
+
+  currentWrapper = nextWrapper;
+
+  currentIndex++;
+
+  const nextIndex =
+    currentIndex + 1;
+
+  // build new next wrapper
+  if (videos[nextIndex]) {
+
+    nextWrapper =
+      renderVideo(nextIndex);
+
+    nextWrapper.style.transform =
+      "translateY(100%)";
+
+    feed.appendChild(nextWrapper);
+
+  } else {
+
+    nextWrapper = null;
+
+  }
+
+  // pause every video except current
+  feed.querySelectorAll("video")
+    .forEach(v => {
+
+      if (
+        !currentWrapper.contains(v)
+      ) {
+        v.pause();
+      }
+
+    });
+
+  // play new current
+  const currentVideo =
+    currentWrapper.querySelector(
+      "video"
+    );
+
+  if (currentVideo) {
+    currentVideo.play();
+  }
+
+  if (
+    currentIndex >=
+    videos.length - 5
+  ) {
+    loadMoreVideos();
+  }
+
 }
 
 function prevVideo() {
-  if (currentIndex > 0) {
-    // 👇 Pause the current video first!
-    const currentVideo = feed.querySelector("video");
-    if (currentVideo) {
-      currentVideo.pause();
-    }
 
-    currentIndex--;
-    renderVideo(currentIndex, "prev");
+  if (currentIndex <= 0) return;
+
+  const oldVideo =
+    currentWrapper?.querySelector("video");
+
+  if (oldVideo) {
+    oldVideo.pause();
   }
+
+  // remove old next wrapper
+  if (nextWrapper) {
+    nextWrapper.remove();
+  }
+
+  // shift backwards
+  nextWrapper = currentWrapper;
+
+  currentWrapper = prevWrapper;
+
+  currentIndex--;
+
+  const prevIndex =
+    currentIndex - 1;
+
+  // create new previous wrapper
+  if (prevIndex >= 0) {
+
+    prevWrapper =
+      renderVideo(prevIndex);
+
+    prevWrapper.style.transform =
+      "translateY(-100%)";
+
+    feed.prepend(prevWrapper);
+
+  } else {
+
+    prevWrapper = null;
+
+  }
+
+  // pause everything except current
+  feed.querySelectorAll("video")
+    .forEach(v => {
+
+      if (
+        !currentWrapper.contains(v)
+      ) {
+        v.pause();
+      }
+
+    });
+
+  const currentVideo =
+    currentWrapper.querySelector(
+      "video"
+    );
+
+  if (currentVideo) {
+    currentVideo.play();
+  }
+
 }
 
 // Offline Download
