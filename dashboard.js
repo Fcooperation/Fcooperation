@@ -195,6 +195,32 @@ loadAccount(){
 
     }
 
+    localStorage.setItem(
+  "faccount",
+  JSON.stringify({
+    id:
+    data.id,
+
+    username:
+    data.username,
+
+    full_name:
+    data.full_name,
+
+    profile_pic:
+    data.profile_pic,
+
+    email:
+    data.email,
+
+    provider:
+    data.provider,
+
+    status:
+    data.status
+  })
+);
+
     profilePic.src =
       data.profile_pic ||
       "default.png";
