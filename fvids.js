@@ -2,11 +2,6 @@
 const feed = document.getElementById("video-feed");
 const uploadQueue = document.getElementById("upload-queue");
 const videoCache = {};
-const wrapperPool = {
-  prev: null,
-  current: null,
-  next: null
-};
 
 // ---------------- DEEP LINK SUPPORT ----------------
 const urlParams = new URLSearchParams(window.location.search);
@@ -329,7 +324,6 @@ feed.innerHTML = "";
 if (videoCache[vid.video_url]) {
 
   video = videoCache[vid.video_url];
- videoCache[vid.video_url] = video;
   applyVideoFit(video);
 
 } else {
@@ -804,28 +798,7 @@ function handleLike() {
   likeBtn.classList.add("liked");
   likeBtn.innerHTML = "❤️";
 }
-  // remove old previous wrapper
-if (wrapperPool.prev) {
-  wrapperPool.prev.remove();
-}
-
-// shift wrappers
-wrapperPool.prev = wrapperPool.current;
-wrapperPool.current = wrapperPool.next;
-wrapperPool.next = wrapper;
-
-// append only alive wrappers
-feed.innerHTML = "";
-
-if (wrapperPool.prev) {
-  feed.appendChild(wrapperPool.prev);
-}
-
-if (wrapperPool.current) {
-  feed.appendChild(wrapperPool.current);
-}
-
-feed.appendChild(wrapperPool.next);
+  feed.appendChild(wrapper);
 
   requestAnimationFrame(() => {
     wrapper.style.transform = "translateY(0)";
@@ -1025,42 +998,7 @@ if (data.likes_count <= 0) {
 
 // preload next videos
 preloadVideos(index);
-
-  cleanupWrappers(index);
 }
-
-//Clean wrappers 
-function cleanupWrappers(index) {
-
-  Object.keys(videoCache).forEach(url => {
-
-    const videoIndex =
-      videos.findIndex(
-        v => v.video_url === url
-      );
-
-    const keep =
-      videoIndex >= index - 1 &&
-      videoIndex <= index + 1;
-
-    if (!keep) {
-
-      const video =
-        videoCache[url];
-
-      if (video) {
-
-        video.pause();
-
-        video.removeAttribute("src");
-        video.load();
-
-        delete videoCache[url];
-      }
-    }
-  });
-}
-
 // ---------------- SWIPE LOGIC ----------------
 let startY = 0;
 let isSwiping = false;
