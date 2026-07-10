@@ -44,11 +44,31 @@ let swipeActive = false;
 
 // Stop all vids 
 function stopAllVideos() {
-  document.querySelectorAll("#video-feed video").forEach(v => {
+
+  document.querySelectorAll(
+    "#video-feed video"
+  ).forEach(v => {
+
     try {
+
       v.pause();
-    } catch (e) {}
+
+      // reset playback position
+      v.currentTime = 0;
+
+      // unload video completely
+      v.removeAttribute("src");
+      v.srcObject = null;
+
+      // force browser cleanup
+      v.load();
+
+    } catch (e) {
+      console.error(e);
+    }
+
   });
+
 }
 
 function debugLog(msg){
@@ -1528,6 +1548,23 @@ window.onload = () => {
 // Stop vid on page or app exit
 window.addEventListener("pagehide", stopAllVideos);
 window.addEventListener("beforeunload", stopAllVideos);
-document.addEventListener("visibilitychange", () => {
-  if (document.hidden) stopAllVideos();
-});
+
+document.addEventListener(
+  "visibilitychange",
+  () => {
+
+    if (document.hidden) {
+
+      stopAllVideos();
+
+    } else {
+
+      // restore current video
+      if (videos[currentIndex]) {
+        renderVideo(currentIndex);
+      }
+
+    }
+
+  }
+);
