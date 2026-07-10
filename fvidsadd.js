@@ -725,9 +725,13 @@ function autoResizeDescription() {
 details.addEventListener("input", () => {
   const count = details.value.length;
 
-  detailsCount.textContent = `${count} / ${MAX_DESCRIPTION}`;
+  detailsCount.textContent =
+    `${count} / ${MAX_DESCRIPTION}`;
 
-  detailsCount.classList.remove("warning", "danger");
+  detailsCount.classList.remove(
+    "warning",
+    "danger"
+  );
 
   if (count >= 400) {
     detailsCount.classList.add("warning");
@@ -742,3 +746,39 @@ details.addEventListener("input", () => {
 });
 
 autoResizeDescription();
+
+
+// ===============================
+// CAMERA BACKGROUND HANDLING
+// ===============================
+
+function stopCamera() {
+
+  if (stream) {
+
+    stream.getTracks()
+      .forEach(track => track.stop());
+
+    stream = null;
+  }
+
+  if (previewVideo) {
+    previewVideo.pause();
+  }
+}
+
+document.addEventListener(
+  "visibilitychange",
+  async () => {
+
+    if (document.hidden) {
+
+      stopCamera();
+
+    } else {
+
+      await startCamera();
+    }
+
+  }
+);
