@@ -163,7 +163,7 @@ function showPreview(url) {
   // DON'T mirror preview
   previewVideo.style.transform = "scaleX(1)";
 
-  previewScreen.style.display = "block";
+  previewScreen.style.display = "flex";
 
   uploadBtn.style.display = "none";
   recordBtn.style.display = "none";
