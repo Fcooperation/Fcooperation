@@ -313,3 +313,9 @@ body{
   opacity:0.6;
   cursor:not-allowed;
 }
+#emailText,
+#providerText{
+  color:#888;
+  font-size:14px;
+  margin-top:6px;
+}

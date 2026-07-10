@@ -89,6 +89,16 @@ document.getElementById(
   "deleteBtn"
 );
 
+const emailText =
+document.getElementById(
+  "emailText"
+);
+
+const providerText =
+document.getElementById(
+  "providerText"
+);
+
 let selectedFile =
 null;
 
@@ -192,6 +202,19 @@ loadAccount(){
     username.innerText =
       "@" +
       data.username;
+
+    emailText.innerText =
+"Email: " +
+data.email;
+
+providerText.innerText =
+"Provider: " +
+(
+  data.provider ===
+  "google"
+  ? "Google"
+  : "Email"
+);
 
     fullNameInput.value =
 data.full_name || "";
