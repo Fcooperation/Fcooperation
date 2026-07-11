@@ -313,8 +313,7 @@ feed.querySelectorAll("video").forEach(v => {
   } catch(e){}
 });
 
-feed.querySelectorAll(".video-wrapper")
-.forEach(w => w.remove());
+feed.innerHTML = "";
 
   const vid = videos[index];
   if (!vid) return;
