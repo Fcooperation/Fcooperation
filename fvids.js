@@ -40,6 +40,7 @@ let hasMoreVideos = true;
 let swipeStartX = 0;
 let swipeStartY = 0;
 let swipeActive = false;
+let isLoadingVideo = false;
 
 
 // Stop all vids 
@@ -335,6 +336,7 @@ if (videoCache[vid.video_url]) {
 
   video = document.createElement("video");
   video.src = vid.video_url;
+  video.preload = "metadata";
   applyVideoFit(video);
   
   video.addEventListener("loadedmetadata", () => {
@@ -811,17 +813,16 @@ function handleLike() {
 
   requestAnimationFrame(() => {
 
-  video.play().then(() => {
-
-    playOverlay.style.display = "none";
-    thumbnail.style.display = "none";
-
-}).catch(() => {
-
-    playOverlay.style.display = "flex";
-    thumbnail.style.display = "block";
-
-});
+  video.addEventListener("canplay", () => {
+  video.play()
+    .then(() => {
+      playOverlay.style.display = "none";
+      thumbnail.style.display = "none";
+    })
+    .catch(() => {
+      playOverlay.style.display = "flex";
+    });
+}, { once: true });
 
 });
 
@@ -1103,9 +1104,17 @@ async function nextVideo() {
     const currentVideo = feed.querySelector("video");
     if (currentVideo) currentVideo.pause();
 
-    currentIndex++;
+    if (isLoadingVideo) return;
 
-    renderVideo(currentIndex, "next");
+isLoadingVideo = true;
+
+currentIndex++;
+
+renderVideo(currentIndex, "next");
+
+setTimeout(() => {
+  isLoadingVideo = false;
+}, 300);
 
     if (currentIndex >= videos.length - 5) {
       loadMoreVideos();
@@ -1121,8 +1130,17 @@ function prevVideo() {
       currentVideo.pause();
     }
 
-    currentIndex--;
-    renderVideo(currentIndex, "prev");
+    if (isLoadingVideo) return;
+
+isLoadingVideo = true;
+
+currentIndex--;
+
+renderVideo(currentIndex, "prev");
+
+setTimeout(() => {
+  isLoadingVideo = false;
+}, 300);
   }
 }
 
