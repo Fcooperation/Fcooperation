@@ -310,6 +310,8 @@ feed.querySelectorAll("video").forEach(v => {
   try {
     v.pause();
     v.currentTime = 0;
+    video.removeAttribute("src");
+video.load();
   } catch(e){}
 });
 
