@@ -69,6 +69,8 @@ function stopAllVideos() {
 
   });
 
+  feed.innerHTML = "";
+
 }
 
 function debugLog(msg){
@@ -1506,6 +1508,8 @@ document.addEventListener("touchend", (e) => {
 window.onload = () => {
 
   createUploadItem();
+
+  stopAllVideos();
 
   showUploadBanner();
 
