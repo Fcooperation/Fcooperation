@@ -332,6 +332,7 @@ if (videoCache[vid.video_url]) {
 
   video = document.createElement("video");
   video.src = vid.video_url;
+  videoCache[vid.video_url] = video;
   applyVideoFit(video);
   
   video.addEventListener("loadedmetadata", () => {
@@ -1084,6 +1085,35 @@ else {
     currentPage,
     true
   );
+
+}
+
+// 🔥 Cleanup old cached videos
+if (currentPage > 1) {
+
+  const keepFrom =
+    (currentPage - 1) * 20;
+
+  Object.keys(videoCache)
+    .slice(0, keepFrom)
+    .forEach(key => {
+
+      const video =
+        videoCache[key];
+
+      try {
+
+        video.pause();
+
+        video.removeAttribute("src");
+
+        video.load();
+
+      } catch(e) {}
+
+      delete videoCache[key];
+
+    });
 
 }
 
