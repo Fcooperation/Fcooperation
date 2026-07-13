@@ -1,6 +1,7 @@
 // ---------------- VIDEO FEED STATE ----------------
 const feed = document.getElementById("video-feed");
 const uploadQueue = document.getElementById("upload-queue");
+const videoCache = {};
 
 // ---------------- DEEP LINK SUPPORT ----------------
 const urlParams = new URLSearchParams(window.location.search);
@@ -322,8 +323,16 @@ feed.innerHTML = "";
 
   let video;
 
-video = document.createElement("video");
-video.src = vid.video_url;
+if (videoCache[vid.video_url]) {
+
+  video = videoCache[vid.video_url];
+  applyVideoFit(video);
+
+} else {
+
+  video = document.createElement("video");
+  video.src = vid.video_url;
+  videoCache[vid.video_url] = video;
   applyVideoFit(video);
   
   video.addEventListener("loadedmetadata", () => {
@@ -988,6 +997,11 @@ if (data.likes_count <= 0) {
     console.error("Double tap like failed:", err);
   }
 }
+
+
+// preload next videos
+preloadVideos(index);
+}
 // ---------------- SWIPE LOGIC ----------------
 let startY = 0;
 let isSwiping = false;
@@ -1073,7 +1087,7 @@ else {
   );
 
 }
-/*
+
 // 🔥 Cleanup old cached videos
 if (currentPage > 1) {
 
@@ -1102,7 +1116,6 @@ if (currentPage > 1) {
     });
 
 }
-*/
 
   } finally {
     isLoadingMore = false;
@@ -1115,13 +1128,7 @@ async function nextVideo() {
   if (currentIndex < videos.length - 1) {
 
     const currentVideo = feed.querySelector("video");
-
-if (currentVideo) {
-  currentVideo.pause();
-
-  // 🔥 reset so it starts from beginning later
-  currentVideo.currentTime = 0;
-}
+    if (currentVideo) currentVideo.pause();
 
     currentIndex++;
 
@@ -1138,11 +1145,8 @@ function prevVideo() {
     // 👇 Pause the current video first!
     const currentVideo = feed.querySelector("video");
     if (currentVideo) {
-  currentVideo.pause();
-
-  // 🔥 reset playback position
-  currentVideo.currentTime = 0;
-}
+      currentVideo.pause();
+    }
 
     currentIndex--;
     renderVideo(currentIndex, "prev");
@@ -1186,6 +1190,33 @@ async function downloadVideoForOffline(videoObj) {
       "❌ Offline download failed:",
       err
     );
+  }
+}
+
+// Preload vid function 
+function preloadVideos(startIndex) {
+
+  for (let i = 1; i <= 2; i++) {
+
+    const nextIndex = startIndex + i;
+
+    if (!videos[nextIndex]) continue;
+
+    const url = videos[nextIndex].video_url;
+
+    if (videoCache[url]) continue;
+
+    const preloadVideo = document.createElement("video");
+
+    preloadVideo.src = url;
+    preloadVideo.preload = "auto";
+    preloadVideo.muted = true;
+
+    preloadVideo.load();
+
+    videoCache[url] = preloadVideo;
+
+    console.log("Preloading:", url);
   }
 }
 
