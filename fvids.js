@@ -1,7 +1,6 @@
 // ---------------- VIDEO FEED STATE ----------------
 const feed = document.getElementById("video-feed");
 const uploadQueue = document.getElementById("upload-queue");
-const videoCache = {};
 
 // ---------------- DEEP LINK SUPPORT ----------------
 const urlParams = new URLSearchParams(window.location.search);
@@ -323,21 +322,8 @@ feed.innerHTML = "";
 
   let video;
 
-if (videoCache[vid.video_url]) {
-
-  video = videoCache[vid.video_url];
-
-  // 🔥 restart from beginning every time
-  video.pause();
-  video.currentTime = 0;
-
-  applyVideoFit(video);
-
-} else {
-
-  video = document.createElement("video");
-  video.src = vid.video_url;
-  videoCache[vid.video_url] = video;
+video = document.createElement("video");
+video.src = vid.video_url;
   applyVideoFit(video);
   
   video.addEventListener("loadedmetadata", () => {
@@ -1002,11 +988,6 @@ if (data.likes_count <= 0) {
     console.error("Double tap like failed:", err);
   }
 }
-
-
-// preload next videos
-preloadVideos(index);
-}
 // ---------------- SWIPE LOGIC ----------------
 let startY = 0;
 let isSwiping = false;
@@ -1205,33 +1186,6 @@ async function downloadVideoForOffline(videoObj) {
       "❌ Offline download failed:",
       err
     );
-  }
-}
-
-// Preload vid function 
-function preloadVideos(startIndex) {
-
-  for (let i = 1; i <= 2; i++) {
-
-    const nextIndex = startIndex + i;
-
-    if (!videos[nextIndex]) continue;
-
-    const url = videos[nextIndex].video_url;
-
-    if (videoCache[url]) continue;
-
-    const preloadVideo = document.createElement("video");
-
-    preloadVideo.src = url;
-    preloadVideo.preload = "auto";
-    preloadVideo.muted = true;
-
-    preloadVideo.load();
-
-    videoCache[url] = preloadVideo;
-
-    console.log("Preloading:", url);
   }
 }
 
