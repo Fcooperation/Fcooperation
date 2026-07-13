@@ -1092,7 +1092,7 @@ else {
   );
 
 }
-
+/*
 // 🔥 Cleanup old cached videos
 if (currentPage > 1) {
 
@@ -1121,6 +1121,7 @@ if (currentPage > 1) {
     });
 
 }
+*/
 
   } finally {
     isLoadingMore = false;
