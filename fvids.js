@@ -326,6 +326,11 @@ feed.innerHTML = "";
 if (videoCache[vid.video_url]) {
 
   video = videoCache[vid.video_url];
+
+  // 🔥 restart from beginning every time
+  video.pause();
+  video.currentTime = 0;
+
   applyVideoFit(video);
 
 } else {
@@ -1128,7 +1133,13 @@ async function nextVideo() {
   if (currentIndex < videos.length - 1) {
 
     const currentVideo = feed.querySelector("video");
-    if (currentVideo) currentVideo.pause();
+
+if (currentVideo) {
+  currentVideo.pause();
+
+  // 🔥 reset so it starts from beginning later
+  currentVideo.currentTime = 0;
+}
 
     currentIndex++;
 
@@ -1145,8 +1156,11 @@ function prevVideo() {
     // 👇 Pause the current video first!
     const currentVideo = feed.querySelector("video");
     if (currentVideo) {
-      currentVideo.pause();
-    }
+  currentVideo.pause();
+
+  // 🔥 reset playback position
+  currentVideo.currentTime = 0;
+}
 
     currentIndex--;
     renderVideo(currentIndex, "prev");
