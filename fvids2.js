@@ -357,14 +357,15 @@ await res.json();
 const replies =
 data.replies || [];
 
-if(replies.length===0){
+if (replies.length === 0) {
 
-replyHasMore[commentId]=false;
+  replyHasMore[commentId] = false;
 
-btn.classList.add("hidden");
+  btn.classList.add("hidden");
 
-return;
+  loadingReplies[commentId] = false;
 
+  return;
 }
 
 replies.forEach(r=>{
