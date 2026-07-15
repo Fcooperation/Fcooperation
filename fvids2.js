@@ -510,20 +510,35 @@ btn.textContent = originalText;
 loadingReplies[commentId]=false;
 
 }
-  
-  // Scroll to load more comments 
-  document.getElementById("comments-list").addEventListener("scroll", () => {
+ // Scroll to load more comments
+document.getElementById("comments-body").addEventListener("scroll", () => {
 
-  const list = document.getElementById("comments-list");
+  const list =
+    document.getElementById("comments-body");
 
   if (
-    list.scrollTop + list.clientHeight >= list.scrollHeight - 20
+    list.scrollTop +
+    list.clientHeight >=
+    list.scrollHeight - 20
   ) {
-    if (commentHasMore && !loadingComments) {
+
+    if (
+      commentHasMore &&
+      !loadingComments
+    ) {
+
       commentPage++;
-      loadComments(currentVideoId, commentPage, true);
+
+      loadComments(
+        currentVideoId,
+        commentPage,
+        true
+      );
+
     }
+
   }
+
 });
 
   // Readmore logic 
