@@ -128,18 +128,28 @@ function renderUsers(list){
           ${user.username}
         </div>
 
-        <div class="status">
-          ${
-            user.status_text ||
-            "Hey there! I'm using FCHAT 👋"
-          }
-        </div>
+       <div class="status">
+  ${
+    user.fchat
+      ? (
+          user.status_text ||
+          "Hey there! I'm using FCHAT 👋"
+        )
+      : "Not on FCHAT"
+  }
+</div>
 
       </div>
 
-      <button class="add-btn">
-        Add
-      </button>
+      ${
+  user.fchat
+  ? `
+    <button class="add-btn">
+      Add
+    </button>
+  `
+  : ""
+}
     `;
 
     const btn =
