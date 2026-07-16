@@ -1,303 +1,310 @@
-import { createClient }
-from "@supabase/supabase-js";
+const API =
+  `${window.CONFIG.API_URL}/friend-request`;
 
-import "dotenv/config";
-
-const supabase =
-  createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_KEY
+const container =
+  document.getElementById(
+    "requests-container"
   );
 
-export default async function friendRequest(
-  req,
-  res
-){
+const log =
+  document.getElementById(
+    "log"
+  );
+
+const empty =
+  document.getElementById(
+    "empty"
+  );
+
+const account =
+  JSON.parse(
+    localStorage.getItem(
+      "faccount"
+    )
+  ) || {};
+
+const myId =
+  account.userId ||
+  account.id;
+
+async function loadRequests(){
 
   try{
 
-    // =========================
-    // GET FRIEND REQUESTS
-    // =========================
-    if(
-      req.method === "GET"
-    ){
-
-      const userId =
-        req.query.userId;
-
-      if(!userId){
-
-        return res.status(400)
-        .json({
-          success:false,
-          error:
-            "Missing userId"
-        });
-
-      }
-
-      // requests sent TO me
-      const {
-        data: requests,
-        error
-      } = await supabase
-        .from(
-          "friend_request"
-        )
-        .select(`
-          user_id
-        `)
-        .eq(
-          "friend_id",
-          userId
-        )
-        .eq(
-          "accepted",
-          false
-        );
-
-      if(error){
-        throw error;
-      }
-
-      const senderIds =
-        requests.map(
-          r => r.user_id
-        );
-
-      if(
-        senderIds.length === 0
-      ){
-
-        return res.json({
-          success:true,
-          requests:[]
-        });
-
-      }
-
-      const {
-        data: users,
-        error: usersError
-      } = await supabase
-        .from(
-          "fwebaccount"
-        )
-        .select(`
-          id,
-          username,
-          profile_pic
-        `)
-        .in(
-          "id",
-          senderIds
-        );
-
-      if(usersError){
-        throw usersError;
-      }
-
-      const {
-        data: fchatRows
-      } = await supabase
-        .from("fchat")
-        .select(`
-          user_id,
-          status_text
-        `)
-        .in(
-          "user_id",
-          senderIds
-        );
-
-      const fchatMap =
-        {};
-
-      fchatRows?.forEach(
-        row => {
-
-          fchatMap[
-            row.user_id
-          ] = row;
-
-        }
+    const res =
+      await fetch(
+`${API}?userId=${myId}`
       );
 
-      const formatted =
-        users.map(
-          user => ({
-            id:
-              user.id,
+    const data =
+      await res.json();
 
-            username:
-              user.username,
-
-            profile_pic:
-              user.profile_pic,
-
-            status_text:
-              fchatMap[
-                user.id
-              ]?.status_text ||
-
-              "Hey there! I'm using FCHAT 👋"
-          })
-        );
-
-      return res.json({
-        success:true,
-        requests:
-          formatted
-      });
-
-    }
-
-    // =========================
-    // ACCEPT REQUEST
-    // =========================
     if(
-      req.path ===
-      "/friend-request/accept"
+      !data.success
     ){
-
-      const {
-        userId,
-        senderId
-      } = req.body;
-
-      if(
-        !userId ||
-        !senderId
-      ){
-
-        return res.status(400)
-        .json({
-          success:false,
-          error:
-            "Missing userId or senderId"
-        });
-
-      }
-
-      // create both directions
-      const {
-        error
-      } = await supabase
-        .from(
-          "fchat_contact"
-        )
-        .insert([
-          {
-            user_id:
-              userId,
-
-            friend_id:
-              senderId
-          },
-
-          {
-            user_id:
-              senderId,
-
-            friend_id:
-              userId
-          }
-        ]);
-
-      if(error){
-        throw error;
-      }
-
-      // remove request
-      await supabase
-        .from(
-          "friend_request"
-        )
-        .delete()
-        .eq(
-          "user_id",
-          senderId
-        )
-        .eq(
-          "friend_id",
-          userId
-        );
-
-      return res.json({
-        success:true
-      });
-
+      throw new Error(
+        data.error
+      );
     }
 
-    // =========================
-    // REJECT REQUEST
-    // =========================
-    if(
-      req.path ===
-      "/friend-request/reject"
-    ){
-
-      const {
-        userId,
-        senderId
-      } = req.body;
-
-      if(
-        !userId ||
-        !senderId
-      ){
-
-        return res.status(400)
-        .json({
-          success:false,
-          error:
-            "Missing userId or senderId"
-        });
-
-      }
-
-      await supabase
-        .from(
-          "friend_request"
-        )
-        .delete()
-        .eq(
-          "user_id",
-          senderId
-        )
-        .eq(
-          "friend_id",
-          userId
-        );
-
-      return res.json({
-        success:true
-      });
-
-    }
-
-    return res.status(404)
-    .json({
-      success:false,
-      error:
-        "Route not found"
-    });
+    renderRequests(
+      data.requests || []
+    );
 
   }catch(err){
 
-    console.error(
-      "FRIEND REQUEST ERROR:",
-      err
-    );
-
-    return res.status(500)
-    .json({
-      success:false,
-      error:
-        err.message
-    });
+    log.textContent =
+      "Failed to load requests";
 
   }
 
 }
+
+function renderRequests(
+  requests
+){
+
+  container.innerHTML =
+    "";
+
+  if(
+    requests.length === 0
+  ){
+
+    empty.classList.remove(
+      "hidden"
+    );
+
+    return;
+
+  }
+
+  empty.classList.add(
+    "hidden"
+  );
+
+  requests.forEach(
+    user => {
+
+      const card =
+        document.createElement(
+          "div"
+        );
+
+      card.className =
+        "request-card";
+
+      card.innerHTML = `
+<img
+  class="pfp"
+  src="${
+    user.profile_pic ||
+    "/default.png"
+  }"
+>
+
+<div class="info">
+
+  <div class="username">
+    ${user.username}
+  </div>
+
+  <div class="status">
+    ${
+      user.status_text ||
+      "Hey there! I'm using FCHAT 👋"
+    }
+  </div>
+
+</div>
+
+<div class="actions">
+
+<button class="accept-btn">
+Accept
+</button>
+
+<button class="reject-btn">
+Reject
+</button>
+
+</div>
+      `;
+
+      const pfp =
+        card.querySelector(
+          ".pfp"
+        );
+
+      pfp.onclick =
+        ()=>{
+
+        document
+          .getElementById(
+            "profileView"
+          )
+          .src =
+            user.profile_pic ||
+            "/default.png";
+
+        document
+          .getElementById(
+            "profile-modal"
+          )
+          .classList
+          .remove(
+            "hidden"
+          );
+
+      };
+
+      const acceptBtn =
+        card.querySelector(
+          ".accept-btn"
+        );
+
+      const rejectBtn =
+        card.querySelector(
+          ".reject-btn"
+        );
+
+      acceptBtn.onclick =
+        async ()=>{
+
+        acceptBtn.disabled =
+          true;
+
+        rejectBtn.disabled =
+          true;
+
+        acceptBtn.textContent =
+          "Accepting...";
+
+        const res =
+          await fetch(
+`${API}/accept`,
+            {
+              method:"POST",
+              headers:{
+                "Content-Type":
+                "application/json"
+              },
+              body:
+              JSON.stringify({
+                userId:myId,
+                senderId:
+                  user.id
+              })
+            }
+          );
+
+        const data =
+          await res.json();
+
+        if(
+          data.success
+        ){
+
+          card.classList.add(
+            "fade-out"
+          );
+
+          setTimeout(
+            ()=>{
+              card.remove();
+            },
+            500
+          );
+
+        }
+
+      };
+
+      rejectBtn.onclick =
+        async ()=>{
+
+        acceptBtn.disabled =
+          true;
+
+        rejectBtn.disabled =
+          true;
+
+        rejectBtn.textContent =
+          "Rejecting...";
+
+        const res =
+          await fetch(
+`${API}/reject`,
+            {
+              method:"POST",
+              headers:{
+                "Content-Type":
+                "application/json"
+              },
+              body:
+              JSON.stringify({
+                userId:myId,
+                senderId:
+                  user.id
+              })
+            }
+          );
+
+        const data =
+          await res.json();
+
+        if(
+          data.success
+        ){
+
+          card.classList.add(
+            "fade-out"
+          );
+
+          setTimeout(
+            ()=>{
+              card.remove();
+            },
+            500
+          );
+
+        }
+
+      };
+
+      container.appendChild(
+        card
+      );
+
+    }
+  );
+
+}
+
+document
+.getElementById(
+  "profile-modal"
+)
+.onclick = ()=>{
+
+  document
+    .getElementById(
+      "profile-modal"
+    )
+    .classList.add(
+      "hidden"
+    );
+
+};
+
+document
+.getElementById(
+  "back-btn"
+)
+.onclick = ()=>{
+
+  history.back();
+
+};
+
+loadRequests();

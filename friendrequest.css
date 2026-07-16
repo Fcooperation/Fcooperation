@@ -1,0 +1,133 @@
+body{
+  margin:0;
+  padding:0;
+  font-family:Arial,sans-serif;
+  background:#111;
+  color:white;
+}
+
+.top-bar{
+  display:flex;
+  align-items:center;
+  gap:15px;
+  padding:15px;
+  border-bottom:1px solid #222;
+}
+
+#back-btn{
+  background:none;
+  border:none;
+  color:white;
+  font-size:22px;
+}
+
+#log{
+  padding:15px;
+  color:#999;
+  font-size:13px;
+}
+
+#requests-container{
+  padding:15px;
+}
+
+.request-card{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  background:#1b1b1b;
+  padding:12px;
+  border-radius:12px;
+  margin-bottom:15px;
+  transition:
+    opacity .5s,
+    transform .5s;
+}
+
+.request-card.fade-out{
+  opacity:0;
+  transform:
+    translateX(30px);
+}
+
+.pfp{
+  width:55px;
+  height:55px;
+  border-radius:50%;
+  object-fit:cover;
+  cursor:pointer;
+}
+
+.info{
+  flex:1;
+}
+
+.username{
+  font-size:16px;
+  font-weight:bold;
+}
+
+.status{
+  color:#999;
+  font-size:13px;
+  margin-top:5px;
+}
+
+.userid{
+  font-size:12px;
+  margin-top:5px;
+  color:#666;
+}
+
+.actions{
+  display:flex;
+  gap:8px;
+}
+
+.accept-btn,
+.reject-btn{
+  border:none;
+  border-radius:8px;
+  padding:10px 14px;
+  color:white;
+}
+
+.accept-btn{
+  background:#0084ff;
+}
+
+.reject-btn{
+  background:#ff3b30;
+}
+
+#empty{
+  text-align:center;
+  padding:40px;
+  color:#777;
+}
+
+.hidden{
+  display:none;
+}
+
+#profile-modal{
+  position:fixed;
+  inset:0;
+  background:
+    rgba(0,0,0,.85);
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:1000;
+}
+
+#profile-modal.hidden{
+  display:none;
+}
+
+#profileView{
+  width:80%;
+  max-width:350px;
+  border-radius:50%;
+}

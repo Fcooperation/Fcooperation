@@ -1,335 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fchat Friend Requests</title>
-<link rel="icon" type="image/png" href="/favicon.png">
-  <style>
-body {
-  font-family: Arial, sans-serif;
-  background: #f0f0f0;
-  padding: 20px;
-}
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-/* Logs */
-#log {
-  margin-bottom: 12px;
-  font-size: 14px;
-  color: #333;
-}
+  <title>
+    Friend Requests
+  </title>
 
-/* Requests container */
-#requests-container {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
+  <link
+    rel="icon"
+    href="/favicon.png"
+  >
 
-/* Request card */
-.request-card {
-  background: white;
-  border-radius: 10px;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  box-shadow: 0px 3px 10px rgba(0,0,0,0.1);
-  transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-/* Fade-out effect */
-.request-card.fade-out {
-  opacity: 0;
-  transform: translateX(30px);
-}
-
-/* Profile picture / initials */
-.request-card .pfp {
-  height: 55px;
-  width: 55px;
-  border-radius: 50%;
-  object-fit: cover;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 20px;
-  font-weight: bold;
-  color: white;
-  background-color: black;
-}
-
-/* Info section */
-.info {
-  display: flex;
-  flex-direction: column;
-}
-
-.username {
-  font-weight: bold;
-  font-size: 16px;
-}
-
-.status {
-  font-size: 12px;
-  color: #555;
-  margin-top: 3px;
-}
-
-.userid {
-  font-size: 12px;
-  color: #000;
-  margin-top: 5px;
-  font-weight: bold;
-}
-
-/* Buttons below card */
-.actions {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-start;
-  margin-top: 6px;
-}
-
-.accept-btn, .reject-btn {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.accept-btn { background: #2196f3; color: white; }
-.reject-btn { background: #f44336; color: white; }
-
-/* Empty state */
-#empty {
-  text-align: center;
-  padding: 30px;
-  font-size: 16px;
-  color: #666;
-}
-
-/* Profile modal */
-#profile-modal {
-  position: fixed;
-  top:0; left:0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.85);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 100;
-}
-
-#profile-modal img {
-  width: 80%;
-  max-width: 400px;
-  border-radius: 50%;
-}
-</style>
+  <link
+    rel="stylesheet"
+    href="friendrequest.css"
+  >
 </head>
+
 <body>
 
-<h2>Friend Requests</h2>
+  <div class="top-bar">
 
-<div id="log">Loading requests...</div>
+    <button id="back-btn">
+      ←
+    </button>
 
-<div id="requests-container"></div>
-<div id="empty" style="display:none;">No friend requests yet...</div>
+    <h2>
+      Friend Requests
+    </h2>
 
-<!-- Profile modal -->
-<div id="profile-modal"><img id="profileView"></div>
+  </div>
 
-<script>
-const API_URL = "https://fweb-backend.onrender.com/fchat";
-const existingCards = new Map(); // Store current fcards by user id
-let updateInterval = null;
-let isPaused = false;
+  <div id="log">
+    Loading requests...
+  </div>
 
-// -------------------- Helper to call backend --------------------
-async function callBackend(action, body = {}) {
-  const account = JSON.parse(localStorage.getItem("faccount")) || {};
-  if (!account.email) {
-    console.error("No email found in localStorage!");
-    return { data: [] };
-  }
-  const payload = { action, email: account.email, ...body };
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-    return await res.json();
-  } catch (err) {
-    console.error("Error calling backend:", err);
-    return { data: [] };
-  }
-}
+  <div
+    id="requests-container"
+  ></div>
 
-// -------------------- Add single request card --------------------
-function addRequestCard(user) {
-  if (existingCards.has(user.id)) return;
+  <div
+    id="empty"
+    class="hidden"
+  >
+    No friend requests yet...
+  </div>
 
-  const container = document.getElementById("requests-container");
+  <!-- Profile Modal -->
+  <div
+    id="profile-modal"
+    class="hidden"
+  >
+    <img
+      id="profileView"
+    >
+  </div>
 
-  const card = document.createElement("div");
-  card.className = "request-card";
+  <script src="config.js"></script>
 
-  // Profile picture or initials
-  const pfpEl = document.createElement("div");
-  pfpEl.className = "pfp";
-  if (user.profile_pic) {
-    const img = document.createElement("img");
-    img.src = user.profile_pic;
-    img.alt = "Profile Picture";
-    img.style.width = "100%";
-    img.style.height = "100%";
-    img.style.borderRadius = "50%";
-    pfpEl.appendChild(img);
-
-    pfpEl.onclick = () => {
-      document.getElementById("profile-modal").style.display = "flex";
-      document.getElementById("profileView").src = user.profile_pic;
-    };
-  } else {
-    const initials = (user.username || "U").split(" ").map(n => n[0].toUpperCase()).join("").slice(0,2);
-    pfpEl.textContent = initials;
-  }
-
-  // Info section
-  const info = document.createElement("div");
-  info.className = "info";
-  info.innerHTML = `
-    <div class="username">${user.username}</div>
-    <div class="status">${user.status_text || "No status"}</div>
-    <div class="userid">ID: ${user.id}</div>
-  `;
-
-  // Action buttons
-  const actions = document.createElement("div");
-  actions.className = "actions";
-
-  const acceptBtn = document.createElement("button");
-  acceptBtn.className = "accept-btn";
-  acceptBtn.textContent = "Accept";
-  acceptBtn.onclick = async () => {
-  pauseUpdates();
-  acceptBtn.textContent = "Accepting…";
-  acceptBtn.disabled = true;
-  rejectBtn.disabled = true;
-
-  const account = JSON.parse(localStorage.getItem("faccount")) || {};
-  const myId = account.id; // <-- your ID
-
-  // 1️⃣ Load current fchat messages list
-  let chats = JSON.parse(localStorage.getItem("fchat_messages")) || [];
-
-  // 2️⃣ Add this accepted user IF not already inside
-  if (!chats.some(c => c.id === user.id)) {
-    chats.push({
-      id: user.id,
-      username: user.username,
-      profile_pic: user.profile_pic || null,
-      status_text: user.status_text || "No status",
-      last_message: "",
-      messages: []
-    });
-  }
-
-  // 3️⃣ Save back into localStorage
-  localStorage.setItem("fchat_messages", JSON.stringify(chats));
-
-  // 4️⃣ Backend: confirm acceptance (send your ID too)
-  await callBackend("accept", { user_id: user.id, my_id: myId });
-
-  // 5️⃣ UI effect
-  fadeOutCard(card);
-  existingCards.delete(user.id);
-  updateLog(`Accepted user ${user.username}`);
-  resumeUpdates();
-};
-  const rejectBtn = document.createElement("button");
-  rejectBtn.className = "reject-btn";
-  rejectBtn.textContent = "Reject";
-  rejectBtn.onclick = async () => {
-    pauseUpdates();
-    rejectBtn.textContent = "Rejecting…";
-    acceptBtn.disabled = true;
-    rejectBtn.disabled = true;
-    const res = await callBackend("reject", { user_id: user.id });
-    fadeOutCard(card);
-    existingCards.delete(user.id);
-    updateLog(`Rejected user ${user.username}`);
-    resumeUpdates();
-  };
-
-  actions.appendChild(acceptBtn);
-  actions.appendChild(rejectBtn);
-
-  card.appendChild(pfpEl);
-  card.appendChild(info);
-  card.appendChild(actions);
-
-  container.appendChild(card);
-  existingCards.set(user.id, card);
-}
-
-// -------------------- Fade out card --------------------
-function fadeOutCard(card) {
-  card.classList.add("fade-out");
-  setTimeout(() => card.remove(), 500);
-}
-
-// -------------------- Update log --------------------
-function updateLog(message) {
-  const log = document.getElementById("log");
-  const now = new Date().toLocaleTimeString();
-  log.textContent = `[${now}] ${message}`;
-}
-
-// -------------------- Load friend requesters incrementally --------------------
-async function loadRequests() {
-  if (isPaused) return; // skip if paused
-
-  const empty = document.getElementById("empty");
-  const response = await callBackend("get_requesters");
-  if (!response.data || response.data.length === 0) {
-    empty.style.display = existingCards.size === 0 ? "block" : "none";
-    updateLog("No new friend requests");
-    return;
-  }
-
-  empty.style.display = "none";
-  response.data.forEach(user => addRequestCard(user));
-  updateLog(`${existingCards.size} friend request(s) displayed`);
-}
-
-// -------------------- Pause/Resume Updates --------------------
-function pauseUpdates() {
-  isPaused = true;
-  if (updateInterval) clearInterval(updateInterval);
-}
-
-function resumeUpdates() {
-  isPaused = false;
-  updateInterval = setInterval(loadRequests, 10000); // restart 10 sec updates
-  loadRequests(); // immediately update after resuming
-}
-
-// Close modal when clicked
-document.getElementById("profile-modal").onclick = () => {
-  document.getElementById("profile-modal").style.display = "none";
-};
-
-// -------------------- Start Updates --------------------
-loadRequests();
-updateInterval = setInterval(loadRequests, 10000);
-</script>
+  <script
+    src="friendrequest.js"
+  ></script>
 
 </body>
 </html>
