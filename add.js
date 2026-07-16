@@ -156,6 +156,11 @@ function renderUsers(list){
       card.querySelector(
         ".add-btn"
       );
+      
+      if(!btn){
+  results.appendChild(card);
+  return;
+}
 
     btn.onclick =
       async ()=>{
