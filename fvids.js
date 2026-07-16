@@ -50,26 +50,12 @@ function stopAllVideos() {
   ).forEach(v => {
 
     try {
-
       v.pause();
-
-      // reset playback position
-      v.currentTime = 0;
-
-      // unload video completely
-      v.removeAttribute("src");
-      v.srcObject = null;
-
-      // force browser cleanup
-      v.load();
-
     } catch (e) {
       console.error(e);
     }
 
   });
-
-  feed.innerHTML = "";
 
 }
 
@@ -1557,17 +1543,15 @@ document.addEventListener(
   "visibilitychange",
   () => {
 
+    const video =
+      feed.querySelector("video");
+
+    if (!video) return;
+
     if (document.hidden) {
-
-      stopAllVideos();
-
+      video.pause();
     } else {
-
-      // restore current video
-      if (videos[currentIndex]) {
-        renderVideo(currentIndex);
-      }
-
+      video.play().catch(() => {});
     }
 
   }
