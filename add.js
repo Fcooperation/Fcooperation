@@ -1,6 +1,9 @@
 const API =
   `${window.CONFIG.API_URL}/add-user`;
 
+const SEARCH_API =
+  `${window.CONFIG.API_URL}/add-user/search`;
+
 const results =
   document.getElementById("results");
 
@@ -9,21 +12,69 @@ const loading =
 
 let users = [];
 
-async function loadUsers() {
+let currentPage = 1;
+let hasMore = true;
+let isLoading = false;
+
+async function loadUsers(
+  page = 1,
+  append = false
+) {
+
+  if (
+    isLoading ||
+    !hasMore
+  ) return;
+
+  isLoading = true;
 
   try {
 
+    const account =
+      JSON.parse(
+        localStorage.getItem(
+          "faccount"
+        )
+      ) || {};
+
+    const myId =
+      account.userId ||
+      account.id;
+
     const res =
-      await fetch(API);
+      await fetch(
+`${API}?page=${page}&limit=20&userId=${myId}`
+      );
 
     const data =
       await res.json();
 
-    users =
+    const newUsers =
       data.users || [];
+
+    if (append) {
+
+      users.push(
+        ...newUsers
+      );
+
+    } else {
+
+      users =
+        newUsers;
+
+    }
+
+    hasMore =
+      data.hasMore;
+
+    currentPage =
+      page;
 
     loading.style.display =
       "none";
+
+    renderUsers(users);
 
   } catch(err){
 
@@ -31,6 +82,9 @@ async function loadUsers() {
       "Failed to load users";
 
   }
+
+  isLoading = false;
+
 }
 
 function renderUsers(list){
@@ -151,8 +205,11 @@ function renderUsers(list){
 }
 
 document
-.getElementById("searchBtn")
-.onclick = ()=>{
+.getElementById(
+  "searchBtn"
+)
+.onclick =
+async ()=>{
 
   const query =
     document
@@ -160,17 +217,52 @@ document
       "searchInput"
     )
     .value
-    .toLowerCase();
+    .trim();
 
-  const filtered =
-    users.filter(
-      u =>
-        u.username
-        ?.toLowerCase()
-        .includes(query)
+  // Empty search
+  if (!query) {
+
+    currentPage = 1;
+    hasMore = true;
+
+    await loadUsers(
+      1,
+      false
     );
 
-  renderUsers(filtered);
+    return;
+  }
+
+  loading.style.display =
+    "block";
+
+  loading.textContent =
+    "Searching...";
+
+  try {
+
+    const res =
+      await fetch(
+`${SEARCH_API}?q=${encodeURIComponent(query)}`
+      );
+
+    const data =
+      await res.json();
+
+    loading.style.display =
+      "none";
+
+    renderUsers(
+      data.users || []
+    );
+
+  } catch {
+
+    loading.textContent =
+      "Search failed";
+
+  }
+
 };
 
 document
@@ -181,6 +273,31 @@ document
 
 };
 
-loadUsers().then(
-  ()=>renderUsers(users)
+loadUsers();
+
+window.addEventListener(
+  "scroll",
+  async ()=>{
+
+    if (
+      window.innerHeight +
+      window.scrollY >=
+      document.body.offsetHeight - 300
+    ) {
+
+      if (
+        hasMore &&
+        !isLoading
+      ) {
+
+        await loadUsers(
+          currentPage + 1,
+          true
+        );
+
+      }
+
+    }
+
+  }
 );
