@@ -1,0 +1,112 @@
+body{
+  margin:0;
+  padding:0;
+  background:#111;
+  color:white;
+  font-family:Arial,sans-serif;
+}
+
+.top-bar{
+  display:flex;
+  align-items:center;
+  gap:15px;
+  padding:15px;
+  border-bottom:1px solid #222;
+}
+
+#back-btn{
+  background:none;
+  border:none;
+  color:white;
+  font-size:22px;
+}
+
+.search-box{
+  display:flex;
+  gap:10px;
+  padding:15px;
+}
+
+#searchInput{
+  flex:1;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  background:#222;
+  color:white;
+}
+
+#searchBtn{
+  padding:12px 18px;
+  border:none;
+  border-radius:10px;
+  background:#0084ff;
+  color:white;
+}
+
+#results{
+  padding:15px;
+}
+
+.card{
+  display:flex;
+  align-items:center;
+  background:#1b1b1b;
+  padding:12px;
+  border-radius:12px;
+  margin-bottom:15px;
+}
+
+.pfp{
+  width:55px;
+  height:55px;
+  border-radius:50%;
+  object-fit:cover;
+  margin-right:12px;
+}
+
+.info{
+  flex:1;
+}
+
+.name{
+  font-size:16px;
+  font-weight:bold;
+}
+
+.status{
+  color:#999;
+  font-size:13px;
+  margin-top:5px;
+}
+
+.add-btn{
+  background:#0084ff;
+  color:white;
+  border:none;
+  padding:10px 16px;
+  border-radius:8px;
+}
+
+.add-btn:disabled{
+  opacity:.6;
+}
+
+.hidden{
+  display:none;
+}
+
+#profile-modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.85);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+#profileView{
+  width:80%;
+  max-width:350px;
+  border-radius:50%;
+}
