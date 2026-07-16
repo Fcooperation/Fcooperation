@@ -115,12 +115,12 @@ function renderUsers(list){
 
     card.innerHTML = `
       <img
-        class="pfp"
-        src="${
-          user.profile_pic ||
-          '/default.png'
-        }"
-      >
+  class="pfp"
+  src="${
+    user.profile_pic ||
+    '/default.png'
+  }"
+>
 
       <div class="info">
 
@@ -152,6 +152,32 @@ function renderUsers(list){
 }
     `;
 
+const pfp =
+  card.querySelector(
+    ".pfp"
+  );
+
+pfp.onclick = ()=>{
+
+  document
+    .getElementById(
+      "profileView"
+    )
+    .src =
+    user.profile_pic ||
+    "/default.png";
+
+  document
+    .getElementById(
+      "profile-modal"
+    )
+    .classList
+    .remove(
+      "hidden"
+    );
+
+};
+
     const btn =
       card.querySelector(
         ".add-btn"
@@ -162,8 +188,54 @@ function renderUsers(list){
   return;
 }
 
+if(
+  user.request_sent
+){
+
+  btn.textContent =
+    "Sent";
+
+  btn.disabled =
+    true;
+
+}
+
+if(
+  user.already_friends
+){
+
+  btn.textContent =
+    "Message";
+
+  btn.disabled =
+    false;
+
+  btn.style.background =
+    "white";
+
+  btn.style.color =
+    "black";
+
+}
+
     btn.onclick =
-      async ()=>{
+  async ()=>{
+
+  if(
+    user.already_friends
+  ){
+
+    localStorage.setItem(
+      "chatting_with",
+      user.id
+    );
+
+    window.location.href =
+      "/chat";
+
+    return;
+
+  }
 
       btn.disabled = true;
       btn.textContent =
@@ -256,10 +328,21 @@ async ()=>{
 
   try {
 
-    const res =
-      await fetch(
-`${SEARCH_API}?q=${encodeURIComponent(query)}`
-      );
+    const account =
+  JSON.parse(
+    localStorage.getItem(
+      "faccount"
+    )
+  ) || {};
+
+const myId =
+  account.userId ||
+  account.id;
+
+const res =
+  await fetch(
+`${SEARCH_API}?q=${encodeURIComponent(query)}&userId=${myId}`
+  );
 
     const data =
       await res.json();
@@ -285,6 +368,23 @@ document
 .onclick = ()=>{
 
   history.back();
+
+};
+
+document
+.getElementById(
+  "profile-modal"
+)
+.onclick = ()=>{
+
+  document
+  .getElementById(
+    "profile-modal"
+  )
+  .classList
+  .add(
+    "hidden"
+  );
 
 };
 
