@@ -1,139 +1,285 @@
-document.addEventListener("DOMContentLoaded", () => {
+const API =
+  `${window.CONFIG.API_URL}/fchat-contacts`;
 
-  /* ----------------- ACCOUNT + GUEST CHECK ----------------- */
-  const account = JSON.parse(localStorage.getItem("faccount")) || {};
-  const isGuest = !account.username;
+const usersList =
+  document.getElementById(
+    "users-list"
+  );
 
-  window.IS_GUEST = isGuest;
+const updateLog =
+  document.getElementById(
+    "update-log"
+  );
 
-  /* ----------------- UI ELEMENTS ----------------- */
-  const mainUI = document.getElementById("main-ui");
-  const loadingScreen = document.getElementById("loading-screen");
+const account =
+  JSON.parse(
+    localStorage.getItem(
+      "faccount"
+    )
+  ) || {};
 
-  if (loadingScreen) loadingScreen.style.display = "none";
-  if (mainUI) mainUI.style.display = "flex";
+const myId =
+  account.userId ||
+  account.id;
 
-  /* ----------------- CHAT USERS ----------------- */
-  const chatUsers = account.chatUsers || [];
+let contacts = [];
 
-  const usersList = document.getElementById("users-list");
-  const searchBar = document.getElementById("search-bar");
+async function loadContacts(){
 
-  /* ----------------- TOAST ----------------- */
-  function showToast(message) {
-    let toast = document.getElementById("toast");
+  try{
 
-    if (!toast) {
-      toast = document.createElement("div");
-      toast.id = "toast";
-      document.body.appendChild(toast);
-    }
+    updateLog.textContent =
+      "Loading chats...";
 
-    toast.textContent = message;
-    toast.classList.add("show");
-
-    setTimeout(() => {
-      toast.classList.remove("show");
-    }, 2500);
-  }
-
-  /* ----------------- MENU ----------------- */
-  const menuBtn = document.getElementById("menu-btn");
-  const menuDropdown = document.getElementById("menu-dropdown");
-
-  if (menuBtn && menuDropdown) {
-    menuBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      menuDropdown.classList.toggle("show");
-    });
-
-    document.addEventListener("click", () => {
-      menuDropdown.classList.remove("show");
-    });
-  }
-
-  /* ----------------- DISPLAY USERS ----------------- */
-  function displayChats(users) {
-    if (!usersList) return;
-
-    usersList.innerHTML = "";
-
-    if (!users.length) {
-      usersList.innerHTML =
-        "<p style='text-align:center;color:#777'>No users found</p>";
-      return;
-    }
-
-    users.forEach(user => {
-      const card = document.createElement("div");
-      card.className = "fcard";
-
-      const pfp = document.createElement("div");
-      pfp.className = "pfp";
-
-      if (user.profile_pic) {
-        const img = document.createElement("img");
-        img.src = user.profile_pic;
-        img.style.width = "100%";
-        img.style.height = "100%";
-        img.style.borderRadius = "50%";
-        pfp.appendChild(img);
-      } else {
-        pfp.textContent = user.username?.[0]?.toUpperCase() || "U";
-      }
-
-      const info = document.createElement("div");
-      info.style.flex = "1";
-      info.innerHTML = `<div class="username">${user.username || "Unknown"}</div>`;
-
-      card.onclick = () => {
-        localStorage.setItem("chatting_with", JSON.stringify(user));
-        window.location.href = "chat.html";
-      };
-
-      card.appendChild(pfp);
-      card.appendChild(info);
-
-      usersList.appendChild(card);
-    });
-  }
-
-  /* ----------------- SEARCH ----------------- */
-  if (searchBar) {
-    searchBar.addEventListener("input", function () {
-      const query = this.value.toLowerCase().trim();
-
-      if (!query) {
-        displayChats(chatUsers);
-        return;
-      }
-
-      const filtered = chatUsers.filter(user =>
-        (user.username || "").toLowerCase().includes(query) ||
-        (user.id || "").toLowerCase().includes(query)
+    const res =
+      await fetch(
+`${API}?userId=${myId}`
       );
 
-      displayChats(filtered);
-    });
+    const data =
+      await res.json();
+
+    if(
+      !data.success
+    ){
+      throw new Error(
+        data.error
+      );
+    }
+
+    contacts =
+      data.contacts || [];
+
+    renderContacts(
+      contacts
+    );
+
+    updateLog.textContent =
+      `${contacts.length} chats`;
+
+  }catch(err){
+
+    updateLog.textContent =
+      "Failed to load chats";
+
   }
 
-  /* ----------------- ADD BUTTON (GUEST BLOCK) ----------------- */
-  const addBtn = document.getElementById("add-btn");
+}
 
-  if (addBtn) {
-    addBtn.addEventListener("click", (e) => {
+function renderContacts(
+  list
+){
 
-      if (window.IS_GUEST) {
-        e.preventDefault();
-        showToast("Sign up first to access full chat experience");
-        return;
-      }
+  usersList.innerHTML =
+    "";
 
-      window.location.href = "add.html";
-    });
+  if(
+    list.length === 0
+  ){
+
+    usersList.innerHTML =
+      `
+<div id="empty-state">
+
+No chats yet.<br><br>
+
+Tap the blue + button to add friends.
+
+</div>
+      `;
+
+    return;
   }
 
-  /* ----------------- INIT ----------------- */
-  displayChats(chatUsers);
+  list.forEach(
+    user => {
 
-});
+      const card =
+        document.createElement(
+          "div"
+        );
+
+      card.className =
+        "fcard";
+
+      card.innerHTML = `
+<div class="pfp">
+
+${
+  user.profile_pic
+  ?
+  `<img
+     src="${user.profile_pic}"
+     style="
+       width:100%;
+       height:100%;
+       border-radius:50%;
+       object-fit:cover;
+     "
+   >`
+  :
+  user.username
+    ?.charAt(0)
+    ?.toUpperCase()
+}
+
+</div>
+
+<div class="info">
+
+<div class="username">
+${user.username}
+</div>
+
+<div class="last-msg">
+${
+  user.status_text ||
+  "Hey there! I'm using FCHAT 👋"
+}
+</div>
+
+</div>
+      `;
+
+      const pfp =
+        card.querySelector(
+          ".pfp"
+        );
+
+      pfp.onclick =
+        (e)=>{
+
+        e.stopPropagation();
+
+        document
+          .getElementById(
+            "modal-img"
+          )
+          .src =
+          user.profile_pic ||
+          "/default.png";
+
+        document
+          .getElementById(
+            "profile-modal"
+          )
+          .style.display =
+          "flex";
+
+      };
+
+      card.onclick =
+        ()=>{
+
+        localStorage.setItem(
+          "chatting_with",
+          user.id
+        );
+
+        window.location.href =
+          "/chat";
+
+      };
+
+      usersList.appendChild(
+        card
+      );
+
+    }
+  );
+
+}
+
+document
+.getElementById(
+  "profile-modal"
+)
+.onclick = ()=>{
+
+  document
+    .getElementById(
+      "profile-modal"
+    )
+    .style.display =
+    "none";
+
+};
+
+document
+.getElementById(
+  "add-btn"
+)
+.onclick = ()=>{
+
+  location.href =
+    "adduser.html";
+
+};
+
+document
+.getElementById(
+  "search-bar"
+)
+.addEventListener(
+  "input",
+  e => {
+
+    const q =
+      e.target.value
+      .toLowerCase();
+
+    const filtered =
+      contacts.filter(
+        user =>
+          user.username
+          .toLowerCase()
+          .includes(q)
+      );
+
+    renderContacts(
+      filtered
+    );
+
+  }
+);
+
+document
+.getElementById(
+  "menu-btn"
+)
+.onclick = ()=>{
+
+  document
+    .getElementById(
+      "menu-dropdown"
+    )
+    .classList
+    .toggle(
+      "show"
+    );
+
+};
+
+window.onclick =
+  e => {
+
+  if(
+    !e.target.closest(
+      "#menu-container"
+    )
+  ){
+
+    document
+      .getElementById(
+        "menu-dropdown"
+      )
+      .classList
+      .remove(
+        "show"
+      );
+
+  }
+
+};
+
+loadContacts();
