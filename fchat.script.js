@@ -205,17 +205,7 @@ document
 
 };
 
-document
-.getElementById(
-  "add-btn"
-)
-.onclick = ()=>{
-
-  location.href =
-    "adduser.html";
-
-};
-
+/* Search */
 document
 .getElementById(
   "search-bar"
@@ -243,60 +233,20 @@ document
   }
 );
 
+/* Add button */
 document
-.getElementById(
-  "menu-btn"
-)
-.onclick = ()=>{
-
-  document
-    .getElementById(
-      "menu-dropdown"
-    )
-    .classList
-    .toggle(
-      "show"
-    );
-
-};
-
-window.onclick =
-  e => {
-
-  if(
-    !e.target.closest(
-      "#menu-container"
-    )
-  ){
-
-    document
-      .getElementById(
-        "menu-dropdown"
-      )
-      .classList
-      .remove(
-        "show"
-      );
-
-  }
-
-};
-
-loadContacts();
-
-//Add button 
-        document
   .getElementById(
     "add-btn"
   )
-  .onclick = ()=>{
+  .addEventListener(
+    "click",
+    ()=>{
+      window.location.href =
+        "/add";
+    }
+  );
 
-  window.location.href =
-    "/add";
-
-};
-
-// Menu
+/* Menu button */
 const menuBtn =
   document.getElementById(
     "menu-btn"
@@ -307,19 +257,22 @@ const menuDropdown =
     "menu-dropdown"
   );
 
-menuBtn.onclick =
+menuBtn.addEventListener(
+  "click",
   (e)=>{
 
-  e.stopPropagation();
+    e.stopPropagation();
 
-  menuDropdown
-    .classList
-    .toggle(
-      "show"
-    );
+    menuDropdown
+      .classList
+      .toggle(
+        "show"
+      );
 
-};
+  }
+);
 
+/* Close menu if clicked outside */
 document.addEventListener(
   "click",
   (e)=>{
@@ -340,3 +293,5 @@ document.addEventListener(
 
   }
 );
+
+loadContacts();
