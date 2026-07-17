@@ -283,3 +283,60 @@ window.onclick =
 };
 
 loadContacts();
+
+//Add button 
+        document
+  .getElementById(
+    "add-btn"
+  )
+  .onclick = ()=>{
+
+  window.location.href =
+    "/add";
+
+};
+
+// Menu
+const menuBtn =
+  document.getElementById(
+    "menu-btn"
+  );
+
+const menuDropdown =
+  document.getElementById(
+    "menu-dropdown"
+  );
+
+menuBtn.onclick =
+  (e)=>{
+
+  e.stopPropagation();
+
+  menuDropdown
+    .classList
+    .toggle(
+      "show"
+    );
+
+};
+
+document.addEventListener(
+  "click",
+  (e)=>{
+
+    if(
+      !e.target.closest(
+        "#menu-container"
+      )
+    ){
+
+      menuDropdown
+        .classList
+        .remove(
+          "show"
+        );
+
+    }
+
+  }
+);
