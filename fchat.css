@@ -249,3 +249,9 @@ body {
   opacity: 1;
   transform: translateX(-50%) translateY(-5px);
 }
+#empty-state{
+  text-align:center;
+  color:#777;
+  margin-top:50px;
+  font-size:15px;
+  }
