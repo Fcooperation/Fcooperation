@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
     displayChats(
       chatUsers
     );
-    syncContacts();
+    
 
   }catch(err){
 
