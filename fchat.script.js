@@ -125,6 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     users.forEach(user => {
+      alert(JSON.stringify(user));
       const card = document.createElement("div");
       card.className = "fcard";
 
