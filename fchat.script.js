@@ -246,6 +246,6 @@ document
 };
 
   /* ----------------- INIT ----------------- */
-  displayChats(chatUsers);
+displayChats(chatUsers); // Show cached contacts immediately
 
-});
+syncContacts(); // Then update from backend
