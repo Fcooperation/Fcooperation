@@ -181,6 +181,8 @@ padding:12px 16px;
 
 font-size:15px;
 
+line-height:1.4;
+
 outline:none;
 
 min-height:46px;
@@ -188,6 +190,10 @@ min-height:46px;
 max-height:120px;
 
 overflow-y:auto;
+
+overflow-x:hidden;
+
+box-sizing:border-box;
 
 }
 
@@ -250,6 +256,10 @@ line-height:1.45;
 word-break:break-word;
 
 display:inline-block;
+
+white-space:pre-wrap;
+
+overflow-wrap:break-word;
 
 }
 

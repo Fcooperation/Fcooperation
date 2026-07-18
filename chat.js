@@ -30,6 +30,24 @@ document.getElementById(
 "message-input"
 );
 
+input.addEventListener(
+"input",
+autoResize
+);
+
+function autoResize(){
+
+input.style.height =
+"auto";
+
+input.style.height =
+Math.min(
+input.scrollHeight,
+120
+) + "px";
+
+}
+
 const sendBtn =
 document.getElementById(
 "send-btn"
@@ -98,6 +116,9 @@ bubble
 
 input.value="";
 
+input.style.height =
+"46px";
+
 chatBody.scrollTop =
 chatBody.scrollHeight;
 
@@ -109,23 +130,3 @@ chatBody.scrollHeight;
 sendBtn.onclick =
 sendMessage;
 
-
-// ----------------------
-
-input.addEventListener(
-"keydown",
-e=>{
-
-if(
-e.key==="Enter" &&
-!e.shiftKey
-){
-
-e.preventDefault();
-
-sendMessage();
-
-}
-
-}
-);
