@@ -185,7 +185,7 @@ ${
 
       card.onclick = () => {
         localStorage.setItem("chatting_with", JSON.stringify(user));
-        window.location.href = "chat.html";
+        window.location.href = "/chat";
       };
 
       card.appendChild(pfp);

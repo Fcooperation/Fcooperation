@@ -226,12 +226,12 @@ if(
   ){
 
     localStorage.setItem(
-      "chatting_with",
-      user.id
-    );
+  "chatting_with",
+  JSON.stringify(user)
+);
 
-    window.location.href =
-      "/chat";
+window.location.href =
+  "/chat";
 
     return;
 
