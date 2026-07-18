@@ -125,7 +125,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     users.forEach(user => {
-      alert(JSON.stringify(user));
       const card = document.createElement("div");
       card.className = "fcard";
 
@@ -192,8 +191,6 @@ ${
       card.appendChild(pfp);
       card.appendChild(info);
 
-card.style.border = "2px solid red";
-card.style.minHeight = "70px";
       usersList.appendChild(card);
     });
   }
@@ -252,3 +249,4 @@ document
 displayChats(chatUsers); // Show cached contacts immediately
 
 syncContacts(); // Then update from backend
+});
