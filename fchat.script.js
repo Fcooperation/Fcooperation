@@ -191,6 +191,8 @@ ${
       card.appendChild(pfp);
       card.appendChild(info);
 
+card.style.border = "2px solid red";
+card.style.minHeight = "70px";
       usersList.appendChild(card);
     });
   }
