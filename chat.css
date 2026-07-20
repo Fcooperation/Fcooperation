@@ -152,7 +152,9 @@ position:sticky;
 
 bottom:0;
 
-background:#fff;
+z-index:100;
+
+background:white;
 
 border-top:1px solid #e5e5e5;
 
@@ -294,5 +296,100 @@ border-bottom-left-radius:6px;
 display:flex;
 
 flex-direction:column;
+
+}
+
+/* ---------- Swipe ---------- */
+
+.message{
+
+touch-action:pan-y;
+
+transition:
+transform .18s ease;
+
+}
+
+/* ---------- Reply Preview ---------- */
+
+#reply-preview{
+
+position:fixed;
+
+left:0;
+
+right:0;
+
+bottom:70px;
+
+background:white;
+
+display:flex;
+
+align-items:center;
+
+justify-content:space-between;
+
+padding:10px 14px;
+
+border-top:1px solid #e5e5e5;
+
+border-left:4px solid #1e88ff;
+
+z-index:99;
+
+}
+
+#reply-preview[hidden]{
+
+display:none;
+
+}
+
+#reply-content{
+
+flex:1;
+
+overflow:hidden;
+
+}
+
+#reply-name{
+
+font-size:13px;
+
+font-weight:bold;
+
+color:#1e88ff;
+
+margin-bottom:3px;
+
+}
+
+#reply-text{
+
+font-size:13px;
+
+white-space:nowrap;
+
+overflow:hidden;
+
+text-overflow:ellipsis;
+
+color:#555;
+
+}
+
+#reply-close{
+
+border:none;
+
+background:none;
+
+font-size:20px;
+
+cursor:pointer;
+
+padding-left:12px;
 
 }
