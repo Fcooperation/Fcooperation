@@ -4,6 +4,8 @@ localStorage.getItem(
 "chatting_with"
 ));
 
+alert("On page load: " + JSON.stringify(chattingWith));
+
 const profilePic =
 document.getElementById(
 "profile-pic"
@@ -180,6 +182,8 @@ message;
 
 replyName.textContent =
 chattingWith.username;
+
+alert("On swipe: " + JSON.stringify(chattingWith));
 
 replyText.textContent =
 message.textContent;
