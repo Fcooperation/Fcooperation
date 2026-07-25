@@ -305,34 +305,25 @@ block:"center"
 
 });
 
-const wait = setInterval(()=>{
+let lastTop =
+null;
 
-const rect =
-target.getBoundingClientRect();
+const wait =
+setInterval(()=>{
 
-const center =
-window.innerHeight / 2;
-
-/*
-When the message is
-close to the center,
-the scrolling is done.
-*/
+const top =
+target.getBoundingClientRect().top;
 
 if(
-Math.abs(
-rect.top +
-rect.height/2 -
-center
-) < 50
+lastTop !== null &&
+Math.abs(top - lastTop) < 1
 ){
 
-clearInterval(
-wait
-);
+clearInterval(wait);
 
-target.style.background =
-"red";
+target.classList.add(
+"reply-highlight"
+);
 
 setTimeout(()=>{
 
@@ -343,6 +334,8 @@ target.classList.remove(
 },1200);
 
 }
+
+lastTop = top;
 
 },16);
 
