@@ -331,9 +331,8 @@ clearInterval(
 wait
 );
 
-target.classList.add(
-"reply-highlight"
-);
+target.style.background =
+"red";
 
 setTimeout(()=>{
 
