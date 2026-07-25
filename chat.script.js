@@ -324,7 +324,7 @@ Math.abs(
 rect.top +
 rect.height/2 -
 center
-) < 8
+) < 50
 ){
 
 clearInterval(
