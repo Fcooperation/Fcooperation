@@ -305,6 +305,32 @@ block:"center"
 
 });
 
+const wait = setInterval(()=>{
+
+const rect =
+target.getBoundingClientRect();
+
+const center =
+window.innerHeight / 2;
+
+/*
+When the message is
+close to the center,
+the scrolling is done.
+*/
+
+if(
+Math.abs(
+rect.top +
+rect.height/2 -
+center
+) < 8
+){
+
+clearInterval(
+wait
+);
+
 target.classList.add(
 "reply-highlight"
 );
@@ -315,7 +341,11 @@ target.classList.remove(
 "reply-highlight"
 );
 
-},1000);
+},1200);
+
+}
+
+},16);
 
 };
 
