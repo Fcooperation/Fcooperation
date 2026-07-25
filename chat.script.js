@@ -111,6 +111,17 @@ document.createElement("div");
 bubble.className =
 "message sent";
 
+const messageId =
+"msg_" +
+Date.now() +
+"_" +
+Math.floor(
+Math.random()*10000
+);
+
+bubble.dataset.id =
+messageId;
+
 
 if(replyingTo){
 
@@ -127,7 +138,7 @@ ${replyName.textContent}
 </div>
 
 <div class="linked-text">
-${replyingTo.textContent}
+${replyingTo.text}
 </div>
 `;
 
@@ -213,14 +224,23 @@ navigator.vibrate?.(
 20
 );
 
-replyingTo =
-message;
+replyingTo = {
+
+id: message.dataset.id,
+
+text: message.lastElementChild.textContent,
+
+sender: replyName.textContent,
+
+element: message
+
+};
 
 replyName.textContent =
 chattingWith.username;
 
 replyText.textContent =
-message.textContent;
+replyingTo.text;
 
 replyPreview.hidden =
 false;
