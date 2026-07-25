@@ -131,6 +131,9 @@ document.createElement("div");
 linked.className =
 "linked-preview";
 
+linked.dataset.target =
+replyingTo.id;
+
 linked.innerHTML =
 `
 <div class="linked-name">
@@ -157,6 +160,10 @@ text;
 
 bubble.appendChild(
 messageText
+);
+
+enableReplyJump(
+bubble
 );
 
 chatBody.appendChild(
@@ -264,6 +271,55 @@ reset;
 
 }
 
+// Scroll and highlight message on preview click
+function enableReplyJump(
+message
+){
+
+const preview =
+
+message.querySelector(
+".linked-preview"
+);
+
+if(!preview)
+return;
+
+preview.onclick =
+()=>{
+
+const target =
+
+document.querySelector(
+`[data-id="${preview.dataset.target}"]`
+);
+
+if(!target)
+return;
+
+target.scrollIntoView({
+
+behavior:"smooth",
+
+block:"center"
+
+});
+
+target.classList.add(
+"reply-highlight"
+);
+
+setTimeout(()=>{
+
+target.classList.remove(
+"reply-highlight"
+);
+
+},1000);
+
+};
+
+}
 
 /* ---------- CLOSE ---------- */
 
