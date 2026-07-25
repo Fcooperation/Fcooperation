@@ -111,8 +111,42 @@ document.createElement("div");
 bubble.className =
 "message sent";
 
-bubble.textContent =
+
+if(replyingTo){
+
+const linked =
+document.createElement("div");
+
+linked.className =
+"linked-preview";
+
+linked.innerHTML =
+`
+<div class="linked-name">
+${replyName.textContent}
+</div>
+
+<div class="linked-text">
+${replyingTo.textContent}
+</div>
+`;
+
+bubble.appendChild(
+linked
+);
+
+}
+
+
+const messageText =
+document.createElement("div");
+
+messageText.textContent =
 text;
+
+bubble.appendChild(
+messageText
+);
 
 chatBody.appendChild(
 bubble
@@ -123,6 +157,10 @@ bubble
 );
 
 input.value="";
+
+replyingTo = null;
+
+replyPreview.hidden = true;
 
 chatBody.scrollTop =
 chatBody.scrollHeight;

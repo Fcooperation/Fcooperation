@@ -245,7 +245,7 @@ MESSAGE BUBBLES
 
 max-width:75%;
 
-padding:10px 14px;
+padding:12px;
 
 margin-bottom:12px;
 
@@ -257,7 +257,9 @@ line-height:1.45;
 
 word-break:break-word;
 
-display:inline-block;
+display:inline-flex;
+
+flex-direction:column;
 
 white-space:pre-wrap;
 
@@ -391,5 +393,52 @@ font-size:20px;
 cursor:pointer;
 
 padding-left:12px;
+
+}
+/* ---------- Linked Reply ---------- */
+
+.linked-preview{
+
+display:flex;
+
+flex-direction:column;
+
+gap:2px;
+
+padding:8px 10px;
+
+margin-bottom:8px;
+
+background:rgba(255,255,255,.08);
+
+border-left:4px solid #2196f3;
+
+border-radius:10px;
+
+overflow:hidden;
+
+}
+
+.linked-name{
+
+font-size:12px;
+
+font-weight:bold;
+
+color:#2196f3;
+
+}
+
+.linked-text{
+
+font-size:13px;
+
+opacity:.8;
+
+white-space:nowrap;
+
+overflow:hidden;
+
+text-overflow:ellipsis;
 
 }
