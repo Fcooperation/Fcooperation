@@ -514,3 +514,21 @@ opacity:.7;
 text-align:right;
 
 }
+.message-time,
+.message-status{
+
+font-size:11px;
+
+opacity:.7;
+
+margin-top:4px;
+
+text-align:right;
+
+}
+
+.message-status{
+
+font-style:italic;
+
+}

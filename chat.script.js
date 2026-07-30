@@ -1,3 +1,12 @@
+import { BACKEND_URL }
+from "./config.js";
+
+const account =
+JSON.parse(
+localStorage.getItem(
+"faccount"
+));
+
 const chattingWith =
 JSON.parse(
 localStorage.getItem(
@@ -98,7 +107,7 @@ chattingWith.username[0]
 sendBtn.onclick =
 sendMessage;
 
-function sendMessage(){
+async function sendMessage(){
 
 const text =
 input.value.trim();
@@ -133,6 +142,25 @@ Math.random()*10000
 bubble.dataset.id =
 messageId;
 
+const payload = {
+
+messageId,
+
+senderId:
+account.userId,
+
+receiverId:
+chattingWith.userId,
+
+message:
+text,
+
+replyToId:
+replyingTo ?
+replyingTo.id :
+null
+
+};
 
 if(replyingTo){
 
@@ -189,6 +217,19 @@ bubble.appendChild(
 timestamp
 );
 
+const messageStatus =
+document.createElement("div");
+
+messageStatus.className =
+"message-status";
+
+messageStatus.textContent =
+"Sending...";
+
+bubble.appendChild(
+messageStatus
+);
+
 enableReplyJump(
 bubble
 );
@@ -196,6 +237,46 @@ bubble
 chatBody.appendChild(
 bubble
 );
+
+try{
+
+const res =
+await fetch(
+BACKEND_URL +
+"/send-message",
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":
+"application/json"
+},
+
+body:JSON.stringify(
+payload
+)
+
+});
+
+if(res.ok){
+
+messageStatus.textContent =
+"Sent";
+
+}else{
+
+messageStatus.textContent =
+"Pending";
+
+}
+
+}catch(err){
+
+messageStatus.textContent =
+"Pending";
+
+}
 
 enableReplySwipe(
 bubble
