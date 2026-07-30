@@ -146,11 +146,8 @@ const payload = {
 
 messageId,
 
-senderId:
-account.userId,
-
-receiverId:
-chattingWith.userId,
+senderId: account.id,
+receiverId: chattingWith.id,
 
 message:
 text,
