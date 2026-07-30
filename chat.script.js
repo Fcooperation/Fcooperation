@@ -1,5 +1,5 @@
-import { BACKEND_URL }
-from "./config.js";
+const API =
+`${window.CONFIG.API_URL}`;
 
 const account =
 JSON.parse(
@@ -242,7 +242,7 @@ try{
 
 const res =
 await fetch(
-BACKEND_URL +
+API +
 "/send-message",
 {
 
