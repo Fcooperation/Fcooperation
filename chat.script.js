@@ -13,6 +13,14 @@ localStorage.getItem(
 "chatting_with"
 ));
 
+alert(
+JSON.stringify(account)
+);
+
+alert(
+JSON.stringify(chattingWith)
+);
+
 const profilePic =
 document.getElementById(
 "profile-pic"
