@@ -102,6 +102,17 @@ function sendMessage(){
 
 const text =
 input.value.trim();
+const now =
+new Date();
+
+const time =
+now.toLocaleTimeString(
+[],
+{
+hour:"numeric",
+minute:"2-digit"
+}
+);
 
 if(!text) return;
 
@@ -155,11 +166,27 @@ linked
 const messageText =
 document.createElement("div");
 
+messageText.className =
+"message-text";
+
 messageText.textContent =
 text;
 
 bubble.appendChild(
 messageText
+);
+
+const timestamp =
+document.createElement("div");
+
+timestamp.className =
+"message-time";
+
+timestamp.textContent =
+time;
+
+bubble.appendChild(
+timestamp
 );
 
 enableReplyJump(

@@ -495,3 +495,22 @@ transform:scale(1);
 }
 
 }
+.message-text{
+
+white-space:pre-wrap;
+
+word-break:break-word;
+
+}
+
+.message-time{
+
+font-size:11px;
+
+margin-top:4px;
+
+opacity:.7;
+
+text-align:right;
+
+}
