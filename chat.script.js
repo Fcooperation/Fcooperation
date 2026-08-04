@@ -239,12 +239,6 @@ minute:"2-digit"
 
 if(!text) return;
 
-const bubble =
-document.createElement("div");
-
-bubble.className =
-"message sent";
-
 const messageId =
 "msg_" +
 Date.now() +
@@ -252,9 +246,6 @@ Date.now() +
 Math.floor(
 Math.random()*10000
 );
-
-bubble.dataset.id =
-messageId;
 
 const payload = {
 
@@ -313,6 +304,12 @@ CHAT_STORAGE,
 
 JSON.stringify(chats)
 
+);
+
+const rendered =
+
+renderMessage(
+savedMessage
 );
 
 if(replyingTo){
@@ -467,10 +464,6 @@ JSON.stringify(chats)
 );
 
 }
-
-enableReplySwipe(
-bubble
-);
 
 input.value="";
 
