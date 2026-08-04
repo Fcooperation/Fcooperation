@@ -13,14 +13,6 @@ localStorage.getItem(
 "chatting_with"
 ));
 
-alert(
-JSON.stringify(account)
-);
-
-alert(
-JSON.stringify(chattingWith)
-);
-
 const profilePic =
 document.getElementById(
 "profile-pic"
@@ -316,10 +308,32 @@ if(res.ok){
 messageStatus.textContent =
 "Sent";
 
+savedMessage.status =
+"Sent";
+
+localStorage.setItem(
+
+CHAT_STORAGE,
+
+JSON.stringify(chats)
+
+);
+
 }else{
 
 messageStatus.textContent =
 "Pending";
+
+savedMessage.status =
+"Pending";
+
+localStorage.setItem(
+
+CHAT_STORAGE,
+
+JSON.stringify(chats)
+
+);
 
 }
 
@@ -327,6 +341,17 @@ messageStatus.textContent =
 
 messageStatus.textContent =
 "Pending";
+
+savedMessage.status =
+"Pending";
+
+localStorage.setItem(
+
+CHAT_STORAGE,
+
+JSON.stringify(chats)
+
+);
 
 }
 
