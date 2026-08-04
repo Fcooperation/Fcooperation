@@ -312,6 +312,12 @@ renderMessage(
 savedMessage
 );
 
+input.value="";
+
+replyingTo = null;
+
+replyPreview.hidden = true;
+
 if(replyingTo){
 
 const linked =
@@ -339,59 +345,6 @@ linked
 );
 
 }
-
-/*
-const messageText =
-document.createElement("div");
-
-messageText.className =
-"message-text";
-
-messageText.textContent =
-text;
-
-bubble.appendChild(
-messageText
-);
-
-const timeElement =
-document.createElement("div");
-
-timeElement.className =
-"message-time";
-
-timeElement.textContent =
-time;
-
-bubble.appendChild(
-timeElement
-);
-
-const messageStatus =
-document.createElement("div");
-
-messageStatus.className =
-"message-status";
-
-messageStatus.textContent =
-"Sending...";
-
-bubble.appendChild(
-messageStatus
-);
-
-enableReplyJump(
-bubble
-);
-
-enableReplySwipe(
-bubble
-);
-
-chatBody.appendChild(
-bubble
-);
-*/
 
 try{
 
@@ -464,12 +417,15 @@ JSON.stringify(chats)
 );
 
 }
+chatBody.scrollTo({
 
-input.value="";
+top:
+chatBody.scrollHeight,
 
-replyingTo = null;
+behavior:
+"smooth"
 
-replyPreview.hidden = true;
+});
 
 chatBody.scrollTop =
 chatBody.scrollHeight;
