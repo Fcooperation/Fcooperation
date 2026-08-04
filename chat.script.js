@@ -74,6 +74,8 @@ document.getElementById(
 let replyingTo =
 null;
 
+const CHAT_STORAGE =
+"fchat_messages";
 
 /* ---------- USER ---------- */
 
@@ -122,6 +124,9 @@ input.value.trim();
 const now =
 new Date();
 
+const timestamp =
+Date.now();
+
 const time =
 now.toLocaleTimeString(
 [],
@@ -167,6 +172,48 @@ null
 
 };
 
+const savedMessage = {
+
+...payload,
+
+time,
+
+timestamp,
+
+status:"Sending"
+
+};
+
+const chats =
+JSON.parse(
+localStorage.getItem(
+CHAT_STORAGE
+)
+) || {};
+
+if(!chats[account.id]){
+
+chats[account.id] = {};
+
+}
+
+if(!chats[account.id][chattingWith.id]){
+
+chats[account.id][chattingWith.id] = [];
+
+}
+
+chats[account.id][chattingWith.id]
+.push(savedMessage);
+
+localStorage.setItem(
+
+CHAT_STORAGE,
+
+JSON.stringify(chats)
+
+);
+
 if(replyingTo){
 
 const linked =
@@ -209,17 +256,17 @@ bubble.appendChild(
 messageText
 );
 
-const timestamp =
+const timeElement =
 document.createElement("div");
 
-timestamp.className =
+timeElement.className =
 "message-time";
 
-timestamp.textContent =
+timeElement.textContent =
 time;
 
 bubble.appendChild(
-timestamp
+timeElement
 );
 
 const messageStatus =
