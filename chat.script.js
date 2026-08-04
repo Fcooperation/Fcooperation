@@ -96,6 +96,13 @@ message
 
 );
 
+requestAnimationFrame(()=>{
+
+chatBody.scrollTop =
+chatBody.scrollHeight;
+
+});
+
 }
 
 /* ---------- USER ---------- */
@@ -417,15 +424,6 @@ JSON.stringify(chats)
 );
 
 }
-chatBody.scrollTo({
-
-top:
-chatBody.scrollHeight,
-
-behavior:
-"smooth"
-
-});
 
 chatBody.scrollTop =
 chatBody.scrollHeight;
