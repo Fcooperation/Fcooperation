@@ -69,6 +69,35 @@ null;
 const CHAT_STORAGE =
 "fchat_messages";
 
+/* ---------- LOAD MESSAGES ---------- */
+function loadMessages(){
+const chats =
+JSON.parse(
+localStorage.getItem(
+CHAT_STORAGE
+)
+) || {};
+
+const messages =
+
+chats[account.id]?.[chattingWith.id]
+
+|| [];
+
+messages.forEach(
+
+message=>{
+
+renderMessage(
+message
+);
+
+}
+
+);
+
+}
+
 /* ---------- USER ---------- */
 
 if(chattingWith){
@@ -100,6 +129,74 @@ chattingWith.username[0]
 .toUpperCase();
 
 }
+loadMessages();
+}
+
+/* ---------- RENDER ---------- */
+function renderMessage(
+message
+){
+
+const bubble =
+document.createElement("div");
+
+bubble.className =
+
+message.senderId === account.id ?
+
+"message sent" :
+
+"message received";
+
+bubble.dataset.id =
+message.messageId;
+
+const messageText =
+document.createElement("div");
+
+messageText.className =
+"message-text";
+
+messageText.textContent =
+message.message;
+
+bubble.appendChild(
+messageText
+);
+
+const timeElement =
+document.createElement("div");
+
+timeElement.className =
+"message-time";
+
+timeElement.textContent =
+message.time;
+
+bubble.appendChild(
+timeElement
+);
+
+const messageStatus =
+document.createElement("div");
+
+messageStatus.className =
+"message-status";
+
+messageStatus.textContent =
+message.status;
+
+bubble.appendChild(
+messageStatus
+);
+
+enableReplyJump(
+bubble
+);
+
+chatBody.appendChild(
+bubble
+);
 
 }
 
@@ -234,7 +331,7 @@ linked
 
 }
 
-
+/*
 const messageText =
 document.createElement("div");
 
@@ -278,9 +375,14 @@ enableReplyJump(
 bubble
 );
 
+enableReplySwipe(
+bubble
+);
+
 chatBody.appendChild(
 bubble
 );
+*/
 
 try{
 
@@ -333,6 +435,10 @@ CHAT_STORAGE,
 
 JSON.stringify(chats)
 
+);
+
+renderMessage(
+savedMessage
 );
 
 }
