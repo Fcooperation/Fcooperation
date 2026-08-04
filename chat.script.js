@@ -319,6 +319,9 @@ renderMessage(
 savedMessage
 );
 
+chatBody.scrollTop =
+chatBody.scrollHeight;
+
 input.value="";
 
 replyingTo = null;
@@ -424,10 +427,6 @@ JSON.stringify(chats)
 );
 
 }
-
-chatBody.scrollTop =
-chatBody.scrollHeight;
-
 }
 
 
