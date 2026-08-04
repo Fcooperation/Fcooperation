@@ -194,9 +194,21 @@ enableReplyJump(
 bubble
 );
 
+enableReplySwipe(
+bubble
+);
+
 chatBody.appendChild(
 bubble
 );
+
+return {
+
+bubble,
+
+messageStatus
+
+};
 
 }
 
@@ -407,7 +419,7 @@ payload
 
 if(res.ok){
 
-messageStatus.textContent =
+rendered.messageStatus.textContent =
 "Sent";
 
 savedMessage.status =
@@ -423,7 +435,7 @@ JSON.stringify(chats)
 
 }else{
 
-messageStatus.textContent =
+rendered.messageStatus.textContent =
 "Pending";
 
 savedMessage.status =
@@ -436,16 +448,11 @@ CHAT_STORAGE,
 JSON.stringify(chats)
 
 );
-
-renderMessage(
-savedMessage
-);
-
 }
 
 }catch(err){
 
-messageStatus.textContent =
+rendered.messageStatus.textContent =
 "Pending";
 
 savedMessage.status =
