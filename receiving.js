@@ -62,8 +62,8 @@ table:"messages"
 
 payload=>{
 
-console.log(
-payload
+alert(
+"New message received!"
 );
 
 }
@@ -74,8 +74,8 @@ payload
 
 status=>{
 
-console.log(
-"Realtime:",
+alert(
+"Realtime: " +
 status
 );
 
