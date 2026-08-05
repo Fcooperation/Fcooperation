@@ -1,5 +1,17 @@
-const API =
-`${window.CONFIG.API_URL}`;
+import {
+createClient
+}
+from
+"https://esm.sh/@supabase/supabase-js";
+
+const supabase =
+createClient(
+
+window.CONFIG.SUPABASE_URL,
+
+window.CONFIG.SUPABASE_ANON_KEY
+
+);
 
 const account =
 JSON.parse(
@@ -14,52 +26,61 @@ localStorage.getItem(
 ));
 
 window.addEventListener(
+
 "load",
+
 receiveMessages
+
 );
 
-async function receiveMessages(){
+// RECEIVE MESSAGES 
+function receiveMessages(){
 
-try{
+const channel =
 
-const res =
-await fetch(
+supabase
 
-API +
-"/receive-messages",
+.channel(
+
+"messages"
+
+)
+
+.on(
+
+"postgres_changes",
 
 {
 
-method:"POST",
+event:"INSERT",
 
-headers:{
-"Content-Type":
-"application/json"
+schema:"public",
+
+table:"messages"
+
 },
 
-body:JSON.stringify({
+payload=>{
 
-userId:
-account.id,
+console.log(
+payload
+);
 
-chattingWithId:
-chattingWith.id
+}
 
-})
+)
+
+.subscribe(
+
+status=>{
+
+console.log(
+"Realtime:",
+status
+);
 
 }
 
 );
-
-const data =
-await res.json();
-
-console.log(data);
-
-}catch(err){
-
-console.error(err);
-
-}
 
 }
