@@ -214,6 +214,37 @@ bubble.appendChild(
 messageMeta
 );
 
+if(message.replyToId){
+
+const linked =
+document.createElement("div");
+
+linked.className =
+"linked-preview";
+
+linked.dataset.target =
+message.replyToId;
+
+linked.innerHTML =
+`
+<div class="linked-name">
+${message.senderId === account.id ?
+chattingWith.username :
+account.username}
+</div>
+
+<div class="linked-text">
+${message.replyToText}
+</div>
+`;
+
+bubble.insertBefore(
+linked,
+bubble.firstChild
+);
+
+}
+
 enableReplyJump(
 bubble
 );
