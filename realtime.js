@@ -23,10 +23,6 @@ JSON.parse(
 );
 
 
-const CHAT_STORAGE =
-"fchat_messages";
-
-
 /* ---------- SAFETY ---------- */
 
 if(
@@ -45,266 +41,104 @@ if(
 }
 
 
-/* ---------- SAVE INCOMING MESSAGE ---------- */
+/* ---------- REALTIME TEST ---------- */
 
-function saveIncomingMessage(
-  message
-){
+alert(
+  "1. Starting completely unfiltered Realtime test..."
+);
 
-  const chats =
-  JSON.parse(
-    localStorage.getItem(
-      CHAT_STORAGE
-    )
-  ) || {};
-
-
-  if(
-    !chats[account.id]
-  ){
-
-    chats[account.id] = {};
-
-  }
-
-
-  const senderId =
-  message.sender_id;
-
-  const receiverId =
-  message.receiver_id;
-
-
-  /*
-  The other person in this conversation
-  */
-
-  const otherUserId =
-
-  senderId === account.id ?
-
-  receiverId :
-
-  senderId;
-
-
-  if(
-    !chats[account.id][otherUserId]
-  ){
-
-    chats[account.id][otherUserId] =
-    [];
-
-  }
-
-
-  /*
-  Prevent duplicate messages
-  */
-
-  const alreadyExists =
-
-  chats[account.id][otherUserId]
-  .some(
-
-    saved =>
-
-    saved.messageId ===
-    message.message_id
-
-  );
-
-
-  if(
-    alreadyExists
-  ){
-
-    return false;
-
-  }
-
-
-  /*
-  Find the replied-to message
-  */
-
-  let replyToText =
-  null;
-
-
-  if(
-    message.reply_to_id
-  ){
-
-    for(
-      const conversation of
-      Object.values(
-        chats[account.id]
-      )
-    ){
-
-      if(
-        !Array.isArray(
-          conversation
-        )
-      ){
-
-        continue;
-
-      }
-
-
-      const original =
-      conversation.find(
-
-        saved =>
-
-        saved.messageId ===
-        message.reply_to_id
-
-      );
-
-
-      if(original){
-
-        replyToText =
-        original.message;
-
-        break;
-
-      }
-
-    }
-
-  }
-
-
-  /*
-  Convert Supabase row
-  into FCHAT local format
-  */
-
-  const createdAt =
-  new Date(
-    message.created_at
-  );
-
-
-  const savedMessage = {
-
-    messageId:
-    message.message_id,
-
-    senderId:
-    message.sender_id,
-
-    receiverId:
-    message.receiver_id,
-
-    message:
-    message.message,
-
-    replyToId:
-    message.reply_to_id,
-
-    replyToText:
-
-    replyToText,
-
-    time:
-    createdAt.toLocaleTimeString(
-      [],
-      {
-        hour:"numeric",
-        minute:"2-digit"
-      }
-    ),
-
-    timestamp:
-    createdAt.getTime(),
-
-    status:
-    message.status === "sent" ?
-    "Sent" :
-    message.status
-
-  };
-
-
-  /*
-  Save message
-  */
-
-  chats[account.id][otherUserId]
-  .push(
-    savedMessage
-  );
-
-
-  localStorage.setItem(
-
-    CHAT_STORAGE,
-
-    JSON.stringify(
-      chats
-    )
-
-  );
-
-
-  return savedMessage;
-
-}
-
-
-/* ---------- REALTIME ---------- */
 
 const channel =
 
 supabase
 
 .channel(
-  "fchat-debug-" +
+
+  "fchat-unfiltered-" +
   account.id +
   "-" +
   Date.now()
+
 )
 
+
 .on(
+
   "postgres_changes",
+
   {
-    event: "INSERT",
-    schema: "public",
-    table: "messages"
+
+    event:
+    "INSERT",
+
+    schema:
+    "public",
+
+    table:
+    "messages"
+
   },
+
   payload => {
 
     alert(
-      "🔥 REALTIME MESSAGE RECEIVED\n\n" +
 
-      "Message ID: " +
+      "🔥 MESSAGE RECEIVED!\n\n" +
+
+      "This client received an INSERT\n\n" +
+
+      "Message ID:\n" +
       payload.new.message_id +
 
-      "\n\nSender: " +
+      "\n\nSender ID:\n" +
       payload.new.sender_id +
 
-      "\n\nReceiver: " +
+      "\n\nReceiver ID:\n" +
       payload.new.receiver_id +
 
-      "\n\nLogged-in user: " +
-      account.id
+      "\n\nMessage:\n" +
+      payload.new.message
+
     );
 
   }
+
 )
 
+
 .subscribe(
+
   status => {
 
     alert(
+
       "REALTIME STATUS\n\n" +
+
       status
+
     );
 
+
+    if(
+      status ===
+      "SUBSCRIBED"
+    ){
+
+      alert(
+
+        "✅ REALTIME SUBSCRIBED\n\n" +
+
+        "This listener has NO sender filter.\n" +
+
+        "It has NO receiver filter.\n\n" +
+
+        "Any INSERT into public.messages " +
+        "should trigger it."
+
+      );
+
+    }
+
   }
+
 );
