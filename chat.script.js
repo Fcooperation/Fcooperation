@@ -323,6 +323,11 @@ const savedMessage = {
 
 ...payload,
 
+replyToText:
+replyingTo ?
+replyingTo.text :
+null,
+
 time,
 
 timestamp,
