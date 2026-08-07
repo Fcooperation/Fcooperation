@@ -1,5 +1,5 @@
 import {
-createClient
+  createClient
 }
 from
 "https://esm.sh/@supabase/supabase-js";
@@ -8,113 +8,256 @@ from
 const supabase =
 createClient(
 
-window.CONFIG.SUPABASE_URL,
+  window.CONFIG.SUPABASE_URL,
 
-window.CONFIG.SUPABASE_ANON_KEY
+  window.CONFIG.SUPABASE_ANON_KEY
 
 );
 
 
 const account =
 JSON.parse(
-localStorage.getItem(
-"faccount"
-));
-
-
-alert(
-"1. Realtime script loaded"
+  localStorage.getItem(
+    "faccount"
+  )
 );
 
 
-// ---------- CHECK MESSAGES TABLE ----------
-
-async function checkMessagesTable(){
-
-alert(
-"2. Checking messages table..."
-);
+const CHAT_STORAGE =
+"fchat_messages";
 
 
-const {
-data,
-error,
-count
-} =
+/* ---------- SAFETY ---------- */
 
-await supabase
+if(
+  !account ||
+  !account.id
+){
 
-.from("messages")
+  alert(
+    "Realtime error: account not found"
+  );
 
-.select(
-"*",
-{
-count:"exact",
-head:false
-}
-);
-
-
-if(error){
-
-alert(
-
-"3. TABLE ERROR\n\n" +
-error.message
-
-);
-
-return;
+  throw new Error(
+    "FCHAT account not found"
+  );
 
 }
 
 
-alert(
+/* ---------- SAVE INCOMING MESSAGE ---------- */
 
-"3. TABLE FOUND\n\n" +
-"Rows found: " +
-(
-count ??
-data.length
-)
+function saveIncomingMessage(
+  message
+){
 
-);
+  const chats =
+  JSON.parse(
+    localStorage.getItem(
+      CHAT_STORAGE
+    )
+  ) || {};
+
+
+  if(
+    !chats[account.id]
+  ){
+
+    chats[account.id] = {};
+
+  }
+
+
+  const senderId =
+  message.sender_id;
+
+  const receiverId =
+  message.receiver_id;
+
+
+  /*
+  The other person in this conversation
+  */
+
+  const otherUserId =
+
+  senderId === account.id ?
+
+  receiverId :
+
+  senderId;
+
+
+  if(
+    !chats[account.id][otherUserId]
+  ){
+
+    chats[account.id][otherUserId] =
+    [];
+
+  }
+
+
+  /*
+  Prevent duplicate messages
+  */
+
+  const alreadyExists =
+
+  chats[account.id][otherUserId]
+  .some(
+
+    saved =>
+
+    saved.messageId ===
+    message.message_id
+
+  );
+
+
+  if(
+    alreadyExists
+  ){
+
+    return false;
+
+  }
+
+
+  /*
+  Find the replied-to message
+  */
+
+  let replyToText =
+  null;
+
+
+  if(
+    message.reply_to_id
+  ){
+
+    for(
+      const conversation of
+      Object.values(
+        chats[account.id]
+      )
+    ){
+
+      if(
+        !Array.isArray(
+          conversation
+        )
+      ){
+
+        continue;
+
+      }
+
+
+      const original =
+      conversation.find(
+
+        saved =>
+
+        saved.messageId ===
+        message.reply_to_id
+
+      );
+
+
+      if(original){
+
+        replyToText =
+        original.message;
+
+        break;
+
+      }
+
+    }
+
+  }
+
+
+  /*
+  Convert Supabase row
+  into FCHAT local format
+  */
+
+  const createdAt =
+  new Date(
+    message.created_at
+  );
+
+
+  const savedMessage = {
+
+    messageId:
+    message.message_id,
+
+    senderId:
+    message.sender_id,
+
+    receiverId:
+    message.receiver_id,
+
+    message:
+    message.message,
+
+    replyToId:
+    message.reply_to_id,
+
+    replyToText:
+
+    replyToText,
+
+    time:
+    createdAt.toLocaleTimeString(
+      [],
+      {
+        hour:"numeric",
+        minute:"2-digit"
+      }
+    ),
+
+    timestamp:
+    createdAt.getTime(),
+
+    status:
+    message.status === "sent" ?
+    "Sent" :
+    message.status
+
+  };
+
+
+  /*
+  Save message
+  */
+
+  chats[account.id][otherUserId]
+  .push(
+    savedMessage
+  );
+
+
+  localStorage.setItem(
+
+    CHAT_STORAGE,
+
+    JSON.stringify(
+      chats
+    )
+
+  );
+
+
+  return savedMessage;
 
 }
 
 
-// Run table check
-
-checkMessagesTable();
-
-const {
-  data: {
-    session
-  },
-  error: sessionError
-} = await supabase.auth.getSession();
-
-alert(
-  "AUTH CHECK\n\n" +
-  "Session exists: " +
-  !!session +
-  "\n\n" +
-  "Auth user ID:\n" +
-  (session?.user?.id || "NONE") +
-  "\n\n" +
-  "Local account ID:\n" +
-  (account?.id || "NONE") +
-  "\n\n" +
-  "Session error:\n" +
-  (sessionError?.message || "None")
-);
-
-// ---------- REALTIME TEST ----------
-
-alert(
-"4. Creating Realtime channel..."
-);
-
+/* ---------- REALTIME ---------- */
 
 const channel =
 
@@ -122,97 +265,155 @@ supabase
 
 .channel(
 
-"fchat-test-" +
-account.id +
-"-" +
-Date.now()
+  "fchat-messages-" +
+  account.id
 
-);
+)
 
-
-alert(
-"5. Channel created"
-);
-
-
-// ---------- LISTEN FOR ALL ACTIONS ----------
-
-channel
 
 .on(
 
-"postgres_changes",
+  "postgres_changes",
 
-{
+  {
 
-event:"*",
+    event:
+    "INSERT",
 
-schema:"public",
+    schema:
+    "public",
 
-table:"messages"
+    table:
+    "messages",
 
-},
+    filter:
+    "receiver_id=eq." +
+    account.id
 
-payload=>{
+  },
 
-alert(
+  payload => {
 
-"6. REALTIME ACTION RECEIVED\n\n" +
+    /*
+    New message received
+    */
 
-"Type: " +
-payload.eventType +
+    const message =
+    payload.new;
 
-"\n\n" +
 
-"Message ID: " +
+    if(
+      !message ||
+      !message.message_id
+    ){
 
-(
-payload.new?.message_id ||
-payload.old?.message_id ||
-"Unknown"
+      return;
+
+    }
+
+
+    /*
+    Make sure this message
+    is actually for this user
+    */
+
+    if(
+      message.receiver_id !==
+      account.id
+    ){
+
+      return;
+
+    }
+
+
+    /*
+    Save it locally
+    */
+
+    const savedMessage =
+    saveIncomingMessage(
+      message
+    );
+
+
+    /*
+    It was already saved.
+    Don't render it again.
+    */
+
+    if(
+      !savedMessage
+    ){
+
+      return;
+
+    }
+
+
+    /*
+    Tell fchat.js that a new
+    message has arrived.
+    */
+
+    window.dispatchEvent(
+
+      new CustomEvent(
+        "fchat-new-message",
+        {
+          detail:
+          savedMessage
+        }
+      )
+
+    );
+
+  }
+
 )
 
-);
 
-}
-
-);
-
-
-// ---------- SUBSCRIBE ----------
-
-alert(
-"7. Subscribing to Realtime..."
-);
-
-
-channel
+/* ---------- SUBSCRIBE ---------- */
 
 .subscribe(
 
-status=>{
+  status => {
 
-alert(
+    if(
+      status ===
+      "SUBSCRIBED"
+    ){
 
-"8. REALTIME STATUS\n\n" +
-status
+      alert(
+        "FCHAT realtime connected"
+      );
 
-);
+    }
 
 
-if(
-status === "SUBSCRIBED"
-){
+    if(
+      status ===
+      "CHANNEL_ERROR"
+    ){
 
-alert(
+      alert(
+        "FCHAT realtime channel error"
+      );
 
-"9. REALTIME SUBSCRIBED\n\n" +
-"Now send a message."
+    }
 
-);
 
-}
+    if(
+      status ===
+      "TIMED_OUT"
+    ){
 
-}
+      alert(
+        "FCHAT realtime timed out"
+      );
+
+    }
+
+  }
 
 );
