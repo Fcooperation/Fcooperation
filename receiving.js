@@ -86,6 +86,42 @@ chats[account.id] = {};
 
 }
 
+// Message lookup 
+const messageLookup = {};
+
+
+/* Check messages already saved locally */
+
+Object.values(
+chats[account.id]
+).forEach(
+conversation=>{
+
+conversation.forEach(
+savedMessage=>{
+
+messageLookup[
+savedMessage.messageId
+] =
+savedMessage.message;
+
+});
+
+});
+});
+
+
+/* Also check messages received in this request */
+
+data.messages.forEach(
+message=>{
+
+messageLookup[
+message.message_id
+] =
+message.message;
+
+});
 
 /* Save every message */
 
@@ -177,6 +213,13 @@ message.message,
 
 replyToId:
 message.reply_to_id,
+
+replyToText:
+message.reply_to_id ?
+messageLookup[
+message.reply_to_id
+] :
+null,
 
 time:
 createdAt.toLocaleTimeString(
