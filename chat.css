@@ -531,4 +531,8 @@ text-align:right;
 
 font-style:italic;
 
+}.message-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }

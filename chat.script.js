@@ -175,8 +175,15 @@ bubble.appendChild(
 messageText
 );
 
-const timeElement =
+const messageMeta =
 document.createElement("div");
+
+messageMeta.className =
+"message-meta";
+
+
+const timeElement =
+document.createElement("span");
 
 timeElement.className =
 "message-time";
@@ -184,12 +191,9 @@ timeElement.className =
 timeElement.textContent =
 message.time;
 
-bubble.appendChild(
-timeElement
-);
 
 const messageStatus =
-document.createElement("div");
+document.createElement("span");
 
 messageStatus.className =
 "message-status";
@@ -197,8 +201,17 @@ messageStatus.className =
 messageStatus.textContent =
 message.status;
 
-bubble.appendChild(
+
+messageMeta.appendChild(
+timeElement
+);
+
+messageMeta.appendChild(
 messageStatus
+);
+
+bubble.appendChild(
+messageMeta
 );
 
 enableReplyJump(
@@ -357,8 +370,9 @@ ${replyData.text}
 </div>
 `;
 
-rendered.bubble.appendChild(
-linked
+rendered.bubble.insertBefore(
+linked,
+rendered.bubble.firstChild
 );
 
 }
