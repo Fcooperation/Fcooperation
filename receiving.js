@@ -86,42 +86,51 @@ chats[account.id] = {};
 
 }
 
-// Message lookup 
+// Message lookup
 const messageLookup = {};
 
 
 /* Check messages already saved locally */
 
+for(
+const conversation of
 Object.values(
 chats[account.id]
-).forEach(
-conversation=>{
+)
+){
 
-conversation.forEach(
-savedMessage=>{
+if(!Array.isArray(conversation))
+continue;
+
+for(
+const savedMessage of
+conversation
+){
 
 messageLookup[
 savedMessage.messageId
 ] =
 savedMessage.message;
 
-});
+}
 
-});
-});
+}
 
 
-/* Also check messages received in this request */
+/* Also check messages received
+in this request */
 
-data.messages.forEach(
-message=>{
+for(
+const message of
+data.messages
+){
 
 messageLookup[
 message.message_id
 ] =
 message.message;
 
-});
+}
 
 /* Save every message */
 
