@@ -372,41 +372,9 @@ chatBody.scrollHeight;
 
 input.value="";
 
-const replyData =
-replyingTo;
-
 replyingTo = null;
 
 replyPreview.hidden = true;
-
-if(replyData){
-
-const linked =
-document.createElement("div");
-
-linked.className =
-"linked-preview";
-
-linked.dataset.target =
-replyData.id;
-
-linked.innerHTML =
-`
-<div class="linked-name">
-${replyName.textContent}
-</div>
-
-<div class="linked-text">
-${replyData.text}
-</div>
-`;
-
-rendered.bubble.insertBefore(
-linked,
-rendered.bubble.firstChild
-);
-
-}
 
 try{
 
