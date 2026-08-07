@@ -57,8 +57,17 @@ table:"messages"
 payload=>{
 
 alert(
+
 "REALTIME ACTION: " +
-payload.eventType
+payload.eventType +
+
+"\n\nMessage ID: " +
+(
+payload.new?.message_id ||
+payload.old?.message_id ||
+"Unknown"
+)
+
 );
 
 }
