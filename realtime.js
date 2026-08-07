@@ -41,10 +41,10 @@ if(
 }
 
 
-/* ---------- REALTIME TEST ---------- */
+/* ---------- REALTIME ---------- */
 
 alert(
-  "1. Starting completely unfiltered Realtime test..."
+  "1. Realtime script loaded"
 );
 
 
@@ -54,13 +54,15 @@ supabase
 
 .channel(
 
-  "fchat-unfiltered-" +
+  "fchat-any-event-" +
   account.id +
   "-" +
   Date.now()
 
-)
+);
 
+
+channel
 
 .on(
 
@@ -69,7 +71,7 @@ supabase
   {
 
     event:
-    "INSERT",
+    "*",
 
     schema:
     "public",
@@ -83,28 +85,45 @@ supabase
 
     alert(
 
-      "🔥 MESSAGE RECEIVED!\n\n" +
+      "🔥 REALTIME ACTION RECEIVED\n\n" +
 
-      "This client received an INSERT\n\n" +
+      "Event:\n" +
+      payload.eventType +
 
-      "Message ID:\n" +
-      payload.new.message_id +
+      "\n\nMessage ID:\n" +
+      (
+        payload.new?.message_id ||
+        payload.old?.message_id ||
+        "Unknown"
+      ) +
 
-      "\n\nSender ID:\n" +
-      payload.new.sender_id +
+      "\n\nSender:\n" +
+      (
+        payload.new?.sender_id ||
+        payload.old?.sender_id ||
+        "Unknown"
+      ) +
 
-      "\n\nReceiver ID:\n" +
-      payload.new.receiver_id +
-
-      "\n\nMessage:\n" +
-      payload.new.message
+      "\n\nReceiver:\n" +
+      (
+        payload.new?.receiver_id ||
+        payload.old?.receiver_id ||
+        "Unknown"
+      )
 
     );
 
   }
 
-)
+);
 
+
+alert(
+  "2. Subscribing..."
+);
+
+
+channel
 
 .subscribe(
 
@@ -112,32 +131,10 @@ supabase
 
     alert(
 
-      "REALTIME STATUS\n\n" +
-
+      "3. REALTIME STATUS\n\n" +
       status
 
     );
-
-
-    if(
-      status ===
-      "SUBSCRIBED"
-    ){
-
-      alert(
-
-        "✅ REALTIME SUBSCRIBED\n\n" +
-
-        "This listener has NO sender filter.\n" +
-
-        "It has NO receiver filter.\n\n" +
-
-        "Any INSERT into public.messages " +
-        "should trigger it."
-
-      );
-
-    }
 
   }
 
