@@ -1,5 +1,5 @@
 import {
-createClient
+  createClient
 }
 from
 "https://esm.sh/@supabase/supabase-js";
@@ -8,113 +8,22 @@ from
 const supabase =
 createClient(
 
-window.CONFIG.SUPABASE_URL,
+  window.CONFIG.SUPABASE_URL,
 
-window.CONFIG.SUPABASE_ANON_KEY
+  window.CONFIG.SUPABASE_ANON_KEY
 
 );
 
 
 const account =
 JSON.parse(
-localStorage.getItem(
-"faccount"
-));
-
-
-alert(
-"1. Realtime script loaded"
+  localStorage.getItem(
+    "faccount"
+  )
 );
 
 
-// ---------- CHECK MESSAGES TABLE ----------
-
-async function checkMessagesTable(){
-
-alert(
-"2. Checking messages table..."
-);
-
-
-const {
-data,
-error,
-count
-} =
-
-await supabase
-
-.from("messages")
-
-.select(
-"*",
-{
-count:"exact",
-head:false
-}
-);
-
-
-if(error){
-
-alert(
-
-"3. TABLE ERROR\n\n" +
-error.message
-
-);
-
-return;
-
-}
-
-
-alert(
-
-"3. TABLE FOUND\n\n" +
-"Rows found: " +
-(
-count ??
-data.length
-)
-
-);
-
-}
-
-
-// Run table check
-
-checkMessagesTable();
-
-const {
-  data: {
-    session
-  },
-  error: sessionError
-} = await supabase.auth.getSession();
-
-alert(
-  "AUTH CHECK\n\n" +
-  "Session exists: " +
-  !!session +
-  "\n\n" +
-  "Auth user ID:\n" +
-  (session?.user?.id || "NONE") +
-  "\n\n" +
-  "Local account ID:\n" +
-  (account?.id || "NONE") +
-  "\n\n" +
-  "Session error:\n" +
-  (sessionError?.message || "None")
-);
-
-// ---------- REALTIME TEST ----------
-
-alert(
-"4. Creating Realtime channel..."
-);
-
+/* ---------- REALTIME SUBSCRIBE ---------- */
 
 const channel =
 
@@ -122,245 +31,150 @@ supabase
 
 .channel(
 
-"fchat-test-" +
-account.id +
-"-" +
-Date.now()
+  "fchat-" +
+  account.id +
+  "-" +
+  Date.now()
 
-);
+)
 
-
-alert(
-"5. Channel created"
-);
-
-
-// ---------- LISTEN FOR ALL ACTIONS ----------
-
-channel
 
 .on(
 
-"postgres_changes",
+  "postgres_changes",
 
-{
+  {
 
-event:"*",
+    event:"INSERT",
 
-schema:"public",
+    schema:"public",
 
-table:"messages"
+    table:"messages"
 
-},
+  },
 
-payload=>{
+  payload=>{
 
-alert(
 
-  "6. REALTIME ACTION RECEIVED\n\n" +
+    /* ---------- STEP 10 ---------- */
 
-  "Type:\n" +
-  payload.eventType +
+    const message =
+    payload.new;
 
-  "\n\n" +
 
-  "Message ID:\n" +
-  (
-    payload.new?.message_id ||
-    payload.old?.message_id ||
-    "Unknown"
-  ) +
+    if(
+      !message
+    ){
 
-  "\n\n" +
+      return;
 
-  "Sender:\n" +
-  (
-    payload.new?.sender_id ||
-    payload.old?.sender_id ||
-    "Unknown"
-  ) +
+    }
 
-  "\n\n" +
 
-  "Receiver:\n" +
-  (
-    payload.new?.receiver_id ||
-    payload.old?.receiver_id ||
-    "Unknown"
-  ) +
+    /* ---------- CHECK RECEIVER ---------- */
 
-  "\n\n" +
+    if(
+      message.receiver_id !==
+      account.id
+    ){
 
-  "MESSAGE:\n" +
-  (
-    payload.new?.message ||
-    payload.old?.message ||
-    "No message"
-  )
+      return;
 
-);
+    }
 
-/* ---------- STEP 10 ---------- */
 
-const message =
-payload.new;
+    /* ---------- SUCCESS ---------- */
 
+    alert(
 
-if(
-  !message
-){
+      "✅ MESSAGE RECEIVED\n\n" +
 
-  return;
+      "From:\n" +
+      message.sender_id +
 
-}
+      "\n\n" +
 
+      "Message:\n" +
+      message.message
 
-alert(
+    );
 
-  "10. MESSAGE RECEIVED\n\n" +
 
-  "Sender:\n" +
-  message.sender_id +
+    /* ---------- CREATE MESSAGE ---------- */
 
-  "\n\n" +
+    const createdAt =
+    new Date(
+      message.created_at
+    );
 
-  "Receiver:\n" +
-  message.receiver_id +
 
-  "\n\n" +
+    const receivedMessage = {
 
-  "Chrome user:\n" +
-  account.id +
+      messageId:
+      message.message_id,
 
-  "\n\n" +
+      senderId:
+      message.sender_id,
 
-  "Message:\n" +
-  message.message
+      receiverId:
+      message.receiver_id,
 
-);
+      message:
+      message.message,
 
+      replyToId:
+      message.reply_to_id ||
+      null,
 
-/* ---------- CHECK RECEIVER ---------- */
+      replyToText:
+      null,
 
-if(
-  message.receiver_id ===
-  account.id
-){
+      time:
+      createdAt.toLocaleTimeString(
+        [],
+        {
+          hour:"numeric",
+          minute:"2-digit"
+        }
+      ),
 
-  alert(
+      timestamp:
+      createdAt.getTime(),
 
-    "✅ STEP 10 SUCCESS\n\n" +
+      status:
+      "Received"
 
-    "This message was sent to the " +
-    "currently logged-in Chrome user.\n\n" +
+    };
 
-    "Message:\n" +
-    message.message
 
-  );
+    /* ---------- RENDER BUBBLE ---------- */
 
+    renderMessage(
+      receivedMessage
+    );
 
-  /* ---------- CREATE MESSAGE ---------- */
 
-  const createdAt =
-  new Date(
-    message.created_at
-  );
+    /* ---------- SCROLL ---------- */
 
+    chatBody.scrollTop =
+    chatBody.scrollHeight;
 
-  const receivedMessage = {
+  }
 
-    messageId:
-    message.message_id,
+)
 
-    senderId:
-    message.sender_id,
 
-    receiverId:
-    message.receiver_id,
-
-    message:
-    message.message,
-
-    replyToId:
-    message.reply_to_id ||
-    null,
-
-    replyToText:
-    null,
-
-    time:
-    createdAt.toLocaleTimeString(
-      [],
-      {
-        hour:"numeric",
-        minute:"2-digit"
-      }
-    ),
-
-    timestamp:
-    createdAt.getTime(),
-
-    status:
-    "Received"
-
-  };
-
-
-  /* ---------- RENDER BUBBLE ---------- */
-
-  renderMessage(
-    receivedMessage
-  );
-
-
-  /* ---------- SCROLL DOWN ---------- */
-
-  chatBody.scrollTop =
-  chatBody.scrollHeight;
-
-
-}
-
-}
-
-);
-
-
-// ---------- SUBSCRIBE ----------
-
-alert(
-"7. Subscribing to Realtime..."
-);
-
-
-channel
+/* ---------- SUBSCRIBE ---------- */
 
 .subscribe(
 
-status=>{
+  status=>{
 
-alert(
+    alert(
+      "Realtime: " +
+      status
+    );
 
-"8. REALTIME STATUS\n\n" +
-status
-
-);
-
-
-if(
-status === "SUBSCRIBED"
-){
-
-alert(
-
-"9. REALTIME SUBSCRIBED\n\n" +
-"Now send a message."
-
-);
-
-}
-
-}
+  }
 
 );
