@@ -23,22 +23,100 @@ localStorage.getItem(
 
 
 alert(
-"Realtime script loaded"
+"1. Realtime script loaded"
 );
 
 
+// ---------- CHECK MESSAGES TABLE ----------
+
+async function checkMessagesTable(){
+
+alert(
+"2. Checking messages table..."
+);
+
+
+const {
+data,
+error,
+count
+} =
+
+await supabase
+
+.from("messages")
+
+.select(
+"*",
+{
+count:"exact",
+head:false
+}
+);
+
+
+if(error){
+
+alert(
+
+"3. TABLE ERROR\n\n" +
+error.message
+
+);
+
+return;
+
+}
+
+
+alert(
+
+"3. TABLE FOUND\n\n" +
+"Rows found: " +
+(
+count ??
+data.length
+)
+
+);
+
+}
+
+
+// Run table check
+
+checkMessagesTable();
+
+
 // ---------- REALTIME TEST ----------
+
+alert(
+"4. Creating Realtime channel..."
+);
+
 
 const channel =
 
 supabase
 
 .channel(
+
 "fchat-test-" +
 account.id +
 "-" +
 Date.now()
-)
+
+);
+
+
+alert(
+"5. Channel created"
+);
+
+
+// ---------- LISTEN FOR ALL ACTIONS ----------
+
+channel
 
 .on(
 
@@ -58,10 +136,15 @@ payload=>{
 
 alert(
 
-"REALTIME ACTION: " +
+"6. REALTIME ACTION RECEIVED\n\n" +
+
+"Type: " +
 payload.eventType +
 
-"\n\nMessage ID: " +
+"\n\n" +
+
+"Message ID: " +
+
 (
 payload.new?.message_id ||
 payload.old?.message_id ||
@@ -72,16 +155,42 @@ payload.old?.message_id ||
 
 }
 
-)
+);
+
+
+// ---------- SUBSCRIBE ----------
+
+alert(
+"7. Subscribing to Realtime..."
+);
+
+
+channel
 
 .subscribe(
 
 status=>{
 
 alert(
-"REALTIME STATUS: " +
+
+"8. REALTIME STATUS\n\n" +
 status
+
 );
+
+
+if(
+status === "SUBSCRIBED"
+){
+
+alert(
+
+"9. REALTIME SUBSCRIBED\n\n" +
+"Now send a message."
+
+);
+
+}
 
 }
 
