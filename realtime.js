@@ -1,5 +1,5 @@
 import {
-createClient
+  createClient
 }
 from
 "https://esm.sh/@supabase/supabase-js";
@@ -8,113 +8,49 @@ from
 const supabase =
 createClient(
 
-window.CONFIG.SUPABASE_URL,
+  window.CONFIG.SUPABASE_URL,
 
-window.CONFIG.SUPABASE_ANON_KEY
+  window.CONFIG.SUPABASE_ANON_KEY
 
 );
 
 
 const account =
 JSON.parse(
-localStorage.getItem(
-"faccount"
-));
-
-
-alert(
-"1. Realtime script loaded"
+  localStorage.getItem(
+    "faccount"
+  )
 );
 
 
-// ---------- CHECK MESSAGES TABLE ----------
-
-async function checkMessagesTable(){
-
-alert(
-"2. Checking messages table..."
-);
+const CHAT_STORAGE =
+"fchat_messages";
 
 
-const {
-data,
-error,
-count
-} =
+/* ---------- SAFETY ---------- */
 
-await supabase
+if(
+  !account ||
+  !account.id
+){
 
-.from("messages")
+  alert(
+    "Realtime: account not found"
+  );
 
-.select(
-"*",
-{
-count:"exact",
-head:false
-}
-);
-
-
-if(error){
-
-alert(
-
-"3. TABLE ERROR\n\n" +
-error.message
-
-);
-
-return;
+  throw new Error(
+    "FCHAT account not found"
+  );
 
 }
 
 
 alert(
-
-"3. TABLE FOUND\n\n" +
-"Rows found: " +
-(
-count ??
-data.length
-)
-
+  "Realtime: starting..."
 );
 
-}
 
-
-// Run table check
-
-checkMessagesTable();
-
-const {
-  data: {
-    session
-  },
-  error: sessionError
-} = await supabase.auth.getSession();
-
-alert(
-  "AUTH CHECK\n\n" +
-  "Session exists: " +
-  !!session +
-  "\n\n" +
-  "Auth user ID:\n" +
-  (session?.user?.id || "NONE") +
-  "\n\n" +
-  "Local account ID:\n" +
-  (account?.id || "NONE") +
-  "\n\n" +
-  "Session error:\n" +
-  (sessionError?.message || "None")
-);
-
-// ---------- REALTIME TEST ----------
-
-alert(
-"4. Creating Realtime channel..."
-);
-
+/* ---------- REALTIME ---------- */
 
 const channel =
 
@@ -122,184 +58,242 @@ supabase
 
 .channel(
 
-"fchat-test-" +
-account.id +
-"-" +
-Date.now()
+  "fchat-" +
+  account.id +
+  "-" +
+  Date.now()
 
-);
+)
 
-
-alert(
-"5. Channel created"
-);
-
-
-// ---------- LISTEN FOR ALL ACTIONS ----------
-
-channel
 
 .on(
 
-"postgres_changes",
+  "postgres_changes",
 
-{
+  {
 
-event:"*",
+    event:"INSERT",
 
-schema:"public",
+    schema:"public",
 
-table:"messages"
+    table:"messages"
 
-},
+  },
 
-payload=>{
-
-alert(
-
-  "6. REALTIME ACTION RECEIVED\n\n" +
-
-  "Type:\n" +
-  payload.eventType +
-
-  "\n\n" +
-
-  "Message ID:\n" +
-  (
-    payload.new?.message_id ||
-    payload.old?.message_id ||
-    "Unknown"
-  ) +
-
-  "\n\n" +
-
-  "Sender:\n" +
-  (
-    payload.new?.sender_id ||
-    payload.old?.sender_id ||
-    "Unknown"
-  ) +
-
-  "\n\n" +
-
-  "Receiver:\n" +
-  (
-    payload.new?.receiver_id ||
-    payload.old?.receiver_id ||
-    "Unknown"
-  ) +
-
-  "\n\n" +
-
-  "MESSAGE:\n" +
-  (
-    payload.new?.message ||
-    payload.old?.message ||
-    "No message"
-  )
-
-);
-
-/* ---------- STEP 10 ---------- */
-
-const message =
-payload.new;
+  payload=>{
 
 
-if(
-  !message
-){
+    /* ---------- RECEIVE ---------- */
 
-  return;
-
-}
+    const message =
+    payload.new;
 
 
-alert(
+    if(
+      !message
+    ){
 
-  "10. MESSAGE RECEIVED\n\n" +
+      return;
 
-  "Sender:\n" +
-  message.sender_id +
-
-  "\n\n" +
-
-  "Receiver:\n" +
-  message.receiver_id +
-
-  "\n\n" +
-
-  "Chrome user:\n" +
-  account.id +
-
-  "\n\n" +
-
-  "Message:\n" +
-  message.message
-
-);
+    }
 
 
-/* ---------- CHECK RECEIVER ---------- */
-
-if(
-  message.receiver_id ===
-  account.id
-){
-
-  alert(
-
-    "✅ STEP 10 SUCCESS\n\n" +
-
-    "This message was sent to the " +
-    "currently logged-in Chrome user.\n\n" +
-
-    "Message:\n" +
-    message.message
-
-  );
-
-}
-
-}
-
-);
+    alert(
+      "Realtime: message received"
+    );
 
 
-// ---------- SUBSCRIBE ----------
+    /* ---------- FILTER ---------- */
 
-alert(
-"7. Subscribing to Realtime..."
-);
+    if(
+      message.receiver_id !==
+      account.id
+    ){
+
+      alert(
+        "Realtime: message ignored"
+      );
+
+      return;
+
+    }
 
 
-channel
+    alert(
+      "Realtime: message is for me"
+    );
+
+
+    /* ---------- CONVERT MESSAGE ---------- */
+
+    const createdAt =
+    new Date(
+      message.created_at
+    );
+
+
+    const receivedMessage = {
+
+      messageId:
+      message.message_id,
+
+      senderId:
+      message.sender_id,
+
+      receiverId:
+      message.receiver_id,
+
+      message:
+      message.message,
+
+      replyToId:
+      message.reply_to_id ||
+      null,
+
+      replyToText:
+      null,
+
+      time:
+      createdAt.toLocaleTimeString(
+        [],
+        {
+          hour:"numeric",
+          minute:"2-digit"
+        }
+      ),
+
+      timestamp:
+      createdAt.getTime(),
+
+      status:
+      "Received"
+
+    };
+
+
+    /* ---------- SAVE ---------- */
+
+    const chats =
+    JSON.parse(
+      localStorage.getItem(
+        CHAT_STORAGE
+      )
+    ) || {};
+
+
+    if(
+      !chats[account.id]
+    ){
+
+      chats[account.id] = {};
+
+    }
+
+
+    const otherUserId =
+    message.sender_id;
+
+
+    if(
+      !chats[account.id][otherUserId]
+    ){
+
+      chats[account.id][otherUserId] =
+      [];
+
+    }
+
+
+    /* ---------- DUPLICATE CHECK ---------- */
+
+    const exists =
+
+    chats[account.id][otherUserId]
+    .some(
+
+      saved =>
+
+      saved.messageId ===
+      receivedMessage.messageId
+
+    );
+
+
+    if(
+      exists
+    ){
+
+      alert(
+        "Realtime: duplicate ignored"
+      );
+
+      return;
+
+    }
+
+
+    /* ---------- SAVE MESSAGE ---------- */
+
+    chats[account.id][otherUserId]
+    .push(
+      receivedMessage
+    );
+
+
+    localStorage.setItem(
+
+      CHAT_STORAGE,
+
+      JSON.stringify(
+        chats
+      )
+
+    );
+
+
+    /* ---------- SHOW MESSAGE ---------- */
+
+    window.dispatchEvent(
+
+      new CustomEvent(
+        "fchat-new-message",
+
+        {
+
+          detail:
+          receivedMessage
+
+        }
+
+      )
+
+    );
+
+
+    alert(
+
+      "✅ Message received\n\n" +
+
+      receivedMessage.message
+
+    );
+
+  }
+
+)
+
+
+/* ---------- SUBSCRIBE ---------- */
 
 .subscribe(
 
-status=>{
+  status=>{
 
-alert(
+    alert(
+      "Realtime: " +
+      status
+    );
 
-"8. REALTIME STATUS\n\n" +
-status
-
-);
-
-
-if(
-status === "SUBSCRIBED"
-){
-
-alert(
-
-"9. REALTIME SUBSCRIBED\n\n" +
-"Now send a message."
-
-);
-
-}
-
-}
+  }
 
 );
