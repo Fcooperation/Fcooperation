@@ -1,5 +1,5 @@
 import {
-  createClient
+createClient
 }
 from
 "https://esm.sh/@supabase/supabase-js";
@@ -8,43 +8,90 @@ from
 const supabase =
 createClient(
 
-  window.CONFIG.SUPABASE_URL,
+window.CONFIG.SUPABASE_URL,
 
-  window.CONFIG.SUPABASE_ANON_KEY
+window.CONFIG.SUPABASE_ANON_KEY
 
 );
 
 
 const account =
 JSON.parse(
-  localStorage.getItem(
-    "faccount"
-  )
+localStorage.getItem(
+"faccount"
+));
+
+
+alert(
+"1. Realtime script loaded"
 );
 
 
-/* ---------- SAFETY ---------- */
+// ---------- CHECK MESSAGES TABLE ----------
 
-if(
-  !account ||
-  !account.id
-){
+async function checkMessagesTable(){
 
-  alert(
-    "Realtime error: account not found"
-  );
+alert(
+"2. Checking messages table..."
+);
 
-  throw new Error(
-    "FCHAT account not found"
-  );
+
+const {
+data,
+error,
+count
+} =
+
+await supabase
+
+.from("messages")
+
+.select(
+"*",
+{
+count:"exact",
+head:false
+}
+);
+
+
+if(error){
+
+alert(
+
+"3. TABLE ERROR\n\n" +
+error.message
+
+);
+
+return;
 
 }
 
 
-/* ---------- REALTIME ---------- */
+alert(
+
+"3. TABLE FOUND\n\n" +
+"Rows found: " +
+(
+count ??
+data.length
+)
+
+);
+
+}
+
+
+// Run table check
+
+checkMessagesTable();
+
+
+// ---------- REALTIME TEST ----------
 
 alert(
-  "1. Realtime script loaded"
+"4. Creating Realtime channel..."
 );
 
 
@@ -54,72 +101,67 @@ supabase
 
 .channel(
 
-  "fchat-any-event-" +
-  account.id +
-  "-" +
-  Date.now()
-
-);
-
-
-channel
-
-.on(
-
-  "postgres_changes",
-
-  {
-
-    event:
-    "*",
-
-    schema:
-    "public",
-
-    table:
-    "messages"
-
-  },
-
-  payload => {
-
-    alert(
-
-      "🔥 REALTIME ACTION RECEIVED\n\n" +
-
-      "Event:\n" +
-      payload.eventType +
-
-      "\n\nMessage ID:\n" +
-      (
-        payload.new?.message_id ||
-        payload.old?.message_id ||
-        "Unknown"
-      ) +
-
-      "\n\nSender:\n" +
-      (
-        payload.new?.sender_id ||
-        payload.old?.sender_id ||
-        "Unknown"
-      ) +
-
-      "\n\nReceiver:\n" +
-      (
-        payload.new?.receiver_id ||
-        payload.old?.receiver_id ||
-        "Unknown"
-      )
-
-    );
-
-  }
+"fchat-test-" +
+account.id +
+"-" +
+Date.now()
 
 );
 
 
 alert(
-  "2. Subscribing..."
+"5. Channel created"
+);
+
+
+// ---------- LISTEN FOR ALL ACTIONS ----------
+
+channel
+
+.on(
+
+"postgres_changes",
+
+{
+
+event:"*",
+
+schema:"public",
+
+table:"messages"
+
+},
+
+payload=>{
+
+alert(
+
+"6. REALTIME ACTION RECEIVED\n\n" +
+
+"Type: " +
+payload.eventType +
+
+"\n\n" +
+
+"Message ID: " +
+
+(
+payload.new?.message_id ||
+payload.old?.message_id ||
+"Unknown"
+)
+
+);
+
+}
+
+);
+
+
+// ---------- SUBSCRIBE ----------
+
+alert(
+"7. Subscribing to Realtime..."
 );
 
 
@@ -127,15 +169,29 @@ channel
 
 .subscribe(
 
-  status => {
+status=>{
 
-    alert(
+alert(
 
-      "3. REALTIME STATUS\n\n" +
-      status
+"8. REALTIME STATUS\n\n" +
+status
 
-    );
+);
 
-  }
+
+if(
+status === "SUBSCRIBED"
+){
+
+alert(
+
+"9. REALTIME SUBSCRIBED\n\n" +
+"Now send a message."
+
+);
+
+}
+
+}
 
 );
