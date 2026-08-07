@@ -264,156 +264,47 @@ const channel =
 supabase
 
 .channel(
-
-  "fchat-messages-" +
-  account.id
-
+  "fchat-debug-" +
+  account.id +
+  "-" +
+  Date.now()
 )
-
 
 .on(
-
   "postgres_changes",
-
   {
-
-    event:
-    "INSERT",
-
-    schema:
-    "public",
-
-    table:
-    "messages",
-
-    filter:
-    "receiver_id=eq." +
-    account.id
-
+    event: "INSERT",
+    schema: "public",
+    table: "messages"
   },
-
   payload => {
 
-    /*
-    New message received
-    */
+    alert(
+      "🔥 REALTIME MESSAGE RECEIVED\n\n" +
 
-    const message =
-    payload.new;
+      "Message ID: " +
+      payload.new.message_id +
 
+      "\n\nSender: " +
+      payload.new.sender_id +
 
-    if(
-      !message ||
-      !message.message_id
-    ){
+      "\n\nReceiver: " +
+      payload.new.receiver_id +
 
-      return;
-
-    }
-
-
-    /*
-    Make sure this message
-    is actually for this user
-    */
-
-    if(
-      message.receiver_id !==
+      "\n\nLogged-in user: " +
       account.id
-    ){
-
-      return;
-
-    }
-
-
-    /*
-    Save it locally
-    */
-
-    const savedMessage =
-    saveIncomingMessage(
-      message
-    );
-
-
-    /*
-    It was already saved.
-    Don't render it again.
-    */
-
-    if(
-      !savedMessage
-    ){
-
-      return;
-
-    }
-
-
-    /*
-    Tell fchat.js that a new
-    message has arrived.
-    */
-
-    window.dispatchEvent(
-
-      new CustomEvent(
-        "fchat-new-message",
-        {
-          detail:
-          savedMessage
-        }
-      )
-
     );
 
   }
-
 )
 
-
-/* ---------- SUBSCRIBE ---------- */
-
 .subscribe(
-
   status => {
 
-    if(
-      status ===
-      "SUBSCRIBED"
-    ){
-
-      alert(
-        "FCHAT realtime connected"
-      );
-
-    }
-
-
-    if(
-      status ===
-      "CHANNEL_ERROR"
-    ){
-
-      alert(
-        "FCHAT realtime channel error"
-      );
-
-    }
-
-
-    if(
-      status ===
-      "TIMED_OUT"
-    ){
-
-      alert(
-        "FCHAT realtime timed out"
-      );
-
-    }
+    alert(
+      "REALTIME STATUS\n\n" +
+      status
+    );
 
   }
-
 );
