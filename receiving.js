@@ -222,6 +222,10 @@ JSON.stringify(chats)
 
 );
 
+window.dispatchEvent(
+  new Event("fchat-messages-ready")
+);
+
 alert(
 "Saved " +
 data.messages.length +

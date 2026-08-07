@@ -136,8 +136,12 @@ chattingWith.username[0]
 .toUpperCase();
 
 }
-loadMessages();
 }
+
+window.addEventListener(
+"fchat-messages-ready",
+loadMessages
+);
 
 /* ---------- RENDER ---------- */
 function renderMessage(
