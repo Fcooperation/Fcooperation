@@ -328,11 +328,14 @@ chatBody.scrollHeight;
 
 input.value="";
 
+const replyData =
+replyingTo;
+
 replyingTo = null;
 
 replyPreview.hidden = true;
 
-if(replyingTo){
+if(replyData){
 
 const linked =
 document.createElement("div");
@@ -341,7 +344,7 @@ linked.className =
 "linked-preview";
 
 linked.dataset.target =
-replyingTo.id;
+replyData.id;
 
 linked.innerHTML =
 `
@@ -350,11 +353,11 @@ ${replyName.textContent}
 </div>
 
 <div class="linked-text">
-${replyingTo.text}
+${replyData.text}
 </div>
 `;
 
-bubble.appendChild(
+rendered.bubble.appendChild(
 linked
 );
 
@@ -483,7 +486,10 @@ replyingTo = {
 
 id: message.dataset.id,
 
-text: message.lastElementChild.textContent,
+text:
+message.querySelector(
+".message-text"
+).textContent,
 
 sender: replyName.textContent,
 
