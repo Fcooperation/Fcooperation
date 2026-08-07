@@ -1,5 +1,5 @@
 import {
-  createClient
+createClient
 }
 from
 "https://esm.sh/@supabase/supabase-js";
@@ -8,49 +8,113 @@ from
 const supabase =
 createClient(
 
-  window.CONFIG.SUPABASE_URL,
+window.CONFIG.SUPABASE_URL,
 
-  window.CONFIG.SUPABASE_ANON_KEY
+window.CONFIG.SUPABASE_ANON_KEY
 
 );
 
 
 const account =
 JSON.parse(
-  localStorage.getItem(
-    "faccount"
-  )
+localStorage.getItem(
+"faccount"
+));
+
+
+alert(
+"1. Realtime script loaded"
 );
 
 
-const CHAT_STORAGE =
-"fchat_messages";
+// ---------- CHECK MESSAGES TABLE ----------
+
+async function checkMessagesTable(){
+
+alert(
+"2. Checking messages table..."
+);
 
 
-/* ---------- SAFETY ---------- */
+const {
+data,
+error,
+count
+} =
 
-if(
-  !account ||
-  !account.id
-){
+await supabase
 
-  alert(
-    "Realtime: account not found"
-  );
+.from("messages")
 
-  throw new Error(
-    "FCHAT account not found"
-  );
+.select(
+"*",
+{
+count:"exact",
+head:false
+}
+);
+
+
+if(error){
+
+alert(
+
+"3. TABLE ERROR\n\n" +
+error.message
+
+);
+
+return;
 
 }
 
 
 alert(
-  "Realtime: starting..."
+
+"3. TABLE FOUND\n\n" +
+"Rows found: " +
+(
+count ??
+data.length
+)
+
 );
 
+}
 
-/* ---------- REALTIME ---------- */
+
+// Run table check
+
+checkMessagesTable();
+
+const {
+  data: {
+    session
+  },
+  error: sessionError
+} = await supabase.auth.getSession();
+
+alert(
+  "AUTH CHECK\n\n" +
+  "Session exists: " +
+  !!session +
+  "\n\n" +
+  "Auth user ID:\n" +
+  (session?.user?.id || "NONE") +
+  "\n\n" +
+  "Local account ID:\n" +
+  (account?.id || "NONE") +
+  "\n\n" +
+  "Session error:\n" +
+  (sessionError?.message || "None")
+);
+
+// ---------- REALTIME TEST ----------
+
+alert(
+"4. Creating Realtime channel..."
+);
+
 
 const channel =
 
@@ -58,242 +122,245 @@ supabase
 
 .channel(
 
-  "fchat-" +
-  account.id +
-  "-" +
-  Date.now()
+"fchat-test-" +
+account.id +
+"-" +
+Date.now()
 
-)
+);
 
+
+alert(
+"5. Channel created"
+);
+
+
+// ---------- LISTEN FOR ALL ACTIONS ----------
+
+channel
 
 .on(
 
-  "postgres_changes",
+"postgres_changes",
 
-  {
+{
 
-    event:"INSERT",
+event:"*",
 
-    schema:"public",
+schema:"public",
 
-    table:"messages"
+table:"messages"
 
-  },
+},
 
-  payload=>{
+payload=>{
 
+alert(
 
-    /* ---------- RECEIVE ---------- */
+  "6. REALTIME ACTION RECEIVED\n\n" +
 
-    const message =
-    payload.new;
+  "Type:\n" +
+  payload.eventType +
 
+  "\n\n" +
 
-    if(
-      !message
-    ){
+  "Message ID:\n" +
+  (
+    payload.new?.message_id ||
+    payload.old?.message_id ||
+    "Unknown"
+  ) +
 
-      return;
+  "\n\n" +
 
-    }
+  "Sender:\n" +
+  (
+    payload.new?.sender_id ||
+    payload.old?.sender_id ||
+    "Unknown"
+  ) +
 
+  "\n\n" +
 
-    alert(
-      "Realtime: message received"
-    );
+  "Receiver:\n" +
+  (
+    payload.new?.receiver_id ||
+    payload.old?.receiver_id ||
+    "Unknown"
+  ) +
 
+  "\n\n" +
 
-    /* ---------- FILTER ---------- */
+  "MESSAGE:\n" +
+  (
+    payload.new?.message ||
+    payload.old?.message ||
+    "No message"
+  )
 
-    if(
-      message.receiver_id !==
-      account.id
-    ){
+);
 
-      alert(
-        "Realtime: message ignored"
-      );
+/* ---------- STEP 10 ---------- */
 
-      return;
+const message =
+payload.new;
 
-    }
 
+if(
+  !message
+){
 
-    alert(
-      "Realtime: message is for me"
-    );
+  return;
 
+}
 
-    /* ---------- CONVERT MESSAGE ---------- */
 
-    const createdAt =
-    new Date(
-      message.created_at
-    );
+alert(
 
+  "10. MESSAGE RECEIVED\n\n" +
 
-    const receivedMessage = {
+  "Sender:\n" +
+  message.sender_id +
 
-      messageId:
-      message.message_id,
+  "\n\n" +
 
-      senderId:
-      message.sender_id,
+  "Receiver:\n" +
+  message.receiver_id +
 
-      receiverId:
-      message.receiver_id,
+  "\n\n" +
 
-      message:
-      message.message,
+  "Chrome user:\n" +
+  account.id +
 
-      replyToId:
-      message.reply_to_id ||
-      null,
+  "\n\n" +
 
-      replyToText:
-      null,
+  "Message:\n" +
+  message.message
 
-      time:
-      createdAt.toLocaleTimeString(
-        [],
-        {
-          hour:"numeric",
-          minute:"2-digit"
-        }
-      ),
+);
 
-      timestamp:
-      createdAt.getTime(),
 
-      status:
-      "Received"
+/* ---------- CHECK RECEIVER ---------- */
 
-    };
+if(
+  message.receiver_id ===
+  account.id
+){
 
+  alert(
 
-    /* ---------- SAVE ---------- */
+    "✅ STEP 10 SUCCESS\n\n" +
 
-    const chats =
-    JSON.parse(
-      localStorage.getItem(
-        CHAT_STORAGE
-      )
-    ) || {};
+    "This message was sent to the " +
+    "currently logged-in Chrome user.\n\n" +
 
+    "Message:\n" +
+    message.message
 
-    if(
-      !chats[account.id]
-    ){
+  );
 
-      chats[account.id] = {};
 
-    }
+  /* ---------- CREATE MESSAGE ---------- */
 
+  const createdAt =
+  new Date(
+    message.created_at
+  );
 
-    const otherUserId =
-    message.sender_id;
 
+  const receivedMessage = {
 
-    if(
-      !chats[account.id][otherUserId]
-    ){
+    messageId:
+    message.message_id,
 
-      chats[account.id][otherUserId] =
-      [];
+    senderId:
+    message.sender_id,
 
-    }
+    receiverId:
+    message.receiver_id,
 
+    message:
+    message.message,
 
-    /* ---------- DUPLICATE CHECK ---------- */
+    replyToId:
+    message.reply_to_id ||
+    null,
 
-    const exists =
+    replyToText:
+    null,
 
-    chats[account.id][otherUserId]
-    .some(
+    time:
+    createdAt.toLocaleTimeString(
+      [],
+      {
+        hour:"numeric",
+        minute:"2-digit"
+      }
+    ),
 
-      saved =>
+    timestamp:
+    createdAt.getTime(),
 
-      saved.messageId ===
-      receivedMessage.messageId
+    status:
+    "Received"
 
-    );
+  };
 
 
-    if(
-      exists
-    ){
+  /* ---------- RENDER BUBBLE ---------- */
 
-      alert(
-        "Realtime: duplicate ignored"
-      );
+  renderMessage(
+    receivedMessage
+  );
 
-      return;
 
-    }
+  /* ---------- SCROLL DOWN ---------- */
 
+  chatBody.scrollTop =
+  chatBody.scrollHeight;
 
-    /* ---------- SAVE MESSAGE ---------- */
 
-    chats[account.id][otherUserId]
-    .push(
-      receivedMessage
-    );
+}
 
+}
 
-    localStorage.setItem(
+);
 
-      CHAT_STORAGE,
 
-      JSON.stringify(
-        chats
-      )
+// ---------- SUBSCRIBE ----------
 
-    );
+alert(
+"7. Subscribing to Realtime..."
+);
 
 
-    /* ---------- SHOW MESSAGE ---------- */
-
-    window.dispatchEvent(
-
-      new CustomEvent(
-        "fchat-new-message",
-
-        {
-
-          detail:
-          receivedMessage
-
-        }
-
-      )
-
-    );
-
-
-    alert(
-
-      "✅ Message received\n\n" +
-
-      receivedMessage.message
-
-    );
-
-  }
-
-)
-
-
-/* ---------- SUBSCRIBE ---------- */
+channel
 
 .subscribe(
 
-  status=>{
+status=>{
 
-    alert(
-      "Realtime: " +
-      status
-    );
+alert(
 
-  }
+"8. REALTIME STATUS\n\n" +
+status
+
+);
+
+
+if(
+status === "SUBSCRIBED"
+){
+
+alert(
+
+"9. REALTIME SUBSCRIBED\n\n" +
+"Now send a message."
+
+);
+
+}
+
+}
 
 );
