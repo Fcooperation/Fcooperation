@@ -87,6 +87,27 @@ data.length
 
 checkMessagesTable();
 
+const {
+  data: {
+    session
+  },
+  error: sessionError
+} = await supabase.auth.getSession();
+
+alert(
+  "AUTH CHECK\n\n" +
+  "Session exists: " +
+  !!session +
+  "\n\n" +
+  "Auth user ID:\n" +
+  (session?.user?.id || "NONE") +
+  "\n\n" +
+  "Local account ID:\n" +
+  (account?.id || "NONE") +
+  "\n\n" +
+  "Session error:\n" +
+  (sessionError?.message || "None")
+);
 
 // ---------- REALTIME TEST ----------
 
