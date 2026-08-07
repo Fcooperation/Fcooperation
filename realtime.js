@@ -23,7 +23,7 @@ JSON.parse(
 );
 
 
-/* ---------- REALTIME SUBSCRIBE ---------- */
+/* ---------- REALTIME ---------- */
 
 const channel =
 
@@ -71,26 +71,22 @@ supabase
     }
 
 
-    /* ---------- CHECK RECEIVER ---------- */
-
-    if(
-      message.receiver_id !==
-      account.id
-    ){
-
-      return;
-
-    }
-
-
-    /* ---------- SUCCESS ---------- */
-
     alert(
 
-      "✅ MESSAGE RECEIVED\n\n" +
+      "10. MESSAGE RECEIVED\n\n" +
 
-      "From:\n" +
+      "Sender:\n" +
       message.sender_id +
+
+      "\n\n" +
+
+      "Receiver:\n" +
+      message.receiver_id +
+
+      "\n\n" +
+
+      "Chrome user:\n" +
+      account.id +
 
       "\n\n" +
 
@@ -100,80 +96,126 @@ supabase
     );
 
 
-    /* ---------- CREATE MESSAGE ---------- */
+    /* ---------- CHECK RECEIVER ---------- */
 
-    const createdAt =
-    new Date(
-      message.created_at
-    );
+    if(
+      message.receiver_id ===
+      account.id
+    ){
 
+      alert(
 
-    const receivedMessage = {
+        "✅ STEP 10 SUCCESS\n\n" +
 
-      messageId:
-      message.message_id,
+        "This message was sent to the " +
+        "currently logged-in Chrome user.\n\n" +
 
-      senderId:
-      message.sender_id,
+        "Message:\n" +
+        message.message
 
-      receiverId:
-      message.receiver_id,
-
-      message:
-      message.message,
-
-      replyToId:
-      message.reply_to_id ||
-      null,
-
-      replyToText:
-      null,
-
-      time:
-      createdAt.toLocaleTimeString(
-        [],
-        {
-          hour:"numeric",
-          minute:"2-digit"
-        }
-      ),
-
-      timestamp:
-      createdAt.getTime(),
-
-      status:
-      "Received"
-
-    };
+      );
 
 
-    /* ---------- RENDER BUBBLE ---------- */
+      /* ---------- CREATE MESSAGE ---------- */
 
-    renderMessage(
-      receivedMessage
-    );
+      const createdAt =
+      new Date(
+        message.created_at
+      );
 
 
-    /* ---------- SCROLL ---------- */
+      const receivedMessage = {
 
-    chatBody.scrollTop =
-    chatBody.scrollHeight;
+        messageId:
+        message.message_id,
+
+        senderId:
+        message.sender_id,
+
+        receiverId:
+        message.receiver_id,
+
+        message:
+        message.message,
+
+        replyToId:
+        message.reply_to_id ||
+        null,
+
+        replyToText:
+        null,
+
+        time:
+        createdAt.toLocaleTimeString(
+          [],
+          {
+            hour:"numeric",
+            minute:"2-digit"
+          }
+        ),
+
+        timestamp:
+        createdAt.getTime(),
+
+        status:
+        "Received"
+
+      };
+
+
+      /* ---------- RENDER BUBBLE ---------- */
+
+      renderMessage(
+        receivedMessage
+      );
+
+
+      /* ---------- SCROLL DOWN ---------- */
+
+      chatBody.scrollTop =
+      chatBody.scrollHeight;
+
+
+    }
 
   }
 
-)
+);
 
 
-/* ---------- SUBSCRIBE ---------- */
+// ---------- SUBSCRIBE ----------
+
+alert(
+  "7. Subscribing to Realtime..."
+);
+
+
+channel
 
 .subscribe(
 
   status=>{
 
     alert(
-      "Realtime: " +
+
+      "8. REALTIME STATUS\n\n" +
       status
+
     );
+
+
+    if(
+      status === "SUBSCRIBED"
+    ){
+
+      alert(
+
+        "9. REALTIME SUBSCRIBED\n\n" +
+        "Now send a message."
+
+      );
+
+    }
 
   }
 
