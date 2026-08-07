@@ -157,20 +157,46 @@ payload=>{
 
 alert(
 
-"6. REALTIME ACTION RECEIVED\n\n" +
+  "6. REALTIME ACTION RECEIVED\n\n" +
 
-"Type: " +
-payload.eventType +
+  "Type:\n" +
+  payload.eventType +
 
-"\n\n" +
+  "\n\n" +
 
-"Message ID: " +
+  "Message ID:\n" +
+  (
+    payload.new?.message_id ||
+    payload.old?.message_id ||
+    "Unknown"
+  ) +
 
-(
-payload.new?.message_id ||
-payload.old?.message_id ||
-"Unknown"
-)
+  "\n\n" +
+
+  "Sender:\n" +
+  (
+    payload.new?.sender_id ||
+    payload.old?.sender_id ||
+    "Unknown"
+  ) +
+
+  "\n\n" +
+
+  "Receiver:\n" +
+  (
+    payload.new?.receiver_id ||
+    payload.old?.receiver_id ||
+    "Unknown"
+  ) +
+
+  "\n\n" +
+
+  "MESSAGE:\n" +
+  (
+    payload.new?.message ||
+    payload.old?.message ||
+    "No message"
+  )
 
 );
 
