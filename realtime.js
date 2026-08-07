@@ -22,6 +22,11 @@ localStorage.getItem(
 ));
 
 
+alert(
+"Realtime script loaded"
+);
+
+
 // ---------- REALTIME TEST ----------
 
 const channel =
@@ -30,7 +35,9 @@ supabase
 
 .channel(
 "fchat-test-" +
-account.id
+account.id +
+"-" +
+Date.now()
 )
 
 .on(
