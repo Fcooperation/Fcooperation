@@ -19,12 +19,6 @@ localStorage.getItem(
 "faccount"
 ));
 
-const chattingWith =
-JSON.parse(
-localStorage.getItem(
-"chatting_with"
-));
-
 window.addEventListener(
 
 "load",
@@ -33,54 +27,42 @@ receiveMessages
 
 );
 
-// RECEIVE MESSAGES 
-function receiveMessages(){
+// RECEIVE MESSAGES
+async function receiveMessages(){
 
-const channel =
+const res =
+await fetch(
 
-supabase
-
-.channel(
-
-"messages"
-
-)
-
-.on(
-
-"postgres_changes",
+window.CONFIG.API_URL +
+"/receive-messages",
 
 {
 
-event:"INSERT",
+method:"POST",
 
-schema:"public",
-
-table:"messages"
-
+headers:{
+"Content-Type":
+"application/json"
 },
 
-payload=>{
+body:JSON.stringify({
 
-alert(
-"New message received!"
-);
+userId:
+account.id
 
-}
-
-)
-
-.subscribe(
-
-status=>{
-
-alert(
-"Realtime: " +
-status
-);
+})
 
 }
 
+);
+
+const data =
+await res.json();
+
+alert(
+"Loaded " +
+data.messages.length +
+" messages"
 );
 
 }
