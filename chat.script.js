@@ -454,6 +454,45 @@ JSON.stringify(chats)
 }
 }
 
+// Realtime 
+window.addEventListener(
+"fchat-new-message",
+
+event=>{
+
+const message =
+event.detail;
+
+
+/*
+Only display it if
+this is the conversation
+currently open
+*/
+
+if(
+
+message.senderId !==
+chattingWith.id
+
+){
+
+return;
+
+}
+
+
+const rendered =
+renderMessage(
+message
+);
+
+
+chatBody.scrollTop =
+chatBody.scrollHeight;
+
+}
+);
 
 /* ---------- SWIPE ---------- */
 
