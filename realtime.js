@@ -153,26 +153,89 @@ table:"messages"
 
 },
 
-payload=>{
+payload => {
 
-alert(
+  alert(
 
-"6. REALTIME ACTION RECEIVED\n\n" +
+    "6. REALTIME ACTION RECEIVED\n\n" +
 
-"Type: " +
-payload.eventType +
+    "Type: " +
+    payload.eventType +
 
-"\n\n" +
+    "\n\n" +
 
-"Message ID: " +
+    "Message ID: " +
+    (
+      payload.new?.message_id ||
+      payload.old?.message_id ||
+      "Unknown"
+    )
 
-(
-payload.new?.message_id ||
-payload.old?.message_id ||
-"Unknown"
-)
+  );
 
-);
+
+  /* ---------- STEP 10 ---------- */
+
+  const message =
+    payload.new;
+
+
+  if(
+    !message
+  ){
+
+    return;
+
+  }
+
+
+  alert(
+
+    "10. MESSAGE RECEIVED\n\n" +
+
+    "Sender:\n" +
+    message.sender_id +
+
+    "\n\n" +
+
+    "Receiver:\n" +
+    message.receiver_id +
+
+    "\n\n" +
+
+    "Chrome user:\n" +
+    account.id +
+
+    "\n\n" +
+
+    "Message:\n" +
+    message.message
+
+  );
+
+
+  /* ---------- CHECK RECEIVER ---------- */
+
+  if(
+    message.receiver_id ===
+    account.id
+  ){
+
+    alert(
+
+      "✅ STEP 10 SUCCESS\n\n" +
+
+      "This message was sent to the " +
+      "currently logged-in Chrome user.\n\n" +
+
+      "Message:\n" +
+      message.message
+
+    );
+
+  }
+
+};
 
 }
 
