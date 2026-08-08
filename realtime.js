@@ -164,6 +164,90 @@ channel
 
   };
 
+/* ---------- SAVE TO LOCAL STORAGE ---------- */
+
+const chats =
+JSON.parse(
+  localStorage.getItem(
+    "fchat_messages"
+  )
+) || {};
+
+
+if(
+  !chats[account.id]
+){
+
+  chats[account.id] = {};
+
+}
+
+
+const otherUserId =
+message.sender_id;
+
+
+if(
+  !chats[account.id][otherUserId]
+){
+
+  chats[account.id][otherUserId] =
+  [];
+
+}
+
+
+/* ---------- PREVENT DUPLICATE ---------- */
+
+const exists =
+
+chats[account.id][otherUserId]
+.some(
+
+  saved =>
+
+  saved.messageId ===
+  receivedMessage.messageId
+
+);
+
+
+if(
+  exists
+){
+
+  alert(
+    "⚠️ MESSAGE ALREADY SAVED"
+  );
+
+  return;
+
+}
+
+
+/* ---------- SAVE ---------- */
+
+chats[account.id][otherUserId]
+.push(
+  receivedMessage
+);
+
+
+localStorage.setItem(
+
+  "fchat_messages",
+
+  JSON.stringify(
+    chats
+  )
+
+);
+
+
+alert(
+  "💾 MESSAGE SAVED"
+);
+
 
   alert(
     "🟢 RENDERING MESSAGE\n\n" +
