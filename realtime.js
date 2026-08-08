@@ -1,5 +1,5 @@
 import {
-  createClient
+createClient
 }
 from
 "https://esm.sh/@supabase/supabase-js";
@@ -8,27 +8,113 @@ from
 const supabase =
 createClient(
 
-  window.CONFIG.SUPABASE_URL,
+window.CONFIG.SUPABASE_URL,
 
-  window.CONFIG.SUPABASE_ANON_KEY
+window.CONFIG.SUPABASE_ANON_KEY
 
 );
 
 
 const account =
 JSON.parse(
-  localStorage.getItem(
-    "faccount"
-  )
-);
+localStorage.getItem(
+"faccount"
+));
 
 
 alert(
-  "1. Script loaded"
+"1. Realtime script loaded"
 );
 
 
-/* ---------- CREATE CHANNEL ---------- */
+// ---------- CHECK MESSAGES TABLE ----------
+
+async function checkMessagesTable(){
+
+alert(
+"2. Checking messages table..."
+);
+
+
+const {
+data,
+error,
+count
+} =
+
+await supabase
+
+.from("messages")
+
+.select(
+"*",
+{
+count:"exact",
+head:false
+}
+);
+
+
+if(error){
+
+alert(
+
+"3. TABLE ERROR\n\n" +
+error.message
+
+);
+
+return;
+
+}
+
+
+alert(
+
+"3. TABLE FOUND\n\n" +
+"Rows found: " +
+(
+count ??
+data.length
+)
+
+);
+
+}
+
+
+// Run table check
+
+checkMessagesTable();
+
+const {
+  data: {
+    session
+  },
+  error: sessionError
+} = await supabase.auth.getSession();
+
+alert(
+  "AUTH CHECK\n\n" +
+  "Session exists: " +
+  !!session +
+  "\n\n" +
+  "Auth user ID:\n" +
+  (session?.user?.id || "NONE") +
+  "\n\n" +
+  "Local account ID:\n" +
+  (account?.id || "NONE") +
+  "\n\n" +
+  "Session error:\n" +
+  (sessionError?.message || "None")
+);
+
+// ---------- REALTIME TEST ----------
+
+alert(
+"4. Creating Realtime channel..."
+);
+
 
 const channel =
 
@@ -36,72 +122,215 @@ supabase
 
 .channel(
 
-  "fchat-test-" +
-  account.id +
-  "-" +
-  Date.now()
+"fchat-test-" +
+account.id +
+"-" +
+Date.now()
 
 );
 
 
 alert(
-  "2. Channel created"
+"5. Channel created"
 );
 
 
-/* ---------- LISTEN FOR INSERT ---------- */
+// ---------- LISTEN FOR ALL ACTIONS ----------
 
 channel
 
 .on(
 
-  "postgres_changes",
+"postgres_changes",
 
-  {
+{
 
-    event:"INSERT",
+event:"*",
 
-    schema:"public",
+schema:"public",
 
-    table:"messages"
+table:"messages"
 
-  },
+},
 
-  payload=>{
+payload=>{
 
-    alert(
+alert(
 
-      "🔥 INSERT RECEIVED\n\n" +
+  "6. REALTIME ACTION RECEIVED\n\n" +
 
-      "Message ID:\n" +
-      payload.new?.message_id +
+  "Type:\n" +
+  payload.eventType +
 
-      "\n\n" +
+  "\n\n" +
 
-      "Sender:\n" +
-      payload.new?.sender_id +
+  "Message ID:\n" +
+  (
+    payload.new?.message_id ||
+    payload.old?.message_id ||
+    "Unknown"
+  ) +
 
-      "\n\n" +
+  "\n\n" +
 
-      "Receiver:\n" +
-      payload.new?.receiver_id +
+  "Sender:\n" +
+  (
+    payload.new?.sender_id ||
+    payload.old?.sender_id ||
+    "Unknown"
+  ) +
 
-      "\n\n" +
+  "\n\n" +
 
-      "Message:\n" +
-      payload.new?.message
+  "Receiver:\n" +
+  (
+    payload.new?.receiver_id ||
+    payload.old?.receiver_id ||
+    "Unknown"
+  ) +
 
-    );
+  "\n\n" +
 
-  }
+  "MESSAGE:\n" +
+  (
+    payload.new?.message ||
+    payload.old?.message ||
+    "No message"
+  )
+
+);
+
+/* ---------- STEP 10 ---------- */
+
+const message =
+payload.new;
+
+
+if(
+  !message
+){
+
+  return;
+
+}
+
+
+alert(
+
+  "10. MESSAGE RECEIVED\n\n" +
+
+  "Sender:\n" +
+  message.sender_id +
+
+  "\n\n" +
+
+  "Receiver:\n" +
+  message.receiver_id +
+
+  "\n\n" +
+
+  "Chrome user:\n" +
+  account.id +
+
+  "\n\n" +
+
+  "Message:\n" +
+  message.message
 
 );
 
 
-/* ---------- SUBSCRIBE ---------- */
+/* ---------- CHECK RECEIVER ---------- */
+
+if(
+  message.receiver_id ===
+  account.id
+){
+
+  alert(
+
+    "✅ STEP 10 SUCCESS\n\n" +
+
+    "This message was sent to the " +
+    "currently logged-in Chrome user.\n\n" +
+
+    "Message:\n" +
+    message.message
+
+  );
+
+
+  /* ---------- CREATE MESSAGE ---------- */
+
+  const createdAt =
+  new Date(
+    message.created_at
+  );
+
+
+  const receivedMessage = {
+
+    messageId:
+    message.message_id,
+
+    senderId:
+    message.sender_id,
+
+    receiverId:
+    message.receiver_id,
+
+    message:
+    message.message,
+
+    replyToId:
+    message.reply_to_id ||
+    null,
+
+    replyToText:
+    null,
+
+    time:
+    createdAt.toLocaleTimeString(
+      [],
+      {
+        hour:"numeric",
+        minute:"2-digit"
+      }
+    ),
+
+    timestamp:
+    createdAt.getTime(),
+
+    status:
+    "Received"
+
+  };
+
+
+  /* ---------- RENDER BUBBLE ---------- */
+
+  renderMessage(
+    receivedMessage
+  );
+
+
+  /* ---------- SCROLL DOWN ---------- */
+
+  chatBody.scrollTop =
+  chatBody.scrollHeight;
+
+
+}
+
+}
+
+);
+
+
+// ---------- SUBSCRIBE ----------
 
 alert(
-  "3. Subscribing..."
+"7. Subscribing to Realtime..."
 );
 
 
@@ -109,28 +338,29 @@ channel
 
 .subscribe(
 
-  status=>{
+status=>{
 
-    alert(
+alert(
 
-      "4. REALTIME STATUS\n\n" +
-      status
+"8. REALTIME STATUS\n\n" +
+status
 
-    );
+);
 
-    if(
-      status === "SUBSCRIBED"
-    ){
 
-      alert(
+if(
+status === "SUBSCRIBED"
+){
 
-        "5. READY\n\n" +
-        "Send a message now."
+alert(
 
-      );
+"9. REALTIME SUBSCRIBED\n\n" +
+"Now send a message."
 
-    }
+);
 
-  }
+}
+
+}
 
 );
