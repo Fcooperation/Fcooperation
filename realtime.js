@@ -35,10 +35,12 @@ const channel =
 supabase
 
 .channel(
+
   "fchat-" +
   account.id +
   "-" +
   Date.now()
+
 );
 
 
@@ -52,21 +54,41 @@ channel
 
   {
 
-    event: "INSERT",
+    event:"INSERT",
 
-    schema: "public",
+    schema:"public",
 
-    table: "messages"
+    table:"messages"
 
   },
 
-  payload => {
+  payload=>{
 
     alert(
-      "🔥 MESSAGE EVENT RECEIVED\n\n" +
+
+      "🔥 REALTIME INSERT RECEIVED\n\n" +
 
       "Message:\n" +
-      payload.new.message
+
+      (
+        payload.new?.message ||
+        "NO MESSAGE"
+      ) +
+
+      "\n\nSender:\n" +
+
+      (
+        payload.new?.sender_id ||
+        "UNKNOWN"
+      ) +
+
+      "\n\nReceiver:\n" +
+
+      (
+        payload.new?.receiver_id ||
+        "UNKNOWN"
+      )
+
     );
 
   }
@@ -81,13 +103,17 @@ alert(
 );
 
 
-channel.subscribe(
+channel
 
-  status => {
+.subscribe(
+
+  status=>{
 
     alert(
-      "Realtime status:\n\n" +
+
+      "Realtime status:\n" +
       status
+
     );
 
 
@@ -96,8 +122,10 @@ channel.subscribe(
     ){
 
       alert(
+
         "✅ REALTIME READY\n\n" +
         "Now send the message."
+
       );
 
     }
