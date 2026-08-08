@@ -23,7 +23,12 @@ JSON.parse(
 );
 
 
-/* ---------- REALTIME ---------- */
+alert(
+  "1. Script loaded"
+);
+
+
+/* ---------- CREATE CHANNEL ---------- */
 
 const channel =
 
@@ -31,13 +36,22 @@ supabase
 
 .channel(
 
-  "fchat-" +
+  "fchat-test-" +
   account.id +
   "-" +
   Date.now()
 
-)
+);
 
+
+alert(
+  "2. Channel created"
+);
+
+
+/* ---------- LISTEN FOR INSERT ---------- */
+
+channel
 
 .on(
 
@@ -55,138 +69,39 @@ supabase
 
   payload=>{
 
-
-    /* ---------- STEP 10 ---------- */
-
-    const message =
-    payload.new;
-
-
-    if(
-      !message
-    ){
-
-      return;
-
-    }
-
-
     alert(
 
-      "10. MESSAGE RECEIVED\n\n" +
+      "🔥 INSERT RECEIVED\n\n" +
+
+      "Message ID:\n" +
+      payload.new?.message_id +
+
+      "\n\n" +
 
       "Sender:\n" +
-      message.sender_id +
+      payload.new?.sender_id +
 
       "\n\n" +
 
       "Receiver:\n" +
-      message.receiver_id +
-
-      "\n\n" +
-
-      "Chrome user:\n" +
-      account.id +
+      payload.new?.receiver_id +
 
       "\n\n" +
 
       "Message:\n" +
-      message.message
+      payload.new?.message
 
     );
-
-
-    /* ---------- CHECK RECEIVER ---------- */
-
-    if(
-      message.receiver_id ===
-      account.id
-    ){
-
-      alert(
-
-        "✅ STEP 10 SUCCESS\n\n" +
-
-        "This message was sent to the " +
-        "currently logged-in Chrome user.\n\n" +
-
-        "Message:\n" +
-        message.message
-
-      );
-
-
-      /* ---------- CREATE MESSAGE ---------- */
-
-      const createdAt =
-      new Date(
-        message.created_at
-      );
-
-
-      const receivedMessage = {
-
-        messageId:
-        message.message_id,
-
-        senderId:
-        message.sender_id,
-
-        receiverId:
-        message.receiver_id,
-
-        message:
-        message.message,
-
-        replyToId:
-        message.reply_to_id ||
-        null,
-
-        replyToText:
-        null,
-
-        time:
-        createdAt.toLocaleTimeString(
-          [],
-          {
-            hour:"numeric",
-            minute:"2-digit"
-          }
-        ),
-
-        timestamp:
-        createdAt.getTime(),
-
-        status:
-        "Received"
-
-      };
-
-
-      /* ---------- RENDER BUBBLE ---------- */
-
-      renderMessage(
-        receivedMessage
-      );
-
-
-      /* ---------- SCROLL DOWN ---------- */
-
-      chatBody.scrollTop =
-      chatBody.scrollHeight;
-
-
-    }
 
   }
 
 );
 
 
-// ---------- SUBSCRIBE ----------
+/* ---------- SUBSCRIBE ---------- */
 
 alert(
-  "7. Subscribing to Realtime..."
+  "3. Subscribing..."
 );
 
 
@@ -198,11 +113,10 @@ channel
 
     alert(
 
-      "8. REALTIME STATUS\n\n" +
+      "4. REALTIME STATUS\n\n" +
       status
 
     );
-
 
     if(
       status === "SUBSCRIBED"
@@ -210,8 +124,8 @@ channel
 
       alert(
 
-        "9. REALTIME SUBSCRIBED\n\n" +
-        "Now send a message."
+        "5. READY\n\n" +
+        "Send a message now."
 
       );
 
