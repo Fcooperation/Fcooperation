@@ -22,18 +22,9 @@ localStorage.getItem(
 ));
 
 
-alert(
-"1. Realtime script loaded"
-);
-
-
 // ---------- CHECK MESSAGES TABLE ----------
 
 async function checkMessagesTable(){
-
-alert(
-"2. Checking messages table..."
-);
 
 
 const {
@@ -94,26 +85,9 @@ const {
   error: sessionError
 } = await supabase.auth.getSession();
 
-alert(
-  "AUTH CHECK\n\n" +
-  "Session exists: " +
-  !!session +
-  "\n\n" +
-  "Auth user ID:\n" +
-  (session?.user?.id || "NONE") +
-  "\n\n" +
-  "Local account ID:\n" +
-  (account?.id || "NONE") +
-  "\n\n" +
-  "Session error:\n" +
-  (sessionError?.message || "None")
-);
 
 // ---------- REALTIME TEST ----------
 
-alert(
-"4. Creating Realtime channel..."
-);
 
 
 const channel =
@@ -127,11 +101,6 @@ account.id +
 "-" +
 Date.now()
 
-);
-
-
-alert(
-"5. Channel created"
 );
 
 
@@ -155,51 +124,6 @@ table:"messages"
 
 payload=>{
 
-alert(
-
-  "6. REALTIME ACTION RECEIVED\n\n" +
-
-  "Type:\n" +
-  payload.eventType +
-
-  "\n\n" +
-
-  "Message ID:\n" +
-  (
-    payload.new?.message_id ||
-    payload.old?.message_id ||
-    "Unknown"
-  ) +
-
-  "\n\n" +
-
-  "Sender:\n" +
-  (
-    payload.new?.sender_id ||
-    payload.old?.sender_id ||
-    "Unknown"
-  ) +
-
-  "\n\n" +
-
-  "Receiver:\n" +
-  (
-    payload.new?.receiver_id ||
-    payload.old?.receiver_id ||
-    "Unknown"
-  ) +
-
-  "\n\n" +
-
-  "MESSAGE:\n" +
-  (
-    payload.new?.message ||
-    payload.old?.message ||
-    "No message"
-  )
-
-);
-
 /* ---------- STEP 10 ---------- */
 
 const message =
@@ -214,50 +138,12 @@ if(
 
 }
 
-
-alert(
-
-  "10. MESSAGE RECEIVED\n\n" +
-
-  "Sender:\n" +
-  message.sender_id +
-
-  "\n\n" +
-
-  "Receiver:\n" +
-  message.receiver_id +
-
-  "\n\n" +
-
-  "Chrome user:\n" +
-  account.id +
-
-  "\n\n" +
-
-  "Message:\n" +
-  message.message
-
-);
-
-
 /* ---------- CHECK RECEIVER ---------- */
 
 if(
   message.receiver_id ===
   account.id
 ){
-
-  alert(
-
-    "✅ STEP 10 SUCCESS\n\n" +
-
-    "This message was sent to the " +
-    "currently logged-in Chrome user.\n\n" +
-
-    "Message:\n" +
-    message.message
-
-  );
 
 
   /* ---------- CREATE MESSAGE ---------- */
