@@ -109,25 +109,75 @@ channel
 
 
   if(
-    String(message.receiver_id) !==
-    String(account.id)
-  ){
-
-    alert(
-      "🚫 MESSAGE NOT FOR THIS USER"
-    );
-
-    return;
-
-  }
-
+  String(message.receiver_id) ===
+  String(account.id)
+){
 
   alert(
     "✅ RECEIVER MATCHED\n\n" +
-
     "MESSAGE:\n" +
     message.message
   );
+
+
+  const createdAt =
+  new Date(
+    message.created_at
+  );
+
+
+  const receivedMessage = {
+
+    messageId:
+    message.message_id,
+
+    senderId:
+    message.sender_id,
+
+    receiverId:
+    message.receiver_id,
+
+    message:
+    message.message,
+
+    replyToId:
+    message.reply_to_id ||
+    null,
+
+    replyToText:
+    null,
+
+    time:
+    createdAt.toLocaleTimeString(
+      [],
+      {
+        hour:"numeric",
+        minute:"2-digit"
+      }
+    ),
+
+    timestamp:
+    createdAt.getTime(),
+
+    status:
+    "Received"
+
+  };
+
+
+  alert(
+    "🟢 RENDERING MESSAGE\n\n" +
+    receivedMessage.message
+  );
+
+
+  renderMessage(
+    receivedMessage
+  );
+
+
+  chatBody.scrollTop =
+  chatBody.scrollHeight;
 
 }
 
