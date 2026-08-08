@@ -62,36 +62,74 @@ channel
 
   },
 
-  payload=>{
+  payload => {
+
+  alert(
+    "🔥 REALTIME INSERT RECEIVED\n\n" +
+
+    "Sender:\n" +
+    payload.new?.sender_id +
+
+    "\n\nReceiver:\n" +
+    payload.new?.receiver_id +
+
+    "\n\nMy account ID:\n" +
+    account.id +
+
+    "\n\nMessage:\n" +
+    payload.new?.message
+  );
+
+
+  const message =
+  payload.new;
+
+
+  if(
+    !message
+  ){
 
     alert(
-
-      "🔥 REALTIME INSERT RECEIVED\n\n" +
-
-      "Message:\n" +
-
-      (
-        payload.new?.message ||
-        "NO MESSAGE"
-      ) +
-
-      "\n\nSender:\n" +
-
-      (
-        payload.new?.sender_id ||
-        "UNKNOWN"
-      ) +
-
-      "\n\nReceiver:\n" +
-
-      (
-        payload.new?.receiver_id ||
-        "UNKNOWN"
-      )
-
+      "❌ No message data"
     );
 
+    return;
+
   }
+
+
+  alert(
+    "📩 INSERT DATA EXISTS\n\n" +
+    "Receiver comparison:\n\n" +
+
+    message.receiver_id +
+    "\n===\n" +
+    account.id
+  );
+
+
+  if(
+    String(message.receiver_id) !==
+    String(account.id)
+  ){
+
+    alert(
+      "🚫 MESSAGE NOT FOR THIS USER"
+    );
+
+    return;
+
+  }
+
+
+  alert(
+    "✅ RECEIVER MATCHED\n\n" +
+
+    "MESSAGE:\n" +
+    message.message
+  );
+
+}
 
 );
 
