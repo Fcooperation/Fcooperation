@@ -23,11 +23,6 @@ JSON.parse(
 );
 
 
-alert(
-  "Realtime: starting"
-);
-
-
 /* ---------- CREATE CHANNEL ---------- */
 
 const channel =
@@ -64,22 +59,6 @@ channel
 
   payload => {
 
-  alert(
-    "🔥 REALTIME INSERT RECEIVED\n\n" +
-
-    "Sender:\n" +
-    payload.new?.sender_id +
-
-    "\n\nReceiver:\n" +
-    payload.new?.receiver_id +
-
-    "\n\nMy account ID:\n" +
-    account.id +
-
-    "\n\nMessage:\n" +
-    payload.new?.message
-  );
-
 
   const message =
   payload.new;
@@ -89,36 +68,15 @@ channel
     !message
   ){
 
-    alert(
-      "❌ No message data"
-    );
-
     return;
 
   }
-
-
-  alert(
-    "📩 INSERT DATA EXISTS\n\n" +
-    "Receiver comparison:\n\n" +
-
-    message.receiver_id +
-    "\n===\n" +
-    account.id
-  );
 
 
   if(
   String(message.receiver_id) ===
   String(account.id)
 ){
-
-  alert(
-    "✅ RECEIVER MATCHED\n\n" +
-    "MESSAGE:\n" +
-    message.message
-  );
-
 
   const createdAt =
   new Date(
@@ -216,10 +174,6 @@ if(
   exists
 ){
 
-  alert(
-    "⚠️ MESSAGE ALREADY SAVED"
-  );
-
   return;
 
 }
@@ -243,18 +197,6 @@ localStorage.setItem(
 
 );
 
-
-alert(
-  "💾 MESSAGE SAVED"
-);
-
-
-  alert(
-    "🟢 RENDERING MESSAGE\n\n" +
-    receivedMessage.message
-  );
-
-
   renderMessage(
     receivedMessage
   );
@@ -272,35 +214,16 @@ alert(
 
 /* ---------- SUBSCRIBE ---------- */
 
-alert(
-  "Realtime: subscribing..."
-);
-
-
 channel
 
 .subscribe(
 
   status=>{
 
-    alert(
-
-      "Realtime status:\n" +
-      status
-
-    );
-
 
     if(
       status === "SUBSCRIBED"
     ){
-
-      alert(
-
-        "✅ REALTIME READY\n\n" +
-        "Now send the message."
-
-      );
 
     }
 
