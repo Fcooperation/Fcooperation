@@ -1,5 +1,6 @@
 const searchInput = document.getElementById("searchInput");
 const searchButton = document.getElementById("searchButton");
+const webResults = document.getElementById("webResults");
 
 searchButton.addEventListener("click", search);
 
@@ -20,6 +21,9 @@ async function search() {
   // Enter searching state
   document.body.classList.add("searching");
 
+  // Show loading state
+  webResults.innerHTML = "<p>Searching...</p>";
+
   console.log("Search:", query);
 
   try {
@@ -35,7 +39,16 @@ async function search() {
 
     console.log("Search results:", data);
 
+    // Show whatever the backend returned
+    webResults.innerHTML = `
+      <pre>${JSON.stringify(data, null, 2)}</pre>
+    `;
+
   } catch (error) {
     console.error("Search error:", error);
+
+    webResults.innerHTML = `
+      <p>Unable to load search results.</p>
+    `;
   }
 }
