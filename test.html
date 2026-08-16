@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Study API Test</title>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+  <title>Courses API Test</title>
 </head>
 
 <body>
 
-  <h2>University API Test</h2>
+  <h2>Courses API Test</h2>
 
   <pre id="output">Loading...</pre>
 
@@ -33,13 +37,15 @@
             },
 
             body: JSON.stringify({
-              action: "get_universities"
+              action: "get_courses",
+              university: "EBSU"
             })
           }
         );
 
 
-        const data = await response.json();
+        const data =
+          await response.json();
 
 
         output.textContent =
@@ -61,4 +67,5 @@
   </script>
 
 </body>
+
 </html>
