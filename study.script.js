@@ -174,3 +174,27 @@ searchBar.addEventListener("input", function () {
 // ===============================
 
 getUniversities();
+
+
+// ===============================
+// LOADING ANIMATION
+// ===============================
+
+const loader = setInterval(() => {
+
+  percent += 2;
+
+
+  if (percent > 100) {
+    percent = 100;
+  }
+
+
+  setProgress(percent);
+
+
+  if (percent === 100) {
+    clearInterval(loader);
+  }
+
+}, 50);
