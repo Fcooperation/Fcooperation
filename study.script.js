@@ -63,8 +63,8 @@ async function getUniversities() {
         },
 
         body: JSON.stringify({
-          action: "get universities"
-        })
+  action: "get_universities"
+})
       }
     );
 
@@ -113,16 +113,16 @@ function renderUniversities(list) {
 
     card.className = "uni-card";
 
-    card.textContent = university.name;
+    card.textContent = university;
 
 
     card.addEventListener("click", () => {
 
       // Save selected university
       localStorage.setItem(
-        "studying_uni",
-        university.name
-      );
+  "studying_uni",
+  university
+);
 
 
       // Go to the universal school page
@@ -151,8 +151,7 @@ searchBar.addEventListener("input", function () {
   const filtered =
     universities.filter(university => {
 
-      return university.name
-        .toLowerCase()
+      return university.toLowerCase()
         .includes(query);
 
     });
