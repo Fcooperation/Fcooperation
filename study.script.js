@@ -51,10 +51,12 @@ let universities = [];
 
 async function getUniversities() {
 
+  loadingText.textContent = "LOADING...";
+
   try {
 
     const response = await fetch(
-  window.CONFIG.API_URL + "/admin",
+      window.CONFIG.API_URL + "/admin",
       {
         method: "POST",
 
@@ -63,29 +65,34 @@ async function getUniversities() {
         },
 
         body: JSON.stringify({
-  action: "get_universities"
-})
+          action: "get_universities"
+        })
       }
     );
-
 
     if (!response.ok) {
       throw new Error("Failed to get universities");
     }
 
-
     const data = await response.json();
 
+    if (!data.success) {
+      throw new Error(
+        data.error || "Failed to get universities"
+      );
+    }
 
     universities = data.universities || [];
 
-
     renderUniversities(universities);
 
+    loadingText.textContent = "READY ✔";
 
   } catch (error) {
 
-    console.error("Failed to load universities");
+    console.error(error);
+
+    loadingText.textContent = "FAILED";
 
     uniList.innerHTML = `
       <div class="uni-error">
@@ -167,27 +174,3 @@ searchBar.addEventListener("input", function () {
 // ===============================
 
 getUniversities();
-
-
-// ===============================
-// LOADING ANIMATION
-// ===============================
-
-const loader = setInterval(() => {
-
-  percent += 2;
-
-
-  if (percent > 100) {
-    percent = 100;
-  }
-
-
-  setProgress(percent);
-
-
-  if (percent === 100) {
-    clearInterval(loader);
-  }
-
-}, 50);
