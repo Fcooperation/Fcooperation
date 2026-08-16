@@ -1,53 +1,64 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>FCHAT Storage Test</title>
-
-<style>
-body{
-    font-family:Arial,sans-serif;
-    background:#111;
-    color:#fff;
-    padding:20px;
-}
-
-pre{
-    background:#222;
-    padding:15px;
-    border-radius:10px;
-    white-space:pre-wrap;
-    word-break:break-word;
-}
-</style>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study API Test</title>
 </head>
+
 <body>
 
-<h2>FCHAT Local Storage</h2>
+  <h2>University API Test</h2>
 
-<pre id="output"></pre>
+  <pre id="output">Loading...</pre>
 
-<script>
+  <script src="config.js"></script>
 
-const data =
-JSON.parse(
-localStorage.getItem(
-"fchat_messages"
-)
-);
+  <script>
 
-document.getElementById(
-"output"
-).textContent =
+    async function test() {
 
-JSON.stringify(
-data,
-null,
-4
-);
+      const output =
+        document.getElementById("output");
 
-</script>
+      try {
+
+        const response = await fetch(
+          window.CONFIG.API_URL + "/admin",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+              action: "get_universities"
+            })
+          }
+        );
+
+
+        const data = await response.json();
+
+
+        output.textContent =
+          JSON.stringify(data, null, 2);
+
+
+      } catch (error) {
+
+        output.textContent =
+          "ERROR:\n\n" + error.message;
+
+      }
+
+    }
+
+
+    test();
+
+  </script>
 
 </body>
 </html>
