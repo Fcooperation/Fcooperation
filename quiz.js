@@ -276,50 +276,6 @@ questions.forEach(q => {
 
 });
 
-// HINT BUTTON
-hintBtn.onclick = (e) => {
-
-  e.stopPropagation();
-
-  hintDropdown.classList.toggle("hidden");
-
-};
-
-formulaHint.onclick = () => {
-
-  const q = questions[index];
-
-  if (!q) return;
-
-  alert(q.formula || "No formula available for this question.");
-
-};
-
-
-explanationHint.onclick = () => {
-
-  const q = questions[index];
-
-  if (!q) return;
-
-  alert(
-    q.explanation ||
-    "No explanation available for this question."
-  );
-
-};
-
-document.addEventListener("click", (e) => {
-
-  if (
-    !hintDropdown.contains(e.target) &&
-    e.target !== hintBtn
-  ) {
-    hintDropdown.classList.add("hidden");
-  }
-
-});
-
 // ---------------- SAVE RESULT ----------------
 
 const result = {
@@ -369,5 +325,49 @@ localStorage.setItem(
 
 window.location.href = "result.html";
 }
+
+});
+
+// HINT BUTTON
+hintBtn.onclick = (e) => {
+
+  e.stopPropagation();
+
+  hintDropdown.classList.toggle("hidden");
+
+};
+
+formulaHint.onclick = () => {
+
+  const q = questions[index];
+
+  if (!q) return;
+
+  alert(q.formula || "No formula available for this question.");
+
+};
+
+
+explanationHint.onclick = () => {
+
+  const q = questions[index];
+
+  if (!q) return;
+
+  alert(
+    q.explanation ||
+    "No explanation available for this question."
+  );
+
+};
+
+document.addEventListener("click", (e) => {
+
+  if (
+    !hintDropdown.contains(e.target) &&
+    e.target !== hintBtn
+  ) {
+    hintDropdown.classList.add("hidden");
+  }
 
 });
