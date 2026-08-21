@@ -20,6 +20,11 @@ const quizUI = document.getElementById("quiz-ui");
 const studying = localStorage.getItem("studying");
 const university = localStorage.getItem("studying_uni");
 
+const hintBtn = document.getElementById("hint-btn");
+const hintDropdown = document.getElementById("hint-dropdown");
+const formulaHint = document.getElementById("formula-hint");
+const explanationHint = document.getElementById("explanation-hint");
+
 // ---------------- SAFETY ----------------
 if (!countEl || !timeEl) return;
 
@@ -268,6 +273,50 @@ questions.forEach(q => {
     selected: userAnswer,
     explanation: q.explanation
   });
+
+});
+
+// HINT BUTTON
+hintBtn.onclick = (e) => {
+
+  e.stopPropagation();
+
+  hintDropdown.classList.toggle("hidden");
+
+};
+
+formulaHint.onclick = () => {
+
+  const q = questions[index];
+
+  if (!q) return;
+
+  alert(q.formula || "No formula available for this question.");
+
+};
+
+
+explanationHint.onclick = () => {
+
+  const q = questions[index];
+
+  if (!q) return;
+
+  alert(
+    q.explanation ||
+    "No explanation available for this question."
+  );
+
+};
+
+document.addEventListener("click", (e) => {
+
+  if (
+    !hintDropdown.contains(e.target) &&
+    e.target !== hintBtn
+  ) {
+    hintDropdown.classList.add("hidden");
+  }
 
 });
 
