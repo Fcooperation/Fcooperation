@@ -59,24 +59,45 @@
 
   <div id="hint-dropdown" class="hidden">
 
-    <div class="hint-item" id="formula-hint">
-      <div class="hint-info">
-        <span class="hint-title">Formula</span>
-      </div>
+   <div id="hint-dropdown" class="hidden">
 
-      <span class="hint-cost">20 XP</span>
+  <div class="hint-item" id="formula-hint">
+
+    <div class="hint-info">
+      <span class="hint-title">Formula</span>
     </div>
 
-    <div class="hint-item" id="explanation-hint">
-      <div class="hint-info">
-        <span class="hint-title">Explanation</span>
-      </div>
-
-      <span class="hint-cost">100 XP</span>
-    </div>
+    <span class="hint-cost">20 XP</span>
 
   </div>
 
+
+  <div class="hint-item" id="explanation-hint">
+
+    <div class="hint-info">
+      <span class="hint-title">Explanation</span>
+    </div>
+
+    <span class="hint-cost">100 XP</span>
+
+  </div>
+
+
+  <div class="hint-item" id="time-hint">
+
+    <div class="hint-info">
+      <span class="hint-title">
+        Extra 10 seconds
+      </span>
+    </div>
+
+    <span class="hint-cost">
+      5 XP
+    </span>
+
+  </div>
+
+</div>
 </div>
 
 <!-- HINT MODAL -->
@@ -102,7 +123,10 @@
   <!-- TOP BAR -->
   <div id="quiz-top">
 
-    <div id="timer">60</div>
+   <div id="timer">
+  <span id="timer-value">60</span>
+  <span id="extra-time-indicator">+10 sec</span>
+</div>
 
     <button id="submit-btn">Submit</button>
 
