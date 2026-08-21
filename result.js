@@ -4,33 +4,79 @@ JSON.parse(
     "quizResult"
   )
 );
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
 
   const data = JSON.parse(localStorage.getItem("quizResult"));
   
   // XP already collected?
 if (!data.received) {
 
-  let account =
+  const account =
     JSON.parse(
       localStorage.getItem("faccount")
     ) || {};
 
-  account.xp =
-    (account.xp || 0) +
-    data.xp;
+  const userId =
+    account.userId || account.id;
 
-  localStorage.setItem(
-    "faccount",
-    JSON.stringify(account)
-  );
+  if (!userId) {
 
-  data.received = true;
+    alert("Unable to identify your account.");
 
-  localStorage.setItem(
-    "quizResult",
-    JSON.stringify(data)
-  );
+    return;
+
+  }
+
+  try {
+
+    const response = await fetch(
+      window.CONFIG.API_URL + "/admin",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+          action: "add_xp",
+          user_id: userId,
+          xp: data.xp
+        })
+      }
+    );
+
+    const xpData =
+      await response.json();
+
+    if (!xpData.success) {
+
+      alert(
+        xpData.error ||
+        "Failed to add XP"
+      );
+
+      return;
+
+    }
+
+    // XP successfully added to backend
+    data.received = true;
+
+    localStorage.setItem(
+      "quizResult",
+      JSON.stringify(data)
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert("Failed to connect to XP server.");
+
+    return;
+
+  }
 
 } else {
 
