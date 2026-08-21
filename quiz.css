@@ -217,6 +217,11 @@ button {
 
 #hint-dropdown.hidden {
   display: none !important;
+  pointer-events: none;
+}
+
+#hint-dropdown:not(.hidden) {
+  pointer-events: auto;
 }
 
 .hint-item {
