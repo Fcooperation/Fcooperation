@@ -326,8 +326,6 @@ localStorage.setItem(
 window.location.href = "result.html";
 }
 
-});
-
 // HINT BUTTON
 hintBtn.onclick = (e) => {
 
@@ -369,5 +367,7 @@ document.addEventListener("click", (e) => {
   ) {
     hintDropdown.classList.add("hidden");
   }
+
+});
 
 });
