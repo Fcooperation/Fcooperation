@@ -207,7 +207,7 @@ button {
 }
 
 #hint-dropdown.hidden {
-  display: none;
+  display: none !important;
 }
 
 .hint-item {
