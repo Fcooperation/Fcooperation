@@ -8,6 +8,7 @@ let index = 0;
 let answers = {};
 let timerInterval;
 let currentTime = time;
+let submitting = false;
 
 // ---------------- ELEMENTS ----------------
 const countEl = document.getElementById("count");
@@ -240,6 +241,10 @@ document.getElementById("submit-btn").onclick = submitQuiz;
 
 function submitQuiz() {
 
+  if (submitting) return;
+
+  submitting = true;
+
   clearInterval(timerInterval);
 
   let score = 0;
@@ -326,14 +331,14 @@ localStorage.setItem(
 window.location.href = "result.html";
 }
 
-// HINT BUTTON
-hintBtn.onclick = (e) => {
+// ---------------- HINT ----------------
 
-  e.stopPropagation();
+hintBtn.onclick = () => {
 
   hintDropdown.classList.toggle("hidden");
 
 };
+
 
 formulaHint.onclick = () => {
 
@@ -341,7 +346,10 @@ formulaHint.onclick = () => {
 
   if (!q) return;
 
-  alert(q.formula || "No formula available for this question.");
+  alert(
+    q.formula ||
+    "No formula available for this question."
+  );
 
 };
 
@@ -358,16 +366,5 @@ explanationHint.onclick = () => {
   );
 
 };
-
-document.addEventListener("click", (e) => {
-
-  if (
-    !hintDropdown.contains(e.target) &&
-    e.target !== hintBtn
-  ) {
-    hintDropdown.classList.add("hidden");
-  }
-
-});
 
 });
