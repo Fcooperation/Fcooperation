@@ -37,6 +37,15 @@ const hintModalContent =
 
 const hintClose =
   document.getElementById("hint-close");
+
+const timeHint =
+  document.getElementById("time-hint");
+
+const timerValue =
+  document.getElementById("timer-value");
+
+const extraTimeIndicator =
+  document.getElementById("extra-time-indicator");
   
 // ---------------- SAFETY ----------------
 if (!countEl || !timeEl) return;
@@ -228,7 +237,7 @@ document.getElementById("prev").onclick = () => {
 function startTimer() {
 
   currentTime = time;
-  const timerEl = document.getElementById("timer");
+  const timerEl = document.getElementById("timer-value");
 
   timerInterval = setInterval(() => {
 
@@ -393,6 +402,51 @@ explanationHint.onclick = () => {
   hintDropdown.classList.add("hidden");
 };
 
+// ---------------- EXTRA TIME HINT ----------------
+
+if (timeHint) {
+
+  timeHint.onclick = () => {
+
+    // Add 10 seconds to the CURRENT running timer
+    currentTime += 10;
+
+    // Update timer on screen immediately
+    if (timerValue) {
+      timerValue.textContent = currentTime;
+    }
+
+    // If timer was red because it was low,
+    // remove the red warning when we now have >10 seconds
+    if (currentTime > 10 && timerValue) {
+      timerValue.classList.remove("red");
+    }
+
+    // Close hint dropdown
+    if (hintDropdown) {
+      hintDropdown.classList.add("hidden");
+    }
+
+    // Show +10 sec animation
+    if (extraTimeIndicator) {
+
+      extraTimeIndicator.textContent = "+10 sec";
+
+      extraTimeIndicator.classList.remove("show");
+
+      // Restart CSS animation
+      void extraTimeIndicator.offsetWidth;
+
+      extraTimeIndicator.classList.add("show");
+
+      setTimeout(() => {
+        extraTimeIndicator.classList.remove("show");
+      }, 2500);
+    }
+
+  };
+
+}
 
 // CLOSE BUTTON
 

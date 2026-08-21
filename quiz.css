@@ -75,7 +75,7 @@ button {
 }
 
 /* RED TIMER */
-#timer.red {
+#timer-value.red {
   color: red;
 }
 
@@ -419,4 +419,45 @@ button {
   padding: 14px;
 
   border-radius: 8px;
+}
+
+/* -------------------------
+   EXTRA TIME INDICATOR
+------------------------- */
+
+#timer {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+
+  font-weight: bold;
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#timer-value {
+  display: inline-block;
+}
+
+#extra-time-indicator {
+  color: #1d9bf0;
+
+  font-size: 13px;
+  font-weight: 800;
+
+  opacity: 0;
+  pointer-events: none;
+
+  transform: translateY(3px);
+
+  transition:
+    opacity 0.8s ease,
+    transform 0.8s ease;
+}
+
+#extra-time-indicator.show {
+  opacity: 1;
+  transform: translateY(0);
 }
