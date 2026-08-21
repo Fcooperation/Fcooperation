@@ -26,6 +26,18 @@ const hintDropdown = document.getElementById("hint-dropdown");
 const formulaHint = document.getElementById("formula-hint");
 const explanationHint = document.getElementById("explanation-hint");
 
+const hintModal =
+  document.getElementById("hint-modal");
+
+const hintModalTitle =
+  document.getElementById("hint-modal-title");
+
+const hintModalContent =
+  document.getElementById("hint-modal-content");
+
+const hintClose =
+  document.getElementById("hint-close");
+  
 // ---------------- SAFETY ----------------
 if (!countEl || !timeEl) return;
 
@@ -340,17 +352,25 @@ hintBtn.onclick = () => {
 };
 
 
+// ---------------- HINT MODAL ----------------
+
 formulaHint.onclick = () => {
 
   const q = questions[index];
 
   if (!q) return;
 
-  alert(
-    q.formula ||
-    "No formula available for this question."
-  );
+  hintModalTitle.textContent = "Formula";
 
+  hintModalContent.innerHTML = `
+    <div class="hint-formula">
+      ${q.formula || "No formula available for this question."}
+    </div>
+  `;
+
+  hintModal.classList.remove("hidden");
+
+  hintDropdown.classList.add("hidden");
 };
 
 
@@ -360,10 +380,25 @@ explanationHint.onclick = () => {
 
   if (!q) return;
 
-  alert(
-    q.explanation ||
-    "No explanation available for this question."
-  );
+  hintModalTitle.textContent = "Explanation";
+
+  hintModalContent.innerHTML = `
+    <div class="hint-explanation">
+      ${q.explanation || "No explanation available for this question."}
+    </div>
+  `;
+
+  hintModal.classList.remove("hidden");
+
+  hintDropdown.classList.add("hidden");
+};
+
+
+// CLOSE BUTTON
+
+hintClose.onclick = () => {
+
+  hintModal.classList.add("hidden");
 
 };
 

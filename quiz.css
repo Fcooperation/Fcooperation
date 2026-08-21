@@ -265,3 +265,158 @@ button {
   font-weight: 700;
   color: #1d9bf0;
 }
+
+/* -------------------------
+   HINT MODAL
+------------------------- */
+
+.hint-modal {
+  position: fixed;
+  inset: 0;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 20px;
+
+  background: rgba(0, 0, 0, 0.45);
+
+  z-index: 1000;
+
+  box-sizing: border-box;
+}
+
+.hint-modal.hidden {
+  display: none !important;
+}
+
+/* MODAL BOX */
+
+.hint-modal-box {
+  width: min(500px, 100%);
+
+  max-height: 75vh;
+
+  background: white;
+
+  border-radius: 18px;
+
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.25);
+
+  overflow: hidden;
+
+  animation: hintAppear 0.2s ease;
+}
+
+@keyframes hintAppear {
+
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+}
+
+/* HEADER */
+
+.hint-modal-header {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 16px 18px;
+
+  border-bottom: 1px solid #eee;
+}
+
+.hint-modal-header h3 {
+  margin: 0;
+
+  font-size: 18px;
+
+  color: #111;
+}
+
+/* CLOSE BUTTON */
+
+.hint-close {
+  width: 34px;
+  height: 34px;
+
+  padding: 0;
+
+  border-radius: 50%;
+
+  background: #f1f3f5;
+
+  color: #333;
+
+  font-size: 24px;
+
+  line-height: 34px;
+
+  cursor: pointer;
+}
+
+.hint-close:active {
+  transform: scale(0.92);
+}
+
+/* CONTENT */
+
+.hint-modal-content {
+
+  padding: 20px;
+
+  max-height: calc(75vh - 70px);
+
+  overflow-y: auto;
+
+  text-align: left;
+
+  font-size: 16px;
+
+  line-height: 1.6;
+
+  color: #222;
+
+  white-space: pre-wrap;
+
+  word-wrap: break-word;
+}
+
+/* FORMULA */
+
+.hint-formula {
+  background: #f5f9ff;
+
+  border-left: 4px solid #1d9bf0;
+
+  padding: 14px;
+
+  border-radius: 8px;
+
+  font-size: 17px;
+
+  font-weight: 700;
+
+  margin-bottom: 15px;
+}
+
+/* EXPLANATION */
+
+.hint-explanation {
+  background: #f8f8f8;
+
+  padding: 14px;
+
+  border-radius: 8px;
+}
