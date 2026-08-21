@@ -216,18 +216,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function setStudying(code, mode) {
 
-    localStorage.setItem(
-      "studying",
-      code
-    );
+  localStorage.setItem(
+    "studying",
+    code
+  );
 
-    localStorage.setItem(
-      "study_mode",
-      mode
-    );
+  localStorage.setItem(
+    "studying_uni",
+    studyingUni
+  );
 
-  }
+  localStorage.setItem(
+    "study_mode",
+    mode
+  );
 
+}
 
   // -------------------------
   // OPEN QUIZ

@@ -18,6 +18,7 @@ const loading = document.getElementById("loading");
 const quizUI = document.getElementById("quiz-ui");
 
 const studying = localStorage.getItem("studying");
+const university = localStorage.getItem("studying_uni");
 
 // ---------------- SAFETY ----------------
 if (!countEl || !timeEl) return;
@@ -65,10 +66,11 @@ document.getElementById("start-btn").onclick = async () => {
   loading.classList.remove("hidden");
 
   const payload = {
-    action: "get_quiz",
-    course: studying,
-    count
-  };
+  action: "get_quiz",
+  university,
+  course: studying,
+  count
+};
 
   try {
 
