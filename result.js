@@ -54,22 +54,36 @@ if (!userId) {
 
   try {
 
-    const response = await fetch(
-      window.CONFIG.API_URL + "/admin",
-      {
-        method: "POST",
+    const payload = {
+  action: "add_xp",
+  user_id: userId,
+  xp: data.xp
+};
 
-        headers: {
-          "Content-Type": "application/json"
-        },
+alert(
+  "🚀 XP REQUEST\n\n" +
+  "user_id:\n" + userId +
+  "\n\n" +
+  "data.xp:\n" + data.xp +
+  "\n\n" +
+  "typeof data.xp:\n" + typeof data.xp +
+  "\n\n" +
+  "FULL PAYLOAD:\n" +
+  JSON.stringify(payload, null, 2)
+);
 
-        body: JSON.stringify({
-          action: "add_xp",
-          user_id: userId,
-          xp: data.xp
-        })
-      }
-    );
+const response = await fetch(
+  window.CONFIG.API_URL + "/admin",
+  {
+    method: "POST",
+
+    headers: {
+      "Content-Type": "application/json"
+    },
+
+    body: JSON.stringify(payload)
+  }
+);
 
     const xpData =
       await response.json();
