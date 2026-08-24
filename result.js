@@ -6,84 +6,44 @@ JSON.parse(
 );
 document.addEventListener("DOMContentLoaded", async () => {
 
-  alert(
-    "CONFIG TEST\n\n" +
-    "CONFIG exists: " +
-    !!window.CONFIG +
-    "\n\nAPI URL:\n" +
-    (window.CONFIG?.API_URL || "NOT FOUND")
-  );
-
-  const data =
-    JSON.parse(
-      localStorage.getItem("quizResult")
-    );
-
-  // ...rest of your code
+  const data = JSON.parse(localStorage.getItem("quizResult"));
   
   // XP already collected?
 if (!data.received) {
 
   const account =
-  JSON.parse(
-    localStorage.getItem("faccount")
-  ) || {};
+    JSON.parse(
+      localStorage.getItem("faccount")
+    ) || {};
 
-alert(
-  "RESULT PAGE → ACCOUNT\n\n" +
-  JSON.stringify(account, null, 2)
-);
+  const userId = account?.id;
 
-const userId = account?.id;
+  if (!userId) {
 
-alert(
-  "RESULT PAGE → USER ID\n\n" +
-  "account.id = " +
-  userId
-);
+    alert("Unable to identify your account.");
 
-if (!userId) {
+    return;
 
-  alert(
-    "❌ RESULT PAGE: NO USER ID FOUND"
-  );
-
-  return;
-
-}
+  }
 
   try {
 
-    const payload = {
-  action: "add_xp",
-  user_id: userId,
-  xp: data.xp
-};
+    const response = await fetch(
+      window.CONFIG.API_URL + "/admin",
+      {
+        method: "POST",
 
-alert(
-  "🚀 XP REQUEST\n\n" +
-  "user_id:\n" + userId +
-  "\n\n" +
-  "data.xp:\n" + data.xp +
-  "\n\n" +
-  "typeof data.xp:\n" + typeof data.xp +
-  "\n\n" +
-  "FULL PAYLOAD:\n" +
-  JSON.stringify(payload, null, 2)
-);
+        headers: {
+          "Content-Type": "application/json"
+        },
 
-const response = await fetch(
-  window.CONFIG.API_URL + "/admin",
-  {
-    method: "POST",
-
-    headers: {
-      "Content-Type": "application/json"
-    },
-
-    body: JSON.stringify(payload)
-  }
-);
+        body: JSON.stringify({
+          action: "add_xp",
+          user_id: userId,
+          xp: data.xp
+        })
+      }
+    );
 
     const xpData =
       await response.json();
@@ -326,4 +286,4 @@ function showHistory() {
 
   });
 
-}
+                   }
