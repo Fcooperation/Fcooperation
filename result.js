@@ -6,15 +6,51 @@ JSON.parse(
 );
 document.addEventListener("DOMContentLoaded", async () => {
 
-  const data = JSON.parse(localStorage.getItem("quizResult"));
+  alert(
+    "CONFIG TEST\n\n" +
+    "CONFIG exists: " +
+    !!window.CONFIG +
+    "\n\nAPI URL:\n" +
+    (window.CONFIG?.API_URL || "NOT FOUND")
+  );
+
+  const data =
+    JSON.parse(
+      localStorage.getItem("quizResult")
+    );
+
+  // ...rest of your code
   
   // XP already collected?
 if (!data.received) {
 
   const account =
-    JSON.parse(
-      localStorage.getItem("faccount")
-    ) || {};
+  JSON.parse(
+    localStorage.getItem("faccount")
+  ) || {};
+
+alert(
+  "RESULT PAGE → ACCOUNT\n\n" +
+  JSON.stringify(account, null, 2)
+);
+
+const userId = account?.id;
+
+alert(
+  "RESULT PAGE → USER ID\n\n" +
+  "account.id = " +
+  userId
+);
+
+if (!userId) {
+
+  alert(
+    "❌ RESULT PAGE: NO USER ID FOUND"
+  );
+
+  return;
+
+}
 
   const userId = account?.id;
 
