@@ -6,7 +6,24 @@ JSON.parse(
 );
 document.addEventListener("DOMContentLoaded", async () => {
 
-  const data = JSON.parse(localStorage.getItem("quizResult"));
+  const data =
+  JSON.parse(
+    localStorage.getItem("quizResult")
+  );
+
+alert(
+  "🎯 RESULT PAGE → SAVED QUIZ XP\n\n" +
+  "data.xp = " + data?.xp +
+  "\n\n" +
+  "typeof data.xp = " + typeof data?.xp +
+  "\n\n" +
+  "score = " + data?.score +
+  "\n" +
+  "total = " + data?.total +
+  "\n\n" +
+  "FULL QUIZ RESULT:\n" +
+  JSON.stringify(data, null, 2)
+);
   
   // XP already collected?
 if (!data.received) {
