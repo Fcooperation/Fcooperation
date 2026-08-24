@@ -1,5 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
+const startupAccount =
+  localStorage.getItem("faccount");
 
+alert(
+  "QUIZ PAGE LOADED\n\nfaccount:\n" +
+  startupAccount
+);
 let count = 1;
 let time = 60;
 
@@ -367,61 +373,104 @@ hintBtn.onclick = () => {
 
 async function deductXP(amount) {
 
-  // Prevent multiple hints from being tapped
-  // while a deduction is still processing
   if (deductingXP) return false;
 
   deductingXP = true;
 
   try {
 
-    const account = JSON.parse(
-      localStorage.getItem("faccount")
+    const rawAccount =
+      localStorage.getItem("faccount");
+
+    alert(
+      "PAGE → faccount\n\n" +
+      "Raw:\n" +
+      rawAccount
     );
 
-    const userId = account?.id;
+    const account =
+      JSON.parse(rawAccount);
+
+    const userId =
+      account?.id;
+
+    alert(
+      "PAGE → ACCOUNT DETAILS\n\n" +
+      "account.id:\n" +
+      userId +
+      "\n\nAmount:\n" +
+      amount
+    );
 
     if (!userId) {
-      alert("Unable to identify your account.");
-      return false;
-    }
-
-    const res = await fetch(
-      `${CONFIG.API_URL}/admin`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-  action: "deduct_xp",
-  user_id: userId,
-  amount
-})
-      }
-    );
-
-    const data = await res.json();
-
-    if (!data.success) {
 
       alert(
-        data.error ||
-        "Not enough XP."
+        "❌ NO USER ID FOUND"
       );
 
       return false;
     }
 
-    // Deduction succeeded
+    const payload = {
+
+      action: "deduct_xp",
+
+      user_id: userId,
+
+      amount: amount
+
+    };
+
+    alert(
+      "SENDING TO BACKEND\n\n" +
+      JSON.stringify(
+        payload,
+        null,
+        2
+      )
+    );
+
+    const res = await fetch(
+      `${CONFIG.API_URL}/admin`,
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json"
+        },
+
+        body: JSON.stringify(
+          payload
+        )
+      }
+    );
+
+    const data =
+      await res.json();
+
+    alert(
+      "BACKEND RESPONDED\n\n" +
+      JSON.stringify(
+        data,
+        null,
+        2
+      )
+    );
+
+    if (!data.success) {
+
+      return false;
+
+    }
+
     return true;
 
   } catch (err) {
 
-    console.error(err);
-
     alert(
-      "Unable to process XP deduction."
+      "❌ FRONTEND ERROR\n\n" +
+      err.message
     );
 
     return false;
@@ -431,6 +480,7 @@ async function deductXP(amount) {
     deductingXP = false;
 
   }
+
 }
 
 // ---------------- HINT MODAL ----------------
