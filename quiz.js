@@ -1,11 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-const startupAccount =
-  localStorage.getItem("faccount");
 
-alert(
-  "QUIZ PAGE LOADED\n\nfaccount:\n" +
-  startupAccount
-);
 let count = 1;
 let time = 60;
 
@@ -373,104 +367,61 @@ hintBtn.onclick = () => {
 
 async function deductXP(amount) {
 
+  // Prevent multiple hints from being tapped
+  // while a deduction is still processing
   if (deductingXP) return false;
 
   deductingXP = true;
 
   try {
 
-    const rawAccount =
-      localStorage.getItem("faccount");
-
-    alert(
-      "PAGE → faccount\n\n" +
-      "Raw:\n" +
-      rawAccount
+    const account = JSON.parse(
+      localStorage.getItem("faccount")
     );
 
-    const account =
-      JSON.parse(rawAccount);
-
-    const userId =
-      account?.id;
-
-    alert(
-      "PAGE → ACCOUNT DETAILS\n\n" +
-      "account.id:\n" +
-      userId +
-      "\n\nAmount:\n" +
-      amount
-    );
+    const userId = account?.id;
 
     if (!userId) {
-
-      alert(
-        "❌ NO USER ID FOUND"
-      );
-
+      alert("Unable to identify your account.");
       return false;
     }
-
-    const payload = {
-
-      action: "deduct_xp",
-
-      user_id: userId,
-
-      amount: amount
-
-    };
-
-    alert(
-      "SENDING TO BACKEND\n\n" +
-      JSON.stringify(
-        payload,
-        null,
-        2
-      )
-    );
 
     const res = await fetch(
       `${CONFIG.API_URL}/admin`,
       {
         method: "POST",
-
         headers: {
-          "Content-Type":
-            "application/json"
+          "Content-Type": "application/json"
         },
-
-        body: JSON.stringify(
-          payload
-        )
+        body: JSON.stringify({
+  action: "deduct_xp",
+  user_id: userId,
+  amount
+})
       }
     );
 
-    const data =
-      await res.json();
-
-    alert(
-      "BACKEND RESPONDED\n\n" +
-      JSON.stringify(
-        data,
-        null,
-        2
-      )
-    );
+    const data = await res.json();
 
     if (!data.success) {
 
-      return false;
+      alert(
+        data.error ||
+        "Not enough XP."
+      );
 
+      return false;
     }
 
+    // Deduction succeeded
     return true;
 
   } catch (err) {
 
+    console.error(err);
+
     alert(
-      "❌ FRONTEND ERROR\n\n" +
-      err.message
+      "Unable to process XP deduction."
     );
 
     return false;
@@ -480,7 +431,6 @@ async function deductXP(amount) {
     deductingXP = false;
 
   }
-
 }
 
 // ---------------- HINT MODAL ----------------
