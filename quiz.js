@@ -118,6 +118,13 @@ document.getElementById("start-btn").onclick = async () => {
     }
 
     questions = data.questions;
+    alert(
+  "📚 QUIZ QUESTIONS XP\n\n" +
+  questions.map((q, i) =>
+    `Q${i + 1}: xp_reward = ${q.xp_reward}\n` +
+    `Type = ${typeof q.xp_reward}`
+  ).join("\n\n")
+);
     if (!questions || questions.length === 0) {
 
   setupBox.style.display = "block";
