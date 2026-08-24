@@ -396,10 +396,10 @@ async function deductXP(amount) {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          action: "deduct_xp",
-          userId,
-          amount
-        })
+  action: "deduct_xp",
+  user_id: userId,
+  amount
+})
       }
     );
 
