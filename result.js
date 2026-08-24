@@ -52,16 +52,6 @@ if (!userId) {
 
 }
 
-  const userId = account?.id;
-
-  if (!userId) {
-
-    alert("Unable to identify your account.");
-
-    return;
-
-  }
-
   try {
 
     const response = await fetch(
