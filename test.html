@@ -1,71 +1,110 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
   <meta charset="UTF-8">
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-  <title>Courses API Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>faccount Test</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+      background: #f5f7fa;
+    }
+
+    pre {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .found {
+      color: green;
+      font-weight: bold;
+    }
+
+    .missing {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
 </head>
 
 <body>
 
-  <h2>Courses API Test</h2>
+  <h2>faccount Test</h2>
 
-  <pre id="output">Loading...</pre>
+  <div id="status"></div>
 
-  <script src="config.js"></script>
+  <h3>Raw faccount:</h3>
+  <pre id="raw"></pre>
+
+  <h3>Detected ID:</h3>
+  <pre id="id"></pre>
 
   <script>
 
-    async function test() {
+    const raw = localStorage.getItem("faccount");
 
-      const output =
-        document.getElementById("output");
+    const rawEl = document.getElementById("raw");
+    const idEl = document.getElementById("id");
+    const statusEl = document.getElementById("status");
+
+    if (!raw) {
+
+      statusEl.innerHTML =
+        `<p class="missing">❌ No "faccount" found in localStorage.</p>`;
+
+      rawEl.textContent = "null";
+      idEl.textContent = "No ID";
+
+    } else {
+
+      rawEl.textContent = raw;
 
       try {
 
-        const response = await fetch(
-          window.CONFIG.API_URL + "/admin",
-          {
-            method: "POST",
+        const account = JSON.parse(raw);
 
-            headers: {
-              "Content-Type": "application/json"
-            },
+        const userId =
+          account?.userId ||
+          account?.user_id ||
+          account?.id ||
+          account?.uid;
 
-            body: JSON.stringify({
-              action: "get_courses",
-              university: "EBSU"
-            })
-          }
-        );
+        if (userId) {
 
+          statusEl.innerHTML =
+            `<p class="found">✅ Account found</p>`;
 
-        const data =
-          await response.json();
+          idEl.textContent =
+            `Detected ID: ${userId}`;
 
+        } else {
 
-        output.textContent =
-          JSON.stringify(data, null, 2);
+          statusEl.innerHTML =
+            `<p class="missing">❌ Account found, but no ID detected.</p>`;
 
+          idEl.textContent =
+            "Checked: userId, user_id, id, uid";
+
+        }
 
       } catch (error) {
 
-        output.textContent =
-          "ERROR:\n\n" + error.message;
+        statusEl.innerHTML =
+          `<p class="missing">❌ faccount exists but is not valid JSON.</p>`;
+
+        idEl.textContent = error.message;
 
       }
 
     }
 
-
-    test();
-
   </script>
 
 </body>
-
 </html>
