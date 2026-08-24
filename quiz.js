@@ -379,9 +379,7 @@ async function deductXP(amount) {
       localStorage.getItem("faccount")
     );
 
-    const userId =
-      account?.userId ||
-      account?.id;
+    const userId = account?.id;
 
     if (!userId) {
       alert("Unable to identify your account.");

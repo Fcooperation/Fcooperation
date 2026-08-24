@@ -16,8 +16,7 @@ if (!data.received) {
       localStorage.getItem("faccount")
     ) || {};
 
-  const userId =
-    account.userId || account.id;
+  const userId = account?.id;
 
   if (!userId) {
 
