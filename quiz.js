@@ -47,6 +47,9 @@ const timerValue =
 const extraTimeIndicator =
   document.getElementById("extra-time-indicator");
   
+  
+let deductingXP = false;
+  
 // ---------------- SAFETY ----------------
 if (!countEl || !timeEl) return;
 
@@ -360,14 +363,89 @@ hintBtn.onclick = () => {
 
 };
 
+// ---------------- XP DEDUCTION ----------------
+
+async function deductXP(amount) {
+
+  // Prevent multiple hints from being tapped
+  // while a deduction is still processing
+  if (deductingXP) return false;
+
+  deductingXP = true;
+
+  try {
+
+    const account = JSON.parse(
+      localStorage.getItem("faccount")
+    );
+
+    const userId =
+      account?.userId ||
+      account?.id;
+
+    if (!userId) {
+      alert("Unable to identify your account.");
+      return false;
+    }
+
+    const res = await fetch(
+      `${CONFIG.API_URL}/admin`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          action: "deduct_xp",
+          userId,
+          amount
+        })
+      }
+    );
+
+    const data = await res.json();
+
+    if (!data.success) {
+
+      alert(
+        data.error ||
+        "Not enough XP."
+      );
+
+      return false;
+    }
+
+    // Deduction succeeded
+    return true;
+
+  } catch (err) {
+
+    console.error(err);
+
+    alert(
+      "Unable to process XP deduction."
+    );
+
+    return false;
+
+  } finally {
+
+    deductingXP = false;
+
+  }
+}
 
 // ---------------- HINT MODAL ----------------
 
-formulaHint.onclick = () => {
+formulaHint.onclick = async () => {
 
   const q = questions[index];
 
   if (!q) return;
+
+  const paid = await deductXP(20);
+
+  if (!paid) return;
 
   hintModalTitle.textContent = "Formula";
 
@@ -383,11 +461,15 @@ formulaHint.onclick = () => {
 };
 
 
-explanationHint.onclick = () => {
+explanationHint.onclick = async () => {
 
   const q = questions[index];
 
   if (!q) return;
+
+  const paid = await deductXP(100);
+
+  if (!paid) return;
 
   hintModalTitle.textContent = "Explanation";
 
@@ -406,42 +488,57 @@ explanationHint.onclick = () => {
 
 if (timeHint) {
 
-  timeHint.onclick = () => {
+  timeHint.onclick = async () => {
 
-    // Add 10 seconds to the CURRENT running timer
+    // Ask backend to deduct 5 XP FIRST
+    const paid = await deductXP(5);
+
+    // If deduction failed, do absolutely nothing
+    if (!paid) return;
+
+
+    // ---------------- ADD TIME ----------------
+
     currentTime += 10;
 
-    // Update timer on screen immediately
+    // Update timer immediately
     if (timerValue) {
       timerValue.textContent = currentTime;
     }
 
-    // If timer was red because it was low,
-    // remove the red warning when we now have >10 seconds
+
+    // Remove red warning if we now have
+    // more than 10 seconds
     if (currentTime > 10 && timerValue) {
       timerValue.classList.remove("red");
     }
 
-    // Close hint dropdown
+
+    // Close dropdown
     if (hintDropdown) {
       hintDropdown.classList.add("hidden");
     }
 
-    // Show +10 sec animation
+
+    // ---------------- +10 ANIMATION ----------------
+
     if (extraTimeIndicator) {
 
       extraTimeIndicator.textContent = "+10 sec";
 
       extraTimeIndicator.classList.remove("show");
 
-      // Restart CSS animation
+      // Restart animation
       void extraTimeIndicator.offsetWidth;
 
       extraTimeIndicator.classList.add("show");
 
       setTimeout(() => {
+
         extraTimeIndicator.classList.remove("show");
+
       }, 2500);
+
     }
 
   };
