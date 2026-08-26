@@ -137,8 +137,8 @@ localStorage.setItem("fai_new_chat", "false");
 
 const userId = account?.userId || account?.id || "guest";
 
-// get last 15 messages INCLUDING current user message
-const contextMessages = messages.slice(-15);
+// get last 5 messages INCLUDING current user message
+const contextMessages = messages.slice(-5);
 
 // detect if new chat mode is active
 const newChatMode = localStorage.getItem("fai_new_chat") === "true";
