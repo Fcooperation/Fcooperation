@@ -6,101 +6,8 @@ JSON.parse(
 );
 document.addEventListener("DOMContentLoaded", async () => {
 
-  const data =
-  JSON.parse(
-    localStorage.getItem("quizResult")
-  );
-
-alert(
-  "🎯 RESULT PAGE → SAVED QUIZ XP\n\n" +
-  "data.xp = " + data?.xp +
-  "\n\n" +
-  "typeof data.xp = " + typeof data?.xp +
-  "\n\n" +
-  "score = " + data?.score +
-  "\n" +
-  "total = " + data?.total +
-  "\n\n" +
-  "FULL QUIZ RESULT:\n" +
-  JSON.stringify(data, null, 2)
-);
+  const data = JSON.parse(localStorage.getItem("quizResult"));
   
-  // XP already collected?
-if (!data.received) {
-
-  const account =
-    JSON.parse(
-      localStorage.getItem("faccount")
-    ) || {};
-
-  const userId = account?.id;
-
-  if (!userId) {
-
-    alert("Unable to identify your account.");
-
-    return;
-
-  }
-
-  try {
-
-    const response = await fetch(
-      window.CONFIG.API_URL + "/admin",
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify({
-          action: "add_xp",
-          user_id: userId,
-          xp: data.xp
-        })
-      }
-    );
-
-    const xpData =
-      await response.json();
-
-    if (!xpData.success) {
-
-      alert(
-        xpData.error ||
-        "Failed to add XP"
-      );
-
-      return;
-
-    }
-
-    // XP successfully added to backend
-    data.received = true;
-
-    localStorage.setItem(
-      "quizResult",
-      JSON.stringify(data)
-    );
-
-  } catch (error) {
-
-    console.error(error);
-
-    alert("Failed to connect to XP server.");
-
-    return;
-
-  }
-
-} else {
-
-  showHistory();
-
-  return;
-
-}
 
 let history =
 JSON.parse(
@@ -217,6 +124,73 @@ if (courseName) {
     profileLink.textContent = "Check profile";
     profileLink.href = "fchatme.html";
   }
+
+// ---------------- AWARD XP ----------------
+
+if (!data.received) {
+
+  const account =
+    JSON.parse(
+      localStorage.getItem("faccount")
+    ) || {};
+
+  const userId = account?.id;
+
+  // Logged out → don't award XP, but DON'T stop the result page
+  if (userId) {
+
+    try {
+
+      const response = await fetch(
+        window.CONFIG.API_URL + "/admin",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify({
+            action: "add_xp",
+            user_id: userId,
+            xp: data.xp
+          })
+        }
+      );
+
+      const xpData =
+        await response.json();
+
+      if (xpData.success) {
+
+        data.received = true;
+
+        localStorage.setItem(
+          "quizResult",
+          JSON.stringify(data)
+        );
+
+      } else {
+
+        console.error(
+          "XP failed:",
+          xpData.error
+        );
+
+      }
+
+    } catch (error) {
+
+      console.error(
+        "XP connection failed:",
+        error
+      );
+
+    }
+
+  }
+
+}
 
 });
 
