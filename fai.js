@@ -116,6 +116,9 @@ async function sendPrompt() {
 
   if (!prompt) return;
 
+const newChatMode =
+  localStorage.getItem("fai_new_chat") === "true";
+  
   messages.push({
     role: "user",
     text: prompt
@@ -123,9 +126,6 @@ async function sendPrompt() {
 
   renderMessages();
   saveMessages();
-  
-  // once user sends message, disable new chat mode
-localStorage.setItem("fai_new_chat", "false");
 
   promptInput.value = "";
   promptInput.style.height = "auto";
@@ -137,8 +137,8 @@ localStorage.setItem("fai_new_chat", "false");
 
 const userId = account?.userId || account?.id || "guest";
 
-// get last 5 messages INCLUDING current user message
-const contextMessages = messages.slice(-5);
+// get last 7 messages INCLUDING current user message
+const contextMessages = messages.slice(-7);
 
 // detect if new chat mode is active
 const newChatMode = localStorage.getItem("fai_new_chat") === "true";
@@ -158,17 +158,107 @@ const res = await fetch(
   }
 );
 
-const data =
-await res.json();
-removeTyping();
+const reader =
+  res.body.getReader();
+
+const decoder =
+  new TextDecoder();
+
+let aiText = "";
+
+let buffer = "";
 
 messages.push({
   role: "ai",
-  text:
-    data.answer ||
-    data.reply ||
-    "No response"
+  text: ""
 });
+
+const aiMessage =
+  messages[messages.length - 1];
+
+removeTyping();
+
+while (true) {
+
+  const {
+    value,
+    done
+  } = await reader.read();
+
+  if (done) break;
+
+  buffer += decoder.decode(
+    value,
+    { stream: true }
+  );
+
+  const lines =
+    buffer.split("\n");
+
+  buffer =
+    lines.pop() || "";
+
+  for (const line of lines) {
+
+    if (
+      !line.startsWith("data:")
+    ) {
+      continue;
+    }
+
+    const jsonText =
+      line
+        .replace(
+          /^data:\s*/,
+          ""
+        )
+        .trim();
+
+    if (!jsonText) continue;
+
+    try {
+
+      const event =
+        JSON.parse(
+          jsonText
+        );
+
+      if (
+        event.type === "chunk"
+      ) {
+
+        aiText += event.text;
+
+        aiMessage.text =
+          aiText;
+
+        renderMessages();
+
+      }
+
+      if (
+        event.type === "error"
+      ) {
+
+        aiMessage.text =
+          event.message;
+
+      }
+
+    } catch (err) {
+
+      console.error(
+        "Stream parsing error:",
+        err
+      );
+
+    }
+
+  }
+
+}
+
+saveMessages();
 
   } catch (err) {
     removeTyping();
@@ -296,20 +386,21 @@ saveMessages();
 showTyping();
 
       fetch(
-        "https://fweb-backend.onrender.com/fai",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type":
-              "application/json"
-          },
-          body: JSON.stringify({
-            userId:
-              account?.userId ||
-              account?.id ||
-              "guest",
-            messages: [],
-            prompt: `
+  "https://fweb-backend.onrender.com/fai",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      userId:
+        account?.userId ||
+        account?.id ||
+        "guest",
+
+      messages: [],
+
+      prompt: `
 You are FAI helping a student.
 
 Give short but very clear explanations.
@@ -321,36 +412,106 @@ For each question:
 
 Quiz Review:
 ${JSON.stringify(parsed, null, 2)}
-            `.trim()
-          })
-        }
-      )
-      .then(res => {
+      `.trim()
+    })
+  }
+)
+.then(async res => {
 
-  
+  const reader =
+    res.body.getReader();
 
-  return res.json();
+  const decoder =
+    new TextDecoder();
 
-})
-      .then(data => {
-
-  removeTyping();
-
-  localStorage.removeItem("fai_review");
+  let buffer = "";
+  let aiText = "";
 
   messages.push({
     role: "ai",
-    text:
-      data.answer ||
-      data.reply ||
-      "No response"
+    text: ""
   });
 
-  renderMessages();
+  const aiMessage =
+    messages[messages.length - 1];
+
+  removeTyping();
+
+  while (true) {
+
+    const {
+      value,
+      done
+    } = await reader.read();
+
+    if (done) break;
+
+    buffer += decoder.decode(
+      value,
+      { stream: true }
+    );
+
+    const lines =
+      buffer.split("\n");
+
+    buffer =
+      lines.pop() || "";
+
+    for (const line of lines) {
+
+      if (!line.startsWith("data:")) {
+        continue;
+      }
+
+      const jsonText =
+        line
+          .replace(/^data:\s*/, "")
+          .trim();
+
+      if (!jsonText) continue;
+
+      try {
+
+        const event =
+          JSON.parse(jsonText);
+
+        if (event.type === "chunk") {
+
+          aiText += event.text;
+
+          aiMessage.text =
+            aiText;
+
+          renderMessages();
+        }
+
+        if (event.type === "error") {
+
+          aiMessage.text =
+            event.message;
+
+          renderMessages();
+        }
+
+      } catch (err) {
+
+        console.error(
+          "Review stream parsing error:",
+          err
+        );
+
+      }
+
+    }
+
+  }
+
+  localStorage.removeItem("fai_review");
+
   saveMessages();
 
 })
-      .catch(err => {
+.catch(err => {
 
   removeTyping();
 
