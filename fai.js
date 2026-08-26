@@ -46,6 +46,15 @@ document.getElementById("image-preview");
 
 const account = JSON.parse(localStorage.getItem("faccount"));
 
+function getSelectedFile() {
+  return (
+    cameraInput?.files?.[0] ||
+    photosInput?.files?.[0] ||
+    filesInput?.files?.[0] ||
+    null
+  );
+}
+
   function autoResize() {
   promptInput.style.height = "auto";
   promptInput.style.height = promptInput.scrollHeight + "px";
@@ -346,171 +355,307 @@ if (filesInput) {
 async function sendPrompt() {
 
   const prompt =
-  promptInput.value.trim();
+    promptInput.value.trim();
 
-  if (!prompt) return;
-  
+  const file =
+    getSelectedFile();
+
+  // Allow file-only messages
+  if (!prompt && !file) return;
+
+  /* ------------------------------
+     ADD USER MESSAGE
+  ------------------------------ */
+
+  let displayText = prompt;
+
+  if (!displayText && file) {
+    displayText = "📎 " + file.name;
+  }
+
+  if (file && prompt) {
+    displayText =
+      `${prompt}\n\n📎 ${file.name}`;
+  }
+
   messages.push({
     role: "user",
-    text: prompt
+    text: displayText
   });
 
   renderMessages();
   saveMessages();
 
+  /* ------------------------------
+     CLEAR INPUT
+  ------------------------------ */
+
   promptInput.value = "";
   promptInput.style.height = "auto";
+
   showTyping();
 
   try {
 
-    const account = JSON.parse(localStorage.getItem("faccount")) || {};
+    const account =
+      JSON.parse(
+        localStorage.getItem("faccount")
+      ) || {};
 
-const userId = account?.userId || account?.id || "guest";
+    const userId =
+      account?.userId ||
+      account?.id ||
+      "guest";
 
-// get last 7 messages INCLUDING current user message
-const contextMessages = messages.slice(-7);
+    /* ------------------------------
+       CHAT CONTEXT
+    ------------------------------ */
 
-// detect if new chat mode is active
-const newChatMode = localStorage.getItem("fai_new_chat") === "true";
+    const contextMessages =
+      messages.slice(-7);
 
-const res = await fetch(
-  "https://fweb-backend.onrender.com/fai",
-  {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      userId,
-      messages: newChatMode ? [] : contextMessages,
+    const newChatMode =
+      localStorage.getItem(
+        "fai_new_chat"
+      ) === "true";
+
+    /* ------------------------------
+       CREATE FORMDATA
+    ------------------------------ */
+
+    const formData =
+      new FormData();
+
+    formData.append(
+      "userId",
+      userId
+    );
+
+    formData.append(
+      "prompt",
       prompt
-    })
-  }
-);
+    );
 
-const reader =
-  res.body.getReader();
+    formData.append(
+      "messages",
+      JSON.stringify(
+        newChatMode
+          ? []
+          : contextMessages
+      )
+    );
 
-const decoder =
-  new TextDecoder();
+    /* ------------------------------
+       ADD FILE
+    ------------------------------ */
 
-let aiText = "";
+    if (file) {
 
-let buffer = "";
-
-messages.push({
-  role: "ai",
-  text: ""
-});
-
-const aiMessage =
-  messages[messages.length - 1];
-
-while (true) {
-
-  const {
-    value,
-    done
-  } = await reader.read();
-
-  if (done) break;
-
-  buffer += decoder.decode(
-    value,
-    { stream: true }
-  );
-
-  const lines =
-    buffer.split("\n");
-
-  buffer =
-    lines.pop() || "";
-
-  for (const line of lines) {
-
-    if (
-      !line.startsWith("data:")
-    ) {
-      continue;
-    }
-
-    const jsonText =
-      line
-        .replace(
-          /^data:\s*/,
-          ""
-        )
-        .trim();
-
-    if (!jsonText) continue;
-
-    try {
-
-      const event =
-        JSON.parse(
-          jsonText
-        );
-
-      if (
-  event.type === "chunk"
-) {
-
-  // First chunk has arrived
-  if (aiText === "") {
-    removeTyping();
-  }
-
-  aiText += event.text;
-
-  aiMessage.text =
-    aiText;
-
-  renderMessages();
-
-}
-
-      if (
-  event.type === "error"
-) {
-
-  removeTyping();
-
-  aiMessage.text =
-    event.message;
-
-  renderMessages();
-
-}
-
-    } catch (err) {
-
-      console.error(
-        "Stream parsing error:",
-        err
+      formData.append(
+        "file",
+        file
       );
 
     }
 
-  }
+    /* ------------------------------
+       SEND TO FAI
+    ------------------------------ */
 
-}
+    const res =
+      await fetch(
+        "https://fweb-backend.onrender.com/fai",
+        {
+          method: "POST",
+          body: formData
+        }
+      );
 
-saveMessages();
+    if (!res.ok) {
+
+      const errorText =
+        await res.text();
+
+      throw new Error(
+        errorText ||
+        `HTTP ${res.status}`
+      );
+
+    }
+
+    /* ------------------------------
+       READ SSE STREAM
+    ------------------------------ */
+
+    const reader =
+      res.body.getReader();
+
+    const decoder =
+      new TextDecoder();
+
+    let aiText = "";
+
+    let buffer = "";
+
+    /* ------------------------------
+       CREATE AI MESSAGE
+    ------------------------------ */
+
+    messages.push({
+      role: "ai",
+      text: ""
+    });
+
+    const aiMessage =
+      messages[
+        messages.length - 1
+      ];
+
+    /* ------------------------------
+       READ STREAM
+    ------------------------------ */
+
+    while (true) {
+
+      const {
+        value,
+        done
+      } = await reader.read();
+
+      if (done) break;
+
+      buffer +=
+        decoder.decode(
+          value,
+          {
+            stream: true
+          }
+        );
+
+      const lines =
+        buffer.split("\n");
+
+      buffer =
+        lines.pop() || "";
+
+      for (const line of lines) {
+
+        if (
+          !line.startsWith("data:")
+        ) {
+          continue;
+        }
+
+        const jsonText =
+          line
+            .replace(
+              /^data:\s*/,
+              ""
+            )
+            .trim();
+
+        if (!jsonText) continue;
+
+        try {
+
+          const event =
+            JSON.parse(
+              jsonText
+            );
+
+          /* ------------------------------
+             AI CHUNK
+          ------------------------------ */
+
+          if (
+            event.type === "chunk"
+          ) {
+
+            if (aiText === "") {
+              removeTyping();
+            }
+
+            aiText +=
+              event.text;
+
+            aiMessage.text =
+              aiText;
+
+            renderMessages();
+
+          }
+
+          /* ------------------------------
+             AI ERROR
+          ------------------------------ */
+
+          if (
+            event.type === "error"
+          ) {
+
+            removeTyping();
+
+            aiMessage.text =
+              event.message;
+
+            renderMessages();
+
+          }
+
+        } catch (err) {
+
+          console.error(
+            "Stream parsing error:",
+            err
+          );
+
+        }
+
+      }
+
+    }
+
+    /* ------------------------------
+       CLEAR ATTACHMENT
+    ------------------------------ */
+
+    cameraInput.value = "";
+    photosInput.value = "";
+    filesInput.value = "";
+
+    if (imagePreview) {
+
+      imagePreview.innerHTML =
+        "";
+
+      imagePreview.classList.remove(
+        "show"
+      );
+
+    }
+
+    /* ------------------------------
+       SAVE CHAT
+    ------------------------------ */
+
+    saveMessages();
 
   } catch (err) {
+
+    console.error(err);
+
     removeTyping();
 
     messages.push({
       role: "ai",
       text:
-      "Failed to connect to FAI."
+        "Failed to connect to FAI."
     });
 
-  }
+    renderMessages();
+    saveMessages();
 
-  renderMessages();
-  saveMessages();
+  }
 
 }
 
