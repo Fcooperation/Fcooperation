@@ -73,19 +73,119 @@ function renderMessages() {
   messages.forEach(msg => {
 
     const div =
-    document.createElement("div");
+      document.createElement("div");
 
     div.className =
-    `message ${msg.role}`;
+      `message ${msg.role}`;
 
-    div.innerHTML = marked.parse(msg.text);
+    /* ------------------------------
+       USER MESSAGE WITH ATTACHMENT
+    ------------------------------ */
+
+    if (msg.role === "user" && msg.attachment) {
+
+      const attachment =
+        document.createElement("div");
+
+      attachment.className =
+        "sent-attachment";
+
+      /* ---------- IMAGE ---------- */
+
+      if (
+        msg.attachment.type === "image" &&
+        msg.attachment.data
+      ) {
+
+        const img =
+          document.createElement("img");
+
+        img.src =
+          msg.attachment.data;
+
+        img.alt =
+          msg.attachment.name || "Attached image";
+
+        img.className =
+          "sent-image";
+
+        attachment.appendChild(img);
+
+      }
+
+      /* ---------- OTHER FILE ---------- */
+
+      else {
+
+        const fileCard =
+          document.createElement("div");
+
+        fileCard.className =
+          "sent-file";
+
+        const fileIcon =
+          document.createElement("div");
+
+        fileIcon.className =
+          "sent-file-icon";
+
+        fileIcon.textContent =
+          "FILE";
+
+        const fileName =
+          document.createElement("div");
+
+        fileName.className =
+          "sent-file-name";
+
+        fileName.textContent =
+          msg.attachment.name || "Attached file";
+
+        fileCard.appendChild(fileIcon);
+        fileCard.appendChild(fileName);
+
+        attachment.appendChild(fileCard);
+
+      }
+
+      div.appendChild(attachment);
+
+      /* ---------- WRITTEN MESSAGE ---------- */
+
+      if (msg.text) {
+
+        const text =
+          document.createElement("div");
+
+        text.className =
+          "sent-text";
+
+        text.innerHTML =
+          marked.parse(msg.text);
+
+        div.appendChild(text);
+
+      }
+
+    }
+
+    /* ------------------------------
+       NORMAL MESSAGE
+    ------------------------------ */
+
+    else {
+
+      div.innerHTML =
+        marked.parse(msg.text || "");
+
+    }
 
     chatBox.appendChild(div);
 
   });
 
   chatBox.scrollTop =
-  chatBox.scrollHeight;
+    chatBox.scrollHeight;
 }
 
 /* ---------- SAVE ---------- */
@@ -386,29 +486,64 @@ async function sendPrompt() {
      ADD USER MESSAGE
   ------------------------------ */
 
-  let displayText = "";
+  /* ------------------------------
+   CREATE USER MESSAGE
+------------------------------ */
 
-if (prompt) {
-  displayText = prompt;
-}
+let attachment = null;
+
+/* ---------- ATTACHMENT ---------- */
 
 if (file) {
 
-  if (displayText) {
-    displayText += "\n\n";
-  }
+  const isImage =
+    file.type.startsWith("image/");
 
-  displayText += "📎 " + file.name;
+  if (isImage) {
+
+    const imageData =
+      await new Promise((resolve, reject) => {
+
+        const reader =
+          new FileReader();
+
+        reader.onload =
+          () => resolve(reader.result);
+
+        reader.onerror =
+          reject;
+
+        reader.readAsDataURL(file);
+
+      });
+
+    attachment = {
+      type: "image",
+      name: file.name,
+      data: imageData
+    };
+
+  } else {
+
+    attachment = {
+      type: "file",
+      name: file.name
+    };
+
+  }
 
 }
 
+/* ---------- ADD MESSAGE ---------- */
+
 messages.push({
   role: "user",
-  text: displayText
+  text: prompt,
+  attachment: attachment
 });
 
-  renderMessages();
-  saveMessages();
+renderMessages();
+saveMessages();
 
   /* ------------------------------
      CLEAR INPUT
