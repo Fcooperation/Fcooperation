@@ -29,11 +29,17 @@ document.getElementById("camera-btn");
 const photosBtn =
 document.getElementById("photos-btn");
 
+const filesBtn =
+document.getElementById("files-btn");
+
 const cameraInput =
 document.getElementById("camera-input");
 
 const photosInput =
 document.getElementById("photos-input");
+
+const filesInput =
+document.getElementById("files-input");
 
 const imagePreview =
 document.getElementById("image-preview");
@@ -181,28 +187,114 @@ if (photosBtn && photosInput) {
 
 }
 
-/* ---------- IMAGE PREVIEW ---------- */
+if (filesBtn && filesInput) {
 
-function showImagePreview(file) {
+  filesBtn.onclick = () => {
+
+    filesInput.click();
+
+    uploadMenu.classList.remove("show");
+
+  };
+
+}
+
+/* ---------- PREVIEW ---------- */
+
+function showFilePreview(file) {
 
   if (!file || !imagePreview) return;
 
-  const reader =
-    new FileReader();
+  const isImage =
+    file.type.startsWith("image/");
 
-  reader.onload = e => {
+  if (isImage) {
+
+    const reader =
+      new FileReader();
+
+    reader.onload = e => {
+
+      imagePreview.innerHTML = `
+        <div class="preview-content">
+
+          <img
+            src="${e.target.result}"
+            alt="Selected image"
+          >
+
+          <button
+            type="button"
+            class="preview-cancel"
+            id="preview-cancel"
+          >
+            ×
+          </button>
+
+        </div>
+      `;
+
+      imagePreview.classList.add("show");
+
+      setupPreviewCancel();
+
+    };
+
+    reader.readAsDataURL(file);
+
+  } else {
 
     imagePreview.innerHTML = `
-      <img src="${e.target.result}" alt="Selected image">
+      <div class="preview-content file-preview">
+
+        <div class="file-box">
+          FILE
+        </div>
+
+        <div class="file-name">
+          ${file.name}
+        </div>
+
+        <button
+          type="button"
+          class="preview-cancel"
+          id="preview-cancel"
+        >
+          ×
+        </button>
+
+      </div>
     `;
 
     imagePreview.classList.add("show");
 
-  };
+    setupPreviewCancel();
 
-  reader.readAsDataURL(file);
+  }
 
 }
+
+function setupPreviewCancel() {
+
+  const cancelBtn =
+    document.getElementById("preview-cancel");
+
+  if (!cancelBtn) return;
+
+  cancelBtn.onclick = () => {
+
+    imagePreview.innerHTML = "";
+
+    imagePreview.classList.remove("show");
+
+    cameraInput.value = "";
+    photosInput.value = "";
+    filesInput.value = "";
+
+  };
+
+}
+
 
 if (cameraInput) {
 
@@ -212,8 +304,8 @@ if (cameraInput) {
       cameraInput.files[0];
 
     if (file) {
-      showImagePreview(file);
-    }
+  showFilePreview(file);
+}
 
   });
 
@@ -227,7 +319,22 @@ if (photosInput) {
       photosInput.files[0];
 
     if (file) {
-      showImagePreview(file);
+      showFilePreview(file);
+    }
+
+  });
+
+}
+
+if (filesInput) {
+
+  filesInput.addEventListener("change", () => {
+
+    const file =
+      filesInput.files[0];
+
+    if (file) {
+      showFilePreview(file);
     }
 
   });

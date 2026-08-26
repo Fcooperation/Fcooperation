@@ -239,14 +239,16 @@ border-radius:10px;
   text-align: center;
 }
 
-/* ---------- IMAGE PREVIEW ---------- */
+/* ---------- ATTACHMENT PREVIEW ---------- */
 
 #image-preview {
   position: absolute;
   left: 15px;
-  bottom: 65px;
+  bottom: 70px;
 
   display: none;
+
+  max-width: 230px;
 
   padding: 5px;
 
@@ -263,7 +265,18 @@ border-radius:10px;
   display: block;
 }
 
-#image-preview img {
+.preview-content {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+}
+
+/* IMAGE */
+
+.preview-content img {
   display: block;
 
   width: 70px;
@@ -272,4 +285,70 @@ border-radius:10px;
   object-fit: cover;
 
   border-radius: 7px;
+}
+
+/* FILE */
+
+.file-preview {
+  width: 210px;
+  min-width: 0;
+}
+
+.file-box {
+  width: 45px;
+  height: 45px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #f2f2f2;
+
+  border-radius: 7px;
+
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.file-name {
+  min-width: 0;
+
+  max-width: 125px;
+
+  font-size: 13px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* CANCEL */
+
+.preview-cancel {
+  position: absolute;
+
+  top: -8px;
+  right: -8px;
+
+  width: 22px;
+  height: 22px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: #222;
+  color: white;
+
+  font-size: 16px;
+  line-height: 22px;
+
+  padding: 0;
+
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
