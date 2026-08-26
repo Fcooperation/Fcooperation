@@ -115,9 +115,6 @@ async function sendPrompt() {
   promptInput.value.trim();
 
   if (!prompt) return;
-
-const newChatMode =
-  localStorage.getItem("fai_new_chat") === "true";
   
   messages.push({
     role: "user",
@@ -176,8 +173,6 @@ messages.push({
 const aiMessage =
   messages[messages.length - 1];
 
-removeTyping();
-
 while (true) {
 
   const {
@@ -224,26 +219,35 @@ while (true) {
         );
 
       if (
-        event.type === "chunk"
-      ) {
+  event.type === "chunk"
+) {
 
-        aiText += event.text;
+  // First chunk has arrived
+  if (aiText === "") {
+    removeTyping();
+  }
 
-        aiMessage.text =
-          aiText;
+  aiText += event.text;
 
-        renderMessages();
+  aiMessage.text =
+    aiText;
 
-      }
+  renderMessages();
+
+}
 
       if (
-        event.type === "error"
-      ) {
+  event.type === "error"
+) {
 
-        aiMessage.text =
-          event.message;
+  removeTyping();
 
-      }
+  aiMessage.text =
+    event.message;
+
+  renderMessages();
+
+}
 
     } catch (err) {
 
@@ -435,8 +439,6 @@ ${JSON.stringify(parsed, null, 2)}
   const aiMessage =
     messages[messages.length - 1];
 
-  removeTyping();
-
   while (true) {
 
     const {
@@ -477,21 +479,27 @@ ${JSON.stringify(parsed, null, 2)}
 
         if (event.type === "chunk") {
 
-          aiText += event.text;
+  if (aiText === "") {
+    removeTyping();
+  }
 
-          aiMessage.text =
-            aiText;
+  aiText += event.text;
 
-          renderMessages();
-        }
+  aiMessage.text =
+    aiText;
+
+  renderMessages();
+}
 
         if (event.type === "error") {
 
-          aiMessage.text =
-            event.message;
+  removeTyping();
 
-          renderMessages();
-        }
+  aiMessage.text =
+    event.message;
+
+  renderMessages();
+}
 
       } catch (err) {
 
