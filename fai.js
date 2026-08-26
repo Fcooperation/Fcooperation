@@ -44,16 +44,11 @@ document.getElementById("files-input");
 const imagePreview =
 document.getElementById("image-preview");
 
-const account = JSON.parse(localStorage.getItem("faccount"));
-
-function getSelectedFile() {
-  return (
-    cameraInput?.files?.[0] ||
-    photosInput?.files?.[0] ||
-    filesInput?.files?.[0] ||
-    null
-  );
-}
+const account =
+  JSON.parse(localStorage.getItem("faccount")) || {};
+  
+let isSending = false;
+let selectedFile = null;
 
   function autoResize() {
   promptInput.style.height = "auto";
@@ -292,15 +287,25 @@ function setupPreviewCancel() {
 
   cancelBtn.onclick = () => {
 
-    imagePreview.innerHTML = "";
+  imagePreview.innerHTML = "";
 
-    imagePreview.classList.remove("show");
+  imagePreview.classList.remove("show");
 
+  selectedFile = null;
+
+  if (cameraInput) {
     cameraInput.value = "";
-    photosInput.value = "";
-    filesInput.value = "";
+  }
 
-  };
+  if (photosInput) {
+    photosInput.value = "";
+  }
+
+  if (filesInput) {
+    filesInput.value = "";
+  }
+
+};
 
 }
 
@@ -309,12 +314,15 @@ if (cameraInput) {
 
   cameraInput.addEventListener("change", () => {
 
-    const file =
-      cameraInput.files[0];
+    const file = cameraInput.files[0];
 
     if (file) {
-  showFilePreview(file);
-}
+
+      selectedFile = file;
+
+      showFilePreview(file);
+
+    }
 
   });
 
@@ -324,11 +332,14 @@ if (photosInput) {
 
   photosInput.addEventListener("change", () => {
 
-    const file =
-      photosInput.files[0];
+    const file = photosInput.files[0];
 
     if (file) {
+
+      selectedFile = file;
+
       showFilePreview(file);
+
     }
 
   });
@@ -339,11 +350,14 @@ if (filesInput) {
 
   filesInput.addEventListener("change", () => {
 
-    const file =
-      filesInput.files[0];
+    const file = filesInput.files[0];
 
     if (file) {
+
+      selectedFile = file;
+
       showFilePreview(file);
+
     }
 
   });
@@ -354,34 +368,44 @@ if (filesInput) {
 
 async function sendPrompt() {
 
+  if (isSending) return;
+
   const prompt =
     promptInput.value.trim();
 
   const file =
-    getSelectedFile();
+    selectedFile;
 
-  // Allow file-only messages
-  if (!prompt && !file) return;
+  if (!prompt && !file) {
+    return;
+  }
+
+  isSending = true;
 
   /* ------------------------------
      ADD USER MESSAGE
   ------------------------------ */
 
-  let displayText = prompt;
+  let displayText = "";
 
-  if (!displayText && file) {
-    displayText = "📎 " + file.name;
+if (prompt) {
+  displayText = prompt;
+}
+
+if (file) {
+
+  if (displayText) {
+    displayText += "\n\n";
   }
 
-  if (file && prompt) {
-    displayText =
-      `${prompt}\n\n📎 ${file.name}`;
-  }
+  displayText += "📎 " + file.name;
 
-  messages.push({
-    role: "user",
-    text: displayText
-  });
+}
+
+messages.push({
+  role: "user",
+  text: displayText
+});
 
   renderMessages();
   saveMessages();
@@ -619,20 +643,29 @@ async function sendPrompt() {
        CLEAR ATTACHMENT
     ------------------------------ */
 
-    cameraInput.value = "";
-    photosInput.value = "";
-    filesInput.value = "";
+    selectedFile = null;
 
-    if (imagePreview) {
+if (cameraInput) {
+  cameraInput.value = "";
+}
 
-      imagePreview.innerHTML =
-        "";
+if (photosInput) {
+  photosInput.value = "";
+}
 
-      imagePreview.classList.remove(
-        "show"
-      );
+if (filesInput) {
+  filesInput.value = "";
+}
 
-    }
+if (imagePreview) {
+
+  imagePreview.innerHTML = "";
+
+  imagePreview.classList.remove(
+    "show"
+  );
+
+}
 
     /* ------------------------------
        SAVE CHAT
@@ -656,7 +689,7 @@ async function sendPrompt() {
     saveMessages();
 
   }
-
+isSending = false;
 }
 
 /* ---------- BUTTONS ---------- */
