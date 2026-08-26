@@ -23,6 +23,21 @@ document.getElementById("plus-btn");
 const uploadMenu =
 document.getElementById("upload-menu");
 
+const cameraBtn =
+document.getElementById("camera-btn");
+
+const photosBtn =
+document.getElementById("photos-btn");
+
+const cameraInput =
+document.getElementById("camera-input");
+
+const photosInput =
+document.getElementById("photos-input");
+
+const imagePreview =
+document.getElementById("image-preview");
+
 const account = JSON.parse(localStorage.getItem("faccount"));
 
   function autoResize() {
@@ -139,6 +154,85 @@ document.addEventListener("click", e => {
   }
 
 });
+
+/* ---------- IMAGE PICKER ---------- */
+
+if (cameraBtn && cameraInput) {
+
+  cameraBtn.onclick = () => {
+
+    cameraInput.click();
+
+    uploadMenu.classList.remove("show");
+
+  };
+
+}
+
+if (photosBtn && photosInput) {
+
+  photosBtn.onclick = () => {
+
+    photosInput.click();
+
+    uploadMenu.classList.remove("show");
+
+  };
+
+}
+
+/* ---------- IMAGE PREVIEW ---------- */
+
+function showImagePreview(file) {
+
+  if (!file || !imagePreview) return;
+
+  const reader =
+    new FileReader();
+
+  reader.onload = e => {
+
+    imagePreview.innerHTML = `
+      <img src="${e.target.result}" alt="Selected image">
+    `;
+
+    imagePreview.classList.add("show");
+
+  };
+
+  reader.readAsDataURL(file);
+
+}
+
+if (cameraInput) {
+
+  cameraInput.addEventListener("change", () => {
+
+    const file =
+      cameraInput.files[0];
+
+    if (file) {
+      showImagePreview(file);
+    }
+
+  });
+
+}
+
+if (photosInput) {
+
+  photosInput.addEventListener("change", () => {
+
+    const file =
+      photosInput.files[0];
+
+    if (file) {
+      showImagePreview(file);
+    }
+
+  });
+
+}
 
 /* ---------- SEND ---------- */
 

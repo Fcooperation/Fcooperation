@@ -18,6 +18,21 @@
 
   </div></div><div id="chat-box"></div>
   <div id="input-area">
+    
+    <input
+  type="file"
+  id="camera-input"
+  accept="image/*"
+  capture="environment"
+  hidden
+>
+
+<input
+  type="file"
+  id="photos-input"
+  accept="image/*"
+  hidden
+>
 
   <button id="plus-btn" type="button">+</button>
 
@@ -39,7 +54,7 @@
     </button>
 
   </div>
-
+<div id="image-preview"></div>
   <textarea
     id="prompt"
     placeholder="Ask a study question..."

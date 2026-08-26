@@ -238,3 +238,38 @@ border-radius:10px;
   width: 20px;
   text-align: center;
 }
+
+/* ---------- IMAGE PREVIEW ---------- */
+
+#image-preview {
+  position: absolute;
+  left: 15px;
+  bottom: 65px;
+
+  display: none;
+
+  padding: 5px;
+
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+
+  box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+
+  z-index: 1500;
+}
+
+#image-preview.show {
+  display: block;
+}
+
+#image-preview img {
+  display: block;
+
+  width: 70px;
+  height: 70px;
+
+  object-fit: cover;
+
+  border-radius: 7px;
+}
