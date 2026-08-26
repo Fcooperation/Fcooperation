@@ -17,6 +17,12 @@ document.getElementById("clear-btn");
 const newChatBtn =
 document.getElementById("new-chat-btn");
 
+const plusBtn =
+document.getElementById("plus-btn");
+
+const uploadMenu =
+document.getElementById("upload-menu");
+
 const account = JSON.parse(localStorage.getItem("faccount"));
 
   function autoResize() {
@@ -106,6 +112,33 @@ function removeTyping() {
   }
 
 }
+
+/* ---------- UPLOAD MENU ---------- */
+
+if (plusBtn && uploadMenu) {
+
+  plusBtn.onclick = () => {
+
+    uploadMenu.classList.toggle("show");
+
+  };
+
+}
+
+document.addEventListener("click", e => {
+
+  if (
+    uploadMenu &&
+    plusBtn &&
+    !uploadMenu.contains(e.target) &&
+    !plusBtn.contains(e.target)
+  ) {
+
+    uploadMenu.classList.remove("show");
+
+  }
+
+});
 
 /* ---------- SEND ---------- */
 
@@ -292,10 +325,9 @@ if (sendBtn) {
 if (promptInput) {
   promptInput.addEventListener("keydown", e => {
 
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendPrompt();
-    }
+    if (e.key === "Enter") {
+  return;
+}
 
   });
 }
