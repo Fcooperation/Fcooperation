@@ -1,110 +1,689 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>faccount Test</title>
-
-  <style>
-    body {
-      font-family: Arial;
-      padding: 20px;
-      background: #f5f7fa;
+  <title>FAI Camera Test</title>  <style>
+    * {
+      box-sizing: border-box;
     }
 
-    pre {
-      background: white;
-      padding: 15px;
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #fff;
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 12px;
       border-radius: 10px;
-      overflow-x: auto;
+      border: 1px solid #444;
+      background: #222;
+      color: #fff;
+      resize: vertical;
+    }
+
+    button {
+      padding: 12px 16px;
+      margin: 6px 4px 6px 0;
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .send {
+      background: #4caf50;
+      color: white;
+    }
+
+    .test {
+      background: #333;
+      color: white;
+      border: 1px solid #555;
+    }
+
+    #preview img {
+      max-width: 100%;
+      max-height: 300px;
+      margin-top: 15px;
+      border-radius: 10px;
+    }
+
+    #logs,
+    #response {
       white-space: pre-wrap;
       word-break: break-word;
+      background: #050505;
+      border: 1px solid #333;
+      padding: 12px;
+      border-radius: 10px;
+      margin-top: 15px;
+      min-height: 80px;
+      overflow-x: auto;
     }
 
-    .found {
-      color: green;
+    .section {
+      margin-top: 25px;
+    }
+
+    #status {
+      margin-top: 10px;
       font-weight: bold;
     }
+  </style></head><body>  <h2>FAI Camera / Query Test</h2>  <!-- CAMERA -->  <div class="section">
+    <h3>Camera</h3><input
+  type="file"
+  id="cameraInput"
+  accept="image/*"
+  capture="environment"
+  hidden
+>
 
-    .missing {
-      color: red;
-      font-weight: bold;
+<button
+  class="test"
+  id="cameraBtn"
+>
+  📷 Open Camera
+</button>
+
+  </div>  <!-- PHOTOS -->  <div class="section">
+    <h3>Photos</h3><input
+  type="file"
+  id="photoInput"
+  accept="image/*"
+  hidden
+>
+
+<button
+  class="test"
+  id="photoBtn"
+>
+  🖼️ Choose Photo
+</button>
+
+  </div>  <!-- PREVIEW -->  <div id="preview"></div>  <!-- QUERY -->  <div class="section"><h3>Text Query</h3>
+
+<textarea
+  id="query"
+  placeholder="Type something to send to FAI..."
+></textarea>
+
+<br>
+
+<button
+  class="send"
+  id="sendBtn"
+>
+  🚀 Send
+</button>
+
+<button
+  class="test"
+  id="clearBtn"
+>
+  Clear
+</button>
+
+  </div>  <div id="status"></div>  <!-- RESPONSE -->  <div class="section"><h3>FAI Response</h3>
+
+<div id="response">
+  Nothing sent yet.
+</div>
+
+  </div>  <!-- LOGS -->  <div class="section"><h3>Test Logs</h3>
+
+<div id="logs">
+  No logs yet.
+</div>
+
+  </div><script>
+
+const cameraInput =
+  document.getElementById("cameraInput");
+
+const photoInput =
+  document.getElementById("photoInput");
+
+const cameraBtn =
+  document.getElementById("cameraBtn");
+
+const photoBtn =
+  document.getElementById("photoBtn");
+
+const sendBtn =
+  document.getElementById("sendBtn");
+
+const clearBtn =
+  document.getElementById("clearBtn");
+
+const queryInput =
+  document.getElementById("query");
+
+const preview =
+  document.getElementById("preview");
+
+const responseBox =
+  document.getElementById("response");
+
+const logsBox =
+  document.getElementById("logs");
+
+const statusBox =
+  document.getElementById("status");
+
+
+let selectedFile = null;
+
+
+/* -------------------------
+   LOGGING
+------------------------- */
+
+function log(message, data) {
+
+  const time =
+    new Date().toLocaleTimeString();
+
+  let output =
+    `[${time}] ${message}`;
+
+  if (data !== undefined) {
+
+    try {
+
+      output +=
+        "\n" +
+        JSON.stringify(
+          data,
+          null,
+          2
+        );
+
+    } catch {
+
+      output +=
+        "\n" +
+        String(data);
+
     }
-  </style>
-</head>
 
-<body>
+  }
 
-  <h2>faccount Test</h2>
+  console.log(message, data);
 
-  <div id="status"></div>
+  logsBox.textContent +=
+    output + "\n\n";
 
-  <h3>Raw faccount:</h3>
-  <pre id="raw"></pre>
+  logsBox.scrollTop =
+    logsBox.scrollHeight;
+}
 
-  <h3>Detected ID:</h3>
-  <pre id="id"></pre>
 
-  <script>
+/* -------------------------
+   CAMERA
+------------------------- */
 
-    const raw = localStorage.getItem("faccount");
+cameraBtn.onclick = () => {
 
-    const rawEl = document.getElementById("raw");
-    const idEl = document.getElementById("id");
-    const statusEl = document.getElementById("status");
+  log("📷 Opening camera...");
 
-    if (!raw) {
+  cameraInput.click();
 
-      statusEl.innerHTML =
-        `<p class="missing">❌ No "faccount" found in localStorage.</p>`;
+};
 
-      rawEl.textContent = "null";
-      idEl.textContent = "No ID";
 
-    } else {
+/* -------------------------
+   PHOTO
+------------------------- */
 
-      rawEl.textContent = raw;
+photoBtn.onclick = () => {
 
-      try {
+  log("🖼️ Opening photo picker...");
 
-        const account = JSON.parse(raw);
+  photoInput.click();
 
-        const userId =
-          account?.userId ||
-          account?.user_id ||
-          account?.id ||
-          account?.uid;
+};
 
-        if (userId) {
 
-          statusEl.innerHTML =
-            `<p class="found">✅ Account found</p>`;
+/* -------------------------
+   CAMERA FILE
+------------------------- */
 
-          idEl.textContent =
-            `Detected ID: ${userId}`;
+cameraInput.addEventListener(
+  "change",
+  () => {
 
-        } else {
+    const file =
+      cameraInput.files?.[0];
 
-          statusEl.innerHTML =
-            `<p class="missing">❌ Account found, but no ID detected.</p>`;
+    if (!file) {
 
-          idEl.textContent =
-            "Checked: userId, user_id, id, uid";
+      log("❌ Camera returned no file.");
+
+      return;
+
+    }
+
+    selectedFile = file;
+
+    log(
+      "📷 Camera file received",
+      {
+        isFile: file instanceof File,
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        lastModified: file.lastModified
+      }
+    );
+
+    showPreview(file);
+
+  }
+);
+
+
+/* -------------------------
+   PHOTO FILE
+------------------------- */
+
+photoInput.addEventListener(
+  "change",
+  () => {
+
+    const file =
+      photoInput.files?.[0];
+
+    if (!file) {
+
+      log("❌ Photo picker returned no file.");
+
+      return;
+
+    }
+
+    selectedFile = file;
+
+    log(
+      "🖼️ Photo file received",
+      {
+        isFile: file instanceof File,
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        lastModified: file.lastModified
+      }
+    );
+
+    showPreview(file);
+
+  }
+);
+
+
+/* -------------------------
+   PREVIEW
+------------------------- */
+
+function showPreview(file) {
+
+  preview.innerHTML = "";
+
+  if (
+    file.type &&
+    file.type.startsWith("image/")
+  ) {
+
+    const img =
+      document.createElement("img");
+
+    img.src =
+      URL.createObjectURL(file);
+
+    preview.appendChild(img);
+
+  } else {
+
+    preview.textContent =
+      `Selected: ${file.name}`;
+
+  }
+
+}
+
+
+/* -------------------------
+   SEND
+------------------------- */
+
+sendBtn.onclick =
+async () => {
+
+  const prompt =
+    queryInput.value.trim();
+
+  if (!prompt && !selectedFile) {
+
+    statusBox.textContent =
+      "Enter a query or select a file.";
+
+    return;
+
+  }
+
+  responseBox.textContent =
+    "";
+
+  statusBox.textContent =
+    "Sending...";
+
+  log(
+    "🚀 Starting FAI request..."
+  );
+
+
+  try {
+
+    const formData =
+      new FormData();
+
+
+    /* USER ID */
+
+    formData.append(
+      "userId",
+      "test-user"
+    );
+
+
+    /* PROMPT */
+
+    formData.append(
+      "prompt",
+      prompt
+    );
+
+
+    /* MESSAGES */
+
+    formData.append(
+      "messages",
+      JSON.stringify([])
+    );
+
+
+    /* FILE */
+
+    if (selectedFile) {
+
+      log(
+        "📤 Preparing file",
+        {
+          name: selectedFile.name,
+          type: selectedFile.type,
+          size: selectedFile.size,
+          isFile:
+            selectedFile instanceof File
+        }
+      );
+
+
+      formData.append(
+        "file",
+        selectedFile,
+        selectedFile.name ||
+        "camera-image.jpg"
+      );
+
+    }
+
+
+    log(
+      "🌐 Sending POST /fai"
+    );
+
+
+    const res =
+      await fetch(
+        "https://fweb-backend.onrender.com/fai",
+        {
+          method: "POST",
+          body: formData
+        }
+      );
+
+
+    log(
+      "📥 Response received",
+      {
+        status: res.status,
+        statusText: res.statusText,
+        contentType:
+          res.headers.get(
+            "content-type"
+          )
+      }
+    );
+
+
+    const reader =
+      res.body?.getReader();
+
+
+    if (!reader) {
+
+      throw new Error(
+        "Response has no readable body."
+      );
+
+    }
+
+
+    const decoder =
+      new TextDecoder();
+
+    let buffer = "";
+    let fullResponse = "";
+
+
+    while (true) {
+
+      const {
+        value,
+        done
+      } =
+        await reader.read();
+
+
+      if (done) break;
+
+
+      const text =
+        decoder.decode(
+          value,
+          {
+            stream: true
+          }
+        );
+
+
+      log(
+        "📦 Raw chunk received",
+        text
+      );
+
+
+      buffer += text;
+
+
+      const lines =
+        buffer.split("\n");
+
+
+      buffer =
+        lines.pop() || "";
+
+
+      for (
+        const line of lines
+      ) {
+
+        if (
+          !line.startsWith("data:")
+        ) {
+
+          continue;
 
         }
 
-      } catch (error) {
 
-        statusEl.innerHTML =
-          `<p class="missing">❌ faccount exists but is not valid JSON.</p>`;
+        const jsonText =
+          line
+            .replace(
+              /^data:\s*/,
+              ""
+            )
+            .trim();
 
-        idEl.textContent = error.message;
+
+        if (!jsonText) continue;
+
+
+        try {
+
+          const event =
+            JSON.parse(
+              jsonText
+            );
+
+
+          log(
+            "📨 SSE event",
+            event
+          );
+
+
+          if (
+            event.type === "chunk"
+          ) {
+
+            fullResponse +=
+              event.text || "";
+
+            responseBox.textContent =
+              fullResponse;
+
+          }
+
+
+          if (
+            event.type === "error"
+          ) {
+
+            fullResponse +=
+              "\n\nERROR: " +
+              (
+                event.message ||
+                "Unknown FAI error"
+              );
+
+            responseBox.textContent =
+              fullResponse;
+
+          }
+
+
+          if (
+            event.type === "done"
+          ) {
+
+            log(
+              "✅ FAI stream finished."
+            );
+
+          }
+
+        } catch (err) {
+
+          log(
+            "⚠️ Could not parse SSE event",
+            {
+              line,
+              error:
+                err.message
+            }
+          );
+
+        }
 
       }
 
     }
 
-  </script>
 
-</body>
+    statusBox.textContent =
+      "Finished.";
+
+    log(
+      "🏁 Request completed."
+    );
+
+
+  } catch (err) {
+
+    statusBox.textContent =
+      "Request failed.";
+
+    responseBox.textContent =
+      err.message;
+
+    log(
+      "❌ REQUEST FAILED",
+      {
+        name: err.name,
+        message: err.message,
+        stack: err.stack
+      }
+    );
+
+  }
+
+};
+
+
+/* -------------------------
+   CLEAR
+------------------------- */
+
+clearBtn.onclick = () => {
+
+  selectedFile = null;
+
+  cameraInput.value = "";
+  photoInput.value = "";
+
+  queryInput.value = "";
+
+  preview.innerHTML = "";
+
+  responseBox.textContent =
+    "Nothing sent yet.";
+
+  logsBox.textContent =
+    "No logs yet.";
+
+  statusBox.textContent = "";
+
+};
+
+
+</script></body>
 </html>
