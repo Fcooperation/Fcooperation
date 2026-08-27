@@ -433,3 +433,23 @@ border-radius:10px;
 .sent-text p:last-child {
   margin-bottom: 0;
 }
+/* ---------- GENERATED AI IMAGE ---------- */
+
+.generated-image {
+  display: block;
+
+  width: 100%;
+  max-width: 420px;
+
+  max-height: 500px;
+
+  object-fit: contain;
+
+  border-radius: 12px;
+
+  margin-bottom: 10px;
+}
+
+.generated-text {
+  margin-top: 8px;
+}

@@ -79,18 +79,19 @@ function renderMessages() {
       `message ${msg.role}`;
 
     /* ------------------------------
-       USER MESSAGE WITH ATTACHMENT
+       USER ATTACHMENT
     ------------------------------ */
 
-    if (msg.role === "user" && msg.attachment) {
+    if (
+      msg.role === "user" &&
+      msg.attachment
+    ) {
 
       const attachment =
         document.createElement("div");
 
       attachment.className =
         "sent-attachment";
-
-      /* ---------- IMAGE ---------- */
 
       if (
         msg.attachment.type === "image" &&
@@ -104,18 +105,15 @@ function renderMessages() {
           msg.attachment.data;
 
         img.alt =
-          msg.attachment.name || "Attached image";
+          msg.attachment.name ||
+          "Attached image";
 
         img.className =
           "sent-image";
 
         attachment.appendChild(img);
 
-      }
-
-      /* ---------- OTHER FILE ---------- */
-
-      else {
+      } else {
 
         const fileCard =
           document.createElement("div");
@@ -139,7 +137,8 @@ function renderMessages() {
           "sent-file-name";
 
         fileName.textContent =
-          msg.attachment.name || "Attached file";
+          msg.attachment.name ||
+          "Attached file";
 
         fileCard.appendChild(fileIcon);
         fileCard.appendChild(fileName);
@@ -150,8 +149,6 @@ function renderMessages() {
 
       div.appendChild(attachment);
 
-      /* ---------- WRITTEN MESSAGE ---------- */
-
       if (msg.text) {
 
         const text =
@@ -159,6 +156,46 @@ function renderMessages() {
 
         text.className =
           "sent-text";
+
+        text.innerHTML =
+          marked.parse(msg.text);
+
+        div.appendChild(text);
+
+      }
+
+    }
+
+    /* ------------------------------
+       AI GENERATED IMAGE
+    ------------------------------ */
+
+    else if (
+      msg.role === "ai" &&
+      msg.image
+    ) {
+
+      const img =
+        document.createElement("img");
+
+      img.src =
+        msg.image;
+
+      img.alt =
+        "AI generated image";
+
+      img.className =
+        "generated-image";
+
+      div.appendChild(img);
+
+      if (msg.text) {
+
+        const text =
+          document.createElement("div");
+
+        text.className =
+          "generated-text";
 
         text.innerHTML =
           marked.parse(msg.text);
