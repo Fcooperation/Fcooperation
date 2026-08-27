@@ -451,15 +451,19 @@ if (cameraInput) {
 
   cameraInput.addEventListener("change", () => {
 
-    const file = cameraInput.files[0];
+    const file = cameraInput.files?.[0];
 
-    if (file) {
+    if (!file) return;
 
-      selectedFile = file;
+    console.log("📷 Camera file:", {
+      name: file.name,
+      type: file.type,
+      size: file.size
+    });
 
-      showFilePreview(file);
+    selectedFile = file;
 
-    }
+    showFilePreview(file);
 
   });
 
@@ -647,12 +651,24 @@ saveMessages();
 
     if (file) {
 
-      formData.append(
-        "file",
-        file
-      );
+  const uploadFile =
+    file.type
+      ? file
+      : new File(
+          [file],
+          "camera-image.jpg",
+          {
+            type: "image/jpeg"
+          }
+        );
 
-    }
+  formData.append(
+    "file",
+    uploadFile,
+    uploadFile.name || "camera-image.jpg"
+  );
+
+}
 
     /* ------------------------------
        SEND TO FAI
