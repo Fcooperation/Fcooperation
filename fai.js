@@ -523,79 +523,109 @@ async function sendPrompt() {
 
   isSending = true;
 
-  /* ------------------------------
-     ADD USER MESSAGE
-  ------------------------------ */
+  /* --------------------------------
+     SHOW USER MESSAGE FIRST
+  -------------------------------- */
 
-  /* ------------------------------
-   CREATE USER MESSAGE
------------------------------- */
+  let attachment = null;
 
-let attachment = null;
+  if (file) {
 
-/* ---------- ATTACHMENT ---------- */
-
-if (file) {
-
-  const isImage =
-    file.type.startsWith("image/");
-
-  if (isImage) {
-
-    const imageData =
-      await new Promise((resolve, reject) => {
-
-        const reader =
-          new FileReader();
-
-        reader.onload =
-          () => resolve(reader.result);
-
-        reader.onerror =
-          reject;
-
-        reader.readAsDataURL(file);
-
-      });
+    const isImage =
+      file.type &&
+      file.type.startsWith("image/");
 
     attachment = {
-      type: "image",
-      name: file.name,
-      data: imageData
+      type: isImage ? "image" : "file",
+      name: file.name || "Attached file"
     };
 
-  } else {
+    /*
+      We only create the local preview
+      here. The actual File object is
+      still kept in `file` for FormData.
+    */
 
-    attachment = {
-      type: "file",
-      name: file.name
-    };
+    if (isImage) {
+
+      try {
+
+        const imageData =
+          await new Promise((resolve, reject) => {
+
+            const reader =
+              new FileReader();
+
+            reader.onload = () => {
+              resolve(reader.result);
+            };
+
+            reader.onerror = () => {
+              reject(
+                new Error("Could not read camera image")
+              );
+            };
+
+            reader.onabort = () => {
+              reject(
+                new Error("Camera image reading was aborted")
+              );
+            };
+
+            reader.readAsDataURL(file);
+
+          });
+
+        attachment.data = imageData;
+
+      } catch (err) {
+
+        console.error(
+          "❌ Attachment preview error:",
+          err
+        );
+
+        /*
+          Don't stop the request just because
+          local preview conversion failed.
+        */
+
+        attachment.data = null;
+
+      }
+
+    }
 
   }
 
-}
+  messages.push({
+    role: "user",
+    text: prompt,
+    attachment
+  });
 
-/* ---------- ADD MESSAGE ---------- */
+  renderMessages();
+  saveMessages();
 
-messages.push({
-  role: "user",
-  text: prompt,
-  attachment: attachment
-});
-
-renderMessages();
-saveMessages();
-
-  /* ------------------------------
+  /* --------------------------------
      CLEAR INPUT
-  ------------------------------ */
+  -------------------------------- */
 
   promptInput.value = "";
   promptInput.style.height = "auto";
 
+  /*
+    IMPORTANT:
+    Show typing BEFORE doing anything else.
+  */
+
   showTyping();
 
   try {
+
+    /* --------------------------------
+       ACCOUNT
+    -------------------------------- */
 
     const account =
       JSON.parse(
@@ -607,9 +637,9 @@ saveMessages();
       account?.id ||
       "guest";
 
-    /* ------------------------------
+    /* --------------------------------
        CHAT CONTEXT
-    ------------------------------ */
+    -------------------------------- */
 
     const contextMessages =
       messages.slice(-7);
@@ -619,9 +649,9 @@ saveMessages();
         "fai_new_chat"
       ) === "true";
 
-    /* ------------------------------
-       CREATE FORMDATA
-    ------------------------------ */
+    /* --------------------------------
+       FORMDATA
+    -------------------------------- */
 
     const formData =
       new FormData();
@@ -645,34 +675,68 @@ saveMessages();
       )
     );
 
-    /* ------------------------------
-       ADD FILE
-    ------------------------------ */
+    /* --------------------------------
+       ATTACH FILE
+    -------------------------------- */
 
     if (file) {
 
-  const uploadFile =
-    file.type
-      ? file
-      : new File(
-          [file],
-          "camera-image.jpg",
-          {
-            type: "image/jpeg"
-          }
+      console.log("📤 Sending file:", {
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        lastModified: file.lastModified
+      });
+
+      let uploadFile = file;
+
+      /*
+        Some camera implementations can
+        produce a File with a missing MIME type.
+
+        Normalize it when necessary.
+      */
+
+      if (
+        !uploadFile.type ||
+        !uploadFile.type.startsWith("image/")
+      ) {
+
+        console.log(
+          "⚠️ Camera file has unusual MIME type:",
+          uploadFile.type
         );
 
-  formData.append(
-    "file",
-    uploadFile,
-    uploadFile.name || "camera-image.jpg"
-  );
+        uploadFile =
+          new File(
+            [uploadFile],
+            uploadFile.name ||
+            "camera-image.jpg",
+            {
+              type:
+                uploadFile.type ||
+                "image/jpeg"
+            }
+          );
 
-}
+      }
 
-    /* ------------------------------
-       SEND TO FAI
-    ------------------------------ */
+      formData.append(
+        "file",
+        uploadFile,
+        uploadFile.name ||
+        "camera-image.jpg"
+      );
+
+    }
+
+    /* --------------------------------
+       SEND REQUEST
+    -------------------------------- */
+
+    console.log(
+      "🚀 Sending FAI request..."
+    );
 
     const res =
       await fetch(
@@ -682,6 +746,12 @@ saveMessages();
           body: formData
         }
       );
+
+    console.log(
+      "📥 FAI response:",
+      res.status,
+      res.statusText
+    );
 
     if (!res.ok) {
 
@@ -695,9 +765,15 @@ saveMessages();
 
     }
 
-    /* ------------------------------
-       READ SSE STREAM
-    ------------------------------ */
+    if (!res.body) {
+      throw new Error(
+        "FAI returned no response body."
+      );
+    }
+
+    /* --------------------------------
+       READ SSE
+    -------------------------------- */
 
     const reader =
       res.body.getReader();
@@ -706,12 +782,11 @@ saveMessages();
       new TextDecoder();
 
     let aiText = "";
-
     let buffer = "";
 
-    /* ------------------------------
+    /* --------------------------------
        CREATE AI MESSAGE
-    ------------------------------ */
+    -------------------------------- */
 
     messages.push({
       role: "ai",
@@ -723,9 +798,9 @@ saveMessages();
         messages.length - 1
       ];
 
-    /* ------------------------------
-       READ STREAM
-    ------------------------------ */
+    /* --------------------------------
+       STREAM
+    -------------------------------- */
 
     while (true) {
 
@@ -808,16 +883,29 @@ saveMessages();
             removeTyping();
 
             aiMessage.text =
-              event.message;
+              event.message ||
+              "FAI failed to respond.";
 
             renderMessages();
+
+          }
+
+          /* ------------------------------
+             DONE
+          ------------------------------ */
+
+          if (
+            event.type === "done"
+          ) {
+
+            removeTyping();
 
           }
 
         } catch (err) {
 
           console.error(
-            "Stream parsing error:",
+            "❌ Stream parsing error:",
             err
           );
 
@@ -827,57 +915,60 @@ saveMessages();
 
     }
 
-    /* ------------------------------
+    /* --------------------------------
        CLEAR ATTACHMENT
-    ------------------------------ */
+    -------------------------------- */
 
     selectedFile = null;
 
-if (cameraInput) {
-  cameraInput.value = "";
-}
+    if (cameraInput) {
+      cameraInput.value = "";
+    }
 
-if (photosInput) {
-  photosInput.value = "";
-}
+    if (photosInput) {
+      photosInput.value = "";
+    }
 
-if (filesInput) {
-  filesInput.value = "";
-}
+    if (filesInput) {
+      filesInput.value = "";
+    }
 
-if (imagePreview) {
+    if (imagePreview) {
 
-  imagePreview.innerHTML = "";
+      imagePreview.innerHTML = "";
 
-  imagePreview.classList.remove(
-    "show"
-  );
+      imagePreview.classList.remove(
+        "show"
+      );
 
-}
-
-    /* ------------------------------
-       SAVE CHAT
-    ------------------------------ */
+    }
 
     saveMessages();
 
   } catch (err) {
 
-    console.error(err);
+    console.error(
+      "❌ FAI SEND ERROR:",
+      err
+    );
 
     removeTyping();
 
     messages.push({
       role: "ai",
       text:
-        "Failed to connect to FAI."
+        "FAI couldn't process that request. Please try again."
     });
 
     renderMessages();
     saveMessages();
 
+  } finally {
+
+    isSending = false;
+
   }
-isSending = false;
+
 }
 
 /* ---------- BUTTONS ---------- */
@@ -1130,7 +1221,7 @@ ${JSON.stringify(parsed, null, 2)}
       "Failed to generate review explanation."
   });
 
-  renderMessages();
+  renuerMessages();
   saveMessages();
 
   console.error(err);
