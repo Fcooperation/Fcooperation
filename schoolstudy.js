@@ -288,7 +288,7 @@ function openPastQuestions(code) {
   setStudying(code, "past_questions");
 
   window.location.href =
-    "past-questions";
+    "past-question";
 
 }
 
