@@ -755,8 +755,6 @@ async function sendPrompt() {
     Show typing BEFORE doing anything else.
   */
 
-  showTyping();
-
   try {
 
     /* --------------------------------
@@ -857,6 +855,7 @@ if (file) {
 
 }
 
+showTyping();
     /* --------------------------------
        SEND REQUEST
     -------------------------------- */
@@ -916,14 +915,14 @@ if (file) {
     -------------------------------- */
 
     messages.push({
-      role: "ai",
-      text: ""
-    });
+  role: "ai",
+  text: ""
+});
 
-    const aiMessage =
-      messages[
-        messages.length - 1
-      ];
+const aiMessage =
+  messages[messages.length - 1];
+
+showTyping();
 
     /* --------------------------------
        STREAM
