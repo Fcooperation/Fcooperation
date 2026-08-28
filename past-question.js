@@ -86,30 +86,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
 
-      const response =
-        await fetch(
-          window.CONFIG.API_URL +
-          "/past-question",
-          {
-            method: "POST",
+      const formData =
+  new FormData();
 
-            headers: {
-              "Content-Type":
-                "application/json"
-            },
+formData.append(
+  "university",
+  studyingUni
+);
 
-            body: JSON.stringify({
+formData.append(
+  "course",
+  studying
+);
 
-              university:
-                studyingUni,
 
-              course:
-                studying
-
-            })
-
-          }
-        );
+const response =
+  await fetch(
+    window.CONFIG.API_URL +
+    "/past-question",
+    {
+      method: "POST",
+      body: formData
+    }
+  );
 
 
       if (!response.ok) {
