@@ -123,19 +123,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
         <div class="dropdown">
 
-          <div
-            class="item quiz"
-            data-code="${code}"
-          >
-            Quiz
-          </div>
+       <div
+  class="item quiz"
+  data-code="${code}"
+>
+  Practice Quiz
+</div>
 
-          <div
-            class="item tutorial"
-            data-code="${code}"
-          >
-            Tutorials
-          </div>
+<div
+  class="item past-questions"
+  data-code="${code}"
+>
+  Past Questions
+</div>
+
+<div
+  class="item practice-exam"
+  data-code="${code}"
+>
+  Practice Exam
+</div>
+
+<div
+  class="item tutorial"
+  data-code="${code}"
+>
+  Tutorials
+</div>
 
         </div>
       `;
@@ -187,7 +201,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
         });
 
+course
+  .querySelector(".past-questions")
+  .addEventListener("click", (e) => {
 
+    e.stopPropagation();
+
+    openPastQuestions(code);
+
+  });
+
+course
+  .querySelector(".practice-exam")
+  .addEventListener("click", (e) => {
+
+    e.stopPropagation();
+
+    openPracticeExam(code);
+
+  });
+  
       // -------------------------
       // TUTORIAL
       // -------------------------
@@ -239,13 +272,38 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function openQuiz(code) {
 
-    setStudying(code, "quiz");
+  setStudying(code, "practice_quiz");
 
-    window.location.href =
-      "quiz.html";
+  window.location.href =
+    "quiz";
 
-  }
+}
 
+// -------------------------
+// OPEN PAST QUESTIONS
+// -------------------------
+
+function openPastQuestions(code) {
+
+  setStudying(code, "past_questions");
+
+  window.location.href =
+    "past-questions";
+
+}
+
+// -------------------------
+// OPEN PRACTICE EXAM
+// -------------------------
+
+function openPracticeExam(code) {
+
+  setStudying(code, "practice_exam");
+
+  window.location.href =
+    "practice-exam";
+
+}
 
   // -------------------------
   // OPEN TUTORIAL
@@ -256,7 +314,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setStudying(code, "tutorials");
 
     window.location.href =
-      "tutorials.html";
+      "tutorials";
 
   }
 
