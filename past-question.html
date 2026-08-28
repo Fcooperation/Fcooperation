@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Past Questions</title>
+
+  <link
+    rel="stylesheet"
+    href="past-question.css"
+  >
+
+  <link
+    rel="icon"
+    type="image/png"
+    href="/favicon.png"
+  >
+</head>
+
+<body>
+
+  <!-- TOP BAR -->
+  <div id="top">
+
+    <button id="back-btn">
+      ←
+    </button>
+
+    <div>
+      <div id="title">
+        Past Questions
+      </div>
+
+      <div id="subtitle">
+        Loading...
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- LOADING -->
+  <div id="loading">
+    <div class="loader"></div>
+    <p>Loading past questions...</p>
+  </div>
+
+
+  <!-- ERROR -->
+  <div id="error" class="hidden">
+    Failed to load past questions.
+  </div>
+
+
+  <!-- EMPTY -->
+  <div id="empty" class="hidden">
+    No past questions available for this course yet.
+  </div>
+
+
+  <!-- YEARS / QUESTIONS -->
+  <div id="past-question-list"></div>
+
+
+  <script src="config.js"></script>
+  <script src="past-question.js"></script>
+
+</body>
+
+</html>
