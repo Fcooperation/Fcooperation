@@ -23,17 +23,11 @@ document.getElementById("plus-btn");
 const uploadMenu =
 document.getElementById("upload-menu");
 
-const cameraBtn =
-document.getElementById("camera-btn");
-
 const photosBtn =
 document.getElementById("photos-btn");
 
 const filesBtn =
 document.getElementById("files-btn");
-
-const cameraInput =
-document.getElementById("camera-input");
 
 const photosInput =
 document.getElementById("photos-input");
@@ -304,18 +298,6 @@ document.addEventListener("click", e => {
 
 /* ---------- IMAGE PICKER ---------- */
 
-if (cameraBtn && cameraInput) {
-
-  cameraBtn.onclick = () => {
-
-    cameraInput.click();
-
-    uploadMenu.classList.remove("show");
-
-  };
-
-}
-
 if (photosBtn && photosInput) {
 
   photosBtn.onclick = () => {
@@ -430,10 +412,6 @@ function setupPreviewCancel() {
 
   selectedFile = null;
 
-  if (cameraInput) {
-    cameraInput.value = "";
-  }
-
   if (photosInput) {
     photosInput.value = "";
   }
@@ -443,29 +421,6 @@ function setupPreviewCancel() {
   }
 
 };
-
-}
-
-
-if (cameraInput) {
-
-  cameraInput.addEventListener("change", () => {
-
-    const file = cameraInput.files?.[0];
-
-    if (!file) return;
-
-    console.log("📷 Camera file:", {
-      name: file.name,
-      type: file.type,
-      size: file.size
-    });
-
-    selectedFile = file;
-
-    showFilePreview(file);
-
-  });
 
 }
 
@@ -922,8 +877,6 @@ showTyping();
 const aiMessage =
   messages[messages.length - 1];
 
-showTyping();
-
     /* --------------------------------
        STREAM
     -------------------------------- */
@@ -1046,10 +999,6 @@ showTyping();
     -------------------------------- */
 
     selectedFile = null;
-
-    if (cameraInput) {
-      cameraInput.value = "";
-    }
 
     if (photosInput) {
       photosInput.value = "";
@@ -1347,7 +1296,7 @@ ${JSON.stringify(parsed, null, 2)}
       "Failed to generate review explanation."
   });
 
-  renuerMessages();
+  renderMessages();
   saveMessages();
 
   console.error(err);
