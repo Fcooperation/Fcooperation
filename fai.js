@@ -678,15 +678,57 @@ async function sendPrompt() {
     /* --------------------------------
        ATTACH FILE
     -------------------------------- */
-if (file) {
-  console.log("📤 Preparing file for upload:", file.name);
 
-  formData.append(
-    "file",
-    file,
-    file.name || "camera-image.jpg"
-  );
-}
+    if (file) {
+
+      console.log("📤 Sending file:", {
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        lastModified: file.lastModified
+      });
+
+      let uploadFile = file;
+
+      /*
+        Some camera implementations can
+        produce a File with a missing MIME type.
+
+        Normalize it when necessary.
+      */
+
+      if (
+        !uploadFile.type ||
+        !uploadFile.type.startsWith("image/")
+      ) {
+
+        console.log(
+          "⚠️ Camera file has unusual MIME type:",
+          uploadFile.type
+        );
+
+        uploadFile =
+          new File(
+            [uploadFile],
+            uploadFile.name ||
+            "camera-image.jpg",
+            {
+              type:
+                uploadFile.type ||
+                "image/jpeg"
+            }
+          );
+
+      }
+
+      formData.append(
+        "file",
+        uploadFile,
+        uploadFile.name ||
+        "camera-image.jpg"
+      );
+
+    }
 
     /* --------------------------------
        SEND REQUEST
