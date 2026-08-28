@@ -505,6 +505,142 @@ if (filesInput) {
 
 }
 
+/* ---------- IMAGE COMPRESSION ---------- */
+
+async function compressImage(
+  file,
+  maxWidth = 1600,
+  maxHeight = 1600,
+  quality = 0.75
+) {
+
+  // Only compress images
+  if (
+    !file ||
+    !file.type ||
+    !file.type.startsWith("image/")
+  ) {
+    return file;
+  }
+
+  return new Promise((resolve, reject) => {
+
+    const img =
+      new Image();
+
+    const url =
+      URL.createObjectURL(file);
+
+    img.onload = () => {
+
+      URL.revokeObjectURL(url);
+
+      let width =
+        img.width;
+
+      let height =
+        img.height;
+
+      // Keep original aspect ratio
+      if (
+        width > maxWidth ||
+        height > maxHeight
+      ) {
+
+        const scale =
+          Math.min(
+            maxWidth / width,
+            maxHeight / height
+          );
+
+        width =
+          Math.round(
+            width * scale
+          );
+
+        height =
+          Math.round(
+            height * scale
+          );
+
+      }
+
+      const canvas =
+        document.createElement(
+          "canvas"
+        );
+
+      canvas.width =
+        width;
+
+      canvas.height =
+        height;
+
+      const ctx =
+        canvas.getContext("2d");
+
+      ctx.drawImage(
+        img,
+        0,
+        0,
+        width,
+        height
+      );
+
+      canvas.toBlob(
+        blob => {
+
+          if (!blob) {
+
+            reject(
+              new Error(
+                "Image compression failed."
+              )
+            );
+
+            return;
+          }
+
+          const compressedFile =
+            new File(
+              [blob],
+              "compressed-image.jpg",
+              {
+                type: "image/jpeg",
+                lastModified:
+                  Date.now()
+              }
+            );
+
+          resolve(
+            compressedFile
+          );
+
+        },
+        "image/jpeg",
+        quality
+      );
+
+    };
+
+    img.onerror = () => {
+
+      URL.revokeObjectURL(url);
+
+      reject(
+        new Error(
+          "Could not load image for compression."
+        )
+      );
+
+    };
+
+    img.src = url;
+
+  });
+
+}
+
 /* ---------- SEND ---------- */
 
 async function sendPrompt() {
@@ -675,17 +811,50 @@ async function sendPrompt() {
       )
     );
 
-    /* --------------------------------
-       ATTACH FILE
-    -------------------------------- */
+/* --------------------------------
+   ATTACH FILE
+-------------------------------- */
+
 if (file) {
-  console.log("📤 Preparing file for upload:", file.name);
+
+  console.log(
+    "📤 Original file:",
+    {
+      name: file.name,
+      type: file.type,
+      size: file.size
+    }
+  );
+
+  let uploadFile = file;
+
+  // Compress images before sending
+  if (
+    file.type &&
+    file.type.startsWith("image/")
+  ) {
+
+    uploadFile =
+      await compressImage(file);
+
+    console.log(
+      "🗜️ Compressed image:",
+      {
+        name: uploadFile.name,
+        type: uploadFile.type,
+        size: uploadFile.size
+      }
+    );
+
+  }
 
   formData.append(
     "file",
-    file,
-    file.name || "camera-image.jpg"
+    uploadFile,
+    uploadFile.name ||
+    "image.jpg"
   );
+
 }
 
     /* --------------------------------
