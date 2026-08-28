@@ -359,6 +359,119 @@ function showPreview(file) {
 
 }
 
+/* -------------------------
+   COMPRESS / RESIZE IMAGE
+------------------------- */
+
+async function compressImage(
+  file,
+  maxWidth = 1600,
+  maxHeight = 1600,
+  quality = 0.75
+) {
+
+  if (!file.type.startsWith("image/")) {
+    return file;
+  }
+
+  return new Promise((resolve, reject) => {
+
+    const img = new Image();
+
+    const url =
+      URL.createObjectURL(file);
+
+    img.onload = () => {
+
+      URL.revokeObjectURL(url);
+
+      let width = img.width;
+      let height = img.height;
+
+      // Resize while keeping aspect ratio
+      if (
+        width > maxWidth ||
+        height > maxHeight
+      ) {
+
+        const scale =
+          Math.min(
+            maxWidth / width,
+            maxHeight / height
+          );
+
+        width =
+          Math.round(width * scale);
+
+        height =
+          Math.round(height * scale);
+      }
+
+      const canvas =
+        document.createElement("canvas");
+
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx =
+        canvas.getContext("2d");
+
+      ctx.drawImage(
+        img,
+        0,
+        0,
+        width,
+        height
+      );
+
+      canvas.toBlob(
+        blob => {
+
+          if (!blob) {
+            reject(
+              new Error(
+                "Image compression failed."
+              )
+            );
+            return;
+          }
+
+          const compressedFile =
+            new File(
+              [blob],
+              "compressed-camera.jpg",
+              {
+                type: "image/jpeg",
+                lastModified: Date.now()
+              }
+            );
+
+          resolve(compressedFile);
+
+        },
+        "image/jpeg",
+        quality
+      );
+
+    };
+
+    img.onerror = () => {
+
+      URL.revokeObjectURL(url);
+
+      reject(
+        new Error(
+          "Could not load image for compression."
+        )
+      );
+
+    };
+
+    img.src = url;
+
+  });
+
+}
 
 /* -------------------------
    SEND
@@ -424,26 +537,40 @@ async () => {
 
     if (selectedFile) {
 
-      log(
-        "📤 Preparing file",
-        {
-          name: selectedFile.name,
-          type: selectedFile.type,
-          size: selectedFile.size,
-          isFile:
-            selectedFile instanceof File
-        }
-      );
-
-
-      formData.append(
-        "file",
-        selectedFile,
-        selectedFile.name ||
-        "camera-image.jpg"
-      );
-
+  log(
+    "📤 Original file",
+    {
+      name: selectedFile.name,
+      type: selectedFile.type,
+      size: selectedFile.size,
+      isFile:
+        selectedFile instanceof File
     }
+  );
+
+  const uploadFile =
+    await compressImage(
+      selectedFile
+    );
+
+  log(
+    "🗜️ Compressed file",
+    {
+      name: uploadFile.name,
+      type: uploadFile.type,
+      size: uploadFile.size,
+      isFile:
+        uploadFile instanceof File
+    }
+  );
+
+  formData.append(
+    "file",
+    uploadFile,
+    uploadFile.name
+  );
+
+}
 
 
     log(
