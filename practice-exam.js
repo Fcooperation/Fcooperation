@@ -64,6 +64,20 @@ document.addEventListener("DOMContentLoaded", () => {
   const restartBtn =
     document.getElementById("restart-btn");
 
+const submitBtn =
+  document.getElementById("submit-btn");
+
+const submitModal =
+  document.getElementById("submit-modal");
+
+const submitSummary =
+  document.getElementById("submit-summary");
+
+const cancelSubmit =
+  document.getElementById("cancel-submit");
+
+const confirmSubmit =
+  document.getElementById("confirm-submit");
 
   /* =========================
      LOCAL STORAGE
@@ -74,23 +88,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const studying =
     localStorage.getItem("studying");
-
-
-  /* =========================
-     EXAM SETTINGS
-  ========================= */
-
-  const EXAM_QUESTION_COUNT = 35;
-
-  /*
-    Default question time.
-
-    This is only used when a question
-    does not yet have a stored time limit.
-  */
-
-  const DEFAULT_QUESTION_TIME = 60;
-
 
   /* =========================
      STATE
@@ -104,8 +101,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let questionTimer = null;
 
-  let remainingSeconds =
-    DEFAULT_QUESTION_TIME;
+  let remainingSeconds = 0;
+let examQuestionCount = 0;
+let examTimeLimit = 0;
 
   let examFinished = false;
 
@@ -174,20 +172,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
             body: JSON.stringify({
 
-              action:
-                "get_quiz",
+  action:
+    "get_quiz",
 
-              university:
-                studyingUni,
+  university:
+    studyingUni,
 
-              course:
-                studying,
+  course:
+    studying
 
-              count:
-                EXAM_QUESTION_COUNT
-
-            })
-
+})
           }
         );
 
@@ -204,6 +198,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const data =
         await response.json();
 
+examQuestionCount =
+  Number(data.exam_question_count) || 35;
+
+examTimeLimit =
+  Number(data.exam_time_limit) || 25;
 
       if (!data.success) {
 
@@ -250,10 +249,10 @@ document.addEventListener("DOMContentLoaded", () => {
       */
 
       questions =
-        questions.slice(
-          0,
-          EXAM_QUESTION_COUNT
-        );
+  questions.slice(
+    0,
+    examQuestionCount
+  );
 
 
       answers =
@@ -267,7 +266,9 @@ document.addEventListener("DOMContentLoaded", () => {
       exam.classList.remove("hidden");
 
 
-      renderQuestion();
+      startExamTimer();
+
+renderQuestion();
 
     } catch (err) {
 
@@ -322,55 +323,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return copy;
 
   }
-
-
-  /* =========================
-     GET QUESTION TIME
-  ========================= */
-
-  function getQuestionTime(item) {
-
-    /*
-      Future upload column.
-
-      The code accepts several names
-      so we can change the database
-      naming later without rewriting
-      the whole exam.
-    */
-
-    const value =
-      item.time_limit ??
-      item.time_limit_seconds ??
-      item.question_time ??
-      null;
-
-
-    if (value === null) {
-
-      return DEFAULT_QUESTION_TIME;
-
-    }
-
-
-    const seconds =
-      Number(value);
-
-
-    if (
-      !Number.isFinite(seconds) ||
-      seconds <= 0
-    ) {
-
-      return DEFAULT_QUESTION_TIME;
-
-    }
-
-
-    return seconds;
-
-  }
-
 
   /* =========================
      RENDER QUESTION
@@ -513,9 +465,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     updateProgress();
 
-
-    startQuestionTimer(item);
-
   }
 
 
@@ -610,63 +559,51 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
-  /* =========================
-     QUESTION TIMER
-  ========================= */
+/* =========================
+   EXAM TIMER
+========================= */
 
-  function startQuestionTimer(item) {
+function startExamTimer() {
 
-    remainingSeconds =
-      getQuestionTime(item);
+  remainingSeconds =
+    examTimeLimit * 60;
 
+  updateTimer();
 
-    updateTimer();
+  questionTime.textContent =
+    `Exam time: ${formatTime(remainingSeconds)}`;
 
+  questionTimer =
+    setInterval(
+      () => {
 
-    questionTime.textContent =
-      `Time for this question: ${formatTime(remainingSeconds)}`;
+        remainingSeconds--;
 
+        updateTimer();
 
-    questionTimer =
-      setInterval(
-        () => {
+        questionTime.textContent =
+          `Exam time: ${formatTime(
+            Math.max(
+              remainingSeconds,
+              0
+            )
+          )}`;
 
-          remainingSeconds--;
+        if (
+          remainingSeconds <= 0
+        ) {
 
-          updateTimer();
+          clearTimer();
 
+          finishExam();
 
-          questionTime.textContent =
-            `Time for this question: ${formatTime(
-              Math.max(
-                remainingSeconds,
-                0
-              )
-            )}`;
+        }
 
+      },
+      1000
+    );
 
-          if (
-            remainingSeconds <= 0
-          ) {
-
-            clearTimer();
-
-
-            /*
-              Automatically move on
-              when question time ends.
-            */
-
-            goNext();
-
-          }
-
-        },
-        1000
-      );
-
-  }
-
+}
 
   /* =========================
      TIMER DISPLAY
@@ -801,6 +738,69 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   );
 
+/* =========================
+   SUBMIT CONFIRMATION
+========================= */
+
+function openSubmitModal() {
+
+  const answered =
+    answers.filter(
+      answer => answer !== null
+    ).length;
+
+  const unanswered =
+    questions.length - answered;
+
+  submitSummary.textContent =
+    `You have answered ${answered} of ${questions.length} questions. ` +
+    `${unanswered} question${unanswered === 1 ? "" : "s"} unanswered.`;
+
+  submitModal.classList.remove("hidden");
+
+}
+
+
+function closeSubmitModal() {
+
+  submitModal.classList.add("hidden");
+
+}
+
+submitBtn.addEventListener(
+  "click",
+  () => {
+
+    if (examFinished) {
+      return;
+    }
+
+    openSubmitModal();
+
+  }
+);
+
+
+cancelSubmit.addEventListener(
+  "click",
+  () => {
+
+    closeSubmitModal();
+
+  }
+);
+
+
+confirmSubmit.addEventListener(
+  "click",
+  () => {
+
+    closeSubmitModal();
+
+    finishExam();
+
+  }
+);
 
   /* =========================
      FINISH EXAM

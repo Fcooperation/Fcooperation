@@ -195,39 +195,88 @@
 
 
       <!-- =========================
-           NAVIGATION
-      ========================== -->
+     NAVIGATION
+========================== -->
 
-      <div class="navigation">
+<div class="exam-actions">
 
-        <button
-          id="previous-btn"
-          class="nav-btn secondary"
-        >
-          Previous
-        </button>
+  <button
+    id="previous-btn"
+    class="nav-btn secondary"
+    type="button"
+  >
+    Previous
+  </button>
+
+  <button
+    id="next-btn"
+    class="nav-btn primary"
+    type="button"
+  >
+    Next
+  </button>
+
+</div>
+
+<button
+  id="submit-btn"
+  class="submit-exam-btn"
+  type="button"
+>
+  Submit Exam
+</button>
+
+</section>
 
 
-        <button
-          id="next-btn"
-          class="nav-btn primary"
-        >
-          Next
-        </button>
+<!-- =========================
+     SUBMIT MODAL
+========================== -->
 
-      </div>
+<div
+  id="submit-modal"
+  class="modal hidden"
+>
 
-    </section>
+  <div class="modal-card">
+
+    <h2>Submit Exam?</h2>
+
+    <p id="submit-summary">
+      Are you sure you want to submit?
+    </p>
+
+    <div class="modal-actions">
+
+      <button
+        id="cancel-submit"
+        type="button"
+      >
+        Continue Exam
+      </button>
+
+      <button
+        id="confirm-submit"
+        type="button"
+      >
+        Submit
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
 
 
-    <!-- =========================
-         RESULT
-    ========================== -->
+<!-- =========================
+     RESULT
+========================== -->
 
-    <section
-      id="result"
-      class="result hidden"
-    >
+<section
+  id="result"
+  class="result hidden"
+>
 
       <div class="result-card">
 
