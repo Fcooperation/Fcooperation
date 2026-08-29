@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Practice Exam</title>
+
+  <link
+    rel="stylesheet"
+    href="practice-exam.css"
+  >
+
+  <script src="config.js"></script>
+
+</head>
+
+<body>
+
+  <main class="exam-container">
+
+    <!-- =========================
+         HEADER
+    ========================== -->
+
+    <header class="exam-header">
+
+      <div class="header-left">
+
+        <button
+          id="back-btn"
+          class="back-btn"
+        >
+          ←
+        </button>
+
+        <div>
+
+          <h1 id="title">
+            Practice Exam
+          </h1>
+
+          <p id="subtitle">
+            Loading...
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="timer-box">
+
+        <span class="timer-label">
+          TIME
+        </span>
+
+        <span id="timer">
+          00:00
+        </span>
+
+      </div>
+
+    </header>
+
+
+    <!-- =========================
+         PROGRESS
+    ========================== -->
+
+    <div class="progress-section">
+
+      <div class="progress-info">
+
+        <span id="question-number">
+          Question 0 of 0
+        </span>
+
+        <span id="answered-count">
+          0 answered
+        </span>
+
+      </div>
+
+      <div class="progress-bar">
+
+        <div
+          id="progress-fill"
+          class="progress-fill"
+        ></div>
+
+      </div>
+
+    </div>
+
+
+    <!-- =========================
+         LOADING
+    ========================== -->
+
+    <div
+      id="loading"
+      class="state"
+    >
+
+      <div class="loader"></div>
+
+      <p>
+        Preparing your practice exam...
+      </p>
+
+    </div>
+
+
+    <!-- =========================
+         ERROR
+    ========================== -->
+
+    <div
+      id="error"
+      class="state error-state hidden"
+    ></div>
+
+
+    <!-- =========================
+         EMPTY
+    ========================== -->
+
+    <div
+      id="empty"
+      class="state hidden"
+    >
+
+      <p>
+        No questions are available for this course yet.
+      </p>
+
+    </div>
+
+
+    <!-- =========================
+         EXAM
+    ========================== -->
+
+    <section
+      id="exam"
+      class="exam hidden"
+    >
+
+      <div class="question-card">
+
+        <div class="question-top">
+
+          <span
+            id="difficulty"
+            class="difficulty"
+          >
+          </span>
+
+          <span
+            id="topic"
+            class="topic"
+          >
+          </span>
+
+        </div>
+
+
+        <div
+          id="question"
+          class="question-text"
+        >
+        </div>
+
+
+        <div
+          id="options"
+          class="options"
+        >
+        </div>
+
+
+        <div
+          id="question-time"
+          class="question-time"
+        >
+        </div>
+
+      </div>
+
+
+      <!-- =========================
+           NAVIGATION
+      ========================== -->
+
+      <div class="navigation">
+
+        <button
+          id="previous-btn"
+          class="nav-btn secondary"
+        >
+          Previous
+        </button>
+
+
+        <button
+          id="next-btn"
+          class="nav-btn primary"
+        >
+          Next
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         RESULT
+    ========================== -->
+
+    <section
+      id="result"
+      class="result hidden"
+    >
+
+      <div class="result-card">
+
+        <div class="result-icon">
+          ✓
+        </div>
+
+        <h2>
+          Practice Complete
+        </h2>
+
+        <p id="result-course">
+        </p>
+
+        <div class="score">
+
+          <span id="score">
+            0 / 0
+          </span>
+
+        </div>
+
+        <p id="percentage">
+          0%
+        </p>
+
+
+        <div class="result-stats">
+
+          <div>
+            <strong id="correct">
+              0
+            </strong>
+
+            <span>
+              Correct
+            </span>
+          </div>
+
+          <div>
+            <strong id="wrong">
+              0
+            </strong>
+
+            <span>
+              Wrong
+            </span>
+          </div>
+
+          <div>
+            <strong id="unanswered">
+              0
+            </strong>
+
+            <span>
+              Unanswered
+            </span>
+          </div>
+
+        </div>
+
+
+        <button
+          id="restart-btn"
+          class="restart-btn"
+        >
+          Practice Again
+        </button>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <script src="practice-exam.js"></script>
+
+</body>
+</html>
