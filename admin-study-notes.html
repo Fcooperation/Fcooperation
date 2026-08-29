@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Fstudy Notes</title>
+
+  <link
+    rel="stylesheet"
+    href="admin-study-notes.css"
+  >
+
+</head>
+
+<body>
+
+  <!-- =========================
+       HEADER
+  ========================= -->
+
+  <header id="top">
+
+    <button
+      id="back-btn"
+      type="button"
+    >
+      ←
+    </button>
+
+    <div>
+
+      <div id="title">
+        Fstudy Notes
+      </div>
+
+      <div id="subtitle">
+        Add Study Note
+      </div>
+
+    </div>
+
+  </header>
+
+
+  <main>
+
+
+    <!-- =========================
+         MANUAL NOTE
+    ========================= -->
+
+    <section class="card">
+
+      <h2>Note Information</h2>
+
+
+      <label for="university">
+        University
+      </label>
+
+      <select id="university">
+
+        <option value="">
+          Select University
+        </option>
+
+      </select>
+
+
+      <label for="course">
+        Course
+      </label>
+
+      <select
+        id="course"
+        disabled
+      >
+
+        <option value="">
+          Select Course
+        </option>
+
+      </select>
+
+
+      <label for="note-title">
+        Note Title
+      </label>
+
+      <input
+        id="note-title"
+        type="text"
+        placeholder="e.g. Introduction to Statistics"
+      >
+
+
+      <label for="topic">
+        Topic
+      </label>
+
+      <input
+        id="topic"
+        type="text"
+        placeholder="e.g. Statistics"
+      >
+
+
+      <label for="uploaded-by">
+        Uploaded By
+      </label>
+
+      <input
+        id="uploaded-by"
+        type="text"
+        placeholder="Instructor / Admin name"
+      >
+
+    </section>
+
+
+    <!-- =========================
+         SECTIONS
+    ========================= -->
+
+    <section class="card">
+
+      <div class="section-header">
+
+        <div>
+
+          <h2>Sections</h2>
+
+          <p>
+            Add the note sections in the
+            order students should read them.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div id="sections"></div>
+
+
+      <button
+        id="add-section-btn"
+        class="secondary-btn"
+        type="button"
+      >
+        + Add Section
+      </button>
+
+    </section>
+
+
+    <!-- =========================
+         SAVE MANUAL NOTE
+    ========================= -->
+
+    <section class="card">
+
+      <button
+        id="save-btn"
+        class="primary-btn"
+        type="button"
+      >
+        Save Note
+      </button>
+
+    </section>
+
+
+    <!-- =========================
+         JSON TEXT
+    ========================= -->
+
+    <section class="card">
+
+      <h2>Upload Notes with JSON</h2>
+
+      <p>
+        Paste a complete Fstudy note JSON below.
+      </p>
+
+
+      <textarea
+        id="json-input"
+        placeholder='{
+  "university": "EBSU",
+  "course": "STA111",
+  "title": "Introduction to Statistics",
+  "topic": "Statistics",
+  "uploaded_by": "Francis",
+  "sections": [
+    {
+      "title": "Introduction",
+      "content": "..."
+    }
+  ]
+}'
+      ></textarea>
+
+
+      <button
+        id="upload-json-btn"
+        class="primary-btn"
+        type="button"
+      >
+        Upload JSON
+      </button>
+
+    </section>
+
+
+    <!-- =========================
+         JSON FILE
+    ========================= -->
+
+    <section class="card">
+
+      <h2>Upload JSON File</h2>
+
+      <p>
+        Select a JSON file containing the note.
+      </p>
+
+
+      <input
+        id="json-file"
+        type="file"
+        accept=".json,application/json"
+      >
+
+
+      <button
+        id="upload-file-btn"
+        class="primary-btn"
+        type="button"
+      >
+        Upload JSON File
+      </button>
+
+    </section>
+
+
+    <!-- =========================
+         STATUS
+    ========================= -->
+
+    <div
+      id="status"
+      class="hidden"
+    ></div>
+
+
+  </main>
+
+
+  <script src="config.js"></script>
+  <script src="admin-study-notes.js"></script>
+
+</body>
+
+</html>

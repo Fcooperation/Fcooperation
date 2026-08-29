@@ -1,0 +1,418 @@
+* {
+  box-sizing: border-box;
+}
+
+
+body {
+
+  margin: 0;
+
+  font-family:
+    Arial,
+    sans-serif;
+
+  background: #f7f7f7;
+
+  color: #222;
+
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+#top {
+
+  position: sticky;
+
+  top: 0;
+
+  z-index: 20;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 14px;
+
+  padding: 15px;
+
+  background: white;
+
+  border-bottom:
+    1px solid #ddd;
+
+}
+
+
+#back-btn {
+
+  border: none;
+
+  background: transparent;
+
+  font-size: 25px;
+
+  cursor: pointer;
+
+  padding: 5px;
+
+}
+
+
+#title {
+
+  font-size: 19px;
+
+  font-weight: bold;
+
+}
+
+
+#subtitle {
+
+  margin-top: 3px;
+
+  font-size: 13px;
+
+  color: #777;
+
+}
+
+
+/* =========================
+   MAIN
+========================= */
+
+main {
+
+  width: 100%;
+
+  max-width: 700px;
+
+  margin: auto;
+
+  padding: 15px;
+
+}
+
+
+/* =========================
+   CARD
+========================= */
+
+.card {
+
+  background: white;
+
+  border:
+    1px solid #ddd;
+
+  border-radius: 12px;
+
+  padding: 18px;
+
+  margin-bottom: 15px;
+
+}
+
+
+.card h2 {
+
+  margin:
+    0 0 7px;
+
+  font-size: 18px;
+
+}
+
+
+.card p {
+
+  margin:
+    0 0 15px;
+
+  color: #777;
+
+  font-size: 13px;
+
+  line-height: 1.5;
+
+}
+
+
+/* =========================
+   LABELS
+========================= */
+
+label {
+
+  display: block;
+
+  margin-top: 15px;
+
+  margin-bottom: 7px;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+}
+
+
+/* =========================
+   INPUTS
+========================= */
+
+input,
+select,
+textarea {
+
+  width: 100%;
+
+  border:
+    1px solid #ccc;
+
+  border-radius: 8px;
+
+  padding: 12px;
+
+  font-family: inherit;
+
+  font-size: 14px;
+
+  outline: none;
+
+  background: white;
+
+}
+
+
+input:focus,
+select:focus,
+textarea:focus {
+
+  border-color:
+    #1769ff;
+
+}
+
+
+textarea {
+
+  min-height: 250px;
+
+  resize: vertical;
+
+  line-height: 1.5;
+
+}
+
+
+select:disabled {
+
+  background: #eee;
+
+  cursor: not-allowed;
+
+}
+
+
+/* =========================
+   SECTION HEADER
+========================= */
+
+.section-header {
+
+  display: flex;
+
+  justify-content:
+    space-between;
+
+  align-items: center;
+
+}
+
+
+/* =========================
+   NOTE SECTION
+========================= */
+
+.note-section {
+
+  border:
+    1px solid #ddd;
+
+  border-radius: 10px;
+
+  padding: 15px;
+
+  margin-bottom: 12px;
+
+  background: #fafafa;
+
+}
+
+
+.note-section-header {
+
+  display: flex;
+
+  justify-content:
+    space-between;
+
+  align-items: center;
+
+  margin-bottom: 10px;
+
+}
+
+
+.note-section-title {
+
+  font-weight: bold;
+
+  font-size: 15px;
+
+}
+
+
+.remove-section {
+
+  border: none;
+
+  background: transparent;
+
+  color: #d33;
+
+  cursor: pointer;
+
+  font-size: 13px;
+
+}
+
+
+.note-section label {
+
+  margin-top: 10px;
+
+}
+
+
+/* =========================
+   BUTTONS
+========================= */
+
+button {
+
+  font-family: inherit;
+
+}
+
+
+.primary-btn,
+.secondary-btn {
+
+  width: 100%;
+
+  padding: 13px 18px;
+
+  border-radius: 9px;
+
+  font-size: 15px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+}
+
+
+.primary-btn {
+
+  border:
+    1px solid #1769ff;
+
+  background:
+    #1769ff;
+
+  color: white;
+
+}
+
+
+.primary-btn:active,
+.secondary-btn:active {
+
+  transform:
+    scale(0.98);
+
+}
+
+
+.secondary-btn {
+
+  border:
+    1px solid #1769ff;
+
+  background: white;
+
+  color: #1769ff;
+
+}
+
+
+/* =========================
+   FILE
+========================= */
+
+#json-file {
+
+  margin-bottom: 12px;
+
+}
+
+
+/* =========================
+   STATUS
+========================= */
+
+#status {
+
+  position: fixed;
+
+  left: 15px;
+
+  right: 15px;
+
+  bottom: 20px;
+
+  max-width: 670px;
+
+  margin: auto;
+
+  padding: 13px 15px;
+
+  border-radius: 9px;
+
+  background: #222;
+
+  color: white;
+
+  font-size: 14px;
+
+  text-align: center;
+
+  box-shadow:
+    0 4px 15px
+    rgba(0, 0, 0, 0.15);
+
+}
+
+
+.hidden {
+
+  display: none !important;
+
+}
