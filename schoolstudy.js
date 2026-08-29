@@ -145,6 +145,13 @@ document.addEventListener("DOMContentLoaded", () => {
 </div>
 
 <div
+  class="item notes"
+  data-code="${code}"
+>
+  View Notes
+</div>
+
+<div
   class="item tutorial"
   data-code="${code}"
 >
@@ -218,6 +225,20 @@ course
     e.stopPropagation();
 
     openPracticeExam(code);
+
+  });
+  
+  // -------------------------
+// OPEN NOTES
+// -------------------------
+
+course
+  .querySelector(".notes")
+  .addEventListener("click", (e) => {
+
+    e.stopPropagation();
+
+    openNotes(code);
 
   });
   
@@ -302,6 +323,19 @@ function openPracticeExam(code) {
 
   window.location.href =
     "practice-exam";
+
+}
+
+// -------------------------
+// OPEN NOTES
+// -------------------------
+
+function openNotes(code) {
+
+  setStudying(code, "notes");
+
+  window.location.href =
+    "fstudy-notes";
 
 }
 

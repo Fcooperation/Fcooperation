@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>FStudy Notes</title>
+
+  <link
+    rel="stylesheet"
+    href="fstudy-notes.css"
+  >
+
+  <link
+    rel="icon"
+    type="image/png"
+    href="/favicon.png"
+  >
+
+</head>
+
+<body>
+
+  <!-- TOP BAR -->
+
+  <div id="top">
+
+    <button id="back-btn">
+      ←
+    </button>
+
+    <div>
+
+      <div id="title">
+        FSTUDY NOTES
+      </div>
+
+      <div id="subtitle">
+        Loading...
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- LOADING -->
+
+  <div
+    id="loading"
+  >
+
+    <div class="loader"></div>
+
+    <p>
+      Loading notes...
+    </p>
+
+  </div>
+
+
+  <!-- ERROR -->
+
+  <div
+    id="error"
+    class="hidden"
+  >
+    Failed to load notes.
+  </div>
+
+
+  <!-- EMPTY -->
+
+  <div
+    id="empty"
+    class="hidden"
+  >
+
+    <div class="empty-icon">
+      📚
+    </div>
+
+    <h3>
+      No notes yet
+    </h3>
+
+    <p>
+      There are no notes available for this course yet.
+    </p>
+
+  </div>
+
+
+  <!-- TOPICS -->
+
+  <main
+    id="topic-list"
+    class="hidden"
+  ></main>
+
+
+  <script src="config.js"></script>
+  <script src="fstudy-notes.js"></script>
+
+</body>
+
+</html>
