@@ -137,24 +137,24 @@ const response =
       loading.classList.add("hidden");
 
 
-      const questions =
-        data.questions || [];
+      const years =
+  data.years || [];
 
 
-      if (!questions.length) {
+if (!years.length) {
 
-        empty.classList.remove(
-          "hidden"
-        );
+  empty.classList.remove(
+    "hidden"
+  );
 
-        return;
+  return;
 
-      }
+}
 
 
-      renderPastQuestions(
-        questions
-      );
+renderPastQuestions(
+  years
+);
 
 
     } catch (err) {
@@ -216,9 +216,7 @@ const response =
         "question-count";
 
       const questionCount =
-        item.questions?.length ||
-        item.question_count ||
-        0;
+  item.question_count || 0;
 
       count.textContent =
         `${questionCount} questions`;
