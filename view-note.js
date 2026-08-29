@@ -497,15 +497,35 @@ document.addEventListener(
           ========================= */
 
           askFaiBtn.addEventListener(
-            "click",
-            () => {
+  "click",
+  () => {
 
-              faiMenu.classList.toggle(
-                "hidden"
-              );
+    const isOpening =
+      faiMenu.classList.contains(
+        "hidden"
+      );
 
-            }
-          );
+
+    faiMenu.classList.toggle(
+      "hidden"
+    );
+
+
+    if (isOpening) {
+
+      setTimeout(() => {
+
+        faiMenu.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest"
+        });
+
+      }, 50);
+
+    }
+
+  }
+);
 
 
           /* =========================
@@ -595,85 +615,100 @@ document.addEventListener(
     }
 
 
+/* =========================
+   SUMMARIZE SECTION
+========================= */
+
+async function summarizeSection(
+  section,
+  faiMenu,
+  faiActions,
+  summarizeBtn
+) {
+
+  const sectionContent =
+    section.content || "";
+
+
+  if (!sectionContent.trim()) {
+    return;
+  }
+
+
+  /* =========================
+     HIDE BUTTONS
+  ========================= */
+
+  faiActions.classList.add(
+    "hidden"
+  );
+
+
+  /* =========================
+     LOADING
+  ========================= */
+
+  const loadingText =
+    document.createElement(
+      "p"
+    );
+
+  loadingText.className =
+    "fai-loading";
+
+  loadingText.textContent =
+    "FAI is summarizing...";
+
+
+  faiMenu.appendChild(
+    loadingText
+  );
+
+
+  /* =========================
+     AUTO SCROLL
+  ========================= */
+
+  setTimeout(() => {
+
+    faiMenu.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest"
+    });
+
+  }, 50);
+
+
+  try {
+
     /* =========================
-       SUMMARIZE SECTION
+       SEND TO FAI
     ========================= */
 
-    async function summarizeSection(
-      section,
-      faiMenu,
-      faiActions,
-      summarizeBtn
-    ) {
+    const response =
+      await fetch(
+        window.CONFIG.API_URL +
+        "/fai",
+        {
 
-      const sectionContent =
-        section.content || "";
+          method: "POST",
 
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
 
-      if (!sectionContent.trim()) {
+          body:
+            JSON.stringify({
 
-        return;
+              prompt:
+                `Summarize the following FSTUDY note section clearly for a student.
 
-      }
+Keep the important concepts, definitions, facts, examples, and relationships.
 
+Do not leave out important academic information.
 
-      /* =========================
-         HIDE BUTTONS
-      ========================= */
-
-      faiActions.classList.add(
-        "hidden"
-      );
-
-
-      /* =========================
-         LOADING
-      ========================= */
-
-      const loadingText =
-        document.createElement(
-          "p"
-        );
-
-      loadingText.className =
-        "fai-loading";
-
-      loadingText.textContent =
-        "FAI is summarizing...";
-
-
-      faiMenu.appendChild(
-        loadingText
-      );
-
-
-      try {
-
-        /* =========================
-           SEND TO FAI
-        ========================= */
-
-        const response =
-          await fetch(
-            window.CONFIG.API_URL +
-            "/fai",
-            {
-
-              method: "POST",
-
-              headers: {
-                "Content-Type":
-                  "application/json"
-              },
-
-              body:
-                JSON.stringify({
-
-                  action:
-                    "summarize",
-
-                  prompt:
-                    `Summarize the following FSTUDY note section clearly for a student. Keep the important concepts, definitions, facts, and relationships. Do not leave out important academic information.
+Do not introduce information that is not present in the section.
 
 Section title:
 ${section.title || "Untitled Section"}
@@ -681,124 +716,289 @@ ${section.title || "Untitled Section"}
 Section content:
 ${sectionContent}`,
 
-                  source:
-                    "fstudy",
+              source:
+                "fstudy",
 
-                  university:
-                    university,
+              university:
+                university,
 
-                  course:
-                    course,
+              course:
+                course,
 
-                  topic:
-                    topic,
+              topic:
+                topic,
 
-                  section_title:
-                    section.title || ""
+              section_title:
+                section.title || ""
 
-                })
+            })
+
+        }
+      );
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        "FAI request failed."
+      );
+
+    }
+
+
+    /* =========================
+       READ SSE STREAM
+    ========================= */
+
+    if (!response.body) {
+
+      throw new Error(
+        "FAI did not return a readable response."
+      );
+
+    }
+
+
+    const reader =
+      response.body.getReader();
+
+
+    const decoder =
+      new TextDecoder();
+
+
+    let buffer = "";
+
+    let summary = "";
+
+
+    while (true) {
+
+      const {
+        value,
+        done
+      } =
+        await reader.read();
+
+
+      if (done) {
+        break;
+      }
+
+
+      buffer +=
+        decoder.decode(
+          value,
+          {
+            stream: true
+          }
+        );
+
+
+      const events =
+        buffer.split("\n\n");
+
+
+      buffer =
+        events.pop() || "";
+
+
+      for (
+        const eventText
+        of events
+      ) {
+
+        const lines =
+          eventText.split("\n");
+
+
+        for (
+          const line
+          of lines
+        ) {
+
+          if (
+            !line.startsWith("data:")
+          ) {
+            continue;
+          }
+
+
+          const jsonText =
+            line
+              .replace(
+                /^data:\s*/,
+                ""
+              )
+              .trim();
+
+
+          if (!jsonText) {
+            continue;
+          }
+
+
+          try {
+
+            const event =
+              JSON.parse(
+                jsonText
+              );
+
+
+            /* =========================
+               CHUNK
+            ========================= */
+
+            if (
+              event.type ===
+              "chunk"
+            ) {
+
+              summary +=
+                event.text || "";
 
             }
-          );
 
 
-        if (!response.ok) {
+            /* =========================
+               ERROR
+            ========================= */
 
-          throw new Error(
-            "FAI request failed."
-          );
+            if (
+              event.type ===
+              "error"
+            ) {
 
-        }
+              throw new Error(
+                event.message ||
+                "FAI failed to summarize this section."
+              );
 
+            }
 
-        const data =
-          await response.json();
+          } catch (parseError) {
 
+            /*
+              Ignore incomplete SSE
+              fragments.
+            */
 
-        if (!data.success) {
+            if (
+              parseError.message &&
+              !parseError.message.includes(
+                "Unexpected"
+              )
+            ) {
 
-          throw new Error(
-            data.error ||
-            "FAI could not summarize this section."
-          );
+              throw parseError;
 
-        }
+            }
 
-
-        /* =========================
-           GET RESPONSE
-        ========================= */
-
-        const summary =
-          data.response ||
-          data.answer ||
-          data.message ||
-          data.text;
-
-
-        if (!summary) {
-
-          throw new Error(
-            "FAI returned an empty response."
-          );
+          }
 
         }
-
-
-        loadingText.remove();
-
-
-        const summaryElement =
-          document.createElement(
-            "p"
-          );
-
-        summaryElement.className =
-          "fai-summary";
-
-        summaryElement.textContent =
-          summary;
-
-
-        faiMenu.appendChild(
-          summaryElement
-        );
-
-
-      } catch (err) {
-
-        loadingText.remove();
-
-
-        const errorElement =
-          document.createElement(
-            "p"
-          );
-
-        errorElement.className =
-          "fai-error";
-
-        errorElement.textContent =
-          err.message ||
-          "Failed to summarize section.";
-
-
-        faiMenu.appendChild(
-          errorElement
-        );
-
-
-        /* =========================
-           ALLOW RETRY
-        ========================= */
-
-        faiActions.classList.remove(
-          "hidden"
-        );
 
       }
 
     }
+
+
+    /* =========================
+       REMOVE LOADING
+    ========================= */
+
+    loadingText.remove();
+
+
+    if (!summary.trim()) {
+
+      throw new Error(
+        "FAI returned an empty response."
+      );
+
+    }
+
+
+    /* =========================
+       SHOW SUMMARY
+    ========================= */
+
+    const summaryElement =
+      document.createElement(
+        "p"
+      );
+
+    summaryElement.className =
+      "fai-summary";
+
+    summaryElement.textContent =
+      summary.trim();
+
+
+    faiMenu.appendChild(
+      summaryElement
+    );
+
+
+    /* =========================
+       SCROLL TO SUMMARY
+    ========================= */
+
+    setTimeout(() => {
+
+      faiMenu.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+      });
+
+    }, 50);
+
+
+  } catch (err) {
+
+    loadingText.remove();
+
+
+    const errorElement =
+      document.createElement(
+        "p"
+      );
+
+    errorElement.className =
+      "fai-error";
+
+    errorElement.textContent =
+      err.message ||
+      "Failed to summarize section.";
+
+
+    faiMenu.appendChild(
+      errorElement
+    );
+
+
+    /* =========================
+       ALLOW RETRY
+    ========================= */
+
+    faiActions.classList.remove(
+      "hidden"
+    );
+
+
+    setTimeout(() => {
+
+      faiMenu.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+      });
+
+    }, 50);
+
+  }
+
+}
 
 
     /* =========================
