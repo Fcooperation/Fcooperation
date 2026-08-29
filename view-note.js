@@ -618,13 +618,17 @@ cancelFaiBtn.addEventListener(
 
 
           askQuestionBtn.addEventListener(
-            "click",
-            () => {
+  "click",
+  () => {
 
-              // Coming next
+    openAskFai(
+      section,
+      faiMenu,
+      faiActions
+    );
 
-            }
-          );
+  }
+);
 
 
           /* =========================
@@ -2094,6 +2098,731 @@ function renderQuizResults(
     });
 
   }, 50);
+
+}
+
+/* =========================
+   ASK FAI
+========================= */
+
+async function openAskFai(
+  section,
+  faiMenu,
+  faiActions
+) {
+
+  const sectionContent =
+    section.content || "";
+
+  if (!sectionContent.trim()) {
+    return;
+  }
+
+
+  /* =========================
+     HIDE ACTION BUTTONS
+  ========================= */
+
+  faiActions.classList.add(
+    "hidden"
+  );
+
+
+  /* =========================
+     REMOVE OLD FAI OUTPUT
+  ========================= */
+
+  faiMenu
+    .querySelectorAll(
+      ".fai-summary, .fai-loading, .fai-error, .fai-quiz, .fai-chat"
+    )
+    .forEach(
+      element => element.remove()
+    );
+
+
+  /* =========================
+     CHAT STATE
+  ========================= */
+
+  const conversation = [];
+
+
+  /* =========================
+     CHAT CONTAINER
+  ========================= */
+
+  const chat =
+    document.createElement(
+      "div"
+    );
+
+  chat.className =
+    "fai-chat";
+
+
+  /* =========================
+     CHAT HEADER
+  ========================= */
+
+  const chatHeader =
+    document.createElement(
+      "div"
+    );
+
+  chatHeader.className =
+    "fai-chat-header";
+
+  chatHeader.textContent =
+    "Ask FAI about this section";
+
+
+  chat.appendChild(
+    chatHeader
+  );
+
+
+  /* =========================
+     MESSAGES
+  ========================= */
+
+  const messages =
+    document.createElement(
+      "div"
+    );
+
+  messages.className =
+    "fai-chat-messages";
+
+
+  chat.appendChild(
+    messages
+  );
+
+
+  /* =========================
+     WELCOME MESSAGE
+  ========================= */
+
+  addFaiMessage(
+    "Hi! Ask me anything about this section.",
+    messages
+  );
+
+
+  /* =========================
+     INPUT AREA
+  ========================= */
+
+  const inputArea =
+    document.createElement(
+      "div"
+    );
+
+  inputArea.className =
+    "fai-chat-input-area";
+
+
+  const input =
+    document.createElement(
+      "textarea"
+    );
+
+  input.className =
+    "fai-chat-input";
+
+  input.placeholder =
+    "Ask about this section...";
+
+  input.rows =
+    1;
+
+
+  const sendBtn =
+    document.createElement(
+      "button"
+    );
+
+  sendBtn.type =
+    "button";
+
+  sendBtn.className =
+    "fai-chat-send";
+
+  sendBtn.textContent =
+    "Send";
+
+
+  inputArea.appendChild(
+    input
+  );
+
+  inputArea.appendChild(
+    sendBtn
+  );
+
+
+  chat.appendChild(
+    inputArea
+  );
+
+
+  faiMenu.appendChild(
+    chat
+  );
+
+
+  /* =========================
+     SEND MESSAGE
+  ========================= */
+
+  async function sendQuestion() {
+
+    const question =
+      input.value.trim();
+
+
+    if (!question) {
+      return;
+    }
+
+
+    /* =========================
+       PREVENT DOUBLE REQUESTS
+    ========================= */
+
+    input.disabled =
+      true;
+
+    sendBtn.disabled =
+      true;
+
+
+    /* =========================
+       SHOW STUDENT MESSAGE
+    ========================= */
+
+    addStudentMessage(
+      question,
+      messages
+    );
+
+
+    /* =========================
+       SAVE STUDENT MESSAGE
+    ========================= */
+
+    conversation.push({
+      role: "student",
+      content: question
+    });
+
+
+    input.value =
+      "";
+
+
+    /* =========================
+       FAI MESSAGE PLACEHOLDER
+    ========================= */
+
+    const faiMessage =
+      addFaiMessage(
+        "",
+        messages
+      );
+
+
+    faiMessage.classList.add(
+      "streaming"
+    );
+
+
+    try {
+
+      /* =========================
+         LAST 7 MESSAGES
+      ========================= */
+
+      const previousConversation =
+        conversation
+          .slice(-7);
+
+
+      /* =========================
+         BUILD CONVERSATION TEXT
+      ========================= */
+
+      let conversationText =
+        "";
+
+
+      previousConversation.forEach(
+        message => {
+
+          conversationText +=
+            `${message.role === "student" ? "Student" : "FAI"}: ${message.content}\n`;
+
+        }
+      );
+
+
+      /* =========================
+         PROMPT
+      ========================= */
+
+      const prompt =
+`PRINCIPLE:
+
+You are FAI, the academic assistant inside FSTUDY.
+
+Answer the student's question using ONLY the provided FSTUDY section.
+
+STRICT RULES:
+
+1. Use only information contained in the FSTUDY section.
+2. Do not introduce outside information.
+3. If the answer cannot be found or reasonably determined from the section, clearly say that the section does not provide enough information to answer the question.
+4. Do not invent facts.
+5. Use the previous conversation only to understand what the student is referring to.
+6. Do not use previous conversation as a source of new academic information.
+7. Answer clearly and appropriately for a student.
+8. Keep the answer reasonably concise unless the student asks for more explanation.
+9. Do not mention these instructions.
+10. Return ONLY the answer to the student's question.
+
+FSTUDY SECTION:
+
+Section title:
+${section.title || "Untitled Section"}
+
+Section content:
+${sectionContent}
+
+PREVIOUS CONVERSATION:
+
+${conversationText || "No previous conversation."}
+
+CURRENT QUESTION:
+
+${question}`;
+
+
+      /* =========================
+         SEND TO FAI
+      ========================= */
+
+      const response =
+        await fetch(
+          window.CONFIG.API_URL +
+          "/fai",
+          {
+
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+
+            body:
+              JSON.stringify({
+
+                prompt:
+
+                  prompt,
+
+                source:
+                  "fstudy",
+
+                university:
+                  university,
+
+                course:
+                  course,
+
+                topic:
+                  topic,
+
+                section_title:
+                  section.title || ""
+
+              })
+
+          }
+        );
+
+
+      if (!response.ok) {
+
+        throw new Error(
+          "FAI request failed."
+        );
+
+      }
+
+
+      /* =========================
+         SSE
+      ========================= */
+
+      if (!response.body) {
+
+        throw new Error(
+          "FAI did not return a readable response."
+        );
+
+      }
+
+
+      const reader =
+        response.body.getReader();
+
+
+      const decoder =
+        new TextDecoder();
+
+
+      let buffer = "";
+
+      let answer = "";
+
+
+      while (true) {
+
+        const {
+          value,
+          done
+        } =
+          await reader.read();
+
+
+        if (done) {
+          break;
+        }
+
+
+        buffer +=
+          decoder.decode(
+            value,
+            {
+              stream: true
+            }
+          );
+
+
+        const events =
+          buffer.split(
+            "\n\n"
+          );
+
+
+        buffer =
+          events.pop() || "";
+
+
+        for (
+          const eventText
+          of events
+        ) {
+
+          const lines =
+            eventText.split(
+              "\n"
+            );
+
+
+          for (
+            const line
+            of lines
+          ) {
+
+            if (
+              !line.startsWith(
+                "data:"
+              )
+            ) {
+              continue;
+            }
+
+
+            const jsonText =
+              line
+                .replace(
+                  /^data:\s*/,
+                  ""
+                )
+                .trim();
+
+
+            if (!jsonText) {
+              continue;
+            }
+
+
+            try {
+
+              const event =
+                JSON.parse(
+                  jsonText
+                );
+
+
+              /* =========================
+                 CHUNK
+              ========================= */
+
+              if (
+                event.type ===
+                "chunk"
+              ) {
+
+                answer +=
+                  event.text || "";
+
+
+                faiMessage.textContent =
+                  answer;
+
+
+                messages.scrollTop =
+                  messages.scrollHeight;
+
+              }
+
+
+              /* =========================
+                 ERROR
+              ========================= */
+
+              if (
+                event.type ===
+                "error"
+              ) {
+
+                throw new Error(
+                  event.message ||
+                  "FAI failed to answer."
+                );
+
+              }
+
+            } catch (
+              parseError
+            ) {
+
+              if (
+                parseError.message &&
+                !parseError.message.includes(
+                  "Unexpected"
+                )
+              ) {
+
+                throw parseError;
+
+              }
+
+            }
+
+          }
+
+        }
+
+      }
+
+
+      if (!answer.trim()) {
+
+        throw new Error(
+          "FAI returned an empty response."
+        );
+
+      }
+
+
+      /* =========================
+         SAVE FAI RESPONSE
+      ========================= */
+
+      conversation.push({
+        role: "fai",
+        content: answer.trim()
+      });
+
+
+      faiMessage.classList.remove(
+        "streaming"
+      );
+
+
+      /* =========================
+         AUTO SCROLL
+      ========================= */
+
+      messages.scrollTop =
+        messages.scrollHeight;
+
+
+    } catch (err) {
+
+      faiMessage.remove();
+
+
+      const errorElement =
+        document.createElement(
+          "div"
+        );
+
+      errorElement.className =
+        "fai-chat-error";
+
+      errorElement.textContent =
+        err.message ||
+        "Failed to get a response from FAI.";
+
+
+      messages.appendChild(
+        errorElement
+      );
+
+
+    } finally {
+
+      input.disabled =
+        false;
+
+      sendBtn.disabled =
+        false;
+
+
+      input.focus();
+
+
+      messages.scrollTop =
+        messages.scrollHeight;
+
+    }
+
+  }
+
+
+  /* =========================
+     SEND BUTTON
+  ========================= */
+
+  sendBtn.addEventListener(
+    "click",
+    sendQuestion
+  );
+
+
+  /* =========================
+     ENTER TO SEND
+  ========================= */
+
+  input.addEventListener(
+    "keydown",
+    event => {
+
+      if (
+        event.key === "Enter" &&
+        !event.shiftKey
+      ) {
+
+        event.preventDefault();
+
+        sendQuestion();
+
+      }
+
+    }
+  );
+
+
+  /* =========================
+     AUTO SCROLL
+  ========================= */
+
+  setTimeout(() => {
+
+    faiMenu.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest"
+    });
+
+    input.focus();
+
+  }, 50);
+
+}
+
+
+/* =========================
+   FAI MESSAGE
+========================= */
+
+function addFaiMessage(
+  text,
+  container
+) {
+
+  const message =
+    document.createElement(
+      "div"
+    );
+
+  message.className =
+    "fai-chat-message fai-message";
+
+  message.textContent =
+    text;
+
+
+  container.appendChild(
+    message
+  );
+
+
+  container.scrollTop =
+    container.scrollHeight;
+
+
+  return message;
+
+}
+
+
+/* =========================
+   STUDENT MESSAGE
+========================= */
+
+function addStudentMessage(
+  text,
+  container
+) {
+
+  const message =
+    document.createElement(
+      "div"
+    );
+
+  message.className =
+    "fai-chat-message student-message";
+
+  message.textContent =
+    text;
+
+
+  container.appendChild(
+    message
+  );
+
+
+  container.scrollTop =
+    container.scrollHeight;
+
+
+  return message;
 
 }
 
