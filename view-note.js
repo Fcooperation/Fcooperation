@@ -413,6 +413,27 @@ document.addEventListener(
           faiMenu.className =
             "fai-menu hidden";
 
+/* =========================
+   FAI CANCEL BUTTON
+========================= */
+
+const cancelFaiBtn =
+  document.createElement(
+    "button"
+  );
+
+cancelFaiBtn.type =
+  "button";
+
+cancelFaiBtn.className =
+  "fai-cancel-btn";
+
+cancelFaiBtn.textContent =
+  "Cancel";
+
+faiMenu.appendChild(
+  cancelFaiBtn
+);
 
           const faiActions =
             document.createElement(
@@ -527,6 +548,37 @@ document.addEventListener(
   }
 );
 
+/* =========================
+   FAI CANCEL
+========================= */
+
+cancelFaiBtn.addEventListener(
+  "click",
+  () => {
+
+    /* Remove FAI output */
+    faiMenu
+      .querySelectorAll(
+        ".fai-summary, .fai-loading, .fai-error"
+      )
+      .forEach(
+        element => element.remove()
+      );
+
+
+    /* Restore action buttons */
+    faiActions.classList.remove(
+      "hidden"
+    );
+
+
+    /* Close menu */
+    faiMenu.classList.add(
+      "hidden"
+    );
+
+  }
+);
 
           /* =========================
              SUMMARIZE

@@ -353,11 +353,13 @@ body {
 
 .fai-menu {
 
+  position: relative;
+
   width: 100%;
 
   margin-top: 12px;
 
-  padding: 12px;
+  padding: 40px 12px 12px;
 
   border: 1px solid #ddd;
 
@@ -632,5 +634,43 @@ body {
   font-style: normal;
 
   line-height: 1.35;
+
+}
+
+/* =========================
+   FAI CANCEL BUTTON
+========================= */
+
+.fai-menu {
+  position: relative;
+}
+
+.fai-cancel-btn {
+
+  position: absolute;
+
+  top: 8px;
+
+  right: 8px;
+
+  border: 1px solid #ddd;
+
+  background: white;
+
+  color: #555;
+
+  border-radius: 7px;
+
+  padding: 5px 8px;
+
+  font-size: 11px;
+
+  cursor: pointer;
+
+}
+
+.fai-cancel-btn:active {
+
+  transform: scale(0.96);
 
 }
