@@ -1,65 +1,115 @@
-<!DOCTYPE html><html lang="en"><head>  <meta charset="UTF-8"><meta
-name="viewport"
-content="width=device-width, initial-scale=1.0"
+<!DOCTYPE html>
+<html lang="en">
 
-  <title></title>  <link
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>View Note</title>
+
+  <link
     rel="stylesheet"
     href="view-note.css"
-  >  <link
+  >
+
+  <link
     rel="icon"
     type="image/png"
     href="/favicon.png"
-  ></head><body>  <!-- TOP BAR -->  <div id="top"><button id="back-btn">
-  ←
-</button>
+  >
 
-<div>
+</head>
 
-  <div id="top-title">
-    FSTUDY NOTES
+<body>
+
+  <!-- TOP BAR -->
+
+  <div id="top">
+
+    <button id="back-btn">
+      ←
+    </button>
+
+    <div>
+
+      <div id="top-title">
+        FSTUDY NOTES
+      </div>
+
+      <div id="top-subtitle">
+        Loading...
+      </div>
+
+    </div>
+
   </div>
 
-  <div id="top-subtitle">
-    Loading...
+
+  <!-- LOADING -->
+
+  <div id="loading">
+
+    <div class="loader"></div>
+
+    <p>
+      Loading note...
+    </p>
+
   </div>
 
-</div>
 
-  </div>  <!-- LOADING -->  <div id="loading"><div class="loader"></div>
+  <!-- ERROR -->
 
-<p>
-  Loading note...
-</p>
-
-  </div>  <!-- ERROR -->  <div
+  <div
     id="error"
     class="hidden"
   >
     Failed to load note.
-  </div>  <!-- NOTE -->  <main
+  </div>
+
+
+  <!-- NOTE -->
+
+  <main
     id="note"
     class="hidden"
-  ><!-- NOTE HEADER -->
+  >
 
-<section class="note-header">
+    <!-- NOTE HEADER -->
 
-  <div
-    id="note-topic"
-    class="note-topic"
-  ></div>
+    <section class="note-header">
 
-  <h1 id="note-title"></h1>
+      <div
+        id="note-topic"
+        class="note-topic"
+      ></div>
 
-  <div
-    id="note-meta"
-    class="note-meta"
-  ></div>
+      <h1 id="note-title"></h1>
 
-</section>
+      <div
+        id="note-meta"
+        class="note-meta"
+      ></div>
+
+    </section>
 
 
-<!-- SECTIONS -->
+    <!-- SECTIONS -->
 
-<div id="sections"></div>
+    <div id="sections"></div>
 
-  </main>  <script src="config.js"></script>  <script src="view-note.js"></script></body></html>
+  </main>
+
+
+  <script src="config.js"></script>
+
+  <script src="view-note.js"></script>
+
+</body>
+
+</html>

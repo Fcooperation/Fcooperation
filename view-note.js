@@ -1,388 +1,811 @@
 document.addEventListener(
-"DOMContentLoaded",
-() => {
-
-/* =========================
-   ELEMENTS
-========================= */
-
-const backBtn =
-  document.getElementById(
-    "back-btn"
-  );
-
-const topSubtitle =
-  document.getElementById(
-    "top-subtitle"
-  );
-
-const loading =
-  document.getElementById(
-    "loading"
-  );
-
-const error =
-  document.getElementById(
-    "error"
-  );
-
-const note =
-  document.getElementById(
-    "note"
-  );
-
-const noteTopic =
-  document.getElementById(
-    "note-topic"
-  );
-
-const noteTitle =
-  document.getElementById(
-    "note-title"
-  );
-
-const noteMeta =
-  document.getElementById(
-    "note-meta"
-  );
-
-const sections =
-  document.getElementById(
-    "sections"
-  );
-
-
-/* =========================
-   BACK
-========================= */
-
-backBtn.addEventListener(
-  "click",
+  "DOMContentLoaded",
   () => {
 
-    history.back();
+    /* =========================
+       ELEMENTS
+    ========================= */
 
-  }
-);
+    const backBtn =
+      document.getElementById(
+        "back-btn"
+      );
+
+    const topSubtitle =
+      document.getElementById(
+        "top-subtitle"
+      );
+
+    const loading =
+      document.getElementById(
+        "loading"
+      );
+
+    const error =
+      document.getElementById(
+        "error"
+      );
+
+    const note =
+      document.getElementById(
+        "note"
+      );
+
+    const noteTopic =
+      document.getElementById(
+        "note-topic"
+      );
+
+    const noteTitle =
+      document.getElementById(
+        "note-title"
+      );
+
+    const noteMeta =
+      document.getElementById(
+        "note-meta"
+      );
+
+    const sections =
+      document.getElementById(
+        "sections"
+      );
 
 
-/* =========================
-   GET VIEWING NOTE
-========================= */
+    /* =========================
+       BACK
+    ========================= */
 
-let viewingNote = null;
+    backBtn.addEventListener(
+      "click",
+      () => {
 
+        history.back();
 
-try {
-
-  viewingNote =
-    JSON.parse(
-      localStorage.getItem(
-        "viewing_note"
-      )
+      }
     );
 
-} catch {
 
-  viewingNote = null;
+    /* =========================
+       GET VIEWING NOTE
+    ========================= */
 
-}
-
-
-/* =========================
-   SAFETY
-========================= */
-
-if (
-  !viewingNote ||
-  !viewingNote.university ||
-  !viewingNote.course ||
-  !viewingNote.topic
-) {
-
-  loading.classList.add(
-    "hidden"
-  );
-
-  error.textContent =
-    "No note selected.";
-
-  error.classList.remove(
-    "hidden"
-  );
-
-  return;
-
-}
+    let viewingNote = null;
 
 
-const university =
-  viewingNote.university;
+    try {
 
-const course =
-  viewingNote.course;
+      viewingNote =
+        JSON.parse(
+          localStorage.getItem(
+            "viewing_note"
+          )
+        );
 
-const topic =
-  viewingNote.topic;
+    } catch {
+
+      viewingNote = null;
+
+    }
 
 
-topSubtitle.textContent =
-  `${university} • ${course}`;
+    /* =========================
+       SAFETY
+    ========================= */
+
+    if (
+      !viewingNote ||
+      !viewingNote.university ||
+      !viewingNote.course ||
+      !viewingNote.topic
+    ) {
+
+      loading.classList.add(
+        "hidden"
+      );
+
+      error.textContent =
+        "No note selected.";
+
+      error.classList.remove(
+        "hidden"
+      );
+
+      return;
+
+    }
 
 
-/* =========================
-   LOAD NOTE
-========================= */
+    const university =
+      viewingNote.university;
 
-async function loadNote() {
+    const course =
+      viewingNote.course;
 
-  try {
+    const topic =
+      viewingNote.topic;
 
-    const response =
-      await fetch(
-        window.CONFIG.API_URL +
-        "/admin",
-        {
 
-          method: "POST",
+    topSubtitle.textContent =
+      `${university} • ${course}`;
 
-          headers: {
-            "Content-Type":
-              "application/json"
-          },
 
-          body:
-            JSON.stringify({
+    /* =========================
+       LOAD NOTE
+    ========================= */
 
-              action:
-                "retrieve_note",
+    async function loadNote() {
 
-              university:
-                university,
+      try {
 
-              course:
-                course,
+        const response =
+          await fetch(
+            window.CONFIG.API_URL +
+            "/admin",
+            {
 
-              topic:
-                topic
+              method: "POST",
 
-            })
+              headers: {
+                "Content-Type":
+                  "application/json"
+              },
+
+              body:
+                JSON.stringify({
+
+                  action:
+                    "retrieve_note",
+
+                  university:
+                    university,
+
+                  course:
+                    course,
+
+                  topic:
+                    topic
+
+                })
+
+            }
+          );
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            "Failed to load note."
+          );
+
+        }
+
+
+        const data =
+          await response.json();
+
+
+        if (!data.success) {
+
+          throw new Error(
+            data.error ||
+            "Failed to load note."
+          );
+
+        }
+
+
+        if (!data.note) {
+
+          throw new Error(
+            "Note not found."
+          );
+
+        }
+
+
+        renderNote(
+          data.note,
+          data.sections || []
+        );
+
+
+      } catch (err) {
+
+        loading.classList.add(
+          "hidden"
+        );
+
+        error.textContent =
+          err.message ||
+          "Failed to load note.";
+
+        error.classList.remove(
+          "hidden"
+        );
+
+      }
+
+    }
+
+
+    /* =========================
+       RENDER NOTE
+    ========================= */
+
+    function renderNote(
+      noteData,
+      sectionData
+    ) {
+
+      loading.classList.add(
+        "hidden"
+      );
+
+      note.classList.remove(
+        "hidden"
+      );
+
+
+      noteTopic.textContent =
+        noteData.topic ||
+        topic;
+
+
+      noteTitle.textContent =
+        noteData.title ||
+        "Untitled Note";
+
+
+      noteMeta.textContent =
+        `${noteData.university || university} • ` +
+        `${noteData.course || course}` +
+        (
+          noteData.uploaded_by
+            ? ` • Uploaded by ${noteData.uploaded_by}`
+            : ""
+        );
+
+
+      sections.innerHTML =
+        "";
+
+
+      /* =========================
+         SORT SECTIONS
+      ========================= */
+
+      const orderedSections =
+        [...sectionData].sort(
+          (a, b) =>
+            Number(a.section_order || 0) -
+            Number(b.section_order || 0)
+        );
+
+
+      /* =========================
+         RENDER SECTIONS
+      ========================= */
+
+      orderedSections.forEach(
+        (section, index) => {
+
+          const sectionElement =
+            document.createElement(
+              "section"
+            );
+
+
+          sectionElement.className =
+            "note-section";
+
+
+          /* =========================
+             TOP AREA
+          ========================= */
+
+          const sectionTop =
+            document.createElement(
+              "div"
+            );
+
+          sectionTop.className =
+            "section-top";
+
+
+          const sectionHeading =
+            document.createElement(
+              "div"
+            );
+
+          sectionHeading.className =
+            "section-heading";
+
+
+          const number =
+            document.createElement(
+              "div"
+            );
+
+          number.className =
+            "section-number";
+
+          number.textContent =
+            `Section ${index + 1}`;
+
+
+          const heading =
+            document.createElement(
+              "h2"
+            );
+
+          heading.className =
+            "section-title";
+
+          heading.textContent =
+            section.title ||
+            "Untitled Section";
+
+
+          sectionHeading.appendChild(
+            number
+          );
+
+          sectionHeading.appendChild(
+            heading
+          );
+
+
+          /* =========================
+             ASK FAI BUTTON
+          ========================= */
+
+          const askFaiBtn =
+            document.createElement(
+              "button"
+            );
+
+          askFaiBtn.type =
+            "button";
+
+          askFaiBtn.className =
+            "ask-fai-btn";
+
+          askFaiBtn.textContent =
+            "Ask FAI";
+
+
+          sectionTop.appendChild(
+            sectionHeading
+          );
+
+          sectionTop.appendChild(
+            askFaiBtn
+          );
+
+
+          /* =========================
+             CONTENT
+          ========================= */
+
+          const content =
+            document.createElement(
+              "div"
+            );
+
+          content.className =
+            "section-content";
+
+          content.textContent =
+            section.content ||
+            "";
+
+
+          /* =========================
+             FAI MENU
+          ========================= */
+
+          const faiMenu =
+            document.createElement(
+              "div"
+            );
+
+          faiMenu.className =
+            "fai-menu hidden";
+
+
+          const faiActions =
+            document.createElement(
+              "div"
+            );
+
+          faiActions.className =
+            "fai-actions";
+
+
+          /* SUMMARIZE */
+
+          const summarizeBtn =
+            document.createElement(
+              "button"
+            );
+
+          summarizeBtn.type =
+            "button";
+
+          summarizeBtn.className =
+            "fai-action";
+
+          summarizeBtn.textContent =
+            "Summarize";
+
+
+          /* QUIZ ME */
+
+          const quizBtn =
+            document.createElement(
+              "button"
+            );
+
+          quizBtn.type =
+            "button";
+
+          quizBtn.className =
+            "fai-action";
+
+          quizBtn.textContent =
+            "Quiz Me";
+
+
+          /* ASK FAI */
+
+          const askQuestionBtn =
+            document.createElement(
+              "button"
+            );
+
+          askQuestionBtn.type =
+            "button";
+
+          askQuestionBtn.className =
+            "fai-action";
+
+          askQuestionBtn.textContent =
+            "Ask FAI";
+
+
+          faiActions.appendChild(
+            summarizeBtn
+          );
+
+          faiActions.appendChild(
+            quizBtn
+          );
+
+          faiActions.appendChild(
+            askQuestionBtn
+          );
+
+
+          faiMenu.appendChild(
+            faiActions
+          );
+
+
+          /* =========================
+             ASK FAI TOGGLE
+          ========================= */
+
+          askFaiBtn.addEventListener(
+            "click",
+            () => {
+
+              faiMenu.classList.toggle(
+                "hidden"
+              );
+
+            }
+          );
+
+
+          /* =========================
+             SUMMARIZE
+          ========================= */
+
+          summarizeBtn.addEventListener(
+            "click",
+            async () => {
+
+              await summarizeSection(
+                section,
+                faiMenu,
+                faiActions,
+                summarizeBtn
+              );
+
+            }
+          );
+
+
+          /* =========================
+             FUTURE FEATURES
+          ========================= */
+
+          quizBtn.addEventListener(
+            "click",
+            () => {
+
+              // Coming next
+
+            }
+          );
+
+
+          askQuestionBtn.addEventListener(
+            "click",
+            () => {
+
+              // Coming next
+
+            }
+          );
+
+
+          /* =========================
+             APPEND
+          ========================= */
+
+          sectionElement.appendChild(
+            sectionTop
+          );
+
+          sectionElement.appendChild(
+            content
+          );
+
+          sectionElement.appendChild(
+            faiMenu
+          );
+
+
+          sections.appendChild(
+            sectionElement
+          );
 
         }
       );
 
 
-    if (!response.ok) {
+      if (!orderedSections.length) {
 
-      throw new Error(
-        "Failed to load note."
-      );
+        const empty =
+          document.createElement(
+            "p"
+          );
 
-    }
+        empty.textContent =
+          "This note has no sections.";
 
+        sections.appendChild(
+          empty
+        );
 
-    const data =
-      await response.json();
-
-
-    if (!data.success) {
-
-      throw new Error(
-        data.error ||
-        "Failed to load note."
-      );
+      }
 
     }
 
 
-    if (!data.note) {
+    /* =========================
+       SUMMARIZE SECTION
+    ========================= */
 
-      throw new Error(
-        "Note not found."
+    async function summarizeSection(
+      section,
+      faiMenu,
+      faiActions,
+      summarizeBtn
+    ) {
+
+      const sectionContent =
+        section.content || "";
+
+
+      if (!sectionContent.trim()) {
+
+        return;
+
+      }
+
+
+      /* =========================
+         HIDE BUTTONS
+      ========================= */
+
+      faiActions.classList.add(
+        "hidden"
       );
+
+
+      /* =========================
+         LOADING
+      ========================= */
+
+      const loadingText =
+        document.createElement(
+          "p"
+        );
+
+      loadingText.className =
+        "fai-loading";
+
+      loadingText.textContent =
+        "FAI is summarizing...";
+
+
+      faiMenu.appendChild(
+        loadingText
+      );
+
+
+      try {
+
+        /* =========================
+           SEND TO FAI
+        ========================= */
+
+        const response =
+          await fetch(
+            window.CONFIG.API_URL +
+            "/fai",
+            {
+
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json"
+              },
+
+              body:
+                JSON.stringify({
+
+                  action:
+                    "summarize",
+
+                  prompt:
+                    `Summarize the following FSTUDY note section clearly for a student. Keep the important concepts, definitions, facts, and relationships. Do not leave out important academic information.
+
+Section title:
+${section.title || "Untitled Section"}
+
+Section content:
+${sectionContent}`,
+
+                  source:
+                    "fstudy",
+
+                  university:
+                    university,
+
+                  course:
+                    course,
+
+                  topic:
+                    topic,
+
+                  section_title:
+                    section.title || ""
+
+                })
+
+            }
+          );
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            "FAI request failed."
+          );
+
+        }
+
+
+        const data =
+          await response.json();
+
+
+        if (!data.success) {
+
+          throw new Error(
+            data.error ||
+            "FAI could not summarize this section."
+          );
+
+        }
+
+
+        /* =========================
+           GET RESPONSE
+        ========================= */
+
+        const summary =
+          data.response ||
+          data.answer ||
+          data.message ||
+          data.text;
+
+
+        if (!summary) {
+
+          throw new Error(
+            "FAI returned an empty response."
+          );
+
+        }
+
+
+        loadingText.remove();
+
+
+        const summaryElement =
+          document.createElement(
+            "p"
+          );
+
+        summaryElement.className =
+          "fai-summary";
+
+        summaryElement.textContent =
+          summary;
+
+
+        faiMenu.appendChild(
+          summaryElement
+        );
+
+
+      } catch (err) {
+
+        loadingText.remove();
+
+
+        const errorElement =
+          document.createElement(
+            "p"
+          );
+
+        errorElement.className =
+          "fai-error";
+
+        errorElement.textContent =
+          err.message ||
+          "Failed to summarize section.";
+
+
+        faiMenu.appendChild(
+          errorElement
+        );
+
+
+        /* =========================
+           ALLOW RETRY
+        ========================= */
+
+        faiActions.classList.remove(
+          "hidden"
+        );
+
+      }
 
     }
 
 
-    renderNote(
-      data.note,
-      data.sections || []
-    );
+    /* =========================
+       START
+    ========================= */
 
-
-  } catch (err) {
-
-    loading.classList.add(
-      "hidden"
-    );
-
-    error.textContent =
-      err.message ||
-      "Failed to load note.";
-
-    error.classList.remove(
-      "hidden"
-    );
+    loadNote();
 
   }
-
-}
-
-
-/* =========================
-   RENDER NOTE
-========================= */
-
-function renderNote(
-  noteData,
-  sectionData
-) {
-
-  loading.classList.add(
-    "hidden"
-  );
-
-  note.classList.remove(
-    "hidden"
-  );
-
-
-  noteTopic.textContent =
-    noteData.topic ||
-    topic;
-
-
-  noteTitle.textContent =
-    noteData.title ||
-    "Untitled Note";
-
-
-  noteMeta.textContent =
-    `${noteData.university || university} • ` +
-    `${noteData.course || course}` +
-    (
-      noteData.uploaded_by
-        ? ` • Uploaded by ${noteData.uploaded_by}`
-        : ""
-    );
-
-
-  sections.innerHTML =
-    "";
-
-
-  /* =========================
-     SORT SECTIONS
-  ========================= */
-
-  const orderedSections =
-    [...sectionData].sort(
-      (a, b) =>
-        Number(a.section_order || 0) -
-        Number(b.section_order || 0)
-    );
-
-
-  /* =========================
-     RENDER SECTIONS
-  ========================= */
-
-  orderedSections.forEach(
-    (section, index) => {
-
-      const sectionElement =
-        document.createElement(
-          "section"
-        );
-
-
-      sectionElement.className =
-        "note-section";
-
-
-      const number =
-        document.createElement(
-          "div"
-        );
-
-      number.className =
-        "section-number";
-
-      number.textContent =
-        `Section ${index + 1}`;
-
-
-      const heading =
-        document.createElement(
-          "h2"
-        );
-
-      heading.className =
-        "section-title";
-
-      heading.textContent =
-        section.title ||
-        "Untitled Section";
-
-
-      const content =
-        document.createElement(
-          "div"
-        );
-
-      content.className =
-        "section-content";
-
-      content.textContent =
-        section.content ||
-        "";
-
-
-      sectionElement.appendChild(
-        number
-      );
-
-      sectionElement.appendChild(
-        heading
-      );
-
-      sectionElement.appendChild(
-        content
-      );
-
-
-      sections.appendChild(
-        sectionElement
-      );
-
-    }
-  );
-
-
-  if (!orderedSections.length) {
-
-    const empty =
-      document.createElement(
-        "p"
-      );
-
-    empty.textContent =
-      "This note has no sections.";
-
-    sections.appendChild(
-      empty
-    );
-
-  }
-
-}
-
-
-/* =========================
-   START
-========================= */
-
-loadNote();
-
-}
 );

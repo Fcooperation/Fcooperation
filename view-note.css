@@ -1,305 +1,545 @@
 * {
   box-sizing: border-box;
-  }
+}
 
 body {
 
-margin: 0;
+  margin: 0;
 
-font-family: Arial, sans-serif;
+  font-family: Arial, sans-serif;
 
-background: #f7f7f7;
+  background: #f7f7f7;
 
-color: #222;
+  color: #222;
 
 }
 
+
 /* =========================
-TOP BAR
+   TOP BAR
 ========================= */
 
 #top {
 
-position: sticky;
+  position: sticky;
 
-top: 0;
+  top: 0;
 
-z-index: 10;
+  z-index: 10;
 
-display: flex;
+  display: flex;
 
-align-items: center;
+  align-items: center;
 
-gap: 14px;
+  gap: 14px;
 
-padding: 14px 15px;
+  padding: 14px 15px;
 
-background: white;
+  background: white;
 
-border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
 
 }
+
 
 #back-btn {
 
-border: none;
+  border: none;
 
-background: transparent;
+  background: transparent;
 
-font-size: 25px;
+  font-size: 25px;
 
-padding: 5px;
+  padding: 5px;
 
-cursor: pointer;
+  cursor: pointer;
 
 }
+
 
 #top-title {
 
-font-size: 18px;
+  font-size: 18px;
 
-font-weight: bold;
+  font-weight: bold;
 
 }
+
 
 #top-subtitle {
 
-margin-top: 3px;
+  margin-top: 3px;
 
-font-size: 13px;
+  font-size: 13px;
 
-color: #777;
+  color: #777;
 
 }
 
+
 /* =========================
-LOADING
+   LOADING
 ========================= */
 
 #loading {
 
-text-align: center;
+  text-align: center;
 
-padding: 55px 20px;
+  padding: 55px 20px;
 
-color: #777;
+  color: #777;
 
 }
+
 
 .loader {
 
-width: 35px;
+  width: 35px;
 
-height: 35px;
+  height: 35px;
 
-margin: 0 auto 15px;
+  margin: 0 auto 15px;
 
-border: 4px solid #ddd;
+  border: 4px solid #ddd;
 
-border-top-color: #222;
+  border-top-color: #222;
 
-border-radius: 50%;
+  border-radius: 50%;
 
-animation: spin 0.8s linear infinite;
+  animation: spin 0.8s linear infinite;
 
 }
+
 
 @keyframes spin {
 
-to {
+  to {
 
-transform: rotate(360deg);
+    transform: rotate(360deg);
+
+  }
 
 }
 
-}
 
 /* =========================
-HIDDEN
+   HIDDEN
 ========================= */
 
 .hidden {
 
-display: none !important;
+  display: none !important;
 
 }
 
+
 /* =========================
-ERROR
+   ERROR
 ========================= */
 
 #error {
 
-text-align: center;
+  text-align: center;
 
-padding: 45px 20px;
+  padding: 45px 20px;
 
-color: #d33;
+  color: #d33;
 
 }
 
+
 /* =========================
-NOTE
+   NOTE
 ========================= */
 
 #note {
 
-max-width: 760px;
+  max-width: 760px;
 
-margin: auto;
+  margin: auto;
 
-padding: 20px 15px 50px;
+  padding: 20px 15px 50px;
 
 }
 
+
 /* =========================
-NOTE HEADER
+   NOTE HEADER
 ========================= */
 
 .note-header {
 
-background: white;
+  background: white;
 
-border: 1px solid #ddd;
+  border: 1px solid #ddd;
 
-border-radius: 14px;
+  border-radius: 14px;
 
-padding: 22px;
+  padding: 22px;
 
-margin-bottom: 15px;
+  margin-bottom: 15px;
 
 }
+
 
 .note-topic {
 
-display: inline-block;
+  display: inline-block;
 
-font-size: 12px;
+  font-size: 12px;
 
-color: #555;
+  color: #555;
 
-background: #f0f0f0;
+  background: #f0f0f0;
 
-border-radius: 20px;
+  border-radius: 20px;
 
-padding: 6px 10px;
+  padding: 6px 10px;
 
-margin-bottom: 12px;
+  margin-bottom: 12px;
 
 }
+
 
 #note-title {
 
-margin: 0;
+  margin: 0;
 
-font-size: 25px;
+  font-size: 25px;
 
-line-height: 1.3;
+  line-height: 1.3;
 
 }
+
 
 .note-meta {
 
-margin-top: 12px;
+  margin-top: 12px;
 
-color: #777;
+  color: #777;
 
-font-size: 13px;
+  font-size: 13px;
 
-line-height: 1.5;
+  line-height: 1.5;
 
 }
 
+
 /* =========================
-SECTION
+   SECTION
 ========================= */
 
 .note-section {
 
-background: white;
+  background: white;
 
-border: 1px solid #ddd;
+  border: 1px solid #ddd;
 
-border-radius: 14px;
+  border-radius: 14px;
 
-padding: 20px;
+  padding: 20px;
 
-margin-bottom: 14px;
+  margin-bottom: 14px;
 
 }
+
+
+/* =========================
+   SECTION HEADER
+========================= */
+
+.section-top {
+
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  gap: 12px;
+
+}
+
+
+.section-heading {
+
+  min-width: 0;
+
+  flex: 1;
+
+}
+
 
 .section-number {
 
-font-size: 12px;
+  font-size: 12px;
 
-color: #777;
+  color: #777;
 
-margin-bottom: 5px;
+  margin-bottom: 5px;
 
-text-transform: uppercase;
+  text-transform: uppercase;
 
 }
+
 
 .section-title {
 
-margin: 0 0 14px;
+  margin: 0 0 14px;
 
-font-size: 20px;
+  font-size: 20px;
 
-line-height: 1.35;
+  line-height: 1.35;
 
 }
+
+
+/* =========================
+   ASK FAI BUTTON
+========================= */
+
+.ask-fai-btn {
+
+  flex-shrink: 0;
+
+  border: 1px solid #ddd;
+
+  background: white;
+
+  color: #222;
+
+  border-radius: 8px;
+
+  padding: 7px 11px;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+}
+
+
+.ask-fai-btn:active {
+
+  transform: scale(0.97);
+
+}
+
+
+/* =========================
+   SECTION CONTENT
+========================= */
 
 .section-content {
 
-font-size: 16px;
+  font-size: 16px;
 
-line-height: 1.75;
+  line-height: 1.75;
 
-color: #333;
+  color: #333;
 
-white-space: pre-wrap;
+  white-space: pre-wrap;
 
-overflow-wrap: anywhere;
+  overflow-wrap: anywhere;
 
 }
 
+
 /* =========================
-MOBILE
+   FAI MENU
+========================= */
+
+.fai-menu {
+
+  width: 100%;
+
+  margin-top: 12px;
+
+  padding: 12px;
+
+  border: 1px solid #ddd;
+
+  border-radius: 12px;
+
+  background: #fafafa;
+
+}
+
+
+/* =========================
+   FAI ACTION BUTTONS
+========================= */
+
+.fai-actions {
+
+  display: flex;
+
+  gap: 8px;
+
+  width: 100%;
+
+}
+
+
+.fai-action {
+
+  flex: 1;
+
+  border: 1px solid #ddd;
+
+  background: white;
+
+  border-radius: 10px;
+
+  padding: 10px 8px;
+
+  font-size: 13px;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+
+}
+
+
+.fai-action:active {
+
+  transform: scale(0.97);
+
+}
+
+
+/* =========================
+   FAI SUMMARY
+========================= */
+
+.fai-summary {
+
+  margin: 0;
+
+  padding: 2px 3px;
+
+  font-size: 15px;
+
+  line-height: 1.7;
+
+  color: #444;
+
+  font-style: italic;
+
+}
+
+
+/* =========================
+   FAI LOADING
+========================= */
+
+.fai-loading {
+
+  margin: 0;
+
+  padding: 2px 3px;
+
+  font-size: 14px;
+
+  color: #777;
+
+  font-style: italic;
+
+}
+
+
+/* =========================
+   FAI ERROR
+========================= */
+
+.fai-error {
+
+  margin: 0;
+
+  padding: 2px 3px;
+
+  font-size: 14px;
+
+  color: #c62828;
+
+}
+
+
+/* =========================
+   MOBILE
 ========================= */
 
 @media (max-width: 600px) {
 
-#note {
+  #note {
 
-padding: 14px 12px 40px;
+    padding: 14px 12px 40px;
 
-}
+  }
 
-.note-header {
 
-padding: 18px;
+  .note-header {
 
-}
+    padding: 18px;
 
-#note-title {
+  }
 
-font-size: 22px;
 
-}
+  #note-title {
 
-.note-section {
+    font-size: 22px;
 
-padding: 17px;
+  }
 
-}
 
-.section-content {
+  .note-section {
 
-font-size: 15px;
+    padding: 17px;
 
-line-height: 1.7;
+  }
 
-}
+
+  .section-content {
+
+    font-size: 15px;
+
+    line-height: 1.7;
+
+  }
+
+
+  .section-top {
+
+    align-items: flex-start;
+
+  }
+
+
+  .ask-fai-btn {
+
+    font-size: 11px;
+
+    padding: 7px 9px;
+
+  }
+
+
+  .fai-actions {
+
+    gap: 6px;
+
+  }
+
+
+  .fai-action {
+
+    font-size: 12px;
+
+    padding: 9px 5px;
+
+  }
 
 }
