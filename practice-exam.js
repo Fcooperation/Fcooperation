@@ -330,9 +330,6 @@ renderQuestion();
 
   function renderQuestion() {
 
-    clearTimer();
-
-
     const item =
       questions[currentIndex];
 
@@ -669,9 +666,6 @@ function startExamTimer() {
 
   function goNext() {
 
-    clearTimer();
-
-
     if (
       currentIndex <
       questions.length - 1
@@ -703,9 +697,6 @@ function startExamTimer() {
       return;
 
     }
-
-
-    clearTimer();
 
 
     currentIndex--;
