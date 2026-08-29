@@ -619,3 +619,18 @@ body {
   margin-bottom: 5px;
 
 }
+.fai-summary h4 {
+
+  margin: 9px 0 6px;
+
+  font-size: 15px;
+
+  color: #222;
+
+  font-weight: bold;
+
+  font-style: normal;
+
+  line-height: 1.35;
+
+}

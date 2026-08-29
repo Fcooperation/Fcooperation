@@ -630,7 +630,16 @@ function renderMarkdown(text) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
 
-  /* Headings */
+
+  /* =========================
+     HEADINGS
+  ========================= */
+
+  html = html.replace(
+    /^#### (.*)$/gm,
+    "<h4>$1</h4>"
+  );
+
   html = html.replace(
     /^### (.*)$/gm,
     "<h3>$1</h3>"
@@ -646,37 +655,59 @@ function renderMarkdown(text) {
     "<h1>$1</h1>"
   );
 
-  /* Bold */
+
+  /* =========================
+     BOLD
+  ========================= */
+
   html = html.replace(
     /\*\*(.*?)\*\*/g,
     "<strong>$1</strong>"
   );
 
-  /* Italic */
+
+  /* =========================
+     ITALIC
+  ========================= */
+
   html = html.replace(
     /\*(.*?)\*/g,
     "<em>$1</em>"
   );
 
-  /* Bullet points */
+
+  /* =========================
+     BULLET POINTS
+  ========================= */
+
   html = html.replace(
     /^[-•] (.*)$/gm,
     "<li>$1</li>"
   );
 
-  /* Group consecutive list items */
+
+  /* =========================
+     GROUP LIST ITEMS
+  ========================= */
+
   html = html.replace(
     /(<li>.*?<\/li>\n?)+/g,
     match => `<ul>${match}</ul>`
   );
 
-  /* Line breaks */
+
+  /* =========================
+     LINE BREAKS
+  ========================= */
+
   html = html.replace(
     /\n/g,
     "<br>"
   );
 
+
   return html;
+
 }
 
 /* =========================
