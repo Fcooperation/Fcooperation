@@ -557,10 +557,9 @@ cancelFaiBtn.addEventListener(
   () => {
 
     /* Remove FAI output */
-    faiMenu
-      .querySelectorAll(
-        ".fai-summary, .fai-loading, .fai-error"
-      )
+    faiMenu.querySelectorAll(
+  ".fai-summary, .fai-loading, .fai-error, .fai-quiz"
+)
       .forEach(
         element => element.remove()
       );
@@ -604,13 +603,18 @@ cancelFaiBtn.addEventListener(
           ========================= */
 
           quizBtn.addEventListener(
-            "click",
-            () => {
+  "click",
+  async () => {
 
-              // Coming next
+    await quizSection(
+      section,
+      faiMenu,
+      faiActions,
+      quizBtn
+    );
 
-            }
-          );
+  }
+);
 
 
           askQuestionBtn.addEventListener(
@@ -1148,6 +1152,950 @@ faiMenu.appendChild(
 
 }
 
+/* =========================
+   QUIZ SECTION
+========================= */
+
+async function quizSection(
+  section,
+  faiMenu,
+  faiActions,
+  quizBtn
+) {
+
+  const sectionContent =
+    section.content || "";
+
+
+  if (!sectionContent.trim()) {
+    return;
+  }
+
+
+  /* =========================
+     HIDE BUTTONS
+  ========================= */
+
+  faiActions.classList.add(
+    "hidden"
+  );
+
+
+  /* =========================
+     LOADING
+  ========================= */
+
+  const loadingText =
+    document.createElement(
+      "p"
+    );
+
+  loadingText.className =
+    "fai-loading";
+
+  loadingText.textContent =
+    "FAI is preparing your quiz...";
+
+
+  faiMenu.appendChild(
+    loadingText
+  );
+
+
+  setTimeout(() => {
+
+    faiMenu.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest"
+    });
+
+  }, 50);
+
+
+  try {
+
+    /* =========================
+       SEND TO FAI
+    ========================= */
+
+    const response =
+      await fetch(
+        window.CONFIG.API_URL +
+        "/fai",
+        {
+
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify({
+
+              prompt:
+                `You are generating a quiz for a student using ONLY the provided FSTUDY section.
+
+Generate exactly 5 multiple-choice questions.
+
+STRICT RULES:
+
+1. Use ONLY information contained in the provided section.
+2. Do not introduce outside information.
+3. Every question must have exactly 4 options.
+4. Only one option may be correct.
+5. Questions should test understanding, not just randomly copy sentences.
+6. Provide the correct answer as a zero-based option index.
+7. Provide a short explanation for the correct answer.
+8. Return ONLY valid JSON.
+9. Do not use Markdown.
+10. Do not wrap the JSON in code blocks.
+11. Do not write anything before or after the JSON.
+12. The response must begin with { and end with }.
+13. The JSON must follow this exact structure:
+
+{
+  "questions": [
+    {
+      "id": 1,
+      "question": "Question text",
+      "options": [
+        "Option 1",
+        "Option 2",
+        "Option 3",
+        "Option 4"
+      ],
+      "correct_answer": 0,
+      "explanation": "Explanation"
+    }
+  ]
+}
+
+FSTUDY SECTION:
+
+Section title:
+${section.title || "Untitled Section"}
+
+Section content:
+${sectionContent}`,
+
+              source:
+                "fstudy",
+
+              university:
+                university,
+
+              course:
+                course,
+
+              topic:
+                topic,
+
+              section_title:
+                section.title || ""
+
+            })
+
+        }
+      );
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        "FAI quiz request failed."
+      );
+
+    }
+
+
+    /* =========================
+       READ SSE STREAM
+    ========================= */
+
+    if (!response.body) {
+
+      throw new Error(
+        "FAI did not return a readable response."
+      );
+
+    }
+
+
+    const reader =
+      response.body.getReader();
+
+
+    const decoder =
+      new TextDecoder();
+
+
+    let buffer = "";
+
+    let quizText = "";
+
+
+    while (true) {
+
+      const {
+        value,
+        done
+      } =
+        await reader.read();
+
+
+      if (done) {
+        break;
+      }
+
+
+      buffer +=
+        decoder.decode(
+          value,
+          {
+            stream: true
+          }
+        );
+
+
+      const events =
+        buffer.split("\n\n");
+
+
+      buffer =
+        events.pop() || "";
+
+
+      for (
+        const eventText
+        of events
+      ) {
+
+        const lines =
+          eventText.split("\n");
+
+
+        for (
+          const line
+          of lines
+        ) {
+
+          if (
+            !line.startsWith("data:")
+          ) {
+            continue;
+          }
+
+
+          const jsonText =
+            line
+              .replace(
+                /^data:\s*/,
+                ""
+              )
+              .trim();
+
+
+          if (!jsonText) {
+            continue;
+          }
+
+
+          try {
+
+            const event =
+              JSON.parse(
+                jsonText
+              );
+
+
+            if (
+              event.type ===
+              "chunk"
+            ) {
+
+              quizText +=
+                event.text || "";
+
+            }
+
+
+            if (
+              event.type ===
+              "error"
+            ) {
+
+              throw new Error(
+                event.message ||
+                "FAI failed to create the quiz."
+              );
+
+            }
+
+          } catch (parseError) {
+
+            if (
+              parseError.message &&
+              !parseError.message.includes(
+                "Unexpected"
+              )
+            ) {
+
+              throw parseError;
+
+            }
+
+          }
+
+        }
+
+      }
+
+    }
+
+
+    loadingText.remove();
+
+
+    if (!quizText.trim()) {
+
+      throw new Error(
+        "FAI returned an empty quiz."
+      );
+
+    }
+
+
+    /* =========================
+       PARSE QUIZ JSON
+    ========================= */
+
+    let quizData;
+
+    try {
+
+      quizData =
+        JSON.parse(
+          quizText.trim()
+        );
+
+    } catch {
+
+      throw new Error(
+        "FAI returned invalid quiz data."
+      );
+
+    }
+
+
+    /* =========================
+       VALIDATE QUIZ
+    ========================= */
+
+    if (
+      !quizData.questions ||
+      !Array.isArray(
+        quizData.questions
+      ) ||
+      quizData.questions.length !== 5
+    ) {
+
+      throw new Error(
+        "FAI returned an invalid quiz."
+      );
+
+    }
+
+
+    quizData.questions.forEach(
+      question => {
+
+        if (
+          !question.question ||
+          !Array.isArray(
+            question.options
+          ) ||
+          question.options.length !== 4 ||
+          typeof question.correct_answer !==
+            "number" ||
+          question.correct_answer < 0 ||
+          question.correct_answer > 3
+        ) {
+
+          throw new Error(
+            "FAI returned an invalid question."
+          );
+
+        }
+
+      }
+    );
+
+
+    /* =========================
+       SHOW QUIZ
+    ========================= */
+
+    renderQuiz(
+      quizData,
+      faiMenu
+    );
+
+
+  } catch (err) {
+
+    loadingText.remove();
+
+
+    const errorElement =
+      document.createElement(
+        "p"
+      );
+
+    errorElement.className =
+      "fai-error";
+
+    errorElement.textContent =
+      err.message ||
+      "Failed to create quiz.";
+
+
+    faiMenu.appendChild(
+      errorElement
+    );
+
+
+    faiActions.classList.remove(
+      "hidden"
+    );
+
+
+    setTimeout(() => {
+
+      faiMenu.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+      });
+
+    }, 50);
+
+  }
+
+}
+
+/* =========================
+   RENDER QUIZ
+========================= */
+
+function renderQuiz(
+  quizData,
+  faiMenu
+) {
+
+  const questions =
+    quizData.questions;
+
+
+  let currentQuestion =
+    0;
+
+  const answers =
+    new Array(
+      questions.length
+    ).fill(null);
+
+
+  /* =========================
+     QUIZ CONTAINER
+  ========================= */
+
+  const quizElement =
+    document.createElement(
+      "div"
+    );
+
+  quizElement.className =
+    "fai-quiz";
+
+
+  faiMenu.appendChild(
+    quizElement
+  );
+
+
+  function renderQuestion() {
+
+    quizElement.innerHTML =
+      "";
+
+
+    const question =
+      questions[
+        currentQuestion
+      ];
+
+
+    /* =========================
+       PROGRESS
+    ========================= */
+
+    const progress =
+      document.createElement(
+        "div"
+      );
+
+    progress.className =
+      "quiz-progress";
+
+    progress.textContent =
+      `Question ${currentQuestion + 1} of ${questions.length}`;
+
+
+    quizElement.appendChild(
+      progress
+    );
+
+
+    /* =========================
+       QUESTION
+    ========================= */
+
+    const questionText =
+      document.createElement(
+        "div"
+      );
+
+    questionText.className =
+      "quiz-question";
+
+    questionText.textContent =
+      question.question;
+
+
+    quizElement.appendChild(
+      questionText
+    );
+
+
+    /* =========================
+       OPTIONS
+    ========================= */
+
+    const options =
+      document.createElement(
+        "div"
+      );
+
+    options.className =
+      "quiz-options";
+
+
+    question.options.forEach(
+      (optionText, index) => {
+
+        const option =
+          document.createElement(
+            "button"
+          );
+
+        option.type =
+          "button";
+
+        option.className =
+          "quiz-option";
+
+        option.textContent =
+          optionText;
+
+
+        if (
+          answers[
+            currentQuestion
+          ] === index
+        ) {
+
+          option.classList.add(
+            "selected"
+          );
+
+        }
+
+
+        option.addEventListener(
+          "click",
+          () => {
+
+            answers[
+              currentQuestion
+            ] = index;
+
+
+            renderQuestion();
+
+          }
+        );
+
+
+        options.appendChild(
+          option
+        );
+
+      }
+    );
+
+
+    quizElement.appendChild(
+      options
+    );
+
+
+    /* =========================
+       NAVIGATION
+    ========================= */
+
+    const navigation =
+      document.createElement(
+        "div"
+      );
+
+    navigation.className =
+      "quiz-navigation";
+
+
+    if (
+      currentQuestion <
+      questions.length - 1
+    ) {
+
+      const nextBtn =
+        document.createElement(
+          "button"
+        );
+
+      nextBtn.type =
+        "button";
+
+      nextBtn.className =
+        "quiz-next-btn";
+
+      nextBtn.textContent =
+        "Next";
+
+
+      nextBtn.addEventListener(
+        "click",
+        () => {
+
+          if (
+            answers[
+              currentQuestion
+            ] === null
+          ) {
+
+            return;
+
+          }
+
+
+          currentQuestion++;
+
+          renderQuestion();
+
+        }
+      );
+
+
+      navigation.appendChild(
+        nextBtn
+      );
+
+    } else {
+
+      const submitBtn =
+        document.createElement(
+          "button"
+        );
+
+      submitBtn.type =
+        "button";
+
+      submitBtn.className =
+        "quiz-submit-btn";
+
+      submitBtn.textContent =
+        "Submit Quiz";
+
+
+      submitBtn.addEventListener(
+        "click",
+        () => {
+
+          if (
+            answers.includes(
+              null
+            )
+          ) {
+
+            return;
+
+          }
+
+
+          submitQuiz();
+
+        }
+      );
+
+
+      navigation.appendChild(
+        submitBtn
+      );
+
+    }
+
+
+    quizElement.appendChild(
+      navigation
+    );
+
+
+    setTimeout(() => {
+
+      faiMenu.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+      });
+
+    }, 50);
+
+  }
+
+
+  /* =========================
+     SUBMIT QUIZ
+  ========================= */
+
+  function submitQuiz() {
+
+    let score = 0;
+
+
+    questions.forEach(
+      (question, index) => {
+
+        if (
+          answers[index] ===
+          question.correct_answer
+        ) {
+
+          score++;
+
+        }
+
+      }
+    );
+
+
+    renderQuizResults(
+      questions,
+      answers,
+      score,
+      quizElement
+    );
+
+  }
+
+
+  renderQuestion();
+
+}
+
+/* =========================
+   QUIZ RESULTS
+========================= */
+
+function renderQuizResults(
+  questions,
+  answers,
+  score,
+  quizElement
+) {
+
+  quizElement.innerHTML =
+    "";
+
+
+  /* =========================
+     SCORE
+  ========================= */
+
+  const scoreElement =
+    document.createElement(
+      "div"
+    );
+
+  scoreElement.className =
+    "quiz-score";
+
+  scoreElement.textContent =
+    `You scored ${score} / ${questions.length}`;
+
+
+  quizElement.appendChild(
+    scoreElement
+  );
+
+
+  /* =========================
+     CORRECTIONS
+  ========================= */
+
+  questions.forEach(
+    (question, index) => {
+
+      const correction =
+        document.createElement(
+          "div"
+        );
+
+      correction.className =
+        "quiz-correction";
+
+
+      const questionTitle =
+        document.createElement(
+          "div"
+        );
+
+      questionTitle.className =
+        "correction-question";
+
+      questionTitle.textContent =
+        `${index + 1}. ${question.question}`;
+
+
+      correction.appendChild(
+        questionTitle
+      );
+
+
+      const selected =
+        answers[index];
+
+
+      const correct =
+        question.correct_answer;
+
+
+      const result =
+        document.createElement(
+          "div"
+        );
+
+      result.className =
+        selected === correct
+          ? "correction-result correct"
+          : "correction-result wrong";
+
+
+      if (
+        selected === correct
+      ) {
+
+        result.textContent =
+          "✓ Correct";
+
+      } else {
+
+        result.textContent =
+          "✗ Incorrect";
+
+      }
+
+
+      correction.appendChild(
+        result
+      );
+
+
+      const answer =
+        document.createElement(
+          "div"
+        );
+
+      answer.className =
+        "correct-answer";
+
+
+      answer.textContent =
+        `Correct answer: ${question.options[correct]}`;
+
+
+      correction.appendChild(
+        answer
+      );
+
+
+      if (
+        selected !== correct
+      ) {
+
+        const yourAnswer =
+          document.createElement(
+            "div"
+          );
+
+        yourAnswer.className =
+          "your-answer";
+
+
+        yourAnswer.textContent =
+          `Your answer: ${question.options[selected]}`;
+
+
+        correction.appendChild(
+          yourAnswer
+        );
+
+      }
+
+
+      const explanation =
+        document.createElement(
+          "div"
+        );
+
+      explanation.className =
+        "quiz-explanation";
+
+      explanation.textContent =
+        question.explanation;
+
+
+      correction.appendChild(
+        explanation
+      );
+
+
+      quizElement.appendChild(
+        correction
+      );
+
+    }
+  );
+
+
+  setTimeout(() => {
+
+    quizElement.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest"
+    });
+
+  }, 50);
+
+}
 
     /* =========================
        START
