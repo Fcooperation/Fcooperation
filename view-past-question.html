@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Past Questions</title>
+
+  <link
+    rel="stylesheet"
+    href="view-past-question.css"
+  >
+
+</head>
+
+
+<body>
+
+
+  <!-- =========================
+       HEADER
+  ========================== -->
+
+  <header class="top-header">
+
+    <button
+      id="back-btn"
+      class="back-btn"
+    >
+      ←
+    </button>
+
+
+    <div class="header-info">
+
+      <h1 id="title">
+        Past Questions
+      </h1>
+
+      <p id="subtitle">
+        Loading...
+      </p>
+
+    </div>
+
+  </header>
+
+
+
+  <!-- =========================
+       LOADING
+  ========================== -->
+
+  <div
+    id="loading"
+    class="state"
+  >
+
+    <div class="loader"></div>
+
+    <p>
+      Loading questions...
+    </p>
+
+  </div>
+
+
+
+  <!-- =========================
+       ERROR
+  ========================== -->
+
+  <div
+    id="error"
+    class="state hidden"
+  ></div>
+
+
+
+  <!-- =========================
+       EMPTY
+  ========================== -->
+
+  <div
+    id="empty"
+    class="state hidden"
+  >
+
+    <p>
+      No questions found for this year.
+    </p>
+
+  </div>
+
+
+
+  <!-- =========================
+       QUESTION AREA
+  ========================== -->
+
+  <main
+    id="question-container"
+    class="question-container hidden"
+  >
+
+    <!-- Question cards inserted here -->
+
+  </main>
+
+
+
+  <!-- =========================
+       NAVIGATION
+  ========================== -->
+
+  <div
+    id="navigation"
+    class="navigation hidden"
+  >
+
+    <button
+      id="prev-btn"
+      class="nav-btn"
+    >
+      ← Previous
+    </button>
+
+
+    <div
+      id="question-counter"
+      class="question-counter"
+    >
+      1 / 1
+    </div>
+
+
+    <button
+      id="next-btn"
+      class="nav-btn"
+    >
+      Next →
+    </button>
+
+  </div>
+
+
+
+  <script src="view-past-question.js"></script>
+
+</body>
+
+</html>

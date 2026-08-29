@@ -232,38 +232,60 @@ renderPastQuestions(
       ========================= */
 
       card.addEventListener(
-        "click",
-        () => {
+  "click",
+  () => {
 
-          /*
-            For now we keep the selected
-            year available locally.
+    /*
+      Save the selected year
+    */
 
-            The actual share URL can later
-            use:
-
-            /fstudy/past-questions?id=...
-
-            without changing this page.
-          */
-
-          localStorage.setItem(
-            "past_question_year",
-            item.year
-          );
+    localStorage.setItem(
+      "past_question_year",
+      item.year
+    );
 
 
-          /*
-            Temporary destination.
-            Change this when the actual
-            question-viewing page exists.
-          */
+    /*
+      Save the questions belonging
+      to this year.
 
-          // location.href =
-          //   "past-question-view.html";
+      This will overwrite whatever
+      previous year was saved.
+    */
 
-        }
-      );
+    localStorage.setItem(
+      "past_question_data",
+      JSON.stringify(
+        item.questions || []
+      )
+    );
+
+
+    /*
+      Save basic course information
+      for the viewing page.
+    */
+
+    localStorage.setItem(
+      "past_question_university",
+      studyingUni
+    );
+
+    localStorage.setItem(
+      "past_question_course",
+      studying
+    );
+
+
+    /*
+      Open the question viewer
+    */
+
+    location.href =
+      "view-past-question";
+
+  }
+);
 
 
       list.appendChild(card);
