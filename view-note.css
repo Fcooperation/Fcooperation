@@ -543,3 +543,79 @@ body {
   }
 
 }
+
+/* =========================
+   FAI MARKDOWN
+========================= */
+
+.fai-summary {
+
+  margin: 0;
+
+  color: #333;
+
+  font-size: 15px;
+
+  line-height: 1.7;
+
+  font-style: italic;
+
+  white-space: normal;
+
+  overflow-wrap: anywhere;
+
+}
+
+.fai-summary h1,
+.fai-summary h2,
+.fai-summary h3 {
+
+  margin: 10px 0 7px;
+
+  color: #222;
+
+  font-style: normal;
+
+  line-height: 1.35;
+
+}
+
+.fai-summary h1 {
+  font-size: 20px;
+}
+
+.fai-summary h2 {
+  font-size: 18px;
+}
+
+.fai-summary h3 {
+  font-size: 16px;
+}
+
+.fai-summary strong {
+
+  font-weight: bold;
+
+  font-style: normal;
+
+}
+
+.fai-summary em {
+
+  font-style: italic;
+
+}
+
+.fai-summary ul {
+
+  margin: 6px 0 10px;
+
+  padding-left: 22px;
+
+}
+
+.fai-summary li {
+
+  margin-bottom: 5px;
+
+}
