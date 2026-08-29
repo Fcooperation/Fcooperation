@@ -64,6 +64,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const restartBtn =
     document.getElementById("restart-btn");
 
+const viewCorrectionsBtn =
+  document.getElementById(
+    "view-corrections-btn"
+  );
+  
 const submitBtn =
   document.getElementById("submit-btn");
 
@@ -814,44 +819,66 @@ confirmSubmit.addEventListener(
 
     let correct = 0;
 
-    let wrong = 0;
+let wrong = 0;
 
-    let unanswered = 0;
+let unanswered = 0;
+
+let review = [];
 
 
     questions.forEach(
-      (item, index) => {
+  (item, index) => {
 
-        const userAnswer =
-          answers[index];
+    const userAnswer =
+      answers[index];
+
+    review.push({
+      question:
+        item.question || "",
+
+      options:
+        Array.isArray(item.options)
+          ? item.options
+          : [],
+
+      correct:
+        item.answer || "",
+
+      selected:
+        userAnswer,
+
+      explanation:
+        item.explanation ||
+        "No explanation available."
+    });
 
 
-        if (
-          userAnswer === null
-        ) {
+    if (
+      userAnswer === null
+    ) {
 
-          unanswered++;
+      unanswered++;
 
-          return;
+      return;
 
-        }
+    }
 
 
-        if (
-          String(userAnswer).trim() ===
-          String(item.answer).trim()
-        ) {
+    if (
+      String(userAnswer).trim() ===
+      String(item.answer).trim()
+    ) {
 
-          correct++;
+      correct++;
 
-        } else {
+    } else {
 
-          wrong++;
+      wrong++;
 
-        }
+    }
 
-      }
-    );
+  }
+);
 
 
     const total =
@@ -866,6 +893,19 @@ confirmSubmit.addEventListener(
           )
         : 0;
 
+localStorage.setItem(
+  "quizResult",
+  JSON.stringify({
+    review: review,
+    score: correct,
+    total: questions.length,
+    percentage: percentage,
+    course: studying,
+    university: studyingUni,
+    source: "practice-exam",
+    timestamp: Date.now()
+  })
+);
 
     exam.classList.add(
       "hidden"
@@ -914,6 +954,16 @@ confirmSubmit.addEventListener(
 
   }
 
+// View Correction button
+viewCorrectionsBtn.addEventListener(
+  "click",
+  () => {
+
+    window.location.href =
+      "/explanations";
+
+  }
+);
 
   /* =========================
      RESTART
