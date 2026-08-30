@@ -614,7 +614,42 @@ faiMenu.appendChild(
             "Ask FAI";
 
 
-          faiActions.appendChild(
+          /* =========================
+   TRANSLATE TO ENGLISH
+========================= */
+
+const translateBtn =
+  document.createElement(
+    "button"
+  );
+
+translateBtn.type =
+  "button";
+
+translateBtn.className =
+  "fai-action";
+
+translateBtn.textContent =
+  "Translate to English";
+
+if (
+  containsEnglish(
+    section.content || ""
+  )
+) {
+
+  translateBtn.classList.add(
+    "hidden"
+  );
+
+}
+
+
+/* =========================
+   ADD ACTION BUTTONS
+========================= */
+
+faiActions.appendChild(
   summarizeBtn
 );
 
@@ -629,39 +664,6 @@ faiActions.appendChild(
 faiActions.appendChild(
   translateBtn
 );
-
-
-          faiMenu.appendChild(
-            faiActions
-          );
-
-
-/* TRANSLATE TO ENGLISH */
-
-const translateBtn =
-  document.createElement(
-    "button"
-  );
-
-translateBtn.type = "button";
-
-translateBtn.className =
-  "fai-action";
-
-translateBtn.textContent =
-  "Translate to English";
-  
-  if (
-  containsEnglish(
-    section.content || ""
-  )
-) {
-
-  translateBtn.classList.add(
-    "hidden"
-  );
-
-}
 
 
           /* =========================
