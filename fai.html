@@ -18,17 +18,19 @@
 
   </div></div><div id="chat-box"></div>
   <div id="input-area">
-<input
-  type="file"
-  id="photos-input"
-  accept="image/*"
-  hidden
->
-<input
-  type="file"
-  id="files-input"
-  hidden
->
+
+  <input
+    type="file"
+    id="photos-input"
+    accept="image/*"
+    hidden
+  >
+
+  <input
+    type="file"
+    id="files-input"
+    hidden
+  >
 
   <button id="plus-btn" type="button">+</button>
 
@@ -44,13 +46,59 @@
       Files
     </button>
 
+    <button id="generate-image-btn" type="button">
+      <span>✦</span>
+      Generate image
+    </button>
+
   </div>
-<div id="image-preview"></div>
+
+  <div id="image-preview"></div>
+
+  <!-- NORMAL FAI INPUT -->
   <textarea
     id="prompt"
     placeholder="Ask a study question..."
     rows="1"
   ></textarea>
+
+  <!-- IMAGE GENERATION MODE -->
+  <div id="image-generation-mode">
+
+    <div class="image-generation-header">
+
+      <div class="image-generation-title">
+        <span>✦</span>
+        Generate image
+      </div>
+
+      <button
+        id="cancel-image-generation"
+        type="button"
+      >
+        Cancel
+      </button>
+
+    </div>
+
+    <div class="image-generation-body">
+
+      <textarea
+        id="image-generation-prompt"
+        placeholder="Describe your image..."
+        rows="1"
+      ></textarea>
+
+      <button
+        id="image-edit-upload-btn"
+        type="button"
+      >
+        Add image
+      </button>
+
+    </div>
+
+  </div>
 
   <button id="send-btn" type="button">
     Send

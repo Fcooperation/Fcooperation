@@ -292,54 +292,188 @@ border-radius:10px;
   flex-shrink: 0;
 }
 
-/* ---------- UPLOAD MENU ---------- */
+/* ==========================================
+   PLUS / FEATURE MENU
+========================================== */
+
+#plus-btn {
+  width: 42px;
+  height: 42px;
+
+  padding: 0;
+
+  border: none;
+  border-radius: 50%;
+
+  background: #f2f2f2;
+  color: #111;
+
+  font-size: 26px;
+
+  cursor: pointer;
+
+  flex-shrink: 0;
+
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease;
+}
+
+#plus-btn:hover {
+  background: #e8e8e8;
+}
+
+#plus-btn:active {
+  transform: scale(0.94);
+}
+
+
+/* ==========================================
+   FEATURE MENU
+========================================== */
 
 #upload-menu {
+
   position: absolute;
+
   left: 15px;
   bottom: 70px;
 
   display: none;
   flex-direction: column;
-  gap: 6px;
 
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 12px;
+  gap: 4px;
+
+  min-width: 190px;
+
   padding: 8px;
 
-  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  background: rgba(255,255,255,0.98);
+
+  border: 1px solid #ddd;
+
+  border-radius: 15px;
+
+  box-shadow:
+    0 8px 30px rgba(0,0,0,0.14);
 
   z-index: 2000;
+
+  animation:
+    menuAppear 0.15s ease;
 }
 
 #upload-menu.show {
   display: flex;
 }
 
+
+@keyframes menuAppear {
+
+  from {
+    opacity: 0;
+    transform:
+      translateY(6px)
+      scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform:
+      translateY(0)
+      scale(1);
+  }
+
+}
+
+
+/* ==========================================
+   MENU BUTTONS
+========================================== */
+
 #upload-menu button {
+
+  width: 100%;
+
   border: none;
-  background: white;
-  padding: 10px 14px;
+
+  background: transparent;
+
+  padding: 12px;
 
   display: flex;
-  align-items: center;
-  gap: 10px;
 
-  border-radius: 8px;
+  align-items: center;
+
+  gap: 12px;
+
+  border-radius: 10px;
+
   cursor: pointer;
+
   text-align: left;
 
   white-space: nowrap;
+
+  color: #222;
+
+  font-size: 14px;
+
+  transition:
+    background 0.15s ease,
+    transform 0.1s ease;
 }
 
 #upload-menu button:hover {
-  background: #f2f2f2;
+
+  background: #f2f4f7;
+
 }
 
-#upload-menu span {
-  width: 20px;
-  text-align: center;
+#upload-menu button:active {
+
+  transform: scale(0.98);
+
+}
+
+
+/* ICON */
+
+#upload-menu button span {
+
+  width: 30px;
+  height: 30px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: #f0f2f5;
+
+  font-size: 17px;
+
+  flex-shrink: 0;
+
+}
+
+
+/* GENERATE IMAGE BUTTON */
+
+#generate-image-btn span {
+
+  background: #e8f4ff;
+
+  color: #1d9bf0;
+
+}
+
+#generate-image-btn {
+
+  font-weight: 600;
+
 }
 
 /* ---------- ATTACHMENT PREVIEW ---------- */
@@ -847,4 +981,270 @@ border-radius:10px;
   align-items: center;
   gap: 8px;
   margin-top: 2px;
+}
+
+/* ==========================================
+   IMAGE GENERATION MODE
+========================================== */
+
+#image-generation-mode {
+
+  position: relative;
+
+  flex: 1;
+
+  min-width: 0;
+
+  display: none;
+
+  flex-direction: column;
+
+  border: 2px solid #1d9bf0;
+
+  border-radius: 14px;
+
+  background: #fff;
+
+  overflow: hidden;
+
+  box-shadow:
+    0 0 0 2px rgba(29,155,240,0.05);
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+#image-generation-mode.active {
+
+  display: flex;
+
+  animation:
+    imageModeAppear 0.18s ease;
+
+}
+
+
+@keyframes imageModeAppear {
+
+  from {
+
+    opacity: 0;
+
+    transform:
+      translateY(4px);
+
+  }
+
+  to {
+
+    opacity: 1;
+
+    transform:
+      translateY(0);
+
+  }
+
+}
+
+
+/* ==========================================
+   IMAGE MODE HEADER
+========================================== */
+
+.image-generation-header {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  padding: 7px 9px;
+
+  border-bottom: 1px solid #e3e3e3;
+
+  background: #f8fbff;
+
+}
+
+
+.image-generation-title {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  color: #1d9bf0;
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+}
+
+
+.image-generation-title span {
+
+  font-size: 15px;
+
+}
+
+
+/* ==========================================
+   CANCEL
+========================================== */
+
+#cancel-image-generation {
+
+  border: none;
+
+  background: transparent;
+
+  color: #777;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  padding: 5px 7px;
+
+  border-radius: 7px;
+
+  cursor: pointer;
+
+}
+
+
+#cancel-image-generation:hover {
+
+  background: #eee;
+
+  color: #222;
+
+}
+
+
+/* ==========================================
+   IMAGE MODE BODY
+========================================== */
+
+.image-generation-body {
+
+  display: flex;
+
+  align-items: flex-end;
+
+  gap: 7px;
+
+  padding: 0 7px;
+
+}
+
+
+/*
+  Override the normal textarea styling
+*/
+#image-generation-mode #image-generation-prompt {
+
+  flex: 1;
+
+  width: 100%;
+
+  border: none;
+
+  outline: none;
+
+  border-radius: 0;
+
+  background: transparent;
+
+  padding: 10px 5px;
+
+  min-height: 42px;
+
+  max-height: 120px;
+
+  box-shadow: none;
+
+}
+
+
+/* ==========================================
+   ADD IMAGE BUTTON
+========================================== */
+
+#image-edit-upload-btn {
+
+  flex-shrink: 0;
+
+  margin-bottom: 7px;
+
+  padding: 7px 9px;
+
+  border: 1px solid #cfd8e3;
+
+  border-radius: 8px;
+
+  background: #fff;
+
+  color: #333;
+
+  font-size: 11px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+}
+
+
+#image-edit-upload-btn:hover {
+
+  background: #f3f6f9;
+
+}
+
+#image-generation-prompt {
+
+  flex: 1;
+
+  width: 100%;
+
+  border: none;
+
+  outline: none;
+
+  border-radius: 0;
+
+  background: transparent;
+
+  padding: 10px 5px;
+
+  min-height: 42px;
+
+  max-height: 120px;
+
+  resize: none;
+
+  overflow: hidden;
+
+  line-height: 1.4;
+
+  font-family: inherit;
+
+  box-shadow: none;
+
+}
+
+#input-area {
+  align-items: flex-end;
+}
+
+#input-area > #prompt {
+  flex: 1;
+  min-width: 0;
 }

@@ -23,6 +23,21 @@ document.getElementById("plus-btn");
 const uploadMenu =
 document.getElementById("upload-menu");
 
+const generateImageBtn =
+document.getElementById("generate-image-btn");
+
+const imageGenerationMode =
+document.getElementById("image-generation-mode");
+
+const imageGenerationPrompt =
+document.getElementById("image-generation-prompt");
+
+const cancelImageGeneration =
+document.getElementById("cancel-image-generation");
+
+const imageEditUploadBtn =
+document.getElementById("image-edit-upload-btn");
+
 const photosBtn =
 document.getElementById("photos-btn");
 
@@ -74,6 +89,8 @@ function escapeHtml(text) {
 let isSending = false;
 let selectedFile = null;
 
+let imageGenerationModeActive = false;
+
   function autoResize() {
   promptInput.style.height = "auto";
   promptInput.style.height = promptInput.scrollHeight + "px";
@@ -81,10 +98,103 @@ let selectedFile = null;
   
   promptInput.addEventListener("input", autoResize);
 
+if (imageGenerationPrompt) {
+
+  imageGenerationPrompt.addEventListener(
+    "input",
+    () => {
+
+      imageGenerationPrompt.style.height =
+        "auto";
+
+      imageGenerationPrompt.style.height =
+        imageGenerationPrompt.scrollHeight +
+        "px";
+
+    }
+  );
+
+}
+
 let messages =
 JSON.parse(
 localStorage.getItem(STORAGE_KEY)
 ) || [];
+
+// Update Inout mode
+function updateInputMode() {
+
+  if (!promptInput) return;
+
+  if (imageGenerationModeActive) {
+
+    promptInput.style.display = "none";
+
+  } else {
+
+    promptInput.style.display = "";
+
+  }
+
+}
+
+/* ---------- IMAGE GENERATION MODE ---------- */
+
+function enterImageGenerationMode() {
+
+  imageGenerationModeActive = true;
+
+  if (imageGenerationMode) {
+    imageGenerationMode.classList.add("active");
+  }
+
+  updateInputMode();
+
+  if (imageGenerationPrompt) {
+    imageGenerationPrompt.value = "";
+    imageGenerationPrompt.focus();
+  }
+
+  if (uploadMenu) {
+    uploadMenu.classList.remove("show");
+  }
+}
+
+
+function exitImageGenerationMode() {
+
+  imageGenerationModeActive = false;
+
+  if (imageGenerationMode) {
+    imageGenerationMode.classList.remove("active");
+  }
+  
+updateInputMode();
+
+  if (imageGenerationPrompt) {
+  imageGenerationPrompt.value = "";
+}
+
+  /*
+    If the user cancels image generation,
+    remove any image they selected for editing.
+  */
+
+  selectedFile = null;
+
+  if (photosInput) {
+    photosInput.value = "";
+  }
+
+  if (filesInput) {
+    filesInput.value = "";
+  }
+
+  if (imagePreview) {
+    imagePreview.innerHTML = "";
+    imagePreview.classList.remove("show");
+  }
+}
 
 /* ---------- RELOAD AI RESPONSE ---------- */
 
@@ -714,6 +824,45 @@ if (plusBtn && uploadMenu) {
 
 }
 
+/* ---------- GENERATE IMAGE BUTTON ---------- */
+
+if (generateImageBtn) {
+
+  generateImageBtn.onclick = () => {
+
+    enterImageGenerationMode();
+
+  };
+
+}
+
+
+/* ---------- CANCEL IMAGE GENERATION ---------- */
+
+if (cancelImageGeneration) {
+
+  cancelImageGeneration.onclick = () => {
+
+    exitImageGenerationMode();
+
+  };
+
+}
+
+/* ---------- IMAGE EDIT UPLOAD ---------- */
+
+if (imageEditUploadBtn) {
+
+  imageEditUploadBtn.onclick = () => {
+
+    if (photosInput) {
+      photosInput.click();
+    }
+
+  };
+
+}
+
 document.addEventListener("click", e => {
 
   if (
@@ -861,15 +1010,14 @@ if (photosInput) {
 
   photosInput.addEventListener("change", () => {
 
-    const file = photosInput.files[0];
+    const file =
+      photosInput.files[0];
 
-    if (file) {
+    if (!file) return;
 
-      selectedFile = file;
+    selectedFile = file;
 
-      showFilePreview(file);
-
-    }
+    showFilePreview(file);
 
   });
 
@@ -1133,6 +1281,436 @@ function setupCodeBlocks(container) {
 
 }
 
+/* ==========================================
+   IMAGE GENERATION REQUEST
+========================================== */
+
+async function sendImageGenerationRequest(
+  prompt,
+  file
+) {
+
+  if (isSending) return;
+
+  if (!prompt && !file) {
+    return;
+  }
+
+  isSending = true;
+
+  /*
+    -----------------------------------------
+    SHOW USER MESSAGE
+    -----------------------------------------
+  */
+
+  let attachment = null;
+
+  if (file) {
+
+    const isImage =
+      file.type &&
+      file.type.startsWith("image/");
+
+    attachment = {
+      type: isImage ? "image" : "file",
+      name:
+        file.name ||
+        "Attached image"
+    };
+
+    /*
+      Create local preview
+      so the user sees the image
+      they are asking FAI2 to edit.
+    */
+
+    if (isImage) {
+
+      try {
+
+        const imageData =
+          await new Promise(
+            (resolve, reject) => {
+
+              const reader =
+                new FileReader();
+
+              reader.onload = () => {
+                resolve(
+                  reader.result
+                );
+              };
+
+              reader.onerror = () => {
+                reject(
+                  new Error(
+                    "Could not read image"
+                  )
+                );
+              };
+
+              reader.readAsDataURL(
+                file
+              );
+
+            }
+          );
+
+        attachment.data =
+          imageData;
+
+      } catch (err) {
+
+        console.error(
+          "Image preview error:",
+          err
+        );
+
+        attachment.data = null;
+
+      }
+
+    }
+
+  }
+
+  messages.push({
+    role: "user",
+    text: prompt,
+    attachment,
+    imageGeneration: true
+  });
+
+  renderMessages();
+  saveMessages();
+
+  /*
+    -----------------------------------------
+    CLEAR INPUT
+    -----------------------------------------
+  */
+
+  promptInput.value = "";
+  promptInput.style.height = "auto";
+
+  /*
+    -----------------------------------------
+    ACCOUNT
+    -----------------------------------------
+  */
+
+  const account =
+    JSON.parse(
+      localStorage.getItem(
+        "faccount"
+      )
+    ) || {};
+
+  const userId =
+    account?.userId ||
+    account?.id ||
+    "guest";
+
+  /*
+    -----------------------------------------
+    FORM DATA
+    -----------------------------------------
+  */
+
+  const formData =
+    new FormData();
+
+  formData.append(
+    "userId",
+    userId
+  );
+
+  formData.append(
+    "prompt",
+    prompt
+  );
+
+  /*
+    -----------------------------------------
+    ATTACHED IMAGE
+    -----------------------------------------
+  */
+
+  if (file) {
+
+    let uploadFile = file;
+
+    /*
+      Compress image before sending.
+    */
+
+    if (
+      file.type &&
+      file.type.startsWith(
+        "image/"
+      )
+    ) {
+
+      uploadFile =
+        await compressImage(file);
+
+    }
+
+    formData.append(
+      "file",
+      uploadFile,
+      uploadFile.name ||
+      "image.jpg"
+    );
+
+  }
+
+  /*
+    -----------------------------------------
+    SHOW TYPING
+    -----------------------------------------
+  */
+
+  showTyping();
+
+  /*
+    -----------------------------------------
+    SEND TO FAI2
+    -----------------------------------------
+  */
+
+  try {
+
+    const res =
+      await fetch(
+        "https://fweb-backend.onrender.com/fai-generate-image",
+        {
+          method: "POST",
+          body: formData
+        }
+      );
+
+    if (!res.ok) {
+
+      const errorText =
+        await res.text();
+
+      throw new Error(
+        errorText ||
+        `HTTP ${res.status}`
+      );
+
+    }
+
+    /*
+      IMPORTANT:
+      We will handle the exact response
+      from fai2.js here once we define
+      its response format.
+    */
+
+    const contentType =
+      res.headers.get(
+        "content-type"
+      ) || "";
+
+    /*
+      -------------------------------------
+      JSON RESPONSE
+      -------------------------------------
+    */
+
+    if (
+      contentType.includes(
+        "application/json"
+      )
+    ) {
+
+      const data =
+        await res.json();
+
+      removeTyping();
+
+      /*
+        Expected structure can be:
+
+        {
+          success: true,
+          image: "https://...",
+          answer: "..."
+        }
+      */
+
+      if (
+        data.success === false
+      ) {
+
+        throw new Error(
+          data.message ||
+          "Image generation failed."
+        );
+
+      }
+
+      messages.push({
+
+        role: "ai",
+
+        text:
+          data.answer ||
+          "",
+
+        image:
+          data.image ||
+          null,
+
+        status:
+          "complete",
+
+        imageGeneration:
+          true
+
+      });
+
+      renderMessages();
+      saveMessages();
+
+    }
+
+    /*
+      -------------------------------------
+      SSE RESPONSE
+      -------------------------------------
+    */
+
+    else {
+
+      /*
+        If fai2.js eventually streams its
+        response using SSE, this gives us
+        a place to support it.
+
+        For now we read the response as text.
+      */
+
+      const text =
+        await res.text();
+
+      removeTyping();
+
+      let imageUrl = null;
+      let answer = "";
+
+      /*
+        Try to detect JSON if the endpoint
+        returns it as text.
+      */
+
+      try {
+
+        const data =
+          JSON.parse(text);
+
+        imageUrl =
+          data.image ||
+          data.imageUrl ||
+          null;
+
+        answer =
+          data.answer ||
+          data.message ||
+          "";
+
+      } catch {
+
+        answer = text;
+
+      }
+
+      messages.push({
+
+        role: "ai",
+
+        text: answer,
+
+        image: imageUrl,
+
+        status: "complete",
+
+        imageGeneration: true
+
+      });
+
+      renderMessages();
+      saveMessages();
+
+    }
+
+  } catch (err) {
+
+    console.error(
+      "❌ IMAGE GENERATION ERROR:",
+      err
+    );
+
+    removeTyping();
+
+    messages.push({
+
+      role: "ai",
+
+      text:
+        "Couldn't generate the image. Please try again.",
+
+      status: "complete",
+
+      imageGeneration: true
+
+    });
+
+    renderMessages();
+    saveMessages();
+
+  } finally {
+
+    /*
+      Clear image-generation state
+      after the request.
+    */
+
+    selectedFile = null;
+
+    if (photosInput) {
+      photosInput.value = "";
+    }
+
+    if (filesInput) {
+      filesInput.value = "";
+    }
+
+    if (imagePreview) {
+
+      imagePreview.innerHTML = "";
+
+      imagePreview.classList.remove(
+        "show"
+      );
+
+    }
+
+    /*
+      Return to normal FAI mode.
+    */
+
+    exitImageGenerationMode();
+
+    isSending = false;
+
+  }
+
+}
+
 /* ---------- SEND ---------- */
 
 async function sendPrompt() {
@@ -1140,10 +1718,31 @@ async function sendPrompt() {
   if (isSending) return;
 
   const prompt =
-    promptInput.value.trim();
+  imageGenerationModeActive
+    ? imageGenerationPrompt.value.trim()
+    : promptInput.value.trim();
 
-  const file =
-    selectedFile;
+const file =
+  selectedFile;
+
+  /*
+    IMAGE GENERATION MODE
+    ---------------------
+    If the user activated Generate Image,
+    do NOT send the request to /fai.
+
+    Send it to /fai-generate-image instead.
+  */
+
+  if (imageGenerationModeActive) {
+
+    await sendImageGenerationRequest(
+      prompt,
+      file
+    );
+
+    return;
+  }
 
   if (!prompt && !file) {
     return;
