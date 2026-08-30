@@ -67,26 +67,79 @@ document.addEventListener(
 
 
     /* =========================
-       GET VIEWING NOTE
-    ========================= */
+   GET VIEWING NOTE
+========================= */
 
-    let viewingNote = null;
+let viewingNote = null;
 
 
-    try {
+/* =========================
+   CHECK URL PARAMETERS
+========================= */
 
-      viewingNote =
-        JSON.parse(
-          localStorage.getItem(
-            "viewing_note"
-          )
-        );
+const urlParams =
+  new URLSearchParams(
+    window.location.search
+  );
 
-    } catch {
+const urlUniversity =
+  urlParams.get("university");
 
-      viewingNote = null;
+const urlCourse =
+  urlParams.get("course");
 
-    }
+const urlTopic =
+  urlParams.get("topic");
+
+
+/* =========================
+   USE SHARED LINK IF AVAILABLE
+========================= */
+
+if (
+  urlUniversity &&
+  urlCourse &&
+  urlTopic
+) {
+
+  viewingNote = {
+
+    university:
+      urlUniversity,
+
+    course:
+      urlCourse,
+
+    topic:
+      urlTopic
+
+  };
+
+}
+
+
+/* =========================
+   OTHERWISE USE LOCALSTORAGE
+========================= */
+
+else {
+
+  try {
+
+    viewingNote =
+      JSON.parse(
+        localStorage.getItem(
+          "viewing_note"
+        )
+      );
+
+  } catch {
+
+    viewingNote = null;
+
+  }
+
+}
 
 
     /* =========================
