@@ -53,28 +53,23 @@ document.addEventListener(
 
 
     /* =========================
-       GET SAVED DATA
+       GET URL PARAMETERS
     ========================= */
 
-    const university =
-      localStorage.getItem(
-        "past_question_university"
+    const params =
+      new URLSearchParams(
+        window.location.search
       );
+
+
+    const university =
+      params.get("university");
 
     const course =
-      localStorage.getItem(
-        "past_question_course"
-      );
+      params.get("course");
 
     const year =
-      localStorage.getItem(
-        "past_question_year"
-      );
-
-    const savedQuestions =
-      localStorage.getItem(
-        "past_question_data"
-      );
+      params.get("year");
 
 
     /* =========================
@@ -84,8 +79,7 @@ document.addEventListener(
     if (
       !university ||
       !course ||
-      !year ||
-      !savedQuestions
+      !year
     ) {
 
       loading.classList.add(
@@ -93,58 +87,9 @@ document.addEventListener(
       );
 
       error.textContent =
-        "No past question was selected.";
+        "Invalid past question link.";
 
       error.classList.remove(
-        "hidden"
-      );
-
-      return;
-
-    }
-
-
-    /* =========================
-       PARSE QUESTIONS
-    ========================= */
-
-    let questions;
-
-    try {
-
-      questions =
-        JSON.parse(
-          savedQuestions
-        );
-
-    } catch (err) {
-
-      loading.classList.add(
-        "hidden"
-      );
-
-      error.textContent =
-        "Unable to read saved questions.";
-
-      error.classList.remove(
-        "hidden"
-      );
-
-      return;
-
-    }
-
-
-    if (
-      !Array.isArray(questions) ||
-      !questions.length
-    ) {
-
-      loading.classList.add(
-        "hidden"
-      );
-
-      empty.classList.remove(
         "hidden"
       );
 
@@ -168,7 +113,119 @@ document.addEventListener(
        STATE
     ========================= */
 
+    let questions = [];
+
     let currentIndex = 0;
+
+
+    /* =========================
+       LOAD QUESTIONS
+    ========================= */
+
+    async function loadQuestions() {
+
+      try {
+
+        const response =
+          await fetch(
+            window.CONFIG.API_URL +
+            "/admin",
+            {
+
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json"
+              },
+
+              body:
+                JSON.stringify({
+
+                  action:
+                    "retrieve_past_questions",
+
+                  university:
+                    university,
+
+                  course:
+                    course,
+
+                  year:
+                    year
+
+                })
+
+            }
+          );
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            "Failed to load past questions."
+          );
+
+        }
+
+
+        const data =
+          await response.json();
+
+
+        if (!data.success) {
+
+          throw new Error(
+            data.error ||
+            "Failed to load past questions."
+          );
+
+        }
+
+
+        questions =
+          data.questions || [];
+
+
+        loading.classList.add(
+          "hidden"
+        );
+
+
+        if (
+          !Array.isArray(questions) ||
+          !questions.length
+        ) {
+
+          empty.classList.remove(
+            "hidden"
+          );
+
+          return;
+
+        }
+
+
+        renderQuestion();
+
+
+      } catch (err) {
+
+        loading.classList.add(
+          "hidden"
+        );
+
+        error.textContent =
+          err.message ||
+          "Failed to load past questions.";
+
+        error.classList.remove(
+          "hidden"
+        );
+
+      }
+
+    }
 
 
     /* =========================
@@ -186,7 +243,8 @@ document.addEventListener(
       }
 
 
-      container.innerHTML = "";
+      container.innerHTML =
+        "";
 
 
       /* =========================
@@ -287,15 +345,14 @@ document.addEventListener(
           : [];
 
 
-      const optionLetters =
-        [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E",
-          "F"
-        ];
+      const optionLetters = [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+      ];
 
 
       options.forEach(
@@ -518,6 +575,7 @@ document.addEventListener(
         question
       );
 
+
       if (options.length) {
 
         card.appendChild(
@@ -525,6 +583,7 @@ document.addEventListener(
         );
 
       }
+
 
       card.appendChild(
         answerSection
@@ -537,7 +596,7 @@ document.addEventListener(
 
 
       /* =========================
-         UPDATE UI
+         UPDATE NAVIGATION
       ========================= */
 
       counter.textContent =
@@ -552,10 +611,6 @@ document.addEventListener(
         currentIndex ===
         questions.length - 1;
 
-
-      loading.classList.add(
-        "hidden"
-      );
 
       container.classList.remove(
         "hidden"
@@ -641,7 +696,7 @@ document.addEventListener(
        START
     ========================= */
 
-    renderQuestion();
+    loadQuestions();
 
   }
 );
