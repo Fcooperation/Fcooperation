@@ -152,7 +152,9 @@ function renderMessages() {
           "sent-text";
 
         text.innerHTML =
-          marked.parse(msg.text);
+  marked.parse(msg.text || "", {
+    html: false
+  });
 
         div.appendChild(text);
 
@@ -192,7 +194,9 @@ function renderMessages() {
           "generated-text";
 
         text.innerHTML =
-          marked.parse(msg.text);
+  marked.parse(msg.text || "", {
+    html: false
+  });
 
         div.appendChild(text);
 
@@ -205,7 +209,12 @@ function renderMessages() {
 else {
 
   div.innerHTML =
-    marked.parse(msg.text || "");
+  marked.parse(
+    msg.text || "",
+    {
+      html: false
+    }
+  );
 
 
   /* ---------- AI RESPONSE STATUS ---------- */
