@@ -213,81 +213,242 @@ document.addEventListener(
 
     }
 
+/* =========================
+   CREATE NOTE SHARE LINK
+========================= */
 
-    /* =========================
-       RENDER TOPICS
-    ========================= */
+function createNoteShareLink(
+  topic
+) {
 
-    function renderTopics(
-      topics
-    ) {
+  const params =
+    new URLSearchParams({
 
-      topicList.innerHTML =
-        "";
+      university:
+        studyingUni,
 
-      topicList.classList.remove(
-        "hidden"
-      );
+      course:
+        studying,
 
+      topic:
+        topic
 
-      topics.forEach(
-        topic => {
-
-          const card =
-            document.createElement(
-              "div"
-            );
+    });
 
 
-          card.className =
-            "topic-card";
+  return (
+    window.location.origin +
+    "/share/note?" +
+    params.toString()
+  );
+
+}
+
+/* =========================
+   RENDER TOPICS
+========================= */
+
+function renderTopics(
+  topics
+) {
+
+  topicList.innerHTML =
+    "";
+
+  topicList.classList.remove(
+    "hidden"
+  );
 
 
-          card.innerHTML = `
+  topics.forEach(
+    topic => {
 
-            <div class="topic-left">
-
-              <div class="topic-label">
-                Topic
-              </div>
-
-              <div class="topic-name"></div>
-
-            </div>
-
-            <div class="topic-arrow">
-              →
-            </div>
-
-          `;
+      const card =
+        document.createElement(
+          "div"
+        );
 
 
-          card.querySelector(
-            ".topic-name"
-          ).textContent =
-            topic;
+      card.className =
+        "topic-card";
 
 
-          card.addEventListener(
-            "click",
-            () => {
+      /* =========================
+         CARD CONTENT
+      ========================= */
 
-              openTopic(
-                topic
-              );
+      card.innerHTML = `
 
-            }
-          );
+        <div class="topic-left">
+
+          <div class="topic-label">
+            Topic
+          </div>
+
+          <div class="topic-name"></div>
+
+        </div>
+
+        <button
+          type="button"
+          class="topic-menu-btn"
+          aria-label="More options"
+        >
+          ⋮
+        </button>
+
+        <div class="topic-menu hidden">
+
+          <button
+            type="button"
+            class="topic-menu-item share-topic-btn"
+          >
+            Share
+          </button>
+
+        </div>
+
+      `;
 
 
-          topicList.appendChild(
-            card
+      /* =========================
+         TOPIC NAME
+      ========================= */
+
+      card.querySelector(
+        ".topic-name"
+      ).textContent =
+        topic;
+
+
+      /* =========================
+         ELEMENTS
+      ========================= */
+
+      const menuBtn =
+        card.querySelector(
+          ".topic-menu-btn"
+        );
+
+      const menu =
+        card.querySelector(
+          ".topic-menu"
+        );
+
+      const shareBtn =
+        card.querySelector(
+          ".share-topic-btn"
+        );
+
+
+      /* =========================
+         OPEN TOPIC
+      ========================= */
+
+      card.addEventListener(
+        "click",
+        () => {
+
+          openTopic(
+            topic
           );
 
         }
       );
 
+
+      /* =========================
+         THREE DOTS
+      ========================= */
+
+      menuBtn.addEventListener(
+        "click",
+        event => {
+
+          /*
+            Prevent the card click
+            from opening the note.
+          */
+
+          event.stopPropagation();
+
+
+          /*
+            Close other open menus.
+          */
+
+          document
+            .querySelectorAll(
+              ".topic-menu"
+            )
+            .forEach(
+              otherMenu => {
+
+                if (
+                  otherMenu !== menu
+                ) {
+
+                  otherMenu.classList.add(
+                    "hidden"
+                  );
+
+                }
+
+              }
+            );
+
+
+          /*
+            Toggle this menu.
+          */
+
+          menu.classList.toggle(
+            "hidden"
+          );
+
+        }
+      );
+
+
+      /* =========================
+         SHARE
+      ========================= */
+
+      shareBtn.addEventListener(
+        "click",
+        event => {
+
+          event.stopPropagation();
+
+
+          const shareLink =
+            createNoteShareLink(
+              topic
+            );
+
+
+          openShareInterface(
+            shareLink,
+            `FSTUDY • ${studying} • ${topic}`
+          );
+
+
+          menu.classList.add(
+            "hidden"
+          );
+
+        }
+      );
+
+
+      topicList.appendChild(
+        card
+      );
+
     }
+  );
+
+}
 
 
     /* =========================

@@ -211,6 +211,8 @@ body {
 
 .topic-card {
 
+position: relative;
+
   display: flex;
 
   align-items: center;
@@ -291,5 +293,112 @@ body {
   color: #777;
 
   flex-shrink: 0;
+
+}
+/* =========================
+   TOPIC CARD
+========================= */
+
+.topic-card {
+  position: relative;
+}
+
+
+/* =========================
+   THREE DOTS
+========================= */
+
+.topic-menu-btn {
+
+  flex-shrink: 0;
+
+  width: 34px;
+
+  height: 34px;
+
+  border: none;
+
+  background: transparent;
+
+  color: #555;
+
+  border-radius: 8px;
+
+  font-size: 22px;
+
+  line-height: 1;
+
+  cursor: pointer;
+
+}
+
+
+.topic-menu-btn:active {
+
+  background: #eee;
+
+}
+
+
+/* =========================
+   TOPIC MENU
+========================= */
+
+.topic-menu {
+
+  position: absolute;
+
+  top: 52px;
+
+  right: 12px;
+
+  z-index: 20;
+
+  min-width: 120px;
+
+  background: white;
+
+  border: 1px solid #ddd;
+
+  border-radius: 10px;
+
+  padding: 5px;
+
+  box-shadow:
+    0 5px 18px rgba(0, 0, 0, 0.12);
+
+}
+
+
+/* =========================
+   MENU ITEM
+========================= */
+
+.topic-menu-item {
+
+  width: 100%;
+
+  border: none;
+
+  background: transparent;
+
+  text-align: left;
+
+  padding: 10px 11px;
+
+  border-radius: 7px;
+
+  font-size: 13px;
+
+  color: #222;
+
+  cursor: pointer;
+
+}
+
+
+.topic-menu-item:active {
+
+  background: #f0f0f0;
 
 }
