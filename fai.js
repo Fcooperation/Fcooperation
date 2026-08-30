@@ -41,6 +41,32 @@ document.getElementById("image-preview");
 const account =
   JSON.parse(localStorage.getItem("faccount")) || {};
   
+  const renderer = new marked.Renderer();
+
+renderer.code = function(code, language) {
+
+  const lang =
+    language
+      ? ` class="language-${language}"`
+      : "";
+
+  return `
+    <pre>
+      <code${lang}>${escapeHtml(code)}</code>
+    </pre>
+  `;
+};
+
+function escapeHtml(text) {
+
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 let isSending = false;
 let selectedFile = null;
 
@@ -212,7 +238,8 @@ else {
   marked.parse(
     msg.text || "",
     {
-      html: false
+      html: false,
+      renderer
     }
   );
 
