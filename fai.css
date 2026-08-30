@@ -453,3 +453,119 @@ border-radius:10px;
 .generated-text {
   margin-top: 8px;
 }
+/* ---------- RETRY BUTTON ---------- */
+
+.retry-btn {
+  margin-top: 10px;
+  padding: 7px 12px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #1d9bf0;
+  color: white;
+
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.retry-btn:hover {
+  opacity: 0.9;
+}
+/* ---------- CODE BLOCKS ---------- */
+
+.message pre {
+  position: relative;
+
+  margin: 10px 0;
+  padding: 14px;
+
+  background: #111;
+  color: #fff;
+
+  border-radius: 10px;
+
+  overflow-x: auto;
+
+  white-space: pre;
+
+  font-family:
+    "Courier New",
+    monospace;
+
+  font-size: 13px;
+
+  line-height: 1.5;
+}
+
+.message pre code {
+  background: none;
+  padding: 0;
+
+  font-family:
+    "Courier New",
+    monospace;
+
+  color: inherit;
+}
+
+.message code:not(pre code) {
+  background: #e8e8e8;
+  padding: 2px 5px;
+  border-radius: 5px;
+
+  font-family:
+    "Courier New",
+    monospace;
+
+  font-size: 0.9em;
+}
+/* ---------- CODE COPY BUTTON ---------- */
+
+.message pre {
+  position: relative;
+}
+
+.code-copy-btn {
+  position: absolute;
+
+  top: 7px;
+  right: 7px;
+
+  padding: 5px 9px;
+
+  border: none;
+  border-radius: 6px;
+
+  background: #333;
+  color: white;
+
+  font-size: 11px;
+
+  cursor: pointer;
+}
+
+.code-copy-btn:hover {
+  background: #444;
+}
+/* ---------- RESPONSE COPY BUTTON ---------- */
+
+.response-copy-btn {
+  margin-top: 8px;
+
+  padding: 6px 10px;
+
+  border: 1px solid #ccc;
+  border-radius: 7px;
+
+  background: white;
+  color: #333;
+
+  font-size: 12px;
+
+  cursor: pointer;
+}
+
+.response-copy-btn:hover {
+  background: #f2f2f2;
+}

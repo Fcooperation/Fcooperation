@@ -206,17 +206,87 @@ function renderMessages() {
 
     else {
 
-      div.innerHTML =
-        marked.parse(msg.text || "");
+  div.innerHTML =
+    marked.parse(msg.text || "");
+
+if (msg.role === "ai" && msg.text) {
+
+  const copyBtn =
+    document.createElement("button");
+
+  copyBtn.className =
+    "response-copy-btn";
+
+  copyBtn.textContent =
+    "Copy";
+
+  copyBtn.onclick = async () => {
+
+    try {
+
+      await navigator.clipboard.writeText(
+        msg.text
+      );
+
+      copyBtn.textContent =
+        "Copied";
+
+      setTimeout(() => {
+
+        copyBtn.textContent =
+          "Copy";
+
+      }, 1500);
+
+    } catch (err) {
+
+      copyBtn.textContent =
+        "Failed";
 
     }
+
+  };
+
+  div.appendChild(copyBtn);
+
+}
+
+  /* ---------- RETRY BUTTON ---------- */
+
+  if (
+    msg.role === "ai" &&
+    msg.pending
+  ) {
+
+    const retryBtn =
+      document.createElement("button");
+
+    retryBtn.className =
+      "retry-btn";
+
+    retryBtn.textContent =
+      "Retry";
+
+    retryBtn.onclick = () => {
+
+      retryPendingMessage(msg);
+
+    };
+
+    div.appendChild(retryBtn);
+
+  }
+
+}
 
     chatBox.appendChild(div);
 
   });
 
-  chatBox.scrollTop =
-    chatBox.scrollHeight;
+  setupCodeBlocks(chatBox);
+
+chatBox.scrollTop =
+  chatBox.scrollHeight;
 }
 
 /* ---------- SAVE ---------- */
@@ -591,6 +661,110 @@ async function compressImage(
     };
 
     img.src = url;
+
+  });
+
+}
+
+/* ---------- RETRY PENDING REQUEST ---------- */
+
+async function retryPendingMessage(msg) {
+
+  if (isSending) return;
+
+  if (!msg.retryPrompt) return;
+
+  /* Remove the old failed AI message */
+
+  const index =
+    messages.indexOf(msg);
+
+  if (index !== -1) {
+    messages.splice(index, 1);
+  }
+
+  renderMessages();
+  saveMessages();
+
+  /* Put the original prompt back into the input */
+
+  promptInput.value =
+    msg.retryPrompt;
+
+  autoResize();
+
+  /* Send it again */
+
+  await sendPrompt();
+
+}
+
+/* ---------- CODE COPY BUTTONS ---------- */
+
+function setupCodeBlocks(container) {
+
+  const codeBlocks =
+    container.querySelectorAll("pre");
+
+  codeBlocks.forEach(pre => {
+
+    /* Prevent duplicate buttons */
+
+    if (
+      pre.querySelector(".code-copy-btn")
+    ) {
+      return;
+    }
+
+    const button =
+      document.createElement("button");
+
+    button.className =
+      "code-copy-btn";
+
+    button.textContent =
+      "Copy";
+
+    button.onclick = async () => {
+
+      const code =
+        pre.querySelector("code");
+
+      if (!code) return;
+
+      try {
+
+        await navigator.clipboard.writeText(
+          code.innerText
+        );
+
+        button.textContent =
+          "Copied";
+
+        setTimeout(() => {
+
+          button.textContent =
+            "Copy";
+
+        }, 1500);
+
+      } catch (err) {
+
+        button.textContent =
+          "Failed";
+
+        setTimeout(() => {
+
+          button.textContent =
+            "Copy";
+
+        }, 1500);
+
+      }
+
+    };
+
+    pre.appendChild(button);
 
   });
 
@@ -1030,10 +1204,12 @@ const aiMessage =
     removeTyping();
 
     messages.push({
-      role: "ai",
-      text:
-        "FAI couldn't process that request. Please try again."
-    });
+  role: "ai",
+  text:
+  "Couldn't get a response.",
+  pending: true,
+  retryPrompt: prompt
+});
 
     renderMessages();
     saveMessages();
