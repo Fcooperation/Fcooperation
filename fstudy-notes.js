@@ -430,35 +430,35 @@ card.addEventListener(
       );
 
 
-      /* =========================
-         SHARE
-      ========================= */
+     /* =========================
+   SHARE
+========================= */
 
-      shareBtn.addEventListener(
-        "click",
-        event => {
+shareBtn.addEventListener(
+  "click",
+  event => {
 
-          event.stopPropagation();
-
-
-          const shareLink =
-            createNoteShareLink(
-              topic
-            );
+    event.stopPropagation();
 
 
-          openShareInterface(
-            shareLink,
-            `FSTUDY • ${studying} • ${topic}`
-          );
-
-
-          menu.classList.add(
-            "hidden"
-          );
-
-        }
+    const shareLink =
+      createNoteShareLink(
+        topic
       );
+
+
+    openShareInterface(
+      shareLink,
+      `FSTUDY • ${studying} • ${topic}`
+    );
+
+
+    menu.classList.add(
+      "hidden"
+    );
+
+  }
+);
 
 
       topicList.appendChild(
