@@ -778,3 +778,35 @@ border-radius:10px;
   }
 
 }
+/* ---------- MARKDOWN TABLES ---------- */
+
+.message table {
+  width: 100%;
+  max-width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+  font-size: 13px;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.message th,
+.message td {
+  padding: 9px 10px;
+  text-align: left;
+  border: 1px solid #ddd;
+  vertical-align: top;
+}
+
+.message th {
+  font-weight: 700;
+  background: #e9eaec;
+}
+
+.message td {
+  background: #fff;
+}
+
+.message.user table {
+  color: #111;
+}
