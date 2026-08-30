@@ -182,6 +182,72 @@ else {
     topSubtitle.textContent =
       `${university} • ${course}`;
 
+// Contains English function
+function containsEnglish(text) {
+
+  if (!text || !text.trim()) {
+    return false;
+  }
+
+  const words =
+    text
+      .trim()
+      .split(/\s+/);
+
+  if (words.length < 5) {
+    return false;
+  }
+
+  const englishWords = [
+    "the",
+    "is",
+    "are",
+    "and",
+    "of",
+    "to",
+    "in",
+    "a",
+    "an",
+    "for",
+    "with",
+    "this",
+    "that",
+    "from",
+    "on",
+    "as",
+    "it",
+    "was",
+    "be",
+    "by"
+  ];
+
+  let englishCount = 0;
+
+  words.forEach(word => {
+
+    const clean =
+      word
+        .toLowerCase()
+        .replace(
+          /[^a-z]/g,
+          ""
+        );
+
+    if (
+      englishWords.includes(
+        clean
+      )
+    ) {
+      englishCount++;
+    }
+
+  });
+
+  return (
+    englishCount / words.length
+  ) >= 0.15;
+
+}
 
     /* =========================
        LOAD NOTE
@@ -549,21 +615,53 @@ faiMenu.appendChild(
 
 
           faiActions.appendChild(
-            summarizeBtn
-          );
+  summarizeBtn
+);
 
-          faiActions.appendChild(
-            quizBtn
-          );
+faiActions.appendChild(
+  quizBtn
+);
 
-          faiActions.appendChild(
-            askQuestionBtn
-          );
+faiActions.appendChild(
+  askQuestionBtn
+);
+
+faiActions.appendChild(
+  translateBtn
+);
 
 
           faiMenu.appendChild(
             faiActions
           );
+
+
+/* TRANSLATE TO ENGLISH */
+
+const translateBtn =
+  document.createElement(
+    "button"
+  );
+
+translateBtn.type = "button";
+
+translateBtn.className =
+  "fai-action";
+
+translateBtn.textContent =
+  "Translate to English";
+  
+  if (
+  containsEnglish(
+    section.content || ""
+  )
+) {
+
+  translateBtn.classList.add(
+    "hidden"
+  );
+
+}
 
 
           /* =========================
@@ -611,7 +709,7 @@ cancelFaiBtn.addEventListener(
 
     /* Remove FAI output */
     faiMenu.querySelectorAll(
-  ".fai-summary, .fai-loading, .fai-error, .fai-quiz"
+  ".fai-summary, .fai-loading, .fai-error, .fai-quiz, .fai-translation"
 )
       .forEach(
         element => element.remove()
@@ -683,6 +781,23 @@ cancelFaiBtn.addEventListener(
   }
 );
 
+/* =========================
+   TRANSLATE TO ENGLISH
+========================= */
+
+translateBtn.addEventListener(
+  "click",
+  async () => {
+
+    await translateSection(
+      section,
+      faiMenu,
+      faiActions,
+      translateBtn
+    );
+
+  }
+);
 
           /* =========================
              APPEND
@@ -1180,6 +1295,245 @@ faiMenu.appendChild(
     errorElement.textContent =
       err.message ||
       "Failed to summarize section.";
+
+
+    faiMenu.appendChild(
+      errorElement
+    );
+
+
+    /* =========================
+       ALLOW RETRY
+    ========================= */
+
+    faiActions.classList.remove(
+      "hidden"
+    );
+
+
+    setTimeout(() => {
+
+      faiMenu.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+      });
+
+    }, 50);
+
+  }
+
+}
+
+/* =========================
+   TRANSLATE SECTION
+========================= */
+
+async function translateSection(
+  section,
+  faiMenu,
+  faiActions,
+  translateBtn
+) {
+
+  const sectionContent =
+    section.content || "";
+
+  if (!sectionContent.trim()) {
+    return;
+  }
+
+
+  /* =========================
+     HIDE ACTION BUTTONS
+  ========================= */
+
+  faiActions.classList.add(
+    "hidden"
+  );
+
+
+  /* =========================
+     LOADING
+  ========================= */
+
+  const loadingText =
+    document.createElement(
+      "p"
+    );
+
+  loadingText.className =
+    "fai-loading";
+
+  loadingText.textContent =
+    "Translating to English...";
+
+  faiMenu.appendChild(
+    loadingText
+  );
+
+
+  setTimeout(() => {
+
+    faiMenu.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest"
+    });
+
+  }, 50);
+
+
+  try {
+
+    /* =========================
+       SEND TO ADMIN
+    ========================= */
+
+    const response =
+      await fetch(
+        window.CONFIG.API_URL +
+        "/admin",
+        {
+
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify({
+
+              action:
+                "translate_section",
+
+              text:
+                sectionContent,
+
+              target_language:
+                "English",
+
+              university:
+                university,
+
+              course:
+                course,
+
+              topic:
+                topic,
+
+              section_title:
+                section.title || ""
+
+            })
+
+        }
+      );
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        "Translation request failed."
+      );
+
+    }
+
+
+    const data =
+      await response.json();
+
+
+    if (!data.success) {
+
+      throw new Error(
+        data.error ||
+        "Failed to translate section."
+      );
+
+    }
+
+
+    loadingText.remove();
+
+
+    /* =========================
+       SHOW TRANSLATION
+    ========================= */
+
+    const translation =
+      document.createElement(
+        "div"
+      );
+
+    translation.className =
+      "fai-summary fai-translation";
+
+
+    const translationTitle =
+      document.createElement(
+        "h3"
+      );
+
+    translationTitle.textContent =
+      "English Translation";
+
+
+    const translationContent =
+      document.createElement(
+        "div"
+      );
+
+    translationContent.innerHTML =
+      renderMarkdown(
+        data.translation || ""
+      );
+
+
+    translation.appendChild(
+      translationTitle
+    );
+
+    translation.appendChild(
+      translationContent
+    );
+
+
+    faiMenu.appendChild(
+      translation
+    );
+
+
+    /* =========================
+       SCROLL
+    ========================= */
+
+    setTimeout(() => {
+
+      faiMenu.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+      });
+
+    }, 50);
+
+
+  } catch (err) {
+
+    loadingText.remove();
+
+
+    const errorElement =
+      document.createElement(
+        "p"
+      );
+
+    errorElement.className =
+      "fai-error";
+
+    errorElement.textContent =
+      err.message ||
+      "Failed to translate section.";
 
 
     faiMenu.appendChild(
