@@ -43,11 +43,15 @@ const account =
   
   const renderer = new marked.Renderer();
 
-renderer.code = function(code, language) {
+renderer.code = function(token) {
+
+  const code = token.text || "";
+
+  const language = token.lang || "";
 
   const lang =
     language
-      ? ` class="language-${language}"`
+      ? ` class="language-${escapeHtml(language)}"`
       : "";
 
   return `
