@@ -183,117 +183,617 @@ renderPastQuestions(
   ========================= */
 
   function renderPastQuestions(
-    questions
-  ) {
+  questions
+) {
 
-    list.innerHTML = "";
-
-
-    questions.forEach(item => {
-
-      const card =
-        document.createElement("div");
-
-      card.className =
-        "past-question-card";
+  list.innerHTML = "";
 
 
-      const year =
-        document.createElement("div");
+  questions.forEach(item => {
 
-      year.className =
-        "year";
+    const card =
+      document.createElement("div");
 
-      year.textContent =
-        item.year ||
-        "Unknown Year";
+    card.className =
+      "past-question-card";
 
 
-      const count =
-        document.createElement("div");
+    /* =========================
+       CARD INFORMATION
+    ========================= */
 
-      count.className =
-        "question-count";
+    const cardInfo =
+      document.createElement("div");
 
-      const questionCount =
-  item.question_count || 0;
-
-      count.textContent =
-        `${questionCount} questions`;
+    cardInfo.className =
+      "past-question-info";
 
 
-      card.appendChild(year);
+    const year =
+      document.createElement("div");
 
-      card.appendChild(count);
+    year.className =
+      "year";
+
+    year.textContent =
+      item.year ||
+      "Unknown Year";
 
 
-      /* =========================
-         OPEN PAST QUESTION
-      ========================= */
+    const count =
+      document.createElement("div");
 
-      card.addEventListener(
-  "click",
-  () => {
+    count.className =
+      "question-count";
 
-    /*
-      Save the selected year
-    */
+    const questionCount =
+      item.question_count || 0;
 
-    localStorage.setItem(
-      "past_question_year",
-      item.year
+    count.textContent =
+      `${questionCount} questions`;
+
+
+    cardInfo.appendChild(
+      year
+    );
+
+    cardInfo.appendChild(
+      count
     );
 
 
-    /*
-      Save the questions belonging
-      to this year.
+    /* =========================
+       THREE DOTS
+    ========================= */
 
-      This will overwrite whatever
-      previous year was saved.
-    */
+    const menuWrapper =
+      document.createElement("div");
 
-    localStorage.setItem(
-      "past_question_data",
-      JSON.stringify(
-        item.questions || []
-      )
+    menuWrapper.className =
+      "card-menu";
+
+
+    const menuBtn =
+      document.createElement("button");
+
+    menuBtn.type =
+      "button";
+
+    menuBtn.className =
+      "card-menu-btn";
+
+    menuBtn.textContent =
+      "⋮";
+
+    menuBtn.setAttribute(
+      "aria-label",
+      "More options"
     );
 
 
-    /*
-      Save basic course information
-      for the viewing page.
-    */
+    /* =========================
+       DROPDOWN
+    ========================= */
 
-    localStorage.setItem(
-      "past_question_university",
-      studyingUni
+    const dropdown =
+      document.createElement("div");
+
+    dropdown.className =
+      "card-dropdown hidden";
+
+
+    const shareBtn =
+      document.createElement("button");
+
+    shareBtn.type =
+      "button";
+
+    shareBtn.className =
+      "card-dropdown-item";
+
+    shareBtn.textContent =
+      "Share";
+
+
+    dropdown.appendChild(
+      shareBtn
     );
 
-    localStorage.setItem(
-      "past_question_course",
-      studying
+
+    menuWrapper.appendChild(
+      menuBtn
+    );
+
+    menuWrapper.appendChild(
+      dropdown
     );
 
 
-    /*
-      Open the question viewer
-    */
+    /* =========================
+       OPEN MENU
+    ========================= */
 
-    location.href =
-      "view-past-question";
+    menuBtn.addEventListener(
+      "click",
+      event => {
 
-  }
-);
+        event.stopPropagation();
 
 
-      list.appendChild(card);
+        /* Close other menus */
+
+        document
+          .querySelectorAll(
+            ".card-dropdown"
+          )
+          .forEach(menu => {
+
+            if (
+              menu !== dropdown
+            ) {
+
+              menu.classList.add(
+                "hidden"
+              );
+
+            }
+
+          });
+
+
+        dropdown.classList.toggle(
+          "hidden"
+        );
+
+      }
+    );
+
+
+    /* =========================
+       SHARE
+    ========================= */
+
+    shareBtn.addEventListener(
+      "click",
+      event => {
+
+        event.stopPropagation();
+
+        dropdown.classList.add(
+          "hidden"
+        );
+
+        openShareInterface(
+          item
+        );
+
+      }
+    );
+
+
+    /* =========================
+       CARD LAYOUT
+    ========================= */
+
+    card.appendChild(
+      cardInfo
+    );
+
+    card.appendChild(
+      menuWrapper
+    );
+
+
+    /* =========================
+       OPEN PAST QUESTION
+    ========================= */
+
+    card.addEventListener(
+      "click",
+      () => {
+
+        localStorage.setItem(
+          "past_question_year",
+          item.year
+        );
+
+
+        localStorage.setItem(
+          "past_question_data",
+          JSON.stringify(
+            item.questions || []
+          )
+        );
+
+
+        localStorage.setItem(
+          "past_question_university",
+          studyingUni
+        );
+
+
+        localStorage.setItem(
+          "past_question_course",
+          studying
+        );
+
+
+        location.href =
+          "view-past-question";
+
+      }
+    );
+
+
+    list.appendChild(
+      card
+    );
+
+  });
+
+}
+
+/* =========================
+   SHARE INTERFACE
+========================= */
+
+function openShareInterface(item) {
+
+  const overlay =
+    document.createElement("div");
+
+  overlay.className =
+    "share-overlay";
+
+
+  const sheet =
+    document.createElement("div");
+
+  sheet.className =
+    "share-sheet";
+
+
+  /* =========================
+     HEADER
+  ========================= */
+
+  const header =
+    document.createElement("div");
+
+  header.className =
+    "share-header";
+
+
+  const title =
+    document.createElement("h2");
+
+  title.textContent =
+    "Share Past Question";
+
+
+  const closeBtn =
+    document.createElement("button");
+
+  closeBtn.type =
+    "button";
+
+  closeBtn.className =
+    "share-close-btn";
+
+  closeBtn.textContent =
+    "×";
+
+
+  header.appendChild(
+    title
+  );
+
+  header.appendChild(
+    closeBtn
+  );
+
+
+  /* =========================
+     DESCRIPTION
+  ========================= */
+
+  const description =
+    document.createElement("p");
+
+  description.className =
+    "share-description";
+
+  description.textContent =
+    `${studyingUni} • ${studying} • ${item.year}`;
+
+
+  /* =========================
+     LINK
+  ========================= */
+
+  const linkBox =
+    document.createElement("div");
+
+  linkBox.className =
+    "share-link-box";
+
+
+  const linkText =
+    document.createElement("span");
+
+  linkText.textContent =
+    createPastQuestionShareLink(
+      item
+    );
+
+
+  linkBox.appendChild(
+    linkText
+  );
+
+
+  /* =========================
+     COPY BUTTON
+  ========================= */
+
+  const copyBtn =
+    document.createElement("button");
+
+  copyBtn.type =
+    "button";
+
+  copyBtn.className =
+    "share-copy-btn";
+
+  copyBtn.textContent =
+    "Copy Link";
+
+
+  copyBtn.addEventListener(
+    "click",
+    async () => {
+
+      const link =
+        createPastQuestionShareLink(
+          item
+        );
+
+
+      try {
+
+        await navigator.clipboard.writeText(
+          link
+        );
+
+
+        copyBtn.textContent =
+          "Copied!";
+
+
+        setTimeout(() => {
+
+          copyBtn.textContent =
+            "Copy Link";
+
+        }, 1500);
+
+
+      } catch {
+
+        /* Fallback */
+
+        const input =
+          document.createElement(
+            "input"
+          );
+
+        input.value =
+          link;
+
+        document.body.appendChild(
+          input
+        );
+
+        input.select();
+
+        document.execCommand(
+          "copy"
+        );
+
+        input.remove();
+
+
+        copyBtn.textContent =
+          "Copied!";
+
+        setTimeout(() => {
+
+          copyBtn.textContent =
+            "Copy Link";
+
+        }, 1500);
+
+      }
+
+    }
+  );
+
+
+  /* =========================
+     NATIVE SHARE
+  ========================= */
+
+  const nativeShareBtn =
+    document.createElement("button");
+
+  nativeShareBtn.type =
+    "button";
+
+  nativeShareBtn.className =
+    "share-native-btn";
+
+  nativeShareBtn.textContent =
+    "Share";
+
+
+  nativeShareBtn.addEventListener(
+    "click",
+    async () => {
+
+      const link =
+        createPastQuestionShareLink(
+          item
+        );
+
+
+      if (
+        navigator.share
+      ) {
+
+        try {
+
+          await navigator.share({
+
+            title:
+              `${studying} Past Questions - ${item.year}`,
+
+            text:
+              `Check out these ${studying} past questions from ${studyingUni} (${item.year}).`,
+
+            url:
+              link
+
+          });
+
+        } catch (err) {
+
+          /*
+            User cancelled the
+            native share sheet.
+          */
+
+        }
+
+      } else {
+
+        try {
+
+          await navigator.clipboard.writeText(
+            link
+          );
+
+          nativeShareBtn.textContent =
+            "Link Copied!";
+
+        } catch {
+
+          nativeShareBtn.textContent =
+            "Copy the link above";
+
+        }
+
+      }
+
+    }
+  );
+
+
+  /* =========================
+     APPEND
+  ========================= */
+
+  sheet.appendChild(
+    header
+  );
+
+  sheet.appendChild(
+    description
+  );
+
+  sheet.appendChild(
+    linkBox
+  );
+
+  sheet.appendChild(
+    copyBtn
+  );
+
+  sheet.appendChild(
+    nativeShareBtn
+  );
+
+
+  overlay.appendChild(
+    sheet
+  );
+
+
+  document.body.appendChild(
+    overlay
+  );
+
+
+  /* =========================
+     CLOSE
+  ========================= */
+
+  closeBtn.addEventListener(
+    "click",
+    () => {
+
+      overlay.remove();
+
+    }
+  );
+
+
+  overlay.addEventListener(
+    "click",
+    event => {
+
+      if (
+        event.target === overlay
+      ) {
+
+        overlay.remove();
+
+      }
+
+    }
+  );
+
+}
+
+/* =========================
+   CREATE SHARE LINK
+========================= */
+
+function createPastQuestionShareLink(
+  item
+) {
+
+  const params =
+    new URLSearchParams({
+
+      university:
+        studyingUni,
+
+      course:
+        studying,
+
+      year:
+        item.year
 
     });
 
-  }
 
+  return (
+    window.location.origin +
+    "/share/past-question?" +
+    params.toString()
+  );
+
+}
 
   /* =========================
      START
