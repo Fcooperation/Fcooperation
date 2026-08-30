@@ -53,49 +53,123 @@ document.addEventListener(
 
 
     /* =========================
-       GET URL PARAMETERS
-    ========================= */
+   GET DATA
+========================= */
 
-    const params =
-      new URLSearchParams(
-        window.location.search
-      );
-
-
-    const university =
-      params.get("university");
-
-    const course =
-      params.get("course");
-
-    const year =
-      params.get("year");
+const params =
+  new URLSearchParams(
+    window.location.search
+  );
 
 
-    /* =========================
-       SAFETY
-    ========================= */
+/* =========================
+   URL DATA
+========================= */
 
-    if (
-      !university ||
-      !course ||
-      !year
-    ) {
+const urlUniversity =
+  params.get("university");
 
-      loading.classList.add(
-        "hidden"
-      );
+const urlCourse =
+  params.get("course");
 
-      error.textContent =
-        "Invalid past question link.";
+const urlYear =
+  params.get("year");
 
-      error.classList.remove(
-        "hidden"
-      );
 
-      return;
+/* =========================
+   LOCAL STORAGE DATA
+========================= */
 
-    }
+const savedUniversity =
+  localStorage.getItem(
+    "past_question_university"
+  );
+
+const savedCourse =
+  localStorage.getItem(
+    "past_question_course"
+  );
+
+const savedYear =
+  localStorage.getItem(
+    "past_question_year"
+  );
+
+
+/* =========================
+   FINAL DATA
+   URL TAKES PRIORITY
+========================= */
+
+const university =
+  urlUniversity ||
+  savedUniversity;
+
+const course =
+  urlCourse ||
+  savedCourse;
+
+const year =
+  urlYear ||
+  savedYear;
+
+
+/* =========================
+   SAVE URL DATA
+========================= */
+
+if (urlUniversity) {
+
+  localStorage.setItem(
+    "past_question_university",
+    urlUniversity
+  );
+
+}
+
+if (urlCourse) {
+
+  localStorage.setItem(
+    "past_question_course",
+    urlCourse
+  );
+
+}
+
+if (urlYear) {
+
+  localStorage.setItem(
+    "past_question_year",
+    urlYear
+  );
+
+}
+
+
+/* =========================
+   SAFETY
+========================= */
+
+if (
+  !university ||
+  !course ||
+  !year
+) {
+
+  loading.classList.add(
+    "hidden"
+  );
+
+  error.textContent =
+    "Invalid past question link.";
+
+  error.classList.remove(
+    "hidden"
+  );
+
+  return;
+
+}
 
 
     /* =========================
