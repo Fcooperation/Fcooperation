@@ -211,9 +211,8 @@ else {
   /* ---------- AI RESPONSE STATUS ---------- */
 
   if (
-    msg.role === "ai" &&
-    msg.text
-  ) {
+  msg.role === "ai"
+) {
 
     /* --------------------------------
        STILL GENERATING
@@ -249,8 +248,9 @@ else {
     -------------------------------- */
 
     else if (
-      msg.status === "complete"
-    ) {
+  msg.status === "complete" &&
+  msg.text
+) {
 
       const copyBtn =
         document.createElement("button");
@@ -1100,7 +1100,8 @@ showTyping();
 
     messages.push({
   role: "ai",
-  text: ""
+  text: "",
+  status: "streaming"
 });
 
 const aiMessage =
@@ -1110,128 +1111,161 @@ const aiMessage =
        STREAM
     -------------------------------- */
 
-    while (true) {
+    let streamCompleted = false;
 
-      const {
-        value,
-        done
-      } = await reader.read();
+while (true) {
 
-      if (done) break;
+  const {
+    value,
+    done
+  } = await reader.read();
 
-      buffer +=
-        decoder.decode(
-          value,
-          {
-            stream: true
-          }
-        );
+  /* --------------------------------
+     STREAM CLOSED
+  -------------------------------- */
 
-      const lines =
-        buffer.split("\n");
+  if (done) {
 
-      buffer =
-        lines.pop() || "";
+    if (!streamCompleted) {
 
-      for (const line of lines) {
+      streamCompleted = true;
 
-        if (
-          !line.startsWith("data:")
-        ) {
-          continue;
-        }
+      removeTyping();
 
-        const jsonText =
-          line
-            .replace(
-              /^data:\s*/,
-              ""
-            )
-            .trim();
+      aiMessage.status =
+        "complete";
 
-        if (!jsonText) continue;
+      renderMessages();
 
-        try {
+      saveMessages();
 
-          const event =
-            JSON.parse(
-              jsonText
-            );
+    }
 
-          /* ------------------------------
-             AI CHUNK
-          ------------------------------ */
-
-          if (
-  event.type === "chunk"
-) {
-
-  if (aiText === "") {
-    removeTyping();
+    break;
   }
 
-  aiText +=
-    event.text;
+  buffer +=
+    decoder.decode(
+      value,
+      {
+        stream: true
+      }
+    );
 
-  aiMessage.text =
-    aiText;
+  const lines =
+    buffer.split("\n");
 
-  aiMessage.status =
-    "streaming";
+  buffer =
+    lines.pop() || "";
 
-  renderMessages();
+  for (const line of lines) {
 
-}
+    if (
+      !line.startsWith("data:")
+    ) {
+      continue;
+    }
 
-          /* ------------------------------
-             AI ERROR
-          ------------------------------ */
+    const jsonText =
+      line
+        .replace(
+          /^data:\s*/,
+          ""
+        )
+        .trim();
 
-          if (
-            event.type === "error"
-          ) {
+    if (!jsonText) continue;
 
-            removeTyping();
+    try {
 
-            aiMessage.text =
-              event.message ||
-              "FAI failed to respond.";
+      const event =
+        JSON.parse(
+          jsonText
+        );
 
-            renderMessages();
+      /* ------------------------------
+         AI CHUNK
+      ------------------------------ */
 
-          }
+      if (
+        event.type === "chunk"
+      ) {
 
-          /* ------------------------------
-             DONE
-          ------------------------------ */
-
-          if (
-  event.type === "done"
-) {
-
-  removeTyping();
-
-  aiMessage.status =
-    "complete";
-
-  renderMessages();
-
-  saveMessages();
-
-}
-
-        } catch (err) {
-
-          console.error(
-            "❌ Stream parsing error:",
-            err
-          );
-
+        if (aiText === "") {
+          removeTyping();
         }
+
+        aiText +=
+          event.text;
+
+        aiMessage.text =
+          aiText;
+
+        aiMessage.status =
+          "streaming";
+
+        renderMessages();
 
       }
 
+      /* ------------------------------
+         AI ERROR
+      ------------------------------ */
+
+      if (
+        event.type === "error"
+      ) {
+
+        removeTyping();
+
+        aiMessage.text =
+          event.message ||
+          "FAI failed to respond.";
+
+        aiMessage.status =
+          "complete";
+
+        renderMessages();
+
+        saveMessages();
+
+        streamCompleted = true;
+
+      }
+
+      /* ------------------------------
+         DONE
+      ------------------------------ */
+
+      if (
+        event.type === "done"
+      ) {
+
+        removeTyping();
+
+        aiMessage.status =
+          "complete";
+
+        renderMessages();
+
+        saveMessages();
+
+        streamCompleted = true;
+
+      }
+
+    } catch (err) {
+
+      console.error(
+        "❌ Stream parsing error:",
+        err
+      );
+
     }
+
+  }
+
+}
 
     /* --------------------------------
        CLEAR ATTACHMENT
