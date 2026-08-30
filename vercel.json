@@ -2,15 +2,15 @@
   "rewrites": [
     {
       "source": "/watch",
-      "destination": "/fvids.html"
+      "destination": "/fvids"
     },
     {
       "source": "/share/past-question",
-      "destination": "/view-past-question.html"
+      "destination": "/view-past-question"
     },
     {
       "source": "/share/note",
-      "destination": "/view-note.html"
+      "destination": "/view-note"
     },
     {
       "source": "/:page",
