@@ -665,6 +665,10 @@ faiActions.appendChild(
   translateBtn
 );
 
+faiMenu.appendChild(
+  faiActions
+);
+
 
           /* =========================
              ASK FAI TOGGLE
