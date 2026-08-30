@@ -86,6 +86,271 @@ JSON.parse(
 localStorage.getItem(STORAGE_KEY)
 ) || [];
 
+/* ---------- RELOAD AI RESPONSE ---------- */
+
+async function reloadAIResponse(msg) {
+
+  if (isSending) return;
+
+  if (!msg.retryPrompt) {
+    return;
+  }
+
+  const index =
+    messages.indexOf(msg);
+
+  if (index === -1) {
+    return;
+  }
+
+  isSending = true;
+
+  /* Change this message back to loading */
+
+  msg.text = "";
+msg.status = "streaming";
+
+renderMessages();
+saveMessages();
+
+  try {
+
+    const account =
+      JSON.parse(
+        localStorage.getItem("faccount")
+      ) || {};
+
+    const userId =
+      account?.userId ||
+      account?.id ||
+      "guest";
+
+    const formData =
+      new FormData();
+
+    formData.append(
+      "userId",
+      userId
+    );
+
+    formData.append(
+      "prompt",
+      msg.retryPrompt
+    );
+
+    formData.append(
+      "messages",
+      JSON.stringify(
+        messages
+          .filter(m => m !== msg)
+          .slice(-7)
+      )
+    );
+
+    const res =
+      await fetch(
+        "https://fweb-backend.onrender.com/fai",
+        {
+          method: "POST",
+          body: formData
+        }
+      );
+
+    if (!res.ok) {
+
+      const errorText =
+        await res.text();
+
+      throw new Error(
+        errorText ||
+        `HTTP ${res.status}`
+      );
+
+    }
+
+    if (!res.body) {
+      throw new Error(
+        "FAI returned no response body."
+      );
+    }
+
+    const reader =
+      res.body.getReader();
+
+    const decoder =
+      new TextDecoder();
+
+    let buffer = "";
+    let aiText = "";
+
+    let streamCompleted = false;
+
+    while (true) {
+
+      const {
+        value,
+        done
+      } = await reader.read();
+
+      if (done) {
+
+        if (!streamCompleted) {
+
+          streamCompleted = true;
+
+          removeTyping();
+
+          msg.text =
+            aiText;
+
+          msg.status =
+            "complete";
+
+          renderMessages();
+          saveMessages();
+
+        }
+
+        break;
+      }
+
+      buffer +=
+        decoder.decode(
+          value,
+          {
+            stream: true
+          }
+        );
+
+      const lines =
+        buffer.split("\n");
+
+      buffer =
+        lines.pop() || "";
+
+      for (const line of lines) {
+
+        if (!line.startsWith("data:")) {
+          continue;
+        }
+
+        const jsonText =
+          line
+            .replace(/^data:\s*/, "")
+            .trim();
+
+        if (!jsonText) continue;
+
+        try {
+
+          const event =
+            JSON.parse(jsonText);
+
+          /* ---------- CHUNK ---------- */
+
+          if (
+            event.type === "chunk"
+          ) {
+
+            if (aiText === "") {
+              removeTyping();
+            }
+
+            aiText +=
+              event.text || "";
+
+            msg.text =
+              aiText;
+
+            msg.status =
+              "streaming";
+
+            renderMessages();
+
+          }
+
+          /* ---------- ERROR ---------- */
+
+          if (
+            event.type === "error"
+          ) {
+
+            removeTyping();
+
+            msg.text =
+              event.message ||
+              "FAI failed to generate a response.";
+
+            msg.status =
+              "complete";
+
+            renderMessages();
+            saveMessages();
+
+            streamCompleted = true;
+
+          }
+
+          /* ---------- DONE ---------- */
+
+          if (
+            event.type === "done"
+          ) {
+
+            removeTyping();
+
+            msg.text =
+              aiText;
+
+            msg.status =
+              "complete";
+
+            renderMessages();
+            saveMessages();
+
+            streamCompleted = true;
+
+          }
+
+        } catch (err) {
+
+          console.error(
+            "Reload stream parsing error:",
+            err
+          );
+
+        }
+
+      }
+
+    }
+
+  } catch (err) {
+
+    removeTyping();
+
+    console.error(
+      "❌ FAI RELOAD ERROR:",
+      err
+    );
+
+    msg.text =
+      "Couldn't reload this response.";
+
+    msg.status =
+      "complete";
+
+    renderMessages();
+    saveMessages();
+
+  } finally {
+
+    isSending = false;
+
+  }
+
+}
+
 /* ---------- RENDER ---------- */
 
 function renderMessages() {
@@ -168,7 +433,6 @@ function renderMessages() {
         fileCard.appendChild(fileName);
 
         attachment.appendChild(fileCard);
-
       }
 
       div.appendChild(attachment);
@@ -182,12 +446,14 @@ function renderMessages() {
           "sent-text";
 
         text.innerHTML =
-  marked.parse(msg.text || "", {
-    html: false
-  });
+          marked.parse(
+            msg.text || "",
+            {
+              html: false
+            }
+          );
 
         div.appendChild(text);
-
       }
 
     }
@@ -224,155 +490,157 @@ function renderMessages() {
           "generated-text";
 
         text.innerHTML =
-  marked.parse(msg.text || "", {
-    html: false
-  });
+          marked.parse(
+            msg.text || "",
+            {
+              html: false
+            }
+          );
 
         div.appendChild(text);
-
       }
 
     }
 
-/* ---------- NORMAL MESSAGE ---------- */
+    /* ------------------------------
+       NORMAL MESSAGE
+    ------------------------------ */
 
-else {
+    else {
 
-  div.innerHTML =
-  marked.parse(
-    msg.text || "",
-    {
-      html: false,
-      renderer
-    }
-  );
+      div.innerHTML =
+        marked.parse(
+          msg.text || "",
+          {
+            html: false,
+            renderer
+          }
+        );
 
+      /* ------------------------------
+         AI RESPONSE STATUS
+      ------------------------------ */
 
-  /* ---------- AI RESPONSE STATUS ---------- */
+      if (msg.role === "ai") {
 
-  if (
-  msg.role === "ai"
-) {
+        /* ------------------------------
+           STILL GENERATING
+        ------------------------------ */
 
-    /* --------------------------------
-       STILL GENERATING
-    -------------------------------- */
+        if (msg.status === "streaming") {
 
-    if (
-      msg.status === "streaming"
-    ) {
+          const loadingBtn =
+            document.createElement("button");
 
-      const loadingBtn =
-        document.createElement("button");
+          loadingBtn.className =
+            "response-loading-btn";
 
-      loadingBtn.className =
-        "response-loading-btn";
+          loadingBtn.innerHTML = `
+            <span></span>
+            <span></span>
+            <span></span>
+          `;
 
-      loadingBtn.innerHTML = `
-        <span></span>
-        <span></span>
-        <span></span>
-      `;
+          loadingBtn.disabled = true;
 
-      loadingBtn.disabled = true;
-
-      div.appendChild(
-        loadingBtn
-      );
-
-    }
-
-
-    /* --------------------------------
-       RESPONSE COMPLETE
-    -------------------------------- */
-
-    else if (
-  msg.status === "complete" &&
-  msg.text
-) {
-
-      const copyBtn =
-        document.createElement("button");
-
-      copyBtn.className =
-        "response-copy-btn";
-
-      copyBtn.textContent =
-        "Copy";
-
-      copyBtn.onclick = async () => {
-
-        try {
-
-          await navigator.clipboard.writeText(
-            msg.text
+          div.appendChild(
+            loadingBtn
           );
-
-          copyBtn.textContent =
-            "Copied";
-
-          setTimeout(() => {
-
-            copyBtn.textContent =
-              "Copy";
-
-          }, 1500);
-
-        } catch (err) {
-
-          copyBtn.textContent =
-            "Failed";
-
-          setTimeout(() => {
-
-            copyBtn.textContent =
-              "Copy";
-
-          }, 1500);
-
         }
 
-      };
+        /* ------------------------------
+           RESPONSE COMPLETE
+        ------------------------------ */
 
-      div.appendChild(
-        copyBtn
-      );
+        else if (
+          msg.status === "complete" &&
+          msg.text
+        ) {
 
+          const actions =
+            document.createElement("div");
+
+          actions.className =
+            "response-actions";
+
+          /* ------------------------------
+             COPY BUTTON
+          ------------------------------ */
+
+          const copyBtn =
+            document.createElement("button");
+
+          copyBtn.className =
+            "response-copy-btn";
+
+          copyBtn.textContent =
+            "Copy";
+
+          copyBtn.onclick = async () => {
+
+            try {
+
+              await navigator.clipboard.writeText(
+                msg.text
+              );
+
+              copyBtn.textContent =
+                "Copied";
+
+              setTimeout(() => {
+
+                copyBtn.textContent =
+                  "Copy";
+
+              }, 1500);
+
+            } catch (err) {
+
+              copyBtn.textContent =
+                "Failed";
+
+              setTimeout(() => {
+
+                copyBtn.textContent =
+                  "Copy";
+
+              }, 1500);
+            }
+          };
+
+          /* ------------------------------
+             RELOAD BUTTON
+          ------------------------------ */
+
+          const reloadBtn =
+            document.createElement("button");
+
+          reloadBtn.className =
+            "response-reload-btn";
+
+          reloadBtn.textContent =
+            "Reload";
+
+          reloadBtn.onclick = () => {
+
+            reloadAIResponse(msg);
+
+          };
+
+          actions.appendChild(
+            copyBtn
+          );
+
+          actions.appendChild(
+            reloadBtn
+          );
+
+          div.appendChild(
+            actions
+          );
+        }
+      }
     }
-
-  }
-
-
-  /* ---------- RETRY BUTTON ---------- */
-
-  if (
-    msg.role === "ai" &&
-    msg.pending
-  ) {
-
-    const retryBtn =
-      document.createElement("button");
-
-    retryBtn.className =
-      "retry-btn";
-
-    retryBtn.textContent =
-      "Retry";
-
-    retryBtn.onclick = () => {
-
-      retryPendingMessage(msg);
-
-    };
-
-    div.appendChild(
-      retryBtn
-    );
-
-  }
-
-}
 
     chatBox.appendChild(div);
 
@@ -380,8 +648,8 @@ else {
 
   setupCodeBlocks(chatBox);
 
-chatBox.scrollTop =
-  chatBox.scrollHeight;
+  chatBox.scrollTop =
+    chatBox.scrollHeight;
 }
 
 /* ---------- SAVE ---------- */
@@ -1141,7 +1409,8 @@ showTyping();
     messages.push({
   role: "ai",
   text: "",
-  status: "streaming"
+  status: "streaming",
+  retryPrompt: prompt
 });
 
 const aiMessage =
@@ -1469,7 +1738,21 @@ saveMessages();
 
 showTyping();
 
-      fetch(
+      const reviewPrompt = `
+You are FAI helping a student.
+
+Give short but very clear explanations.
+
+For each question:
+- Correct answer
+- Why it's correct
+- Simple explanation
+
+Quiz Review:
+${JSON.stringify(parsed, null, 2)}
+`.trim();
+
+fetch(
   "https://fweb-backend.onrender.com/fai",
   {
     method: "POST",
@@ -1484,19 +1767,7 @@ showTyping();
 
       messages: [],
 
-      prompt: `
-You are FAI helping a student.
-
-Give short but very clear explanations.
-
-For each question:
-- Correct answer
-- Why it's correct
-- Simple explanation
-
-Quiz Review:
-${JSON.stringify(parsed, null, 2)}
-      `.trim()
+      prompt: reviewPrompt
     })
   }
 )
@@ -1514,7 +1785,20 @@ ${JSON.stringify(parsed, null, 2)}
   messages.push({
   role: "ai",
   text: "",
-  status: "streaming"
+  status: "streaming",
+  retryPrompt: `
+You are FAI helping a student.
+
+Give short but very clear explanations.
+
+For each question:
+- Correct answer
+- Why it's correct
+- Simple explanation
+
+Quiz Review:
+${JSON.stringify(parsed, null, 2)}
+  `.trim()
 });
 
   const aiMessage =
