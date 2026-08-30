@@ -326,19 +326,33 @@ function renderTopics(
       ========================= */
 
       const menuBtn =
-        card.querySelector(
-          ".topic-menu-btn"
-        );
+  card.querySelector(
+    ".topic-menu-btn"
+  );
 
-      const menu =
-        card.querySelector(
-          ".topic-menu"
-        );
+const menu =
+  card.querySelector(
+    ".topic-menu"
+  );
 
-      const shareBtn =
-        card.querySelector(
-          ".share-topic-btn"
-        );
+const shareBtn =
+  card.querySelector(
+    ".share-topic-btn"
+  );
+
+
+/* =========================
+   STOP MENU CLICKS
+========================= */
+
+menu.addEventListener(
+  "click",
+  event => {
+
+    event.stopPropagation();
+
+  }
+);
 
 
 /* =========================
@@ -347,27 +361,7 @@ function renderTopics(
 
 card.addEventListener(
   "click",
-  event => {
-
-    /*
-      Do not open the topic when
-      clicking the three-dot menu
-      or anything inside it.
-    */
-
-    if (
-      event.target.closest(
-        ".topic-menu"
-      ) ||
-      event.target.closest(
-        ".topic-menu-btn"
-      )
-    ) {
-
-      return;
-
-    }
-
+  () => {
 
     openTopic(
       topic
@@ -377,60 +371,48 @@ card.addEventListener(
 );
 
 
-      /* =========================
-         THREE DOTS
-      ========================= */
+/* =========================
+   THREE DOTS
+========================= */
 
-      menuBtn.addEventListener(
-        "click",
-        event => {
+menuBtn.addEventListener(
+  "click",
+  event => {
 
-          /*
-            Prevent the card click
-            from opening the note.
-          */
-
-          event.stopPropagation();
+    event.preventDefault();
+    event.stopPropagation();
 
 
-          /*
-            Close other open menus.
-          */
+    document
+      .querySelectorAll(
+        ".topic-menu"
+      )
+      .forEach(
+        otherMenu => {
 
-          document
-            .querySelectorAll(
-              ".topic-menu"
-            )
-            .forEach(
-              otherMenu => {
+          if (
+            otherMenu !== menu
+          ) {
 
-                if (
-                  otherMenu !== menu
-                ) {
-
-                  otherMenu.classList.add(
-                    "hidden"
-                  );
-
-                }
-
-              }
+            otherMenu.classList.add(
+              "hidden"
             );
 
-
-          /*
-            Toggle this menu.
-          */
-
-          menu.classList.toggle(
-            "hidden"
-          );
+          }
 
         }
       );
 
 
-     /* =========================
+    menu.classList.toggle(
+      "hidden"
+    );
+
+  }
+);
+
+
+/* =========================
    SHARE
 ========================= */
 
@@ -438,6 +420,7 @@ shareBtn.addEventListener(
   "click",
   event => {
 
+    event.preventDefault();
     event.stopPropagation();
 
 
