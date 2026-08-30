@@ -5,6 +5,14 @@
       "destination": "/fvids.html"
     },
     {
+      "source": "/share/past-question",
+      "destination": "/view-past-question.html"
+    },
+    {
+      "source": "/share/note",
+      "destination": "/view-note.html"
+    },
+    {
       "source": "/:page",
       "destination": "/:page.html"
     }
