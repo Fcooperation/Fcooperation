@@ -1480,6 +1480,8 @@ ${JSON.stringify(parsed, null, 2)}
   const aiMessage =
     messages[messages.length - 1];
 
+    let reviewStreamCompleted = false;
+
   while (true) {
 
     const {
@@ -1487,7 +1489,29 @@ ${JSON.stringify(parsed, null, 2)}
       done
     } = await reader.read();
 
-    if (done) break;
+    /* --------------------------------
+       STREAM CLOSED
+    -------------------------------- */
+
+    if (done) {
+
+      if (!reviewStreamCompleted) {
+
+        reviewStreamCompleted = true;
+
+        removeTyping();
+
+        aiMessage.status =
+          "complete";
+
+        renderMessages();
+
+        saveMessages();
+
+      }
+
+      break;
+    }
 
     buffer += decoder.decode(
       value,
@@ -1518,29 +1542,70 @@ ${JSON.stringify(parsed, null, 2)}
         const event =
           JSON.parse(jsonText);
 
+        /* ------------------------------
+           AI CHUNK
+        ------------------------------ */
+
         if (event.type === "chunk") {
 
-  if (aiText === "") {
-    removeTyping();
-  }
+          if (aiText === "") {
+            removeTyping();
+          }
 
-  aiText += event.text;
+          aiText +=
+            event.text;
 
-  aiMessage.text =
-    aiText;
+          aiMessage.text =
+            aiText;
 
-  renderMessages();
-}
+          aiMessage.status =
+            "streaming";
+
+          renderMessages();
+
+        }
+
+        /* ------------------------------
+           AI ERROR
+        ------------------------------ */
 
         if (event.type === "error") {
 
-  removeTyping();
+          removeTyping();
 
-  aiMessage.text =
-    event.message;
+          aiMessage.text =
+            event.message ||
+            "FAI failed to generate the review.";
 
-  renderMessages();
-}
+          aiMessage.status =
+            "complete";
+
+          renderMessages();
+
+          saveMessages();
+
+          reviewStreamCompleted = true;
+
+        }
+
+        /* ------------------------------
+           DONE
+        ------------------------------ */
+
+        if (event.type === "done") {
+
+          removeTyping();
+
+          aiMessage.status =
+            "complete";
+
+          renderMessages();
+
+          saveMessages();
+
+          reviewStreamCompleted = true;
+
+        }
 
       } catch (err) {
 
