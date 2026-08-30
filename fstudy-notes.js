@@ -341,20 +341,40 @@ function renderTopics(
         );
 
 
-      /* =========================
-         OPEN TOPIC
-      ========================= */
+/* =========================
+   OPEN TOPIC
+========================= */
 
-      card.addEventListener(
-        "click",
-        () => {
+card.addEventListener(
+  "click",
+  event => {
 
-          openTopic(
-            topic
-          );
+    /*
+      Do not open the topic when
+      clicking the three-dot menu
+      or anything inside it.
+    */
 
-        }
-      );
+    if (
+      event.target.closest(
+        ".topic-menu"
+      ) ||
+      event.target.closest(
+        ".topic-menu-btn"
+      )
+    ) {
+
+      return;
+
+    }
+
+
+    openTopic(
+      topic
+    );
+
+  }
+);
 
 
       /* =========================
