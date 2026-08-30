@@ -1371,7 +1371,7 @@ async function translateSection(
     "fai-loading";
 
   loadingText.textContent =
-    "Translating to English...";
+    "FAI is translating to English...";
 
   faiMenu.appendChild(
     loadingText
@@ -1391,13 +1391,13 @@ async function translateSection(
   try {
 
     /* =========================
-       SEND TO ADMIN
+       SEND TO FAI
     ========================= */
 
     const response =
       await fetch(
         window.CONFIG.API_URL +
-        "/admin",
+        "/fai",
         {
 
           method: "POST",
@@ -1410,14 +1410,36 @@ async function translateSection(
           body:
             JSON.stringify({
 
-              action:
-                "translate_section",
+              prompt:
+`You are FAI, the academic assistant inside FSTUDY.
 
-              text:
-                sectionContent,
+Translate the following academic section into clear, natural English.
 
-              target_language:
-                "English",
+STRICT RULES:
+
+1. Translate ONLY the provided section.
+2. Do not summarize it.
+3. Do not remove important information.
+4. Do not add new information.
+5. Preserve the original meaning.
+6. Preserve academic terminology.
+7. Preserve headings where possible.
+8. Preserve bullet points and numbering.
+9. If a word or phrase is already English, keep it.
+10. The source may be Igbo or mixed Igbo and English.
+11. Return ONLY the English translation.
+12. Do not add explanations before or after the translation.
+
+SECTION TITLE:
+
+${section.title || "Untitled Section"}
+
+SECTION CONTENT:
+
+${sectionContent}`,
+
+              source:
+                "fstudy",
 
               university:
                 university,
@@ -1440,39 +1462,191 @@ async function translateSection(
     if (!response.ok) {
 
       throw new Error(
-        "Translation request failed."
+        "FAI translation request failed."
       );
 
     }
 
 
-    const data =
-      await response.json();
+    /* =========================
+       READ SSE STREAM
+    ========================= */
 
-
-    if (!data.success) {
+    if (!response.body) {
 
       throw new Error(
-        data.error ||
-        "Failed to translate section."
+        "FAI did not return a readable response."
       );
 
     }
 
 
+    const reader =
+      response.body.getReader();
+
+    const decoder =
+      new TextDecoder();
+
+    let buffer = "";
+
+    let translation = "";
+
+
+    while (true) {
+
+      const {
+        value,
+        done
+      } =
+        await reader.read();
+
+
+      if (done) {
+        break;
+      }
+
+
+      buffer +=
+        decoder.decode(
+          value,
+          {
+            stream: true
+          }
+        );
+
+
+      const events =
+        buffer.split("\n\n");
+
+
+      buffer =
+        events.pop() || "";
+
+
+      for (
+        const eventText
+        of events
+      ) {
+
+        const lines =
+          eventText.split("\n");
+
+
+        for (
+          const line
+          of lines
+        ) {
+
+          if (
+            !line.startsWith("data:")
+          ) {
+            continue;
+          }
+
+
+          const jsonText =
+            line
+              .replace(
+                /^data:\s*/,
+                ""
+              )
+              .trim();
+
+
+          if (!jsonText) {
+            continue;
+          }
+
+
+          try {
+
+            const event =
+              JSON.parse(
+                jsonText
+              );
+
+
+            /* =========================
+               CHUNK
+            ========================= */
+
+            if (
+              event.type ===
+              "chunk"
+            ) {
+
+              translation +=
+                event.text || "";
+
+            }
+
+
+            /* =========================
+               ERROR
+            ========================= */
+
+            if (
+              event.type ===
+              "error"
+            ) {
+
+              throw new Error(
+                event.message ||
+                "FAI failed to translate this section."
+              );
+
+            }
+
+          } catch (
+            parseError
+          ) {
+
+            if (
+              parseError.message &&
+              !parseError.message.includes(
+                "Unexpected"
+              )
+            ) {
+
+              throw parseError;
+
+            }
+
+          }
+
+        }
+
+      }
+
+    }
+
+
+    /* =========================
+       REMOVE LOADING
+    ========================= */
+
     loadingText.remove();
+
+
+    if (!translation.trim()) {
+
+      throw new Error(
+        "FAI returned an empty translation."
+      );
+
+    }
 
 
     /* =========================
        SHOW TRANSLATION
     ========================= */
 
-    const translation =
+    const translationElement =
       document.createElement(
         "div"
       );
 
-    translation.className =
+    translationElement.className =
       "fai-summary fai-translation";
 
 
@@ -1492,21 +1666,21 @@ async function translateSection(
 
     translationContent.innerHTML =
       renderMarkdown(
-        data.translation || ""
+        translation.trim()
       );
 
 
-    translation.appendChild(
+    translationElement.appendChild(
       translationTitle
     );
 
-    translation.appendChild(
+    translationElement.appendChild(
       translationContent
     );
 
 
     faiMenu.appendChild(
-      translation
+      translationElement
     );
 
 
@@ -1516,7 +1690,7 @@ async function translateSection(
 
     setTimeout(() => {
 
-      faiMenu.scrollIntoView({
+      translationElement.scrollIntoView({
         behavior: "smooth",
         block: "nearest"
       });
