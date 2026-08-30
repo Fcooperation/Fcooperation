@@ -252,204 +252,225 @@ function renderTopics(
   topics
 ) {
 
-  topicList.innerHTML =
-    "";
+  topicList.innerHTML = "";
 
   topicList.classList.remove(
     "hidden"
   );
 
 
-  topics.forEach(
-    topic => {
+  topics.forEach(topic => {
 
-      const card =
-        document.createElement(
-          "div"
+    const card =
+      document.createElement("div");
+
+    card.className =
+      "topic-card";
+
+
+    /* =========================
+       CARD INFORMATION
+    ========================= */
+
+    const cardInfo =
+      document.createElement("div");
+
+    cardInfo.className =
+      "topic-info";
+
+
+    const label =
+      document.createElement("div");
+
+    label.className =
+      "topic-label";
+
+    label.textContent =
+      "Topic";
+
+
+    const topicName =
+      document.createElement("div");
+
+    topicName.className =
+      "topic-name";
+
+    topicName.textContent =
+      topic;
+
+
+    cardInfo.appendChild(
+      label
+    );
+
+    cardInfo.appendChild(
+      topicName
+    );
+
+
+    /* =========================
+       THREE DOTS
+    ========================= */
+
+    const menuWrapper =
+      document.createElement("div");
+
+    menuWrapper.className =
+      "card-menu";
+
+
+    const menuBtn =
+      document.createElement("button");
+
+    menuBtn.type =
+      "button";
+
+    menuBtn.className =
+      "card-menu-btn";
+
+    menuBtn.textContent =
+      "⋮";
+
+    menuBtn.setAttribute(
+      "aria-label",
+      "More options"
+    );
+
+
+    /* =========================
+       DROPDOWN
+    ========================= */
+
+    const dropdown =
+      document.createElement("div");
+
+    dropdown.className =
+      "card-dropdown hidden";
+
+
+    const shareBtn =
+      document.createElement("button");
+
+    shareBtn.type =
+      "button";
+
+    shareBtn.className =
+      "card-dropdown-item";
+
+    shareBtn.textContent =
+      "Share";
+
+
+    dropdown.appendChild(
+      shareBtn
+    );
+
+
+    menuWrapper.appendChild(
+      menuBtn
+    );
+
+    menuWrapper.appendChild(
+      dropdown
+    );
+
+
+    /* =========================
+       OPEN MENU
+    ========================= */
+
+    menuBtn.addEventListener(
+      "click",
+      event => {
+
+        event.stopPropagation();
+
+
+        /* Close other menus */
+
+        document
+          .querySelectorAll(
+            ".card-dropdown"
+          )
+          .forEach(menu => {
+
+            if (
+              menu !== dropdown
+            ) {
+
+              menu.classList.add(
+                "hidden"
+              );
+
+            }
+
+          });
+
+
+        dropdown.classList.toggle(
+          "hidden"
         );
 
-
-      card.className =
-        "topic-card";
-
-
-      /* =========================
-         CARD CONTENT
-      ========================= */
-
-      card.innerHTML = `
-
-        <div class="topic-left">
-
-          <div class="topic-label">
-            Topic
-          </div>
-
-          <div class="topic-name"></div>
-
-        </div>
-
-        <button
-          type="button"
-          class="topic-menu-btn"
-          aria-label="More options"
-        >
-          ⋮
-        </button>
-
-        <div class="topic-menu hidden">
-
-          <button
-            type="button"
-            class="topic-menu-item share-topic-btn"
-          >
-            Share
-          </button>
-
-        </div>
-
-      `;
-
-
-      /* =========================
-         TOPIC NAME
-      ========================= */
-
-      card.querySelector(
-        ".topic-name"
-      ).textContent =
-        topic;
-
-
-      /* =========================
-         ELEMENTS
-      ========================= */
-
-      const menuBtn =
-  card.querySelector(
-    ".topic-menu-btn"
-  );
-
-const menu =
-  card.querySelector(
-    ".topic-menu"
-  );
-
-const shareBtn =
-  card.querySelector(
-    ".share-topic-btn"
-  );
-
-
-/* =========================
-   STOP MENU CLICKS
-========================= */
-
-menu.addEventListener(
-  "click",
-  event => {
-
-    event.stopPropagation();
-
-  }
-);
-
-
-/* =========================
-   OPEN TOPIC
-========================= */
-
-card.addEventListener(
-  "click",
-  () => {
-
-    openTopic(
-      topic
-    );
-
-  }
-);
-
-
-/* =========================
-   THREE DOTS
-========================= */
-
-menuBtn.addEventListener(
-  "click",
-  event => {
-
-    event.preventDefault();
-    event.stopPropagation();
-
-
-    document
-      .querySelectorAll(
-        ".topic-menu"
-      )
-      .forEach(
-        otherMenu => {
-
-          if (
-            otherMenu !== menu
-          ) {
-
-            otherMenu.classList.add(
-              "hidden"
-            );
-
-          }
-
-        }
-      );
-
-
-    menu.classList.toggle(
-      "hidden"
-    );
-
-  }
-);
-
-
-/* =========================
-   SHARE
-========================= */
-
-shareBtn.addEventListener(
-  "click",
-  event => {
-
-    event.preventDefault();
-    event.stopPropagation();
-
-
-    const shareLink =
-      createNoteShareLink(
-        topic
-      );
-
-
-    openShareInterface(
-      shareLink,
-      `FSTUDY • ${studying} • ${topic}`
+      }
     );
 
 
-    menu.classList.add(
-      "hidden"
+    /* =========================
+       SHARE
+    ========================= */
+
+    shareBtn.addEventListener(
+      "click",
+      event => {
+
+        event.stopPropagation();
+
+        dropdown.classList.add(
+          "hidden"
+        );
+
+        openShareInterface(
+          topic
+        );
+
+      }
     );
 
-  }
-);
+
+    /* =========================
+       CARD LAYOUT
+    ========================= */
+
+    card.appendChild(
+      cardInfo
+    );
+
+    card.appendChild(
+      menuWrapper
+    );
 
 
-      topicList.appendChild(
-        card
-      );
+    /* =========================
+       OPEN TOPIC
+    ========================= */
 
-    }
-  );
+    card.addEventListener(
+      "click",
+      () => {
+
+        openTopic(
+          topic
+        );
+
+      }
+    );
+
+
+    topicList.appendChild(
+      card
+    );
+
+  });
 
 }
 
@@ -489,6 +510,331 @@ shareBtn.addEventListener(
 
     }
 
+/* =========================
+   SHARE INTERFACE
+========================= */
+
+function openShareInterface(topic) {
+
+  const overlay =
+    document.createElement("div");
+
+  overlay.className =
+    "share-overlay";
+
+
+  const sheet =
+    document.createElement("div");
+
+  sheet.className =
+    "share-sheet";
+
+
+  /* =========================
+     HEADER
+  ========================= */
+
+  const header =
+    document.createElement("div");
+
+  header.className =
+    "share-header";
+
+
+  const title =
+    document.createElement("h2");
+
+  title.textContent =
+    "Share Note";
+
+
+  const closeBtn =
+    document.createElement("button");
+
+  closeBtn.type =
+    "button";
+
+  closeBtn.className =
+    "share-close-btn";
+
+  closeBtn.textContent =
+    "×";
+
+
+  header.appendChild(
+    title
+  );
+
+  header.appendChild(
+    closeBtn
+  );
+
+
+  /* =========================
+     DESCRIPTION
+  ========================= */
+
+  const description =
+    document.createElement("p");
+
+  description.className =
+    "share-description";
+
+  description.textContent =
+    `${studyingUni} • ${studying} • ${topic}`;
+
+
+  /* =========================
+     LINK
+  ========================= */
+
+  const link =
+    createNoteShareLink(
+      topic
+    );
+
+
+  const linkBox =
+    document.createElement("div");
+
+  linkBox.className =
+    "share-link-box";
+
+
+  const linkText =
+    document.createElement("span");
+
+  linkText.textContent =
+    link;
+
+
+  linkBox.appendChild(
+    linkText
+  );
+
+
+  /* =========================
+     COPY BUTTON
+  ========================= */
+
+  const copyBtn =
+    document.createElement("button");
+
+  copyBtn.type =
+    "button";
+
+  copyBtn.className =
+    "share-copy-btn";
+
+  copyBtn.textContent =
+    "Copy Link";
+
+
+  copyBtn.addEventListener(
+    "click",
+    async () => {
+
+      try {
+
+        await navigator.clipboard.writeText(
+          link
+        );
+
+
+        copyBtn.textContent =
+          "Copied!";
+
+
+        setTimeout(() => {
+
+          copyBtn.textContent =
+            "Copy Link";
+
+        }, 1500);
+
+
+      } catch {
+
+        const input =
+          document.createElement(
+            "input"
+          );
+
+        input.value =
+          link;
+
+        document.body.appendChild(
+          input
+        );
+
+        input.select();
+
+        document.execCommand(
+          "copy"
+        );
+
+        input.remove();
+
+
+        copyBtn.textContent =
+          "Copied!";
+
+
+        setTimeout(() => {
+
+          copyBtn.textContent =
+            "Copy Link";
+
+        }, 1500);
+
+      }
+
+    }
+  );
+
+
+  /* =========================
+     NATIVE SHARE
+  ========================= */
+
+  const nativeShareBtn =
+    document.createElement("button");
+
+  nativeShareBtn.type =
+    "button";
+
+  nativeShareBtn.className =
+    "share-native-btn";
+
+  nativeShareBtn.textContent =
+    "Share";
+
+
+  nativeShareBtn.addEventListener(
+    "click",
+    async () => {
+
+      if (
+        navigator.share
+      ) {
+
+        try {
+
+          await navigator.share({
+
+            title:
+              `${studying} Notes - ${topic}`,
+
+            text:
+              `Check out these ${studying} notes from ${studyingUni} on ${topic}.`,
+
+            url:
+              link
+
+          });
+
+        } catch {
+
+          /*
+            User cancelled
+            the share sheet.
+          */
+
+        }
+
+      } else {
+
+        try {
+
+          await navigator.clipboard.writeText(
+            link
+          );
+
+          nativeShareBtn.textContent =
+            "Link Copied!";
+
+        } catch {
+
+          nativeShareBtn.textContent =
+            "Copy the link above";
+
+        }
+
+      }
+
+    }
+  );
+
+
+  /* =========================
+     APPEND
+  ========================= */
+
+  sheet.appendChild(
+    header
+  );
+
+  sheet.appendChild(
+    description
+  );
+
+  sheet.appendChild(
+    linkBox
+  );
+
+  sheet.appendChild(
+    copyBtn
+  );
+
+  sheet.appendChild(
+    nativeShareBtn
+  );
+
+
+  overlay.appendChild(
+    sheet
+  );
+
+
+  document.body.appendChild(
+    overlay
+  );
+
+
+  /* =========================
+     CLOSE BUTTON
+  ========================= */
+
+  closeBtn.addEventListener(
+    "click",
+    () => {
+
+      overlay.remove();
+
+    }
+  );
+
+
+  /* =========================
+     CLOSE OUTSIDE
+  ========================= */
+
+  overlay.addEventListener(
+    "click",
+    event => {
+
+      if (
+        event.target === overlay
+      ) {
+
+        overlay.remove();
+
+      }
+
+    }
+  );
+
+}
 
     /* =========================
        START

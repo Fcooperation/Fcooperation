@@ -296,11 +296,15 @@ position: relative;
 
 }
 /* =========================
-   TOPIC CARD
+   CARD MENU
 ========================= */
 
-.topic-card {
+.card-menu {
+
   position: relative;
+
+  flex-shrink: 0;
+
 }
 
 
@@ -308,9 +312,7 @@ position: relative;
    THREE DOTS
 ========================= */
 
-.topic-menu-btn {
-
-  flex-shrink: 0;
+.card-menu-btn {
 
   width: 34px;
 
@@ -333,7 +335,7 @@ position: relative;
 }
 
 
-.topic-menu-btn:active {
+.card-menu-btn:active {
 
   background: #eee;
 
@@ -341,16 +343,16 @@ position: relative;
 
 
 /* =========================
-   TOPIC MENU
+   CARD DROPDOWN
 ========================= */
 
-.topic-menu {
+.card-dropdown {
 
   position: absolute;
 
-  top: 52px;
+  top: 38px;
 
-  right: 12px;
+  right: 0;
 
   z-index: 20;
 
@@ -371,10 +373,10 @@ position: relative;
 
 
 /* =========================
-   MENU ITEM
+   DROPDOWN ITEM
 ========================= */
 
-.topic-menu-item {
+.card-dropdown-item {
 
   width: 100%;
 
@@ -397,8 +399,244 @@ position: relative;
 }
 
 
-.topic-menu-item:active {
+.card-dropdown-item:active {
 
   background: #f0f0f0;
+
+}
+
+
+/* =========================
+   SHARE OVERLAY
+========================= */
+
+.share-overlay {
+
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 1000;
+
+  display: flex;
+
+  align-items: flex-end;
+
+  justify-content: center;
+
+  background: rgba(0, 0, 0, 0.45);
+
+}
+
+
+/* =========================
+   SHARE SHEET
+========================= */
+
+.share-sheet {
+
+  width: 100%;
+
+  max-width: 600px;
+
+  background: white;
+
+  border-radius: 20px 20px 0 0;
+
+  padding: 20px;
+
+  box-shadow:
+    0 -5px 25px rgba(0, 0, 0, 0.15);
+
+}
+
+
+/* =========================
+   SHARE HEADER
+========================= */
+
+.share-header {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 15px;
+
+  margin-bottom: 8px;
+
+}
+
+
+.share-header h2 {
+
+  margin: 0;
+
+  font-size: 19px;
+
+}
+
+
+/* =========================
+   CLOSE BUTTON
+========================= */
+
+.share-close-btn {
+
+  width: 34px;
+
+  height: 34px;
+
+  border: none;
+
+  background: #f1f1f1;
+
+  border-radius: 50%;
+
+  font-size: 23px;
+
+  line-height: 1;
+
+  color: #555;
+
+  cursor: pointer;
+
+}
+
+
+.share-close-btn:active {
+
+  background: #ddd;
+
+}
+
+
+/* =========================
+   SHARE DESCRIPTION
+========================= */
+
+.share-description {
+
+  margin: 0 0 15px;
+
+  font-size: 13px;
+
+  color: #777;
+
+  line-height: 1.4;
+
+}
+
+
+/* =========================
+   SHARE LINK
+========================= */
+
+.share-link-box {
+
+  width: 100%;
+
+  padding: 12px;
+
+  margin-bottom: 12px;
+
+  background: #f5f5f5;
+
+  border: 1px solid #ddd;
+
+  border-radius: 10px;
+
+  overflow: hidden;
+
+}
+
+
+.share-link-box span {
+
+  display: block;
+
+  width: 100%;
+
+  overflow: hidden;
+
+  white-space: nowrap;
+
+  text-overflow: ellipsis;
+
+  font-size: 13px;
+
+  color: #555;
+
+}
+
+
+/* =========================
+   COPY BUTTON
+========================= */
+
+.share-copy-btn {
+
+  width: 100%;
+
+  border: none;
+
+  background: #222;
+
+  color: white;
+
+  padding: 13px;
+
+  border-radius: 10px;
+
+  font-size: 14px;
+
+  font-weight: bold;
+
+  cursor: pointer;
+
+  margin-bottom: 10px;
+
+}
+
+
+.share-copy-btn:active {
+
+  transform: scale(0.98);
+
+}
+
+
+/* =========================
+   NATIVE SHARE BUTTON
+========================= */
+
+.share-native-btn {
+
+  width: 100%;
+
+  border: 1px solid #ddd;
+
+  background: white;
+
+  color: #222;
+
+  padding: 13px;
+
+  border-radius: 10px;
+
+  font-size: 14px;
+
+  font-weight: bold;
+
+  cursor: pointer;
+
+}
+
+
+.share-native-btn:active {
+
+  background: #f2f2f2;
 
 }
