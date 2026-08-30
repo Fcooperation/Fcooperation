@@ -200,56 +200,109 @@ function renderMessages() {
 
     }
 
-    /* ------------------------------
-       NORMAL MESSAGE
-    ------------------------------ */
+/* ---------- NORMAL MESSAGE ---------- */
 
-    else {
+else {
 
   div.innerHTML =
     marked.parse(msg.text || "");
 
-if (msg.role === "ai" && msg.text) {
 
-  const copyBtn =
-    document.createElement("button");
+  /* ---------- AI RESPONSE STATUS ---------- */
 
-  copyBtn.className =
-    "response-copy-btn";
+  if (
+    msg.role === "ai" &&
+    msg.text
+  ) {
 
-  copyBtn.textContent =
-    "Copy";
+    /* --------------------------------
+       STILL GENERATING
+    -------------------------------- */
 
-  copyBtn.onclick = async () => {
+    if (
+      msg.status === "streaming"
+    ) {
 
-    try {
+      const loadingBtn =
+        document.createElement("button");
 
-      await navigator.clipboard.writeText(
-        msg.text
+      loadingBtn.className =
+        "response-loading-btn";
+
+      loadingBtn.innerHTML = `
+        <span></span>
+        <span></span>
+        <span></span>
+      `;
+
+      loadingBtn.disabled = true;
+
+      div.appendChild(
+        loadingBtn
       );
-
-      copyBtn.textContent =
-        "Copied";
-
-      setTimeout(() => {
-
-        copyBtn.textContent =
-          "Copy";
-
-      }, 1500);
-
-    } catch (err) {
-
-      copyBtn.textContent =
-        "Failed";
 
     }
 
-  };
 
-  div.appendChild(copyBtn);
+    /* --------------------------------
+       RESPONSE COMPLETE
+    -------------------------------- */
 
-}
+    else if (
+      msg.status === "complete"
+    ) {
+
+      const copyBtn =
+        document.createElement("button");
+
+      copyBtn.className =
+        "response-copy-btn";
+
+      copyBtn.textContent =
+        "Copy";
+
+      copyBtn.onclick = async () => {
+
+        try {
+
+          await navigator.clipboard.writeText(
+            msg.text
+          );
+
+          copyBtn.textContent =
+            "Copied";
+
+          setTimeout(() => {
+
+            copyBtn.textContent =
+              "Copy";
+
+          }, 1500);
+
+        } catch (err) {
+
+          copyBtn.textContent =
+            "Failed";
+
+          setTimeout(() => {
+
+            copyBtn.textContent =
+              "Copy";
+
+          }, 1500);
+
+        }
+
+      };
+
+      div.appendChild(
+        copyBtn
+      );
+
+    }
+
+  }
+
 
   /* ---------- RETRY BUTTON ---------- */
 
@@ -273,7 +326,9 @@ if (msg.role === "ai" && msg.text) {
 
     };
 
-    div.appendChild(retryBtn);
+    div.appendChild(
+      retryBtn
+    );
 
   }
 
@@ -1108,22 +1163,25 @@ const aiMessage =
           ------------------------------ */
 
           if (
-            event.type === "chunk"
-          ) {
+  event.type === "chunk"
+) {
 
-            if (aiText === "") {
-              removeTyping();
-            }
+  if (aiText === "") {
+    removeTyping();
+  }
 
-            aiText +=
-              event.text;
+  aiText +=
+    event.text;
 
-            aiMessage.text =
-              aiText;
+  aiMessage.text =
+    aiText;
 
-            renderMessages();
+  aiMessage.status =
+    "streaming";
 
-          }
+  renderMessages();
+
+}
 
           /* ------------------------------
              AI ERROR
@@ -1148,12 +1206,19 @@ const aiMessage =
           ------------------------------ */
 
           if (
-            event.type === "done"
-          ) {
+  event.type === "done"
+) {
 
-            removeTyping();
+  removeTyping();
 
-          }
+  aiMessage.status =
+    "complete";
+
+  renderMessages();
+
+  saveMessages();
+
+}
 
         } catch (err) {
 
@@ -1373,9 +1438,10 @@ ${JSON.stringify(parsed, null, 2)}
   let aiText = "";
 
   messages.push({
-    role: "ai",
-    text: ""
-  });
+  role: "ai",
+  text: "",
+  status: "streaming"
+});
 
   const aiMessage =
     messages[messages.length - 1];

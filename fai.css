@@ -569,3 +569,59 @@ border-radius:10px;
 .response-copy-btn:hover {
   background: #f2f2f2;
 }
+/* ---------- RESPONSE LOADING BUTTON ---------- */
+
+.response-loading-btn {
+  margin-top: 8px;
+
+  width: 42px;
+  height: 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 3px;
+
+  border: 1px solid #ccc;
+  border-radius: 7px;
+
+  background: white;
+
+  cursor: default;
+}
+
+.response-loading-btn span {
+  width: 5px;
+  height: 5px;
+
+  border-radius: 50%;
+
+  background: #888;
+
+  animation: responseDots 1.2s infinite;
+}
+
+.response-loading-btn span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.response-loading-btn span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes responseDots {
+
+  0%,
+  80%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+
+  40% {
+    transform: translateY(-3px);
+    opacity: 1;
+  }
+
+}
