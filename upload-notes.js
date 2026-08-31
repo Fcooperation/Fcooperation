@@ -53,6 +53,7 @@ if (selectedFiles.length >= 20) {
   break;
 }
 
+
 // Prevent duplicate files
 
 const duplicate =
@@ -62,9 +63,11 @@ const duplicate =
       existing.size === file.size
   );
 
+
 if (duplicate) {
   continue;
 }
+
 
 selectedFiles.push(file);
 
@@ -88,7 +91,7 @@ function renderFiles() {
 fileList.innerHTML = "";
 
 fileCount.textContent =
-"${selectedFiles.length} ${ selectedFiles.length === 1 ? "file" : "files" }";
+`${selectedFiles.length} ${selectedFiles.length === 1 ? "file" : "files"}`;
 
 if (selectedFiles.length === 0) {
 
@@ -114,6 +117,10 @@ selectedFiles.forEach(
     "file-item";
 
 
+  // --------------------------------
+  // PREVIEW
+  // --------------------------------
+
   const preview =
     document.createElement("div");
 
@@ -121,7 +128,7 @@ selectedFiles.forEach(
     "file-preview";
 
 
-  // IMAGE PREVIEW
+  // IMAGE
 
   if (
     file.type.startsWith("image/")
@@ -130,16 +137,20 @@ selectedFiles.forEach(
     const img =
       document.createElement("img");
 
-    img.src =
+    const imageURL =
       URL.createObjectURL(file);
 
+    img.src =
+      imageURL;
+
     img.onload = () => {
-      URL.revokeObjectURL(img.src);
+      URL.revokeObjectURL(imageURL);
     };
 
     preview.appendChild(img);
 
   }
+
 
   // PDF
 
@@ -155,10 +166,13 @@ selectedFiles.forEach(
       "📄";
 
     preview.appendChild(pdf);
+
   }
 
 
+  // --------------------------------
   // FILE INFORMATION
+  // --------------------------------
 
   const info =
     document.createElement("div");
@@ -191,7 +205,9 @@ selectedFiles.forEach(
   info.appendChild(size);
 
 
+  // --------------------------------
   // REMOVE BUTTON
+  // --------------------------------
 
   const remove =
     document.createElement("button");
@@ -204,6 +220,7 @@ selectedFiles.forEach(
 
   remove.textContent =
     "×";
+
 
   remove.addEventListener(
     "click",
@@ -220,8 +237,14 @@ selectedFiles.forEach(
   );
 
 
+  // --------------------------------
+  // BUILD FILE ITEM
+  // --------------------------------
+
   item.appendChild(preview);
+
   item.appendChild(info);
+
   item.appendChild(remove);
 
   fileList.appendChild(item);
@@ -250,6 +273,7 @@ uploadBtn.disabled = true;
 uploadBtn.textContent =
   "Uploading...";
 
+
 showStatus(
   "Uploading your notes..."
 );
@@ -259,9 +283,9 @@ const formData =
   new FormData();
 
 
-// IMPORTANT:
-// Every file uses the SAME
-// field name: "images"
+// --------------------------------
+// ADD ALL FILES
+// --------------------------------
 
 selectedFiles.forEach(
   file => {
@@ -276,7 +300,7 @@ selectedFiles.forEach(
 
 
 // --------------------------------
-// OPTIONAL USER DATA
+// OPTIONAL USER ID
 // --------------------------------
 
 const account =
@@ -284,12 +308,14 @@ const account =
     "faccount"
   );
 
+
 if (account) {
 
   try {
 
     const user =
       JSON.parse(account);
+
 
     if (user.userId) {
 
@@ -308,6 +334,10 @@ if (account) {
 
 }
 
+
+// --------------------------------
+// SEND TO BACKEND
+// --------------------------------
 
 try {
 
@@ -335,13 +365,15 @@ try {
   }
 
 
+  // --------------------------------
+  // SUCCESS
+  // --------------------------------
+
   showStatus(
     result.message ||
     "Notes uploaded successfully!"
   );
 
-
-  // Clear files after success
 
   selectedFiles = [];
 
@@ -351,10 +383,6 @@ try {
   uploadBtn.textContent =
     "Upload Notes";
 
-
-  // If your backend returns a
-  // destination/page, you can
-  // redirect here later.
 
   console.log(
     "Upload result:",
@@ -393,11 +421,17 @@ try {
 function formatFileSize(bytes) {
 
 if (bytes < 1024) {
-return "${bytes} B";
+
+return `${bytes} B`;
+
 }
 
 if (bytes < 1024 * 1024) {
-return "${( bytes / 1024 ).toFixed(1)} KB";
+
+return `${(
+  bytes / 1024
+).toFixed(1)} KB`;
+
 }
 
 return "${( bytes / (1024 * 1024) ).toFixed(1)} MB";
@@ -424,10 +458,14 @@ message;
 function goBack() {
 
 if (history.length > 1) {
+
 history.back();
+
 } else {
+
 window.location.href =
-"fstudy.html";
+  "fstudy.html";
+
 }
 
 }
