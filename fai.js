@@ -252,8 +252,12 @@ saveMessages();
       "messages",
       JSON.stringify(
         messages
-          .filter(m => m !== msg)
-          .slice(-7)
+  .filter(m => m !== msg)
+  .slice(-7)
+  .map(m => ({
+    role: m.role,
+    text: m.text || ""
+  }))
       )
     );
 
@@ -1935,7 +1939,24 @@ const file =
     -------------------------------- */
 
     const contextMessages =
-      messages.slice(-7);
+  messages
+    .slice(-7)
+    .map(msg => {
+
+      const cleanMsg = {
+        role: msg.role,
+        text: msg.text || ""
+      };
+
+      /*
+        Never send generated images,
+        attachments, base64 data, or
+        other frontend-only data to FAI.
+      */
+
+      return cleanMsg;
+
+    });
 
     const newChatMode =
       localStorage.getItem(
