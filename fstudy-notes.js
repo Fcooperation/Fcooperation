@@ -42,7 +42,10 @@ document.addEventListener(
         "topic-list"
       );
 
-
+const uploadNotesBtn =
+  document.getElementById(
+    "upload-notes-btn"
+  );
     /* =========================
        LOCAL STORAGE
     ========================= */
@@ -830,6 +833,24 @@ function openShareInterface(topic) {
         overlay.remove();
 
       }
+
+    }
+  );
+
+}
+
+/* =========================
+   UPLOAD NOTES
+========================= */
+
+if (uploadNotesBtn) {
+
+  uploadNotesBtn.addEventListener(
+    "click",
+    () => {
+
+      window.location.href =
+        "upload-notes";
 
     }
   );
