@@ -52,7 +52,7 @@ background:#f2f2f2;
 }
 
 .message {
-  width: fit-content;
+  width: auto;
   max-width: 82%;
   min-width: 0;
 
@@ -676,7 +676,8 @@ border-radius:10px;
   display: block;
 
   width: 100%;
-  max-width: 420px;
+  max-width: 100%;
+  height: auto;
 
   max-height: 500px;
 
@@ -684,12 +685,21 @@ border-radius:10px;
 
   border-radius: 12px;
 
-  margin-bottom: 10px;
+  margin: 0 0 10px 0;
+
+  box-sizing: border-box;
 }
 
 .generated-text {
+  width: 100%;
+  max-width: 100%;
+
   margin-top: 8px;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
+
 /* ---------- RETRY BUTTON ---------- */
 
 .retry-btn {
@@ -894,6 +904,7 @@ border-radius:10px;
 
   .message {
     max-width: 88%;
+    min-width: 0;
 
     padding: 12px 14px;
 
@@ -909,6 +920,13 @@ border-radius:10px;
 
   .message.ai {
     margin-right: auto;
+  }
+
+  .generated-image {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: 400px;
   }
 
 }
