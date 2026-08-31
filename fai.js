@@ -619,13 +619,45 @@ function renderMessages() {
     else {
 
       div.innerHTML =
-        marked.parse(
-          msg.text || "",
-          {
-            html: false,
-            renderer
-          }
-        );
+  marked.parse(
+    msg.text || "",
+    {
+      html: false,
+      renderer
+    }
+  );
+
+/* --------------------------------
+   WRAP INLINE IMAGES
+-------------------------------- */
+
+const messageImages =
+  div.querySelectorAll("img");
+
+messageImages.forEach(img => {
+
+  /* Don't interfere with special images */
+  if (
+    img.classList.contains("sent-image") ||
+    img.classList.contains("generated-image")
+  ) {
+    return;
+  }
+
+  const box =
+    document.createElement("div");
+
+  box.className =
+    "message-image-box";
+
+  img.parentNode.insertBefore(
+    box,
+    img
+  );
+
+  box.appendChild(img);
+
+});
 
       /* ------------------------------
          AI RESPONSE STATUS
