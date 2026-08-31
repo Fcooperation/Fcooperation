@@ -255,97 +255,123 @@ function containsEnglish(text) {
 
     async function loadNote() {
 
-      try {
+  try {
 
-        const response =
-          await fetch(
-            window.CONFIG.API_URL +
-            "/admin",
-            {
+    /* =========================
+       USE LOCAL NOTE FIRST
+    ========================= */
 
-              method: "POST",
+    if (
+      viewingNote &&
+      Array.isArray(
+        viewingNote.sections
+      ) &&
+      viewingNote.sections.length
+    ) {
 
-              headers: {
-                "Content-Type":
-                  "application/json"
-              },
+      renderNote(
+        viewingNote,
+        viewingNote.sections
+      );
 
-              body:
-                JSON.stringify({
-
-                  action:
-                    "retrieve_note",
-
-                  university:
-                    university,
-
-                  course:
-                    course,
-
-                  topic:
-                    topic
-
-                })
-
-            }
-          );
-
-
-        if (!response.ok) {
-
-          throw new Error(
-            "Failed to load note."
-          );
-
-        }
-
-
-        const data =
-          await response.json();
-
-
-        if (!data.success) {
-
-          throw new Error(
-            data.error ||
-            "Failed to load note."
-          );
-
-        }
-
-
-        if (!data.note) {
-
-          throw new Error(
-            "Note not found."
-          );
-
-        }
-
-
-        renderNote(
-          data.note,
-          data.sections || []
-        );
-
-
-      } catch (err) {
-
-        loading.classList.add(
-          "hidden"
-        );
-
-        error.textContent =
-          err.message ||
-          "Failed to load note.";
-
-        error.classList.remove(
-          "hidden"
-        );
-
-      }
+      return;
 
     }
+
+
+    /* =========================
+       OTHERWISE LOAD FROM SERVER
+    ========================= */
+
+    const response =
+      await fetch(
+        window.CONFIG.API_URL +
+        "/admin",
+        {
+
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify({
+
+              action:
+                "retrieve_note",
+
+              university:
+                university,
+
+              course:
+                course,
+
+              topic:
+                topic
+
+            })
+
+          }
+        );
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        "Failed to load note."
+      );
+
+    }
+
+
+    const data =
+      await response.json();
+
+
+    if (!data.success) {
+
+      throw new Error(
+        data.error ||
+        "Failed to load note."
+      );
+
+    }
+
+
+    if (!data.note) {
+
+      throw new Error(
+        "Note not found."
+      );
+
+    }
+
+
+    renderNote(
+      data.note,
+      data.sections || []
+    );
+
+
+  } catch (err) {
+
+    loading.classList.add(
+      "hidden"
+    );
+
+    error.textContent =
+      err.message ||
+      "Failed to load note.";
+
+    error.classList.remove(
+      "hidden"
+    );
+
+  }
+
+}
 
 
     /* =========================
