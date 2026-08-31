@@ -1,0 +1,99 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">  <title>Upload Notes | FStudy</title>  <link rel="stylesheet" href="upload-notes.css">
+</head><body>  <div class="page"><!-- HEADER -->
+<header class="topbar">
+  <button class="back-btn" onclick="goBack()">←</button>
+
+  <div>
+    <h1>Upload Notes</h1>
+    <p>Upload your study materials</p>
+  </div>
+</header>
+
+
+<!-- UPLOAD AREA -->
+<main>
+
+  <section class="upload-card">
+
+    <div class="upload-icon">
+      📚
+    </div>
+
+    <h2>Upload your notes</h2>
+
+    <p class="description">
+      Select images or PDF files containing your notes,
+      past questions, or study materials.
+    </p>
+
+    <input
+      type="file"
+      id="fileInput"
+      multiple
+      accept="image/*,.pdf"
+      hidden
+    >
+
+    <button
+      class="select-btn"
+      id="selectBtn"
+      type="button"
+    >
+      Select Files
+    </button>
+
+    <p class="limit">
+      Maximum 20 files per upload
+    </p>
+
+  </section>
+
+
+  <!-- SELECTED FILES -->
+  <section
+    class="files-section"
+    id="filesSection"
+    hidden
+  >
+
+    <div class="section-header">
+      <h3>Selected Files</h3>
+
+      <span id="fileCount">
+        0 files
+      </span>
+    </div>
+
+    <div
+      class="file-list"
+      id="fileList"
+    ></div>
+
+  </section>
+
+
+  <!-- UPLOAD BUTTON -->
+  <button
+    class="upload-btn"
+    id="uploadBtn"
+    type="button"
+    disabled
+  >
+    Upload Notes
+  </button>
+
+
+  <!-- STATUS -->
+  <div
+    class="status"
+    id="status"
+    hidden
+  ></div>
+
+</main>
+
+  </div>  <script src="upload-notes.js"></script></body>
+</html>
