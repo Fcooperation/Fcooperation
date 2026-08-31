@@ -657,6 +657,42 @@ messageImages.forEach(img => {
 
   box.appendChild(img);
 
+  /* --------------------------------
+     HANDLE FAILED IMAGES
+  -------------------------------- */
+
+  img.addEventListener("error", () => {
+
+  console.log(
+    "❌ IMAGE FAILED:",
+    img.src
+  );
+
+  box.classList.add(
+    "image-load-failed"
+  );
+
+  box.innerHTML = `
+    <div class="image-failed">
+      <span>🖼️</span>
+      <div>Image couldn't load</div>
+    </div>
+  `;
+
+});
+
+  /* --------------------------------
+     SUCCESSFUL IMAGE
+  -------------------------------- */
+
+  img.addEventListener("load", () => {
+
+    box.classList.add(
+      "image-loaded"
+    );
+
+  });
+
 });
 
       /* ------------------------------
