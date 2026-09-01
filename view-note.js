@@ -3989,99 +3989,6 @@ noteImagePrev.addEventListener(
   }
 );
 
-
-/* =========================
-   ZOOM
-========================= */
-
-function updateImageZoom() {
-
-  imageZoom =
-    Math.max(
-      1,
-      Math.min(
-        imageZoom,
-        4
-      )
-    );
-
-
-  noteOverlayImage.style.transform =
-    `scale(${imageZoom})`;
-
-}
-
-
-/* =========================
-   ZOOM IN
-========================= */
-
-noteImageZoomIn.addEventListener(
-  "click",
-  () => {
-
-    imageZoom += 0.25;
-
-    updateImageZoom();
-
-  }
-);
-
-
-/* =========================
-   ZOOM OUT
-========================= */
-
-noteImageZoomOut.addEventListener(
-  "click",
-  () => {
-
-    imageZoom -= 0.25;
-
-    updateImageZoom();
-
-  }
-);
-
-
-/* =========================
-   RESET ZOOM
-========================= */
-
-noteImageZoomReset.addEventListener(
-  "click",
-  () => {
-
-    imageZoom = 1;
-
-    updateImageZoom();
-
-  }
-);
-
-
-/* =========================
-   ESCAPE KEY
-========================= */
-
-document.addEventListener(
-  "keydown",
-  event => {
-
-    if (
-      event.key === "Escape" &&
-      !noteImageOverlay.classList.contains(
-        "hidden"
-      )
-    ) {
-
-      closeNoteImage();
-
-    }
-
-  }
-);
-
 /* =========================
    PINCH TO ZOOM
 ========================= */
@@ -4193,7 +4100,33 @@ noteImageViewer.addEventListener(
       );
 
 
-    updateImageZoom();
+    /*
+     * Find the exact point between
+     * the user's two fingers.
+     */
+
+    const pinchCenterX =
+      (
+        event.touches[0].clientX +
+        event.touches[1].clientX
+      ) / 2;
+
+
+    const pinchCenterY =
+      (
+        event.touches[0].clientY +
+        event.touches[1].clientY
+      ) / 2;
+
+
+    /*
+     * Zoom around the pinch center.
+     */
+
+    updateImageZoom(
+      pinchCenterX,
+      pinchCenterY
+    );
 
   },
   {
@@ -4224,9 +4157,14 @@ noteImageViewer.addEventListener(
 
 /* =========================
    UPDATE IMAGE ZOOM
+   Keeps zoom centered on
+   the user's pinch location
 ========================= */
 
-function updateImageZoom() {
+function updateImageZoom(
+  anchorX = null,
+  anchorY = null
+) {
 
   imageZoom =
     Math.max(
@@ -4262,8 +4200,7 @@ function updateImageZoom() {
 
 
   /*
-   * Calculate the size that makes
-   * the whole image fit at zoom 1.
+   * Size of the image when zoom = 1
    */
 
   const baseScale =
@@ -4273,41 +4210,113 @@ function updateImageZoom() {
     );
 
 
-  const displayWidth =
+  const oldWidth =
+    noteImageStage.offsetWidth;
+
+  const oldHeight =
+    noteImageStage.offsetHeight;
+
+
+  /*
+   * If we are pinch-zooming,
+   * calculate where the fingers
+   * are relative to the current
+   * image.
+   */
+
+  let focalX = null;
+  let focalY = null;
+
+
+  if (
+    anchorX !== null &&
+    anchorY !== null &&
+    oldWidth > 0 &&
+    oldHeight > 0
+  ) {
+
+    const viewerX =
+      anchorX -
+      viewerRect.left;
+
+    const viewerY =
+      anchorY -
+      viewerRect.top;
+
+
+    /*
+     * Position of the fingers
+     * inside the scrollable image.
+     */
+
+    const imagePointX =
+      noteImageViewer.scrollLeft +
+      viewerX;
+
+    const imagePointY =
+      noteImageViewer.scrollTop +
+      viewerY;
+
+
+    /*
+     * Convert that position into
+     * a percentage of the current
+     * image size.
+     */
+
+    focalX =
+      imagePointX /
+      oldWidth;
+
+    focalY =
+      imagePointY /
+      oldHeight;
+
+  }
+
+
+  /*
+   * Calculate new image size
+   */
+
+  const newWidth =
     Math.max(
       viewerRect.width,
-      width * baseScale * imageZoom
+      width *
+        baseScale *
+        imageZoom
     );
 
 
-  const displayHeight =
+  const newHeight =
     Math.max(
       viewerRect.height,
-      height * baseScale * imageZoom
+      height *
+        baseScale *
+        imageZoom
     );
 
 
   /*
-   * Make the stage exactly the size
-   * of the zoomed image.
+   * Resize stage
    */
 
   noteImageStage.style.width =
-    `${displayWidth}px`;
+    `${newWidth}px`;
 
   noteImageStage.style.height =
-    `${displayHeight}px`;
+    `${newHeight}px`;
 
 
   /*
-   * Make the image fill the stage.
+   * Resize image
    */
 
   image.style.width =
-    `${displayWidth}px`;
+    `${newWidth}px`;
 
   image.style.height =
-    `${displayHeight}px`;
+    `${newHeight}px`;
 
   image.style.maxWidth =
     "none";
@@ -4317,6 +4326,44 @@ function updateImageZoom() {
 
   image.style.transform =
     "none";
+
+
+  /*
+   * Restore the scroll position
+   * so the pinch point stays under
+   * the user's fingers.
+   */
+
+  if (
+    focalX !== null &&
+    focalY !== null
+  ) {
+
+    const viewerX =
+      anchorX -
+      viewerRect.left;
+
+    const viewerY =
+      anchorY -
+      viewerRect.top;
+
+
+    noteImageViewer.scrollLeft =
+      (
+        focalX *
+        newWidth
+      ) -
+      viewerX;
+
+
+    noteImageViewer.scrollTop =
+      (
+        focalY *
+        newHeight
+      ) -
+      viewerY;
+
+  }
 
 }
     /* =========================
