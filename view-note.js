@@ -3831,7 +3831,10 @@ function openNoteImage() {
 
   imageZoom = 1;
 
-  updateImageZoom();
+noteOverlayImage.style.transformOrigin =
+  "center center";
+
+updateImageZoom();
 
 
   /*
@@ -3989,11 +3992,6 @@ noteImagePrev.addEventListener(
 
 function updateImageZoom() {
 
-  /*
-   * Limit zoom between
-   * 1x and 4x.
-   */
-
   imageZoom =
     Math.max(
       1,
@@ -4085,9 +4083,18 @@ document.addEventListener(
 ========================= */
 
 let initialPinchDistance = null;
-
 let initialPinchZoom = 1;
 
+let pinchCenterX = 0;
+let pinchCenterY = 0;
+
+let pinchImageX = 0;
+let pinchImageY = 0;
+
+
+/* =========================
+   GET TOUCH DISTANCE
+========================= */
 
 function getTouchDistance(
   touch1,
@@ -4110,24 +4117,102 @@ function getTouchDistance(
 }
 
 
+/* =========================
+   GET PINCH CENTER
+========================= */
+
+function getPinchCenter(
+  touch1,
+  touch2
+) {
+
+  return {
+
+    x:
+      (
+        touch1.clientX +
+        touch2.clientX
+      ) / 2,
+
+    y:
+      (
+        touch1.clientY +
+        touch2.clientY
+      ) / 2
+
+  };
+
+}
+
+
+/* =========================
+   PINCH START
+========================= */
+
 noteImageViewer.addEventListener(
   "touchstart",
   event => {
 
     if (
-      event.touches.length === 2
+      event.touches.length !== 2
     ) {
 
-      initialPinchDistance =
-        getTouchDistance(
-          event.touches[0],
-          event.touches[1]
-        );
-
-      initialPinchZoom =
-        imageZoom;
+      return;
 
     }
+
+
+    initialPinchDistance =
+      getTouchDistance(
+        event.touches[0],
+        event.touches[1]
+      );
+
+
+    initialPinchZoom =
+      imageZoom;
+
+
+    const center =
+      getPinchCenter(
+        event.touches[0],
+        event.touches[1]
+      );
+
+
+    pinchCenterX =
+      center.x;
+
+    pinchCenterY =
+      center.y;
+
+
+    /*
+     * Get the image position
+     * relative to the viewer.
+     */
+
+    const rect =
+      noteOverlayImage.getBoundingClientRect();
+
+
+    /*
+     * Remember where the pinch
+     * point currently sits inside
+     * the image.
+     */
+
+    pinchImageX =
+      (
+        pinchCenterX -
+        rect.left
+      ) / imageZoom;
+
+    pinchImageY =
+      (
+        pinchCenterY -
+        rect.top
+      ) / imageZoom;
 
   },
   {
@@ -4135,6 +4220,10 @@ noteImageViewer.addEventListener(
   }
 );
 
+
+/* =========================
+   PINCH MOVE
+========================= */
 
 noteImageViewer.addEventListener(
   "touchmove",
@@ -4144,7 +4233,9 @@ noteImageViewer.addEventListener(
       event.touches.length !== 2 ||
       initialPinchDistance === null
     ) {
+
       return;
+
     }
 
 
@@ -4163,12 +4254,76 @@ noteImageViewer.addEventListener(
       initialPinchDistance;
 
 
+    /*
+     * Calculate new zoom.
+     */
+
     imageZoom =
       initialPinchZoom *
       scale;
 
 
-    updateImageZoom();
+    /*
+     * Keep zoom within limits.
+     */
+
+    imageZoom =
+      Math.max(
+        1,
+        Math.min(
+          imageZoom,
+          4
+        )
+      );
+
+
+    /*
+     * Calculate the current
+     * pinch center.
+     */
+
+    const center =
+      getPinchCenter(
+        event.touches[0],
+        event.touches[1]
+      );
+
+
+    pinchCenterX =
+      center.x;
+
+    pinchCenterY =
+      center.y;
+
+
+    /*
+     * Set transform origin to
+     * the actual pinch position.
+     */
+
+    const viewerRect =
+      noteImageViewer.getBoundingClientRect();
+
+
+    const originX =
+      pinchCenterX -
+      viewerRect.left;
+
+    const originY =
+      pinchCenterY -
+      viewerRect.top;
+
+
+    noteOverlayImage.style.transformOrigin =
+      `${originX}px ${originY}px`;
+
+
+    /*
+     * Apply zoom.
+     */
+
+    noteOverlayImage.style.transform =
+      `scale(${imageZoom})`;
 
   },
   {
@@ -4176,6 +4331,10 @@ noteImageViewer.addEventListener(
   }
 );
 
+
+/* =========================
+   PINCH END
+========================= */
 
 noteImageViewer.addEventListener(
   "touchend",
