@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Top Up — FMarket</title>
+
+  <link
+    rel="stylesheet"
+    href="/fmarket-topup.css"
+  >
+</head>
+
+<body>
+
+  <header class="topbar">
+
+    <button
+      id="back-btn"
+      class="back-btn"
+      type="button"
+    >
+      ←
+    </button>
+
+    <div class="topbar-title">
+      <h1>Top Up</h1>
+      <span>FMarket</span>
+    </div>
+
+  </header>
+
+
+  <main class="topup-page">
+
+    <section class="intro">
+
+      <h2>Add FCoins</h2>
+
+      <p>
+        Top up your FMarket wallet and use FCoins
+        to purchase study materials.
+      </p>
+
+    </section>
+
+
+    <div class="fee-note">
+
+      <div class="fee-icon">
+        %
+      </div>
+
+      <div>
+        <strong>5% FMarket charge</strong>
+
+        <p>
+          A 5% service charge is applied to every
+          top-up.
+        </p>
+      </div>
+
+    </div>
+
+
+    <section class="packages">
+
+      <div class="section-heading">
+        <h3>Quick Top Up</h3>
+        <span>Choose an amount</span>
+      </div>
+
+
+      <div class="topup-grid">
+
+        <button
+          class="topup-card"
+          data-naira="150"
+          type="button"
+        >
+          <strong>₦150</strong>
+          <span>100 FCoins</span>
+        </button>
+
+
+        <button
+          class="topup-card"
+          data-naira="300"
+          type="button"
+        >
+          <strong>₦300</strong>
+          <span>200 FCoins</span>
+        </button>
+
+
+        <button
+          class="topup-card"
+          data-naira="750"
+          type="button"
+        >
+          <strong>₦750</strong>
+          <span>500 FCoins</span>
+        </button>
+
+
+        <button
+          class="topup-card"
+          data-naira="1500"
+          type="button"
+        >
+          <strong>₦1,500</strong>
+          <span>1,000 FCoins</span>
+        </button>
+
+
+        <button
+          class="topup-card"
+          data-naira="3000"
+          type="button"
+        >
+          <strong>₦3,000</strong>
+          <span>2,000 FCoins</span>
+        </button>
+
+
+        <button
+          class="topup-card"
+          data-naira="7500"
+          type="button"
+        >
+          <strong>₦7,500</strong>
+          <span>5,000 FCoins</span>
+        </button>
+
+
+        <button
+          class="topup-card"
+          data-naira="15000"
+          type="button"
+        >
+          <strong>₦15,000</strong>
+          <span>10,000 FCoins</span>
+        </button>
+
+
+        <button
+          class="topup-card"
+          data-naira="30000"
+          type="button"
+        >
+          <strong>₦30,000</strong>
+          <span>20,000 FCoins</span>
+        </button>
+
+
+        <button
+          class="topup-card"
+          data-naira="75000"
+          type="button"
+        >
+          <strong>₦75,000</strong>
+          <span>50,000 FCoins</span>
+        </button>
+
+
+        <button
+          class="topup-card"
+          data-naira="150000"
+          type="button"
+        >
+          <strong>₦150,000</strong>
+          <span>100,000 FCoins</span>
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <section class="calculator">
+
+      <div class="section-heading">
+
+        <h3>Custom Amount</h3>
+
+        <span>
+          Enter what you want
+        </span>
+
+      </div>
+
+
+      <div class="input-box">
+
+        <div class="input-header">
+
+          <label id="input-label">
+            Amount in Naira
+          </label>
+
+          <button
+            id="switch-btn"
+            type="button"
+          >
+            Switch to FCoins
+          </button>
+
+        </div>
+
+
+        <div class="amount-input">
+
+          <span id="currency-symbol">
+            ₦
+          </span>
+
+          <input
+            id="amount-input"
+            type="number"
+            min="150"
+            step="1"
+            placeholder="150"
+            inputmode="decimal"
+          >
+
+        </div>
+
+      </div>
+
+
+      <div class="result-box">
+
+        <span class="result-label">
+          You will receive
+        </span>
+
+        <strong id="result-value">
+          100 FCoins
+        </strong>
+
+        <p id="result-breakdown">
+          Based on ₦150 top-up
+        </p>
+
+      </div>
+
+
+      <button
+        id="continue-btn"
+        class="continue-btn"
+        type="button"
+      >
+        Continue to Payment
+      </button>
+
+
+      <p class="bottom-note">
+        Payments are securely processed through Paystack.
+      </p>
+
+    </section>
+
+  </main>
+
+
+  <script src="/fmarket-topup.js"></script>
+
+</body>
+</html>
