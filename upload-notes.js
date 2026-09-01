@@ -610,6 +610,35 @@ async function compressImage(file) {
 
 }
 
+/* =========================
+   FILE TO DATA URL
+========================= */
+
+function fileToDataURL(file) {
+
+  return new Promise((resolve, reject) => {
+
+    const reader =
+      new FileReader();
+
+    reader.onload = () => {
+      resolve(reader.result);
+    };
+
+    reader.onerror = () => {
+      reject(
+        new Error(
+          `Failed to read ${file.name}`
+        )
+      );
+    };
+
+    reader.readAsDataURL(file);
+
+  });
+
+}
+
     /* =========================
        GENERATE NOTE
     ========================= */
@@ -954,8 +983,48 @@ try {
           );
 
 
-          generatedNote =
-            noteData;
+          /* =========================
+   ATTACH COMPRESSED IMAGES
+========================= */
+
+const noteFiles = [];
+
+for (const file of selectedFiles) {
+
+  /*
+   * Only store images in localStorage.
+   * FAI's generated JSON remains separate.
+   */
+
+  if (file.type.startsWith("image/")) {
+
+    const dataUrl =
+      await fileToDataURL(file);
+
+    noteFiles.push({
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      data: dataUrl
+    });
+
+  }
+
+}
+
+
+/* =========================
+   CREATE COMPLETE NOTE
+========================= */
+
+generatedNote = {
+  ...noteData,
+
+  /*
+   * Compressed uploaded images
+   */
+  files: noteFiles
+};
 
 
           /* =========================
