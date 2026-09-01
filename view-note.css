@@ -1277,20 +1277,21 @@ body {
 ========================= */
 
 .note-image-viewer {
+  position: relative;
+
+  width: 100%;
   flex: 1;
 
-  min-height: 0;
-
-  overflow: hidden;
+  overflow: auto;
 
   display: flex;
 
   align-items: center;
   justify-content: center;
 
-  position: relative;
+  touch-action: pan-x pan-y;
 
-  touch-action: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 
@@ -1499,4 +1500,24 @@ body {
     height: 75px;
   }
 
+}
+
+.note-image-stage {
+  position: relative;
+
+  flex-shrink: 0;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+}
+
+.note-overlay-image {
+  display: block;
+
+  user-select: none;
+  -webkit-user-drag: none;
+
+  flex-shrink: 0;
 }

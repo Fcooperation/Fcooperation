@@ -116,6 +116,10 @@ const noteImageZoomReset =
     "note-image-zoom-reset"
   );
 
+const noteImageStage =
+  document.getElementById(
+    "note-image-stage"
+  );
 
     /* =========================
        BACK
@@ -4085,12 +4089,6 @@ document.addEventListener(
 let initialPinchDistance = null;
 let initialPinchZoom = 1;
 
-let pinchCenterX = 0;
-let pinchCenterY = 0;
-
-let pinchImageX = 0;
-let pinchImageY = 0;
-
 
 /* =========================
    GET TOUCH DISTANCE
@@ -4118,34 +4116,6 @@ function getTouchDistance(
 
 
 /* =========================
-   GET PINCH CENTER
-========================= */
-
-function getPinchCenter(
-  touch1,
-  touch2
-) {
-
-  return {
-
-    x:
-      (
-        touch1.clientX +
-        touch2.clientX
-      ) / 2,
-
-    y:
-      (
-        touch1.clientY +
-        touch2.clientY
-      ) / 2
-
-  };
-
-}
-
-
-/* =========================
    PINCH START
 ========================= */
 
@@ -4156,9 +4126,7 @@ noteImageViewer.addEventListener(
     if (
       event.touches.length !== 2
     ) {
-
       return;
-
     }
 
 
@@ -4171,48 +4139,6 @@ noteImageViewer.addEventListener(
 
     initialPinchZoom =
       imageZoom;
-
-
-    const center =
-      getPinchCenter(
-        event.touches[0],
-        event.touches[1]
-      );
-
-
-    pinchCenterX =
-      center.x;
-
-    pinchCenterY =
-      center.y;
-
-
-    /*
-     * Get the image position
-     * relative to the viewer.
-     */
-
-    const rect =
-      noteOverlayImage.getBoundingClientRect();
-
-
-    /*
-     * Remember where the pinch
-     * point currently sits inside
-     * the image.
-     */
-
-    pinchImageX =
-      (
-        pinchCenterX -
-        rect.left
-      ) / imageZoom;
-
-    pinchImageY =
-      (
-        pinchCenterY -
-        rect.top
-      ) / imageZoom;
 
   },
   {
@@ -4233,9 +4159,7 @@ noteImageViewer.addEventListener(
       event.touches.length !== 2 ||
       initialPinchDistance === null
     ) {
-
       return;
-
     }
 
 
@@ -4254,18 +4178,10 @@ noteImageViewer.addEventListener(
       initialPinchDistance;
 
 
-    /*
-     * Calculate new zoom.
-     */
-
     imageZoom =
       initialPinchZoom *
       scale;
 
-
-    /*
-     * Keep zoom within limits.
-     */
 
     imageZoom =
       Math.max(
@@ -4277,53 +4193,7 @@ noteImageViewer.addEventListener(
       );
 
 
-    /*
-     * Calculate the current
-     * pinch center.
-     */
-
-    const center =
-      getPinchCenter(
-        event.touches[0],
-        event.touches[1]
-      );
-
-
-    pinchCenterX =
-      center.x;
-
-    pinchCenterY =
-      center.y;
-
-
-    /*
-     * Set transform origin to
-     * the actual pinch position.
-     */
-
-    const viewerRect =
-      noteImageViewer.getBoundingClientRect();
-
-
-    const originX =
-      pinchCenterX -
-      viewerRect.left;
-
-    const originY =
-      pinchCenterY -
-      viewerRect.top;
-
-
-    noteOverlayImage.style.transformOrigin =
-      `${originX}px ${originY}px`;
-
-
-    /*
-     * Apply zoom.
-     */
-
-    noteOverlayImage.style.transform =
-      `scale(${imageZoom})`;
+    updateImageZoom();
 
   },
   {
@@ -4351,6 +4221,93 @@ noteImageViewer.addEventListener(
 
   }
 );
+
+// Update Image Zoom
+function updateImageZoom() {
+
+  imageZoom =
+    Math.max(
+      1,
+      Math.min(
+        imageZoom,
+        4
+      )
+    );
+
+
+  const image =
+    noteOverlayImage;
+
+
+  const width =
+    image.naturalWidth;
+
+  const height =
+    image.naturalHeight;
+
+
+  if (
+    !width ||
+    !height
+  ) {
+    return;
+  }
+
+
+  /*
+   * Get the image's displayed
+   * size at zoom 1.
+   */
+
+  const viewerRect =
+    noteImageViewer.getBoundingClientRect();
+
+
+  const baseScale =
+    Math.min(
+      viewerRect.width / width,
+      viewerRect.height / height
+    );
+
+
+  const displayWidth =
+    width *
+    baseScale *
+    imageZoom;
+
+
+  const displayHeight =
+    height *
+    baseScale *
+    imageZoom;
+
+
+  /*
+   * Make the stage physically
+   * larger so the viewer can scroll.
+   */
+
+  noteImageStage.style.width =
+    `${displayWidth}px`;
+
+  noteImageStage.style.height =
+    `${displayHeight}px`;
+
+
+  /*
+   * Image fills the stage.
+   */
+
+  image.style.width =
+    `${displayWidth}px`;
+
+  image.style.height =
+    `${displayHeight}px`;
+
+  image.style.transform =
+    "none";
+
+}
 
     /* =========================
        START
