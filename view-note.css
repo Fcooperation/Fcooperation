@@ -1405,3 +1405,98 @@ body {
   }
 
 }
+/* =========================
+   NOTE HEADER
+========================= */
+
+.note-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+
+/* =========================
+   NOTE INFORMATION
+========================= */
+
+.note-header-info {
+  flex: 1;
+  min-width: 0;
+}
+
+
+/* =========================
+   MATERIAL PREVIEW
+========================= */
+
+.note-preview-container {
+  flex-shrink: 0;
+  width: 140px;
+}
+
+
+/* =========================
+   PREVIEW BUTTON
+========================= */
+
+.note-preview-btn {
+  width: 140px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+
+/* =========================
+   PREVIEW IMAGE
+========================= */
+
+.note-preview-image {
+  display: block;
+  width: 140px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+
+/* =========================
+   PREVIEW LABEL
+========================= */
+
+.note-preview-label {
+  display: block;
+  margin-top: 6px;
+  text-align: center;
+  font-size: 13px;
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 600px) {
+
+  .note-header {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .note-preview-container {
+    width: 95px;
+  }
+
+  .note-preview-btn {
+    width: 95px;
+  }
+
+  .note-preview-image {
+    width: 95px;
+    height: 75px;
+  }
+
+}

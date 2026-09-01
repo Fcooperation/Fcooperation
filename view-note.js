@@ -91,6 +91,11 @@ const noteImageCancel =
     "note-image-cancel"
   );
 
+const noteImagePrev =
+  document.getElementById(
+    "note-image-prev"
+  );
+  
 const noteImageNext =
   document.getElementById(
     "note-image-next"
@@ -3801,7 +3806,9 @@ function openNoteImage() {
   if (
     !noteImages.length
   ) {
+
     return;
+
   }
 
 
@@ -3812,7 +3819,9 @@ function openNoteImage() {
 
 
   if (!file) {
+
     return;
+
   }
 
 
@@ -3829,7 +3838,8 @@ function openNoteImage() {
    * Set image
    */
 
-  noteOverlayImage.src = file.url;
+  noteOverlayImage.src =
+    file.url;
 
 
   /*
@@ -3838,6 +3848,25 @@ function openNoteImage() {
 
   noteImagePage.textContent =
     `Page ${currentImageIndex + 1} of ${noteImages.length}`;
+
+
+  /*
+   * Previous button
+   */
+
+  if (
+    currentImageIndex === 0
+  ) {
+
+    noteImagePrev.disabled =
+      true;
+
+  } else {
+
+    noteImagePrev.disabled =
+      false;
+
+  }
 
 
   /*
@@ -3926,6 +3955,27 @@ noteImageNext.addEventListener(
     } else {
 
       closeNoteImage();
+
+    }
+
+  }
+);
+
+/* =========================
+   PREVIOUS IMAGE
+========================= */
+
+noteImagePrev.addEventListener(
+  "click",
+  () => {
+
+    if (
+      currentImageIndex > 0
+    ) {
+
+      currentImageIndex--;
+
+      openNoteImage();
 
     }
 

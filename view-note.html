@@ -134,39 +134,51 @@
 
       <div class="note-image-controls">
 
-        <button
-          id="note-image-zoom-out"
-          type="button"
-          class="note-image-control"
-        >
-          −
-        </button>
+  <button
+    id="note-image-prev"
+    type="button"
+    class="note-image-control"
+  >
+    Previous
+  </button>
 
-        <button
-          id="note-image-zoom-reset"
-          type="button"
-          class="note-image-control"
-        >
-          Reset
-        </button>
 
-        <button
-          id="note-image-zoom-in"
-          type="button"
-          class="note-image-control"
-        >
-          +
-        </button>
+  <button
+    id="note-image-zoom-out"
+    type="button"
+    class="note-image-control"
+  >
+    −
+  </button>
 
-        <button
-          id="note-image-next"
-          type="button"
-          class="note-image-next"
-        >
-          Next
-        </button>
 
-      </div>
+  <button
+    id="note-image-zoom-reset"
+    type="button"
+    class="note-image-control"
+  >
+    Reset
+  </button>
+
+
+  <button
+    id="note-image-zoom-in"
+    type="button"
+    class="note-image-control"
+  >
+    +
+  </button>
+
+
+  <button
+    id="note-image-next"
+    type="button"
+    class="note-image-next"
+  >
+    Next
+  </button>
+
+</div>
 
     </div>
 
@@ -211,21 +223,56 @@
 
     <!-- NOTE HEADER -->
 
-    <section class="note-header">
+<section class="note-header">
 
-      <div
-        id="note-topic"
-        class="note-topic"
-      ></div>
+  <!-- LEFT: NOTE INFORMATION -->
 
-      <h1 id="note-title"></h1>
+  <div class="note-header-info">
 
-      <div
-        id="note-meta"
-        class="note-meta"
-      ></div>
+    <div
+      id="note-topic"
+      class="note-topic"
+    ></div>
 
-    </section>
+    <h1 id="note-title"></h1>
+
+    <div
+      id="note-meta"
+      class="note-meta"
+    ></div>
+
+  </div>
+
+
+  <!-- RIGHT: MATERIAL PREVIEW -->
+
+  <div
+    id="note-preview-container"
+    class="note-preview-container hidden"
+  >
+
+    <button
+      id="note-preview-btn"
+      class="note-preview-btn"
+      type="button"
+      aria-label="Open study material"
+    >
+
+      <img
+        id="note-preview-image"
+        class="note-preview-image"
+        alt="Study material preview"
+      >
+
+      <span class="note-preview-label">
+        View material
+      </span>
+
+    </button>
+
+  </div>
+
+</section>
 
 
     <!-- SECTIONS -->
