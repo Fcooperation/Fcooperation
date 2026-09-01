@@ -604,76 +604,373 @@ document.addEventListener(
       }
     );
 
+/* =========================
+   COMPRESS IMAGE BEFORE UPLOAD
+========================= */
+
+async function compressImage(
+  file,
+  maxWidth = 1600,
+  maxHeight = 1600,
+  quality = 0.80
+) {
+
+  return new Promise(
+    (resolve, reject) => {
+
+      const reader =
+        new FileReader();
+
+      reader.onload = () => {
+
+        const img =
+          new Image();
+
+        img.onload = () => {
+
+          let width =
+            img.width;
+
+          let height =
+            img.height;
+
+
+          /* =========================
+             RESIZE
+          ========================= */
+
+          if (
+            width > maxWidth ||
+            height > maxHeight
+          ) {
+
+            const ratio =
+              Math.min(
+                maxWidth / width,
+                maxHeight / height
+              );
+
+            width =
+              Math.round(
+                width * ratio
+              );
+
+            height =
+              Math.round(
+                height * ratio
+              );
+
+          }
+
+
+          /* =========================
+             CANVAS
+          ========================= */
+
+          const canvas =
+            document.createElement(
+              "canvas"
+            );
+
+          canvas.width =
+            width;
+
+          canvas.height =
+            height;
+
+
+          const ctx =
+            canvas.getContext(
+              "2d"
+            );
+
+
+          ctx.drawImage(
+            img,
+            0,
+            0,
+            width,
+            height
+          );
+
+
+          /* =========================
+             COMPRESS
+          ========================= */
+
+          canvas.toBlob(
+            (blob) => {
+
+              if (!blob) {
+
+                reject(
+                  new Error(
+                    "Unable to compress image."
+                  )
+                );
+
+                return;
+
+              }
+
+
+              const compressedFile =
+                new File(
+                  [
+                    blob
+                  ],
+                  file.name
+                    .replace(
+                      /\.[^/.]+$/,
+                      ""
+                    ) + ".jpg",
+                  {
+                    type:
+                      "image/jpeg",
+
+                    lastModified:
+                      Date.now()
+                  }
+                );
+
+
+              resolve(
+                compressedFile
+              );
+
+            },
+
+            "image/jpeg",
+
+            quality
+          );
+
+        };
+
+
+        img.onerror = () => {
+
+          reject(
+            new Error(
+              "Unable to read the selected image."
+            )
+          );
+
+        };
+
+
+        img.src =
+          reader.result;
+
+      };
+
+
+      reader.onerror = () => {
+
+        reject(
+          new Error(
+            "Unable to read the image."
+          )
+        );
+
+      };
+
+
+      reader.readAsDataURL(
+        file
+      );
+
+    }
+  );
+
+}
+
+/* =========================
+   IMAGE PREVIEW
+========================= */
+
+let selectedImage =
+  null;
+
+
+productImage.addEventListener(
+  "change",
+  async () => {
+
+    const file =
+      productImage.files?.[0];
+
+
+    if (!file) {
+      return;
+    }
+
 
     /* =========================
-       IMAGE PREVIEW
+       CHECK IMAGE TYPE
     ========================= */
 
-    let selectedImage =
-      null;
+    if (
+      !file.type.startsWith(
+        "image/"
+      )
+    ) {
 
-    productImage.addEventListener(
-      "change",
-      () => {
+      showStatus(
+        "Please choose an image file.",
+        "error"
+      );
 
-        const file =
-          productImage.files?.[0];
+      productImage.value =
+        "";
 
+      return;
 
-        if (!file) {
-          return;
-        }
-
-
-        if (
-          !file.type.startsWith(
-            "image/"
-          )
-        ) {
-
-          showStatus(
-            "Please choose an image file.",
-            "error"
-          );
-
-          productImage.value =
-            "";
-
-          return;
-
-        }
+    }
 
 
-        selectedImage =
-          file;
+    /* =========================
+       CHECK ORIGINAL SIZE
+    ========================= */
+
+    const maxOriginalSize =
+      10 * 1024 * 1024;
 
 
-        const objectUrl =
-          URL.createObjectURL(
-            file
-          );
+    if (
+      file.size >
+      maxOriginalSize
+    ) {
+
+      showStatus(
+        "Image is too large. Please choose an image under 10MB.",
+        "error"
+      );
+
+      productImage.value =
+        "";
+
+      return;
+
+    }
 
 
-        imagePreview.src =
-          objectUrl;
+    /* =========================
+       SHOW COMPRESSING
+    ========================= */
 
-
-        imagePreview.classList.remove(
-          "hidden"
-        );
-
-
-        imagePlaceholder.classList.add(
-          "hidden"
-        );
-
-
-        removeImage.classList.remove(
-          "hidden"
-        );
-
-      }
+    showStatus(
+      "Compressing image...",
+      "info"
     );
+
+
+    try {
+
+      /* =========================
+         COMPRESS IMAGE
+      ========================= */
+
+      const compressedImage =
+        await compressImage(
+          file,
+          1600,
+          1600,
+          0.80
+        );
+
+
+      /* =========================
+         USE COMPRESSED IMAGE
+      ========================= */
+
+      selectedImage =
+        compressedImage;
+
+
+      /* =========================
+         PREVIEW COMPRESSED IMAGE
+      ========================= */
+
+      const objectUrl =
+        URL.createObjectURL(
+          compressedImage
+        );
+
+
+      imagePreview.src =
+        objectUrl;
+
+
+      imagePreview.classList.remove(
+        "hidden"
+      );
+
+
+      imagePlaceholder.classList.add(
+        "hidden"
+      );
+
+
+      removeImage.classList.remove(
+        "hidden"
+      );
+
+
+      /* =========================
+         SHOW RESULT
+      ========================= */
+
+      const originalKB =
+        Math.round(
+          file.size / 1024
+        );
+
+      const compressedKB =
+        Math.round(
+          compressedImage.size / 1024
+        );
+
+
+      showStatus(
+        `Image compressed: ${originalKB}KB → ${compressedKB}KB`,
+        "success"
+      );
+
+    } catch (error) {
+
+      selectedImage =
+        null;
+
+      productImage.value =
+        "";
+
+      imagePreview.src =
+        "";
+
+      imagePreview.classList.add(
+        "hidden"
+      );
+
+      imagePlaceholder.classList.remove(
+        "hidden"
+      );
+
+      removeImage.classList.add(
+        "hidden"
+      );
+
+
+      showStatus(
+        error.message ||
+        "Unable to compress image.",
+        "error"
+      );
+
+    }
+
+  }
+);
 
 
     /* =========================
@@ -932,72 +1229,93 @@ document.addEventListener(
            * Build request
            */
 
-          const payload = {
-
-            userId:
-              userId,
-
-            title:
-              titleInput.value.trim(),
-
-            description:
-              descriptionInput.value.trim(),
-
-            category:
-              categoryInput.value,
-
-            course:
-              courseInput.value.trim(),
-
-            university:
-              universityInput.value.trim(),
-
-            department:
-              departmentInput.value.trim(),
-
-            price:
-              price,
-
-            location:
-              locationInput.value.trim(),
-
-            condition:
-              conditionInput.value,
-
-            /*
-             * This identifies a listing
-             * created from an FStudy note.
-             */
-
-            source:
-              selectedNote
-                ? "fstudy_note"
-                : "manual",
-
-            note:
-              selectedNote || null
-
-          };
+          const formData =
+  new FormData();
 
 
-          const response =
-            await fetch(
-              `${window.CONFIG.API_URL}/fmarket-sell`,
-              {
-                method: "POST",
+formData.append(
+  "userId",
+  userId
+);
 
-                headers: {
-                  "Content-Type":
-                    "application/json"
-                },
+formData.append(
+  "title",
+  titleInput.value.trim()
+);
 
-                body:
-                  JSON.stringify(
-                    payload
-                  )
+formData.append(
+  "description",
+  descriptionInput.value.trim()
+);
 
-              }
-            );
+formData.append(
+  "category",
+  categoryInput.value
+);
+
+formData.append(
+  "course",
+  courseInput.value.trim()
+);
+
+formData.append(
+  "university",
+  universityInput.value.trim()
+);
+
+formData.append(
+  "department",
+  departmentInput.value.trim()
+);
+
+formData.append(
+  "price",
+  String(price)
+);
+
+formData.append(
+  "location",
+  locationInput.value.trim()
+);
+
+formData.append(
+  "condition",
+  conditionInput.value
+);
+
+formData.append(
+  "source",
+  selectedNote
+    ? "fstudy_note"
+    : "manual"
+);
+
+
+/*
+ * Send the selected image.
+ */
+
+if (selectedImage) {
+
+  formData.append(
+    "image",
+    selectedImage
+  );
+
+}
+
+
+const response =
+  await fetch(
+    `${window.CONFIG.API_URL}/fmarket-sell`,
+    {
+      method: "POST",
+
+      body:
+        formData
+
+    }
+  );
 
 
           const data =
