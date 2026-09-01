@@ -611,31 +611,261 @@ async function compressImage(file) {
 }
 
 /* =========================
-   FILE TO DATA URL
+   FSTUDY IMAGE DATABASE
 ========================= */
 
-function fileToDataURL(file) {
+const FSTUDY_DB_NAME = "fstudy_files";
+const FSTUDY_DB_VERSION = 1;
+const FSTUDY_STORE = "images";
+
+
+function openFstudyDB() {
 
   return new Promise((resolve, reject) => {
 
-    const reader =
-      new FileReader();
+    const request =
+      indexedDB.open(
+        FSTUDY_DB_NAME,
+        FSTUDY_DB_VERSION
+      );
 
-    reader.onload = () => {
-      resolve(reader.result);
+
+    request.onupgradeneeded = function (event) {
+
+      const db =
+        event.target.result;
+
+
+      if (
+        !db.objectStoreNames.contains(
+          FSTUDY_STORE
+        )
+      ) {
+
+        db.createObjectStore(
+          FSTUDY_STORE,
+          {
+            keyPath: "id"
+          }
+        );
+
+      }
+
     };
 
-    reader.onerror = () => {
+
+    request.onsuccess = function () {
+
+      resolve(
+        request.result
+      );
+
+    };
+
+
+    request.onerror = function () {
+
       reject(
+        request.error ||
         new Error(
-          `Failed to read ${file.name}`
+          "Failed to open Fstudy file database."
         )
       );
+
     };
 
-    reader.readAsDataURL(file);
-
   });
+
+}
+
+
+/* =========================
+   SAVE IMAGE TO INDEXEDDB
+========================= */
+
+async function saveImageToDB(file) {
+
+  const db =
+    await openFstudyDB();
+
+
+  return new Promise(
+    (resolve, reject) => {
+
+      const transaction =
+        db.transaction(
+          FSTUDY_STORE,
+          "readwrite"
+        );
+
+
+      const store =
+        transaction.objectStore(
+          FSTUDY_STORE
+        );
+
+
+      const id =
+        "img_" +
+        Date.now() +
+        "_" +
+        Math.random()
+          .toString(36)
+          .slice(2);
+
+
+      const request =
+        store.put({
+
+          id: id,
+
+          name: file.name,
+
+          type: file.type,
+
+          size: file.size,
+
+          file: file,
+
+          createdAt:
+            Date.now()
+
+        });
+
+
+      request.onsuccess =
+        () => {
+
+          resolve(id);
+
+        };
+
+
+      request.onerror =
+        () => {
+
+          reject(
+            request.error ||
+            new Error(
+              `Failed to save ${file.name}`
+            )
+          );
+
+        };
+
+    }
+  );
+
+}
+
+
+/* =========================
+   GET IMAGE FROM INDEXEDDB
+========================= */
+
+async function getImageFromDB(id) {
+
+  const db =
+    await openFstudyDB();
+
+
+  return new Promise(
+    (resolve, reject) => {
+
+      const transaction =
+        db.transaction(
+          FSTUDY_STORE,
+          "readonly"
+        );
+
+
+      const store =
+        transaction.objectStore(
+          FSTUDY_STORE
+        );
+
+
+      const request =
+        store.get(id);
+
+
+      request.onsuccess =
+        () => {
+
+          resolve(
+            request.result || null
+          );
+
+        };
+
+
+      request.onerror =
+        () => {
+
+          reject(
+            request.error ||
+            new Error(
+              "Failed to retrieve image."
+            )
+          );
+
+        };
+
+    }
+  );
+
+}
+
+
+/* =========================
+   DELETE IMAGE
+========================= */
+
+async function deleteImageFromDB(id) {
+
+  const db =
+    await openFstudyDB();
+
+
+  return new Promise(
+    (resolve, reject) => {
+
+      const transaction =
+        db.transaction(
+          FSTUDY_STORE,
+          "readwrite"
+        );
+
+
+      const store =
+        transaction.objectStore(
+          FSTUDY_STORE
+        );
+
+
+      const request =
+        store.delete(id);
+
+
+      request.onsuccess =
+        () => {
+
+          resolve();
+
+        };
+
+
+      request.onerror =
+        () => {
+
+          reject(
+            request.error
+          );
+
+        };
+
+    }
+  );
 
 }
 
@@ -983,29 +1213,45 @@ try {
           );
 
 
-          /* =========================
-   ATTACH COMPRESSED IMAGES
+/* =========================
+   SAVE COMPRESSED IMAGES
+   TO INDEXEDDB
 ========================= */
 
 const noteFiles = [];
 
+
 for (const file of selectedFiles) {
 
-  /*
-   * Only store images in localStorage.
-   * FAI's generated JSON remains separate.
-   */
+  if (
+    file.type.startsWith("image/")
+  ) {
 
-  if (file.type.startsWith("image/")) {
+    showStatus(
+      `Saving ${file.name}...`,
+      "info"
+    );
 
-    const dataUrl =
-      await fileToDataURL(file);
+
+    const imageId =
+      await saveImageToDB(file);
+
 
     noteFiles.push({
+
+      /*
+       * Reference to the
+       * actual image in IndexedDB
+       */
+
+      id: imageId,
+
       name: file.name,
+
       type: file.type,
-      size: file.size,
-      data: dataUrl
+
+      size: file.size
+
     });
 
   }
