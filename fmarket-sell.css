@@ -1,0 +1,442 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f7f7f7;
+  color: #111;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.sell-page {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 18px 16px 40px;
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+.sell-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.back-btn {
+  width: 42px;
+  height: 42px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  background: #fff;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.header-text h1 {
+  margin: 2px 0 5px;
+  font-size: 24px;
+}
+
+.header-text p {
+  margin: 0;
+  color: #777;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+
+/* =========================
+   BALANCE
+========================= */
+
+.balance-card {
+  background: #111;
+  color: #fff;
+  border-radius: 16px;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.balance-label {
+  display: block;
+  color: #aaa;
+  font-size: 13px;
+  margin-bottom: 5px;
+}
+
+.balance-card strong {
+  font-size: 25px;
+}
+
+.balance-card strong::after {
+  content: " FCoins";
+  font-size: 13px;
+  color: #aaa;
+  font-weight: normal;
+}
+
+#topup-btn {
+  border: 0;
+  background: #fff;
+  color: #111;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+
+/* =========================
+   SECTIONS
+========================= */
+
+.notes-section,
+.form-card {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 18px;
+}
+
+.section-heading,
+.section-title {
+  margin-bottom: 16px;
+}
+
+.section-heading h2,
+.section-title h2 {
+  margin: 0 0 5px;
+  font-size: 18px;
+}
+
+.section-heading p,
+.section-title p {
+  margin: 0;
+  color: #777;
+  font-size: 13px;
+}
+
+
+/* =========================
+   MY NOTES
+========================= */
+
+.my-notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.my-note-card {
+  width: 100%;
+  border: 1px solid #e2e2e2;
+  background: #fafafa;
+  border-radius: 12px;
+  padding: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.my-note-card:hover {
+  background: #f3f3f3;
+}
+
+.my-note-info {
+  min-width: 0;
+}
+
+.my-note-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.my-note-meta {
+  color: #777;
+  font-size: 12px;
+}
+
+.my-note-arrow {
+  font-size: 20px;
+  color: #999;
+  margin-left: 10px;
+}
+
+.no-notes {
+  color: #777;
+  background: #fafafa;
+  border-radius: 10px;
+  padding: 14px;
+  font-size: 13px;
+}
+
+
+/* =========================
+   FORM
+========================= */
+
+.form-group {
+  margin-bottom: 17px;
+  position: relative;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 7px;
+}
+
+.form-group label span {
+  font-size: 11px;
+  color: #999;
+  font-weight: normal;
+  margin-left: 5px;
+}
+
+input[type="text"],
+input[type="number"],
+textarea,
+select {
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 11px;
+  background: #fff;
+  padding: 13px;
+  outline: none;
+  color: #111;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #111;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.5;
+}
+
+.character-count {
+  text-align: right;
+  margin-top: 5px;
+  font-size: 11px;
+  color: #999;
+}
+
+
+/* =========================
+   PRICE
+========================= */
+
+.price-input-wrap {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 11px;
+  overflow: hidden;
+}
+
+.price-input-wrap input {
+  border: 0;
+  border-radius: 0;
+  flex: 1;
+}
+
+.price-input-wrap span {
+  padding-right: 13px;
+  font-size: 13px;
+  color: #777;
+}
+
+.free-option {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  margin-top: 11px;
+  font-weight: normal !important;
+}
+
+.free-option input {
+  width: 17px;
+  height: 17px;
+}
+
+.price-help {
+  margin: 6px 0 0;
+  color: #999;
+  font-size: 11px;
+}
+
+
+/* =========================
+   IMAGE
+========================= */
+
+.image-picker {
+  display: block;
+  width: 100%;
+  border: 1.5px dashed #ccc;
+  border-radius: 13px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.image-placeholder {
+  min-height: 145px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #777;
+}
+
+.image-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #f1f1f1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 25px;
+  margin-bottom: 9px;
+}
+
+.image-placeholder strong {
+  color: #333;
+  font-size: 14px;
+}
+
+.image-placeholder small {
+  margin-top: 4px;
+  color: #999;
+}
+
+.image-preview {
+  width: 100%;
+  max-height: 280px;
+  object-fit: cover;
+  display: block;
+}
+
+.remove-image {
+  border: 0;
+  background: none;
+  color: #d33;
+  padding: 8px 0;
+  font-size: 13px;
+}
+
+
+/* =========================
+   STATUS
+========================= */
+
+.status {
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 14px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.status.info {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.status.success {
+  background: #eaf8ee;
+  color: #18733a;
+}
+
+.status.error {
+  background: #fff0f0;
+  color: #b42323;
+}
+
+
+/* =========================
+   BUTTON
+========================= */
+
+.list-item-btn {
+  width: 100%;
+  border: 0;
+  border-radius: 12px;
+  background: #111;
+  color: #fff;
+  padding: 15px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.list-item-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.listing-note {
+  text-align: center;
+  margin: 10px 4px 0;
+  color: #999;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+
+/* =========================
+   UTILITY
+========================= */
+
+.hidden {
+  display: none !important;
+}
+
+
+@media (max-width: 480px) {
+
+  .sell-page {
+    padding: 15px 12px 35px;
+  }
+
+  .header-text h1 {
+    font-size: 21px;
+  }
+
+  .notes-section,
+  .form-card {
+    padding: 15px;
+  }
+
+}

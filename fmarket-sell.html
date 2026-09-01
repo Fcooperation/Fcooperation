@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Sell on FMarket</title>
+
+  <link
+    rel="stylesheet"
+    href="fmarket-sell.css"
+  >
+
+</head>
+
+<body>
+
+  <div class="sell-page">
+
+    <!-- =========================
+         TOP BAR
+    ========================== -->
+
+    <header class="sell-header">
+
+      <button
+        type="button"
+        id="back-btn"
+        class="back-btn"
+      >
+        ←
+      </button>
+
+      <div class="header-text">
+
+        <h1>
+          Sell on FMarket
+        </h1>
+
+        <p>
+          List your study material for other students to buy.
+        </p>
+
+      </div>
+
+    </header>
+
+
+    <!-- =========================
+         BALANCE
+    ========================== -->
+
+    <section class="balance-card">
+
+      <div>
+
+        <span class="balance-label">
+          Your FCoins
+        </span>
+
+        <strong id="fcoins-balance">
+          0
+        </strong>
+
+      </div>
+
+      <button
+        type="button"
+        id="topup-btn"
+      >
+        + Top Up
+      </button>
+
+    </section>
+
+
+    <!-- =========================
+         SELL FROM FSTUDY
+    ========================== -->
+
+    <section
+      class="notes-section"
+      id="notes-section"
+    >
+
+      <div class="section-heading">
+
+        <div>
+
+          <h2>
+            Sell from My FStudy Notes
+          </h2>
+
+          <p>
+            Choose a note you've already created.
+          </p>
+
+        </div>
+
+      </div>
+
+      <div
+        id="my-notes-list"
+        class="my-notes-list"
+      ></div>
+
+      <div
+        id="no-notes"
+        class="no-notes hidden"
+      >
+        You don't have any saved FStudy notes yet.
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         SELL FORM
+    ========================== -->
+
+    <section class="form-card">
+
+      <div class="section-title">
+
+        <h2>
+          Your item
+        </h2>
+
+        <p>
+          Add the details students will see.
+        </p>
+
+      </div>
+
+
+      <!-- TITLE -->
+
+      <div class="form-group">
+
+        <label for="title">
+          Material title
+        </label>
+
+        <input
+          type="text"
+          id="title"
+          placeholder="Example: BIO 102 Complete Notes"
+          maxlength="120"
+        >
+
+      </div>
+
+
+      <!-- CATEGORY -->
+
+      <div class="form-group">
+
+        <label for="category">
+          Category
+        </label>
+
+        <select id="category">
+
+          <option value="">
+            Select category
+          </option>
+
+          <option value="notes">
+            Notes
+          </option>
+
+          <option value="past_questions">
+            Past Questions
+          </option>
+
+          <option value="textbook">
+            Textbook
+          </option>
+
+          <option value="handout">
+            Handout
+          </option>
+
+          <option value="study_guide">
+            Study Guide
+          </option>
+
+          <option value="other">
+            Other
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <!-- DESCRIPTION -->
+
+      <div class="form-group">
+
+        <label for="description">
+          Description
+        </label>
+
+        <textarea
+          id="description"
+          rows="5"
+          maxlength="1000"
+          placeholder="Explain what is included in this material..."
+        ></textarea>
+
+        <div class="character-count">
+          <span id="description-count">
+            0
+          </span>
+          / 1000
+        </div>
+
+      </div>
+
+
+      <!-- UNIVERSITY -->
+
+      <div class="form-group">
+
+        <label for="university">
+          University
+        </label>
+
+        <input
+          type="text"
+          id="university"
+          placeholder="Your university"
+        >
+
+      </div>
+
+
+      <!-- COURSE -->
+
+      <div class="form-group">
+
+        <label for="course">
+          Course
+        </label>
+
+        <input
+          type="text"
+          id="course"
+          placeholder="Example: BIO 102"
+        >
+
+      </div>
+
+
+      <!-- DEPARTMENT -->
+
+      <div class="form-group">
+
+        <label for="department">
+          Department
+          <span>
+            Optional
+          </span>
+        </label>
+
+        <input
+          type="text"
+          id="department"
+          placeholder="Example: Computer Science"
+        >
+
+      </div>
+
+
+      <!-- LOCATION -->
+
+      <div class="form-group">
+
+        <label for="location">
+          Location
+        </label>
+
+        <input
+          type="text"
+          id="location"
+          placeholder="Example: EBSU Perm Site"
+        >
+
+      </div>
+
+
+      <!-- CONDITION -->
+
+      <div class="form-group">
+
+        <label for="condition">
+          Condition
+        </label>
+
+        <select id="condition">
+
+          <option value="">
+            Select condition
+          </option>
+
+          <option value="new">
+            New
+          </option>
+
+          <option value="used">
+            Used
+          </option>
+
+          <option value="digital">
+            Digital
+          </option>
+
+          <option value="na">
+            N/A
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <!-- PRICE -->
+
+      <div class="form-group">
+
+        <label>
+          Price
+        </label>
+
+        <div class="price-row">
+
+          <div class="price-input-wrap">
+
+            <input
+              type="number"
+              id="price"
+              min="0"
+              step="1"
+              placeholder="500"
+            >
+
+            <span>
+              FCoins
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <label class="free-option">
+
+          <input
+            type="checkbox"
+            id="free-item"
+          >
+
+          <span>
+            Give this material away for free
+          </span>
+
+        </label>
+
+        <p class="price-help">
+          Free materials will have a price of 0 FCoins.
+        </p>
+
+      </div>
+
+
+      <!-- IMAGE -->
+
+      <div class="form-group">
+
+        <label>
+          Product image
+          <span>
+            Optional
+          </span>
+        </label>
+
+        <label
+          for="product-image"
+          class="image-picker"
+          id="image-picker"
+        >
+
+          <div
+            id="image-placeholder"
+            class="image-placeholder"
+          >
+
+            <div class="image-icon">
+              +
+            </div>
+
+            <strong>
+              Add an image
+            </strong>
+
+            <small>
+              JPG, PNG or WEBP
+            </small>
+
+          </div>
+
+          <img
+            id="image-preview"
+            class="image-preview hidden"
+            alt="Product preview"
+          >
+
+        </label>
+
+        <input
+          type="file"
+          id="product-image"
+          accept="image/png,image/jpeg,image/webp"
+          hidden
+        >
+
+        <button
+          type="button"
+          id="remove-image"
+          class="remove-image hidden"
+        >
+          Remove image
+        </button>
+
+      </div>
+
+
+      <!-- STATUS -->
+
+      <div
+        id="status"
+        class="status hidden"
+      ></div>
+
+
+      <!-- SUBMIT -->
+
+      <button
+        type="button"
+        id="list-item-btn"
+        class="list-item-btn"
+      >
+        List Item
+      </button>
+
+      <p class="listing-note">
+        You'll receive FCoins when another student successfully purchases your item.
+      </p>
+
+    </section>
+
+  </div>
+
+
+  <script src="config.js"></script>
+  <script src="fmarket-sell.js"></script>
+
+</body>
+</html>
