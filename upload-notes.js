@@ -108,268 +108,251 @@ document.addEventListener(
     );
 
 
-    /* =========================
-       FILE INPUT
-    ========================= */
+/* =========================
+   FILE INPUT
+========================= */
 
-    filesInput.addEventListener(
-      "change",
-      () => {
+filesInput.addEventListener("change", function () {
 
-        addFiles(
-          Array.from(
-            filesInput.files
-          )
-        );
+  const files = Array.from(this.files || []);
 
-        filesInput.value = "";
+  if (!files.length) {
+    return;
+  }
 
-      }
+  addFiles(files);
+
+  /*
+   * Reset input so selecting
+   * the same file again works.
+   */
+  this.value = "";
+
+});
+
+
+/* =========================
+   DRAG / DROP
+========================= */
+
+fileDrop.addEventListener("dragover", function (event) {
+
+  event.preventDefault();
+
+  fileDrop.classList.add("dragging");
+
+});
+
+
+fileDrop.addEventListener("dragleave", function () {
+
+  fileDrop.classList.remove("dragging");
+
+});
+
+
+fileDrop.addEventListener("drop", function (event) {
+
+  event.preventDefault();
+
+  fileDrop.classList.remove("dragging");
+
+  const files =
+    Array.from(
+      event.dataTransfer?.files || []
     );
 
+  if (!files.length) {
+    return;
+  }
 
-    /* =========================
-       DRAG / DROP
-    ========================= */
+  addFiles(files);
 
-    fileDrop.addEventListener(
-      "dragover",
-      event => {
-
-        event.preventDefault();
-
-        fileDrop.classList.add(
-          "dragging"
-        );
-
-      }
-    );
+});
 
 
-    fileDrop.addEventListener(
-      "dragleave",
-      () => {
+/* =========================
+   ADD FILES
+========================= */
 
-        fileDrop.classList.remove(
-          "dragging"
-        );
+function addFiles(files) {
 
-      }
-    );
+  for (const file of files) {
 
+    /*
+     * Maximum 20 files
+     */
 
-    fileDrop.addEventListener(
-      "drop",
-      event => {
+    if (selectedFiles.length >= 20) {
 
-        event.preventDefault();
+      showStatus(
+        "You can upload a maximum of 20 files.",
+        "error"
+      );
 
-        fileDrop.classList.remove(
-          "dragging"
-        );
-
-        addFiles(
-          Array.from(
-            event.dataTransfer.files
-          )
-        );
-
-      }
-    );
-
-
-    /* =========================
-       ADD FILES
-    ========================= */
-
-    function addFiles(files) {
-
-      for (const file of files) {
-
-        if (
-          selectedFiles.length >= 20
-        ) {
-
-          showStatus(
-            "You can upload a maximum of 20 files.",
-            "error"
-          );
-
-          break;
-
-        }
-
-
-        /*
-         * Prevent duplicate files
-         */
-
-        const duplicate =
-          selectedFiles.some(
-            existing =>
-              existing.name === file.name &&
-              existing.size === file.size &&
-              existing.lastModified ===
-                file.lastModified
-          );
-
-
-        if (duplicate) {
-          continue;
-        }
-
-
-        selectedFiles.push(file);
-
-      }
-
-
-      renderFiles();
+      break;
 
     }
 
 
-    /* =========================
-       RENDER FILES
-    ========================= */
+    /*
+     * Ignore duplicate files
+     */
 
-    function renderFiles() {
-
-      fileList.innerHTML = "";
-
-      fileCount.textContent =
-        `${selectedFiles.length} / 20`;
-
-
-      selectedFiles.forEach(
-        (file, index) => {
-
-          const item =
-            document.createElement(
-              "div"
-            );
-
-          item.className =
-            "file-item";
+    const duplicate =
+      selectedFiles.some(
+        existing =>
+          existing.name === file.name &&
+          existing.size === file.size &&
+          existing.lastModified === file.lastModified
+      );
 
 
-          const info =
-            document.createElement(
-              "div"
-            );
-
-          info.className =
-            "file-info";
+    if (duplicate) {
+      continue;
+    }
 
 
-          const name =
-            document.createElement(
-              "div"
-            );
+    selectedFiles.push(file);
 
-          name.className =
-            "file-name";
-
-          name.textContent =
-            file.name;
+  }
 
 
-          const size =
-            document.createElement(
-              "div"
-            );
+  /*
+   * IMPORTANT:
+   * Render immediately after adding.
+   */
 
-          size.className =
-            "file-size";
+  renderFiles();
 
-          size.textContent =
-            formatFileSize(
-              file.size
-            );
+}
 
 
-          info.appendChild(
-            name
+/* =========================
+   RENDER FILES
+========================= */
+
+function renderFiles() {
+
+  /*
+   * Make sure the elements actually exist.
+   */
+
+  if (!fileList || !fileCount) {
+    return;
+  }
+
+
+  fileList.innerHTML = "";
+
+
+  fileCount.textContent =
+    `${selectedFiles.length} / 20`;
+
+
+  selectedFiles.forEach(
+    (file, index) => {
+
+      const item =
+        document.createElement("div");
+
+      item.className =
+        "file-item";
+
+
+      const info =
+        document.createElement("div");
+
+      info.className =
+        "file-info";
+
+
+      const name =
+        document.createElement("div");
+
+      name.className =
+        "file-name";
+
+      name.textContent =
+        file.name;
+
+
+      const size =
+        document.createElement("div");
+
+      size.className =
+        "file-size";
+
+      size.textContent =
+        formatFileSize(file.size);
+
+
+      info.appendChild(name);
+      info.appendChild(size);
+
+
+      const remove =
+        document.createElement("button");
+
+      remove.type = "button";
+
+      remove.className =
+        "remove-file";
+
+      remove.textContent = "×";
+
+
+      remove.addEventListener(
+        "click",
+        function () {
+
+          selectedFiles.splice(
+            index,
+            1
           );
 
-          info.appendChild(
-            size
-          );
-
-
-          const remove =
-            document.createElement(
-              "button"
-            );
-
-          remove.type =
-            "button";
-
-          remove.className =
-            "remove-file";
-
-          remove.textContent =
-            "×";
-
-
-          remove.addEventListener(
-            "click",
-            () => {
-
-              selectedFiles.splice(
-                index,
-                1
-              );
-
-              renderFiles();
-
-            }
-          );
-
-
-          item.appendChild(
-            info
-          );
-
-          item.appendChild(
-            remove
-          );
-
-
-          fileList.appendChild(
-            item
-          );
+          renderFiles();
 
         }
       );
 
-    }
+
+      item.appendChild(info);
+      item.appendChild(remove);
 
 
-    /* =========================
-       FILE SIZE
-    ========================= */
-
-    function formatFileSize(
-      bytes
-    ) {
-
-      if (bytes < 1024) {
-        return `${bytes} B`;
-      }
-
-      if (bytes < 1024 * 1024) {
-        return `${(
-          bytes / 1024
-        ).toFixed(1)} KB`;
-      }
-
-      return `${(
-        bytes /
-        (1024 * 1024)
-      ).toFixed(1)} MB`;
+      fileList.appendChild(item);
 
     }
+  );
+
+}
+
+
+/* =========================
+   FILE SIZE
+========================= */
+
+function formatFileSize(bytes) {
+
+  if (bytes < 1024) {
+    return `${bytes} B`;
+  }
+
+  if (bytes < 1024 * 1024) {
+
+    return `${(
+      bytes / 1024
+    ).toFixed(1)} KB`;
+
+  }
+
+  return `${(
+    bytes /
+    (1024 * 1024)
+  ).toFixed(1)} MB`;
+
+}
 
 
     /* =========================
@@ -506,6 +489,124 @@ document.addEventListener(
 
     }
 
+/* =========================
+   COMPRESS IMAGE
+========================= */
+
+async function compressImage(file) {
+
+  if (!file.type.startsWith("image/")) {
+    return file;
+  }
+
+  return new Promise((resolve) => {
+
+    const img = new Image();
+
+    const objectUrl =
+      URL.createObjectURL(file);
+
+    img.onload = () => {
+
+      URL.revokeObjectURL(objectUrl);
+
+      const MAX_WIDTH = 2000;
+      const MAX_HEIGHT = 2000;
+
+      let width = img.width;
+      let height = img.height;
+
+      /* -------------------------
+         Resize large images
+      ------------------------- */
+
+      if (
+        width > MAX_WIDTH ||
+        height > MAX_HEIGHT
+      ) {
+
+        const ratio = Math.min(
+          MAX_WIDTH / width,
+          MAX_HEIGHT / height
+        );
+
+        width =
+          Math.round(width * ratio);
+
+        height =
+          Math.round(height * ratio);
+
+      }
+
+      const canvas =
+        document.createElement("canvas");
+
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx =
+        canvas.getContext("2d");
+
+      ctx.drawImage(
+        img,
+        0,
+        0,
+        width,
+        height
+      );
+
+      /* -------------------------
+         Convert to JPEG
+      ------------------------- */
+
+      canvas.toBlob(
+        blob => {
+
+          if (!blob) {
+            resolve(file);
+            return;
+          }
+
+          const compressedFile =
+            new File(
+              [blob],
+              file.name.replace(
+                /\.(png|webp|jpeg|jpg)$/i,
+                ".jpg"
+              ),
+              {
+                type: "image/jpeg",
+                lastModified:
+                  Date.now()
+              }
+            );
+
+          resolve(
+            compressedFile
+          );
+
+        },
+        "image/jpeg",
+        0.82
+      );
+
+    };
+
+    img.onerror = () => {
+
+      URL.revokeObjectURL(
+        objectUrl
+      );
+
+      resolve(file);
+
+    };
+
+    img.src = objectUrl;
+
+  });
+
+}
 
     /* =========================
        GENERATE NOTE
@@ -595,21 +696,22 @@ document.addEventListener(
           );
 
 
-          /*
-           * Add files
-           */
+/* =========================
+   COMPRESS + ADD FILES
+========================= */
 
-          selectedFiles.forEach(
-            file => {
+for (const file of selectedFiles) {
 
-              formData.append(
-                "files",
-                file,
-                file.name
-              );
+  const compressedFile =
+    await compressImage(file);
 
-            }
-          );
+  formData.append(
+    "files",
+    compressedFile,
+    compressedFile.name
+  );
+
+}
 
 
           /* =========================
@@ -794,34 +896,54 @@ document.addEventListener(
           }
 
 
-          /* =========================
-             PARSE NOTE JSON
-          ========================= */
+/* =========================
+   PARSE NOTE JSON
+========================= */
 
-          let noteData;
+let noteData;
 
+try {
 
-          try {
+  const cleaned =
+    cleanJson(answer);
 
-            noteData =
-              JSON.parse(
-                cleanJson(
-                  answer
-                )
-              );
+  noteData =
+    JSON.parse(cleaned);
 
-          } catch {
+} catch (error) {
 
-            console.error(
-              "FAI returned:",
-              answer
-            );
+  console.error(
+    "❌ FAI RETURNED INVALID JSON:"
+  );
 
-            throw new Error(
-              "FAI did not return valid note JSON."
-            );
+  console.error(answer);
 
-          }
+  /* -------------------------
+     SHOW RAW FAI RESPONSE
+  ------------------------- */
+
+  previewCard.classList.remove(
+    "hidden"
+  );
+
+  preview.textContent =
+    answer || "(FAI returned nothing)";
+
+  showStatus(
+    "FAI returned invalid JSON. The raw response is shown below.",
+    "error"
+  );
+
+  previewCard.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+
+  throw new Error(
+    "FAI did not return valid note JSON. See the raw response below."
+  );
+
+}
 
 
           /* =========================
@@ -885,75 +1007,69 @@ document.addEventListener(
     );
 
 
-    /* =========================
-       CLEAN JSON
-    ========================= */
+/* =========================
+   CLEAN JSON
+========================= */
 
-    function cleanJson(
-      text
-    ) {
+function cleanJson(text) {
 
-      let clean =
-        text.trim();
+  if (!text) {
+    return "";
+  }
 
+  let clean =
+    String(text).trim();
 
-      /*
-       * Remove Markdown code fences
-       */
+  /* Remove JSON Markdown fences */
 
-      clean =
-        clean.replace(
-          /^```json\s*/i,
-          ""
-        );
+  clean =
+    clean.replace(
+      /^```json\s*/i,
+      ""
+    );
 
-      clean =
-        clean.replace(
-          /^```\s*/i,
-          ""
-        );
+  clean =
+    clean.replace(
+      /^```\s*/i,
+      ""
+    );
 
-      clean =
-        clean.replace(
-          /\s*```$/i,
-          ""
-        );
+  clean =
+    clean.replace(
+      /\s*```$/i,
+      ""
+    );
 
+  clean =
+    clean.trim();
 
-      /*
-       * Find the actual JSON object
-       */
+  /* -------------------------
+     Find JSON object
+  ------------------------- */
 
-      const first =
-        clean.indexOf(
-          "{"
-        );
+  const first =
+    clean.indexOf("{");
 
-      const last =
-        clean.lastIndexOf(
-          "}"
-        );
+  const last =
+    clean.lastIndexOf("}");
 
+  if (
+    first !== -1 &&
+    last !== -1 &&
+    last > first
+  ) {
 
-      if (
-        first !== -1 &&
-        last !== -1 &&
-        last > first
-      ) {
+    clean =
+      clean.slice(
+        first,
+        last + 1
+      );
 
-        clean =
-          clean.slice(
-            first,
-            last + 1
-          );
+  }
 
-      }
+  return clean.trim();
 
-
-      return clean.trim();
-
-    }
-
+}
 
     /* =========================
        VALIDATE NOTE JSON
