@@ -423,7 +423,8 @@ continueBtn.addEventListener(
        BUTTON STATE
     ========================= */
 
-    continueBtn.disabled = true;
+    continueBtn.disabled =
+      true;
 
     continueBtn.textContent =
       "Preparing payment...";
@@ -432,13 +433,14 @@ continueBtn.addEventListener(
     try {
 
       /* =========================
-         CALL BACKEND
+         CALL FMARKET BACKEND
       ========================= */
 
       const response =
         await fetch(
           "https://fweb-backend.onrender.com/fmarket-topup",
           {
+
             method: "POST",
 
             headers: {
@@ -447,10 +449,18 @@ continueBtn.addEventListener(
             },
 
             body: JSON.stringify({
-              userId: userId,
-              email: email,
-              amount: naira
+
+              userId:
+                userId,
+
+              email:
+                email,
+
+              amount:
+                naira
+
             })
+
           }
         );
 
@@ -477,22 +487,31 @@ continueBtn.addEventListener(
 
 
       /* =========================
-         PAYSTACK CHECKOUT
+         MONNIFY CHECKOUT
       ========================= */
 
       if (
-        !data.authorization_url
+        !data.checkout_url
       ) {
 
         throw new Error(
-          "Paystack did not return a payment URL."
+          "Monnify did not return a payment URL."
         );
 
       }
 
 
+      /*
+       * Send the user to Monnify.
+       *
+       * After payment, Monnify
+       * redirects them to:
+       *
+       * /fmarket-topup-callback
+       */
+
       window.location.href =
-        data.authorization_url;
+        data.checkout_url;
 
 
     } catch (error) {
