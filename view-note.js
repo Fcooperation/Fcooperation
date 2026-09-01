@@ -3836,7 +3836,7 @@ function openNoteImage() {
   imageZoom = 1;
 
 noteOverlayImage.style.transformOrigin =
-  "center center";
+  "top left";
 
 updateImageZoom();
 
@@ -4222,7 +4222,10 @@ noteImageViewer.addEventListener(
   }
 );
 
-// Update Image Zoom
+/* =========================
+   UPDATE IMAGE ZOOM
+========================= */
+
 function updateImageZoom() {
 
   imageZoom =
@@ -4254,14 +4257,14 @@ function updateImageZoom() {
   }
 
 
-  /*
-   * Get the image's displayed
-   * size at zoom 1.
-   */
-
   const viewerRect =
     noteImageViewer.getBoundingClientRect();
 
+
+  /*
+   * Calculate the size that makes
+   * the whole image fit at zoom 1.
+   */
 
   const baseScale =
     Math.min(
@@ -4271,20 +4274,22 @@ function updateImageZoom() {
 
 
   const displayWidth =
-    width *
-    baseScale *
-    imageZoom;
+    Math.max(
+      viewerRect.width,
+      width * baseScale * imageZoom
+    );
 
 
   const displayHeight =
-    height *
-    baseScale *
-    imageZoom;
+    Math.max(
+      viewerRect.height,
+      height * baseScale * imageZoom
+    );
 
 
   /*
-   * Make the stage physically
-   * larger so the viewer can scroll.
+   * Make the stage exactly the size
+   * of the zoomed image.
    */
 
   noteImageStage.style.width =
@@ -4295,7 +4300,7 @@ function updateImageZoom() {
 
 
   /*
-   * Image fills the stage.
+   * Make the image fill the stage.
    */
 
   image.style.width =
@@ -4304,11 +4309,16 @@ function updateImageZoom() {
   image.style.height =
     `${displayHeight}px`;
 
+  image.style.maxWidth =
+    "none";
+
+  image.style.maxHeight =
+    "none";
+
   image.style.transform =
     "none";
 
 }
-
     /* =========================
        START
     ========================= */
