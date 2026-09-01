@@ -1500,40 +1500,84 @@ saveBtn.addEventListener(
     try {
 
       /* =========================
-         GET EXISTING MY NOTES
+         GET ACCOUNT
+      ========================= */
+
+      let account = {};
+
+      try {
+
+        account =
+          JSON.parse(
+            localStorage.getItem(
+              "faccount"
+            )
+          ) || {};
+
+      } catch {
+
+        account = {};
+
+      }
+
+
+      /* =========================
+         ACCOUNT-SPECIFIC KEY
+      ========================= */
+
+      let notesKey =
+        "myfstudynote";
+
+
+      /*
+       * If the user is logged in,
+       * save notes under their account.
+       */
+
+      if (
+        account.id
+      ) {
+
+        notesKey =
+          `myfstudynote_${account.id}`;
+
+      }
+
+
+      /* =========================
+         GET EXISTING NOTES
       ========================= */
 
       let myNotes = [];
 
       const existing =
         localStorage.getItem(
-          "myfstudynote"
+          notesKey
         );
+
 
       if (existing) {
 
         try {
 
           const parsed =
-            JSON.parse(existing);
+            JSON.parse(
+              existing
+            );
 
-          /*
-           * Make sure the stored
-           * value is actually an array.
-           */
 
-          if (Array.isArray(parsed)) {
+          if (
+            Array.isArray(
+              parsed
+            )
+          ) {
 
-            myNotes = parsed;
+            myNotes =
+              parsed;
 
           }
 
         } catch {
-
-          /*
-           * If old/corrupted data exists,
-           * start with a fresh array.
-           */
 
           myNotes = [];
 
@@ -1543,20 +1587,35 @@ saveBtn.addEventListener(
 
 
       /* =========================
-         ADD NEW NOTE
+         ADD ACCOUNT ID TO NOTE
       ========================= */
 
-      myNotes.push(
-        generatedNote
-      );
+      const noteToSave = {
+
+        ...generatedNote,
+
+        /*
+         * This lets us know which
+         * account created the note.
+         */
+
+        owner_id:
+          account.id || null
+
+      };
 
 
       /* =========================
-         SAVE TO LOCAL STORAGE
+         SAVE NOTE
       ========================= */
 
+      myNotes.push(
+        noteToSave
+      );
+
+
       localStorage.setItem(
-        "myfstudynote",
+        notesKey,
         JSON.stringify(
           myNotes
         )
@@ -1564,19 +1623,19 @@ saveBtn.addEventListener(
 
 
       /* =========================
-         ALSO SET CURRENT VIEWING NOTE
+         CURRENT VIEWING NOTE
       ========================= */
 
       localStorage.setItem(
         "viewing_note",
         JSON.stringify(
-          generatedNote
+          noteToSave
         )
       );
 
 
       /* =========================
-         REDIRECT TO VIEWER
+         REDIRECT
       ========================= */
 
       window.location.href =

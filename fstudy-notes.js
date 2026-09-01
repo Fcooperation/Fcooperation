@@ -133,64 +133,114 @@ const myNotesList =
 function loadMyNotes() {
 
   if (
-    !myNotesSection ||
-    !myNotesList
+    !myNotesList ||
+    !myNotesSection
   ) {
     return;
   }
 
 
-  myNotesList.innerHTML = "";
-
-
   /* =========================
-     GET SAVED NOTES
+     GET ACCOUNT
   ========================= */
 
-  const stored =
-    localStorage.getItem(
-      "myfstudynote"
-    );
-
-
-  if (!stored) {
-
-    myNotesSection.classList.add(
-      "hidden"
-    );
-
-    return;
-
-  }
-
-
-  let myNotes;
-
+  let account = {};
 
   try {
 
-    myNotes =
-      JSON.parse(stored);
+    account =
+      JSON.parse(
+        localStorage.getItem(
+          "faccount"
+        )
+      ) || {};
 
   } catch {
 
-    myNotesSection.classList.add(
-      "hidden"
-    );
-
-    return;
+    account = {};
 
   }
 
 
+  /* =========================
+     SELECT NOTES KEY
+  ========================= */
+
+  let notesKey =
+    "myfstudynote";
+
+
+  /*
+   * Logged in users get their
+   * own private notes storage.
+   */
+
   if (
-    !Array.isArray(myNotes) ||
-    !myNotes.length
+    account.id
+  ) {
+
+    notesKey =
+      `myfstudynote_${account.id}`;
+
+  }
+
+
+  /* =========================
+     GET NOTES
+  ========================= */
+
+  let myNotes = [];
+
+  const stored =
+    localStorage.getItem(
+      notesKey
+    );
+
+
+  if (stored) {
+
+    try {
+
+      const parsed =
+        JSON.parse(
+          stored
+        );
+
+
+      if (
+        Array.isArray(
+          parsed
+        )
+      ) {
+
+        myNotes =
+          parsed;
+
+      }
+
+    } catch {
+
+      myNotes = [];
+
+    }
+
+  }
+
+
+  /* =========================
+     EMPTY STATE
+  ========================= */
+
+  if (
+    myNotes.length === 0
   ) {
 
     myNotesSection.classList.add(
       "hidden"
     );
+
+    myNotesList.innerHTML =
+      "";
 
     return;
 
@@ -198,12 +248,16 @@ function loadMyNotes() {
 
 
   /* =========================
-     SHOW MY NOTES SECTION
+     SHOW SECTION
   ========================= */
 
   myNotesSection.classList.remove(
     "hidden"
   );
+
+
+  myNotesList.innerHTML =
+    "";
 
 
   /* =========================
@@ -212,14 +266,6 @@ function loadMyNotes() {
 
   myNotes.forEach(
     (note, index) => {
-
-      if (
-        !note ||
-        typeof note !== "object"
-      ) {
-        return;
-      }
-
 
       const card =
         document.createElement(
@@ -230,98 +276,43 @@ function loadMyNotes() {
         "my-note-card";
 
 
-      /* =========================
-         NOTE INFORMATION
-      ========================= */
-
-      const info =
+      const title =
         document.createElement(
           "div"
         );
 
-      info.className =
-        "my-note-info";
-
-
-      const label =
-        document.createElement(
-          "div"
-        );
-
-      label.className =
-        "my-note-label";
-
-      label.textContent =
-        "My Note";
-
-
-      const noteTitle =
-        document.createElement(
-          "div"
-        );
-
-      noteTitle.className =
+      title.className =
         "my-note-title";
 
-      noteTitle.textContent =
+      title.textContent =
         note.title ||
         note.topic ||
         "Untitled Note";
 
 
-      const noteMeta =
+      const meta =
         document.createElement(
           "div"
         );
 
-      noteMeta.className =
+      meta.className =
         "my-note-meta";
 
-      noteMeta.textContent =
-        `${note.course || ""} • ${
-          note.topic || ""
-        }`;
+      meta.textContent =
+        [
+          note.course,
+          note.topic
+        ]
+          .filter(Boolean)
+          .join(" • ");
 
-
-      info.appendChild(
-        label
-      );
-
-      info.appendChild(
-        noteTitle
-      );
-
-      info.appendChild(
-        noteMeta
-      );
-
-
-      /* =========================
-         OPEN ARROW
-      ========================= */
-
-      const arrow =
-        document.createElement(
-          "div"
-        );
-
-      arrow.className =
-        "my-note-arrow";
-
-      arrow.textContent =
-        "›";
-
-
-      /* =========================
-         CARD
-      ========================= */
 
       card.appendChild(
-        info
+        title
       );
 
       card.appendChild(
-        arrow
+        meta
       );
 
 
@@ -332,11 +323,6 @@ function loadMyNotes() {
       card.addEventListener(
         "click",
         () => {
-
-          /*
-           * Save the selected
-           * note for view-note.
-           */
 
           localStorage.setItem(
             "viewing_note",
