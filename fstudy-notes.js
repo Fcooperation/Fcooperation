@@ -57,6 +57,11 @@ const myNotesList =
     "my-notes-list"
   );
   
+  const exploreMarketBtn =
+  document.getElementById(
+    "explore-market-btn"
+  );
+  
     /* =========================
        LOCAL STORAGE
     ========================= */
@@ -1097,6 +1102,24 @@ if (uploadNotesBtn) {
 
       window.location.href =
         "upload-notes";
+
+    }
+  );
+
+}
+
+/* =========================
+   EXPLORE FMARKET
+========================= */
+
+if (exploreMarketBtn) {
+
+  exploreMarketBtn.addEventListener(
+    "click",
+    () => {
+
+      window.location.href =
+        "/fmarket";
 
     }
   );

@@ -897,3 +897,24 @@ position: relative;
   }
 
 }
+
+.explore-market-btn {
+  width: 100%;
+  margin-top: 10px;
+  padding: 14px 18px;
+
+  background: #ffffff;
+  color: #111111;
+
+  border: 1px solid #dddddd;
+  border-radius: 12px;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.explore-market-btn:active {
+  transform: scale(0.98);
+}
