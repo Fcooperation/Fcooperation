@@ -112,7 +112,7 @@ document.addEventListener(
    FILE INPUT
 ========================= */
 
-filesInput.addEventListener("change", function () {
+filesInput.addEventListener("change", async function () {
 
   const files = Array.from(this.files || []);
 
@@ -122,10 +122,6 @@ filesInput.addEventListener("change", function () {
 
   await addFiles(files);
 
-  /*
-   * Reset input so selecting
-   * the same file again works.
-   */
   this.value = "";
 
 });
@@ -151,7 +147,7 @@ fileDrop.addEventListener("dragleave", function () {
 });
 
 
-fileDrop.addEventListener("drop", function (event) {
+fileDrop.addEventListener("drop", async function (event) {
 
   event.preventDefault();
 
