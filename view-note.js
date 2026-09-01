@@ -329,12 +329,12 @@ function containsEnglish(text) {
       viewingNote.sections.length
     ) {
 
-      renderNote(
-        viewingNote,
-        viewingNote.sections
-      );
+      await renderNote(
+  viewingNote,
+  viewingNote.sections
+);
 
-      return;
+return;
 
     }
 
@@ -409,10 +409,10 @@ function containsEnglish(text) {
     }
 
 
-    renderNote(
-      data.note,
-      data.sections || []
-    );
+    await renderNote(
+  data.note,
+  data.sections || []
+);
 
 
   } catch (err) {
@@ -438,44 +438,51 @@ function containsEnglish(text) {
        RENDER NOTE
     ========================= */
 
-    function renderNote(
-      noteData,
-      sectionData
-    ) {
+    async function renderNote(
+  noteData,
+  sectionData
+) {
 
-      loading.classList.add(
-        "hidden"
-      );
+  loading.classList.add(
+    "hidden"
+  );
 
-      note.classList.remove(
-        "hidden"
-      );
-
-setupNoteImages(noteData);
-
-      noteTopic.textContent =
-        noteData.topic ||
-        topic;
+  note.classList.remove(
+    "hidden"
+  );
 
 
-      noteTitle.textContent =
-        noteData.title ||
-        "Untitled Note";
+  /* =========================
+     LOAD NOTE IMAGES
+  ========================= */
+
+  await setupNoteImages(
+    noteData
+  );
 
 
-      noteMeta.textContent =
-        `${noteData.university || university} • ` +
-        `${noteData.course || course}` +
-        (
-          noteData.uploaded_by
-            ? ` • Uploaded by ${noteData.uploaded_by}`
-            : ""
-        );
+  noteTopic.textContent =
+    noteData.topic ||
+    topic;
 
 
-      sections.innerHTML =
-        "";
+  noteTitle.textContent =
+    noteData.title ||
+    "Untitled Note";
 
+
+  noteMeta.textContent =
+    `${noteData.university || university} • ` +
+    `${noteData.course || course}` +
+    (
+      noteData.uploaded_by
+        ? ` • Uploaded by ${noteData.uploaded_by}`
+        : ""
+    );
+
+
+  sections.innerHTML =
+    "";
 
       /* =========================
          SORT SECTIONS
@@ -3505,44 +3512,130 @@ function addStudentMessage(
 ========================= */
 
 let noteImages = [];
-
 let currentImageIndex = 0;
-
 let imageZoom = 1;
+
+/* Object URLs created for the images */
+let noteImageObjectUrls = [];
+
+
+/* =========================
+   OPEN FSTUDY INDEXEDDB
+========================= */
+
+function openFstudyDB() {
+
+  return new Promise((resolve, reject) => {
+
+    const request =
+      indexedDB.open(
+        "fstudy_files"
+      );
+
+    request.onsuccess = () => {
+
+      resolve(
+        request.result
+      );
+
+    };
+
+    request.onerror = () => {
+
+      reject(
+        request.error ||
+        new Error(
+          "Failed to open image database."
+        )
+      );
+
+    };
+
+  });
+
+}
+
+
+/* =========================
+   GET IMAGE FROM INDEXEDDB
+========================= */
+
+async function getImageFromDB(
+  imageId
+) {
+
+  const db =
+    await openFstudyDB();
+
+  return new Promise(
+    (resolve, reject) => {
+
+      const transaction =
+        db.transaction(
+          "images",
+          "readonly"
+        );
+
+      const store =
+        transaction.objectStore(
+          "images"
+        );
+
+      const request =
+        store.get(
+          imageId
+        );
+
+      request.onsuccess = () => {
+
+        resolve(
+          request.result || null
+        );
+
+      };
+
+      request.onerror = () => {
+
+        reject(
+          request.error ||
+          new Error(
+            "Failed to retrieve image."
+          )
+        );
+
+      };
+
+    }
+  );
+
+}
 
 
 /* =========================
    GET NOTE IMAGES
 ========================= */
 
-function setupNoteImages(noteData) {
+async function setupNoteImages(
+  noteData
+) {
+
+  /* Reset previous images */
+
+  noteImages = [];
+
+  currentImageIndex = 0;
+
+
+  /* =========================
+     CHECK FILES
+  ========================= */
 
   if (
     !noteData ||
-    !Array.isArray(noteData.files)
+    !Array.isArray(
+      noteData.files
+    )
   ) {
-    return;
-  }
-
-
-  /*
-   * Only use image files.
-   */
-
-  noteImages =
-    noteData.files.filter(
-      file =>
-        file &&
-        typeof file.data === "string" &&
-        file.data.startsWith("data:image/")
-    );
-
-
-  /*
-   * No images
-   */
-
-  if (!noteImages.length) {
 
     notePreviewContainer.classList.add(
       "hidden"
@@ -3553,9 +3646,126 @@ function setupNoteImages(noteData) {
   }
 
 
-  /*
-   * Show small preview
-   */
+  /* =========================
+     CLEAN OLD OBJECT URLS
+  ========================= */
+
+  noteImageObjectUrls.forEach(
+    url => {
+
+      URL.revokeObjectURL(
+        url
+      );
+
+    }
+  );
+
+  noteImageObjectUrls = [];
+
+
+  /* =========================
+     GET IMAGES FROM INDEXEDDB
+  ========================= */
+
+  for (
+    const fileReference
+    of noteData.files
+  ) {
+
+    if (
+      !fileReference ||
+      !fileReference.id
+    ) {
+
+      continue;
+
+    }
+
+
+    try {
+
+      const storedImage =
+        await getImageFromDB(
+          fileReference.id
+        );
+
+
+      if (
+        !storedImage ||
+        !storedImage.file
+      ) {
+
+        continue;
+
+      }
+
+
+      /* =========================
+         MAKE BROWSER URL
+      ========================= */
+
+      const imageUrl =
+        URL.createObjectURL(
+          storedImage.file
+        );
+
+
+      noteImageObjectUrls.push(
+        imageUrl
+      );
+
+
+      noteImages.push({
+
+        id:
+          storedImage.id,
+
+        name:
+          storedImage.name,
+
+        type:
+          storedImage.type,
+
+        file:
+          storedImage.file,
+
+        url:
+          imageUrl
+
+      });
+
+    } catch (err) {
+
+      /* Ignore individual
+         missing images */
+
+      continue;
+
+    }
+
+  }
+
+
+  /* =========================
+     NO IMAGES
+  ========================= */
+
+  if (
+    !noteImages.length
+  ) {
+
+    notePreviewContainer.classList.add(
+      "hidden"
+    );
+
+    return;
+
+  }
+
+
+  /* =========================
+     SHOW PREVIEW
+  ========================= */
 
   notePreviewContainer.classList.remove(
     "hidden"
@@ -3563,23 +3773,21 @@ function setupNoteImages(noteData) {
 
 
   notePreviewImage.src =
-    noteImages[0].data;
+    noteImages[0].url;
 
 
-  /*
-   * Open viewer
-   */
+  /* =========================
+     OPEN VIEWER
+  ========================= */
 
-  notePreviewBtn.addEventListener(
-    "click",
+  notePreviewBtn.onclick =
     () => {
 
       currentImageIndex = 0;
 
       openNoteImage();
 
-    }
-  );
+    };
 
 }
 
@@ -3621,8 +3829,7 @@ function openNoteImage() {
    * Set image
    */
 
-  noteOverlayImage.src =
-    file.data;
+  noteOverlayImage.src = file.url;
 
 
   /*
