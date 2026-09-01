@@ -1282,16 +1282,18 @@ body {
   width: 100%;
   flex: 1;
 
+  min-width: 0;
+  min-height: 0;
+
   overflow: auto;
 
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
+  display: block;
 
   touch-action: pan-x pan-y;
 
   -webkit-overflow-scrolling: touch;
+
+  overscroll-behavior: contain;
 }
 
 
@@ -1505,19 +1507,26 @@ body {
 .note-image-stage {
   position: relative;
 
-  flex-shrink: 0;
-
   display: flex;
 
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: flex-start;
+
+  flex-shrink: 0;
+
+  min-width: 100%;
+  min-height: 100%;
 }
 
 .note-overlay-image {
   display: block;
 
+  flex-shrink: 0;
+
   user-select: none;
   -webkit-user-drag: none;
 
-  flex-shrink: 0;
+  transform-origin: top left;
+
+  transition: none;
 }
