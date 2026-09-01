@@ -120,7 +120,7 @@ filesInput.addEventListener("change", function () {
     return;
   }
 
-  addFiles(files);
+  await addFiles(files);
 
   /*
    * Reset input so selecting
@@ -166,7 +166,7 @@ fileDrop.addEventListener("drop", function (event) {
     return;
   }
 
-  addFiles(files);
+  await addFiles(files);
 
 });
 
@@ -175,13 +175,9 @@ fileDrop.addEventListener("drop", function (event) {
    ADD FILES
 ========================= */
 
-function addFiles(files) {
+async function addFiles(files) {
 
   for (const file of files) {
-
-    /*
-     * Maximum 20 files
-     */
 
     if (selectedFiles.length >= 20) {
 
@@ -191,42 +187,52 @@ function addFiles(files) {
       );
 
       break;
-
     }
-
-
-    /*
-     * Ignore duplicate files
-     */
 
     const duplicate =
       selectedFiles.some(
         existing =>
           existing.name === file.name &&
-          existing.size === file.size &&
-          existing.lastModified === file.lastModified
+          existing.size === file.size
       );
-
 
     if (duplicate) {
       continue;
     }
 
+    /*
+     * Compress image immediately
+     */
 
-    selectedFiles.push(file);
+    let processedFile = file;
+
+    if (file.type.startsWith("image/")) {
+
+      showStatus(
+        `Compressing ${file.name}...`,
+        "info"
+      );
+
+      processedFile =
+        await compressImage(file);
+
+    }
+
+    selectedFiles.push(processedFile);
+
+    renderFiles();
+  }
+
+  if (selectedFiles.length > 0) {
+
+    showStatus(
+      `${selectedFiles.length} study material${selectedFiles.length > 1 ? "s" : ""} ready.`,
+      "success"
+    );
 
   }
 
-
-  /*
-   * IMPORTANT:
-   * Render immediately after adding.
-   */
-
-  renderFiles();
-
 }
-
 
 /* =========================
    RENDER FILES
@@ -702,13 +708,10 @@ async function compressImage(file) {
 
 for (const file of selectedFiles) {
 
-  const compressedFile =
-    await compressImage(file);
-
   formData.append(
     "files",
-    compressedFile,
-    compressedFile.name
+    file,
+    file.name
   );
 
 }
@@ -1157,137 +1160,93 @@ function cleanJson(text) {
     }
 
 
-    /* =========================
-       SAVE NOTE
-    ========================= */
+/* =========================
+   SAVE NOTE
+========================= */
 
-    saveBtn.addEventListener(
-      "click",
-      async () => {
+saveBtn.addEventListener(
+  "click",
+  () => {
 
-        if (!generatedNote) {
+    if (!generatedNote) {
 
-          showStatus(
-            "There is no generated note to save.",
-            "error"
-          );
+      showStatus(
+        "There is no generated note to save.",
+        "error"
+      );
 
-          return;
+      return;
 
-        }
-
-
-        saveBtn.disabled =
-          true;
+    }
 
 
-        showStatus(
-          "Saving note...",
-          "info"
-        );
+    saveBtn.disabled = true;
 
 
-        try {
-
-          const response =
-            await fetch(
-              window.CONFIG.API_URL +
-              "/admin",
-              {
-
-                method: "POST",
-
-                headers: {
-                  "Content-Type":
-                    "application/json"
-                },
-
-                body:
-                  JSON.stringify({
-
-                    action:
-                      "save_note",
-
-                    note:
-                      generatedNote
-
-                  })
-
-              }
-            );
-
-
-          const data =
-            await response.json();
-
-
-          if (
-            !response.ok ||
-            !data.success
-          ) {
-
-            throw new Error(
-              data.error ||
-              "Failed to save note."
-            );
-
-          }
-
-
-          /*
-           * Save locally too.
-           * This allows your existing
-           * view-notes.html to render
-           * immediately.
-           */
-
-          localStorage.setItem(
-            "viewing_note",
-            JSON.stringify(
-              generatedNote
-            )
-          );
-
-
-          /*
-           * Redirect to viewer
-           */
-
-          const params =
-            new URLSearchParams({
-
-              university:
-                generatedNote.university,
-
-              course:
-                generatedNote.course,
-
-              topic:
-                generatedNote.topic
-
-            });
-
-
-          window.location.href =
-            `view-notes.html?${params.toString()}`;
-
-
-        } catch (error) {
-
-          showStatus(
-            error.message ||
-            "Failed to save note.",
-            "error"
-          );
-
-
-          saveBtn.disabled =
-            false;
-
-        }
-
-      }
+    showStatus(
+      "Saving note...",
+      "info"
     );
+
+
+    try {
+
+      /*
+       * Save generated note
+       * directly to localStorage
+       */
+
+      localStorage.setItem(
+        "viewing_note",
+        JSON.stringify(
+          generatedNote
+        )
+      );
+
+
+      /*
+       * Create URL parameters
+       */
+
+      const params =
+        new URLSearchParams({
+
+          university:
+            generatedNote.university,
+
+          course:
+            generatedNote.course,
+
+          topic:
+            generatedNote.topic
+
+        });
+
+
+      /*
+       * Redirect to note viewer
+       */
+
+      window.location.href =
+        `view-notes.html?${params.toString()}`;
+
+
+    } catch (error) {
+
+      showStatus(
+        error.message ||
+        "Failed to save note.",
+        "error"
+      );
+
+
+      saveBtn.disabled =
+        false;
+
+    }
+
+  }
+);
 
   }
 );
