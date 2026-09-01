@@ -2027,11 +2027,10 @@ if (file) {
   }
 
   formData.append(
-    "file",
-    uploadFile,
-    uploadFile.name ||
-    "image.jpg"
-  );
+  "files",
+  uploadFile,
+  uploadFile.name || "image.jpg"
+);
 
 }
 
