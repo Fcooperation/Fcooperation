@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>FMarket • Payment</title>
+
+  <link
+    rel="stylesheet"
+    href="/fmarket-topup-callback.css"
+  >
+</head>
+
+<body>
+
+  <main class="callback-page">
+
+    <div class="callback-card">
+
+      <!-- VERIFYING -->
+      <section id="verifying-state" class="state active">
+
+        <div class="loader"></div>
+
+        <h1>Verifying payment</h1>
+
+        <p>
+          Please wait while we confirm your payment.
+        </p>
+
+      </section>
+
+
+      <!-- SUCCESS -->
+      <section id="success-state" class="state">
+
+        <div class="success-icon">
+          ✓
+        </div>
+
+        <h1>Payment successful</h1>
+
+        <p id="success-message">
+          Your FCoins have been added to your account.
+        </p>
+
+        <div class="payment-details">
+
+          <div class="detail-row">
+            <span>Amount paid</span>
+            <strong id="amount-paid">
+              ₦0
+            </strong>
+          </div>
+
+          <div class="detail-row">
+            <span>FCoins added</span>
+            <strong id="fcoins-added">
+              0 FCoins
+            </strong>
+          </div>
+
+        </div>
+
+        <button
+          type="button"
+          id="back-market-btn"
+          class="primary-btn"
+        >
+          Back to FMarket
+        </button>
+
+      </section>
+
+
+      <!-- FAILED -->
+      <section id="failed-state" class="state">
+
+        <div class="failed-icon">
+          !
+        </div>
+
+        <h1>Payment not completed</h1>
+
+        <p id="failed-message">
+          We couldn't confirm this payment.
+        </p>
+
+        <div class="button-group">
+
+          <button
+            type="button"
+            id="retry-btn"
+            class="primary-btn"
+          >
+            Try Again
+          </button>
+
+          <button
+            type="button"
+            id="failed-market-btn"
+            class="secondary-btn"
+          >
+            Back to FMarket
+          </button>
+
+        </div>
+
+      </section>
+
+
+    </div>
+
+  </main>
+
+  <script src="/fmarket-topup-callback.js"></script>
+
+</body>
+</html>
