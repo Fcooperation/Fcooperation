@@ -46,6 +46,17 @@ const uploadNotesBtn =
   document.getElementById(
     "upload-notes-btn"
   );
+  
+  const myNotesSection =
+  document.getElementById(
+    "my-notes-section"
+  );
+
+const myNotesList =
+  document.getElementById(
+    "my-notes-list"
+  );
+  
     /* =========================
        LOCAL STORAGE
     ========================= */
@@ -110,6 +121,241 @@ const uploadNotesBtn =
       }
     );
 
+/* =========================
+   LOAD MY NOTES
+========================= */
+
+function loadMyNotes() {
+
+  if (
+    !myNotesSection ||
+    !myNotesList
+  ) {
+    return;
+  }
+
+
+  myNotesList.innerHTML = "";
+
+
+  /* =========================
+     GET SAVED NOTES
+  ========================= */
+
+  const stored =
+    localStorage.getItem(
+      "myfstudynote"
+    );
+
+
+  if (!stored) {
+
+    myNotesSection.classList.add(
+      "hidden"
+    );
+
+    return;
+
+  }
+
+
+  let myNotes;
+
+
+  try {
+
+    myNotes =
+      JSON.parse(stored);
+
+  } catch {
+
+    myNotesSection.classList.add(
+      "hidden"
+    );
+
+    return;
+
+  }
+
+
+  if (
+    !Array.isArray(myNotes) ||
+    !myNotes.length
+  ) {
+
+    myNotesSection.classList.add(
+      "hidden"
+    );
+
+    return;
+
+  }
+
+
+  /* =========================
+     SHOW MY NOTES SECTION
+  ========================= */
+
+  myNotesSection.classList.remove(
+    "hidden"
+  );
+
+
+  /* =========================
+     RENDER NOTES
+  ========================= */
+
+  myNotes.forEach(
+    (note, index) => {
+
+      if (
+        !note ||
+        typeof note !== "object"
+      ) {
+        return;
+      }
+
+
+      const card =
+        document.createElement(
+          "div"
+        );
+
+      card.className =
+        "my-note-card";
+
+
+      /* =========================
+         NOTE INFORMATION
+      ========================= */
+
+      const info =
+        document.createElement(
+          "div"
+        );
+
+      info.className =
+        "my-note-info";
+
+
+      const label =
+        document.createElement(
+          "div"
+        );
+
+      label.className =
+        "my-note-label";
+
+      label.textContent =
+        "My Note";
+
+
+      const noteTitle =
+        document.createElement(
+          "div"
+        );
+
+      noteTitle.className =
+        "my-note-title";
+
+      noteTitle.textContent =
+        note.title ||
+        note.topic ||
+        "Untitled Note";
+
+
+      const noteMeta =
+        document.createElement(
+          "div"
+        );
+
+      noteMeta.className =
+        "my-note-meta";
+
+      noteMeta.textContent =
+        `${note.course || ""} • ${
+          note.topic || ""
+        }`;
+
+
+      info.appendChild(
+        label
+      );
+
+      info.appendChild(
+        noteTitle
+      );
+
+      info.appendChild(
+        noteMeta
+      );
+
+
+      /* =========================
+         OPEN ARROW
+      ========================= */
+
+      const arrow =
+        document.createElement(
+          "div"
+        );
+
+      arrow.className =
+        "my-note-arrow";
+
+      arrow.textContent =
+        "›";
+
+
+      /* =========================
+         CARD
+      ========================= */
+
+      card.appendChild(
+        info
+      );
+
+      card.appendChild(
+        arrow
+      );
+
+
+      /* =========================
+         OPEN NOTE
+      ========================= */
+
+      card.addEventListener(
+        "click",
+        () => {
+
+          /*
+           * Save the selected
+           * note for view-note.
+           */
+
+          localStorage.setItem(
+            "viewing_note",
+            JSON.stringify(
+              note
+            )
+          );
+
+
+          window.location.href =
+            "view-note";
+
+        }
+      );
+
+
+      myNotesList.appendChild(
+        card
+      );
+
+    }
+  );
+
+}
 
     /* =========================
        LOAD TOPICS
@@ -862,6 +1108,7 @@ if (uploadNotesBtn) {
     ========================= */
 
     loadTopics();
+loadMyNotes();
 
   }
 );

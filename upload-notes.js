@@ -1175,22 +1175,82 @@ saveBtn.addEventListener(
 
     }
 
-
     saveBtn.disabled = true;
-
 
     showStatus(
       "Saving note...",
       "info"
     );
 
-
     try {
 
-      /*
-       * Save generated note
-       * directly to localStorage
-       */
+      /* =========================
+         GET EXISTING MY NOTES
+      ========================= */
+
+      let myNotes = [];
+
+      const existing =
+        localStorage.getItem(
+          "myfstudynote"
+        );
+
+      if (existing) {
+
+        try {
+
+          const parsed =
+            JSON.parse(existing);
+
+          /*
+           * Make sure the stored
+           * value is actually an array.
+           */
+
+          if (Array.isArray(parsed)) {
+
+            myNotes = parsed;
+
+          }
+
+        } catch {
+
+          /*
+           * If old/corrupted data exists,
+           * start with a fresh array.
+           */
+
+          myNotes = [];
+
+        }
+
+      }
+
+
+      /* =========================
+         ADD NEW NOTE
+      ========================= */
+
+      myNotes.push(
+        generatedNote
+      );
+
+
+      /* =========================
+         SAVE TO LOCAL STORAGE
+      ========================= */
+
+      localStorage.setItem(
+        "myfstudynote",
+        JSON.stringify(
+          myNotes
+        )
+      );
+
+
+      /* =========================
+         ALSO SET CURRENT VIEWING NOTE
+      ========================= */
 
       localStorage.setItem(
         "viewing_note",
@@ -1200,31 +1260,12 @@ saveBtn.addEventListener(
       );
 
 
-      /*
-       * Create URL parameters
-       */
-
-      const params =
-        new URLSearchParams({
-
-          university:
-            generatedNote.university,
-
-          course:
-            generatedNote.course,
-
-          topic:
-            generatedNote.topic
-
-        });
-
-
-      /*
-       * Redirect to note viewer
-       */
+      /* =========================
+         REDIRECT TO VIEWER
+      ========================= */
 
       window.location.href =
-        `view-notes.html?${params.toString()}`;
+        "view-note";
 
 
     } catch (error) {
@@ -1235,7 +1276,6 @@ saveBtn.addEventListener(
         "error"
       );
 
-
       saveBtn.disabled =
         false;
 
@@ -1243,6 +1283,5 @@ saveBtn.addEventListener(
 
   }
 );
-
   }
 );
