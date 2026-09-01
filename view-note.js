@@ -50,6 +50,66 @@ document.addEventListener(
       document.getElementById(
         "sections"
       );
+      
+      const notePreviewContainer =
+  document.getElementById(
+    "note-preview-container"
+  );
+
+const notePreviewBtn =
+  document.getElementById(
+    "note-preview-btn"
+  );
+
+const notePreviewImage =
+  document.getElementById(
+    "note-preview-image"
+  );
+
+const noteImageOverlay =
+  document.getElementById(
+    "note-image-overlay"
+  );
+
+const noteImageViewer =
+  document.getElementById(
+    "note-image-viewer"
+  );
+
+const noteOverlayImage =
+  document.getElementById(
+    "note-overlay-image"
+  );
+
+const noteImagePage =
+  document.getElementById(
+    "note-image-page"
+  );
+
+const noteImageCancel =
+  document.getElementById(
+    "note-image-cancel"
+  );
+
+const noteImageNext =
+  document.getElementById(
+    "note-image-next"
+  );
+
+const noteImageZoomIn =
+  document.getElementById(
+    "note-image-zoom-in"
+  );
+
+const noteImageZoomOut =
+  document.getElementById(
+    "note-image-zoom-out"
+  );
+
+const noteImageZoomReset =
+  document.getElementById(
+    "note-image-zoom-reset"
+  );
 
 
     /* =========================
@@ -391,6 +451,7 @@ function containsEnglish(text) {
         "hidden"
       );
 
+setupNoteImages(noteData);
 
       noteTopic.textContent =
         noteData.topic ||
@@ -3438,6 +3499,442 @@ function addStudentMessage(
   return message;
 
 }
+
+/* =========================
+   NOTE IMAGE VIEWER
+========================= */
+
+let noteImages = [];
+
+let currentImageIndex = 0;
+
+let imageZoom = 1;
+
+
+/* =========================
+   GET NOTE IMAGES
+========================= */
+
+function setupNoteImages(noteData) {
+
+  if (
+    !noteData ||
+    !Array.isArray(noteData.files)
+  ) {
+    return;
+  }
+
+
+  /*
+   * Only use image files.
+   */
+
+  noteImages =
+    noteData.files.filter(
+      file =>
+        file &&
+        typeof file.data === "string" &&
+        file.data.startsWith("data:image/")
+    );
+
+
+  /*
+   * No images
+   */
+
+  if (!noteImages.length) {
+
+    notePreviewContainer.classList.add(
+      "hidden"
+    );
+
+    return;
+
+  }
+
+
+  /*
+   * Show small preview
+   */
+
+  notePreviewContainer.classList.remove(
+    "hidden"
+  );
+
+
+  notePreviewImage.src =
+    noteImages[0].data;
+
+
+  /*
+   * Open viewer
+   */
+
+  notePreviewBtn.addEventListener(
+    "click",
+    () => {
+
+      currentImageIndex = 0;
+
+      openNoteImage();
+
+    }
+  );
+
+}
+
+
+/* =========================
+   OPEN IMAGE
+========================= */
+
+function openNoteImage() {
+
+  if (
+    !noteImages.length
+  ) {
+    return;
+  }
+
+
+  const file =
+    noteImages[
+      currentImageIndex
+    ];
+
+
+  if (!file) {
+    return;
+  }
+
+
+  /*
+   * Reset zoom
+   */
+
+  imageZoom = 1;
+
+  updateImageZoom();
+
+
+  /*
+   * Set image
+   */
+
+  noteOverlayImage.src =
+    file.data;
+
+
+  /*
+   * Page indicator
+   */
+
+  noteImagePage.textContent =
+    `Page ${currentImageIndex + 1} of ${noteImages.length}`;
+
+
+  /*
+   * Next button
+   */
+
+  if (
+    currentImageIndex >=
+    noteImages.length - 1
+  ) {
+
+    noteImageNext.textContent =
+      "Done";
+
+  } else {
+
+    noteImageNext.textContent =
+      "Next";
+
+  }
+
+
+  /*
+   * Show overlay
+   */
+
+  noteImageOverlay.classList.remove(
+    "hidden"
+  );
+
+
+  /*
+   * Prevent background scrolling
+   */
+
+  document.body.style.overflow =
+    "hidden";
+
+}
+
+
+/* =========================
+   CLOSE IMAGE
+========================= */
+
+function closeNoteImage() {
+
+  noteImageOverlay.classList.add(
+    "hidden"
+  );
+
+
+  document.body.style.overflow =
+    "";
+
+}
+
+
+/* =========================
+   CANCEL
+========================= */
+
+noteImageCancel.addEventListener(
+  "click",
+  closeNoteImage
+);
+
+
+/* =========================
+   NEXT IMAGE
+========================= */
+
+noteImageNext.addEventListener(
+  "click",
+  () => {
+
+    if (
+      currentImageIndex <
+      noteImages.length - 1
+    ) {
+
+      currentImageIndex++;
+
+      openNoteImage();
+
+    } else {
+
+      closeNoteImage();
+
+    }
+
+  }
+);
+
+
+/* =========================
+   ZOOM
+========================= */
+
+function updateImageZoom() {
+
+  /*
+   * Limit zoom between
+   * 1x and 4x.
+   */
+
+  imageZoom =
+    Math.max(
+      1,
+      Math.min(
+        imageZoom,
+        4
+      )
+    );
+
+
+  noteOverlayImage.style.transform =
+    `scale(${imageZoom})`;
+
+}
+
+
+/* =========================
+   ZOOM IN
+========================= */
+
+noteImageZoomIn.addEventListener(
+  "click",
+  () => {
+
+    imageZoom += 0.25;
+
+    updateImageZoom();
+
+  }
+);
+
+
+/* =========================
+   ZOOM OUT
+========================= */
+
+noteImageZoomOut.addEventListener(
+  "click",
+  () => {
+
+    imageZoom -= 0.25;
+
+    updateImageZoom();
+
+  }
+);
+
+
+/* =========================
+   RESET ZOOM
+========================= */
+
+noteImageZoomReset.addEventListener(
+  "click",
+  () => {
+
+    imageZoom = 1;
+
+    updateImageZoom();
+
+  }
+);
+
+
+/* =========================
+   ESCAPE KEY
+========================= */
+
+document.addEventListener(
+  "keydown",
+  event => {
+
+    if (
+      event.key === "Escape" &&
+      !noteImageOverlay.classList.contains(
+        "hidden"
+      )
+    ) {
+
+      closeNoteImage();
+
+    }
+
+  }
+);
+
+/* =========================
+   PINCH TO ZOOM
+========================= */
+
+let initialPinchDistance = null;
+
+let initialPinchZoom = 1;
+
+
+function getTouchDistance(
+  touch1,
+  touch2
+) {
+
+  const dx =
+    touch1.clientX -
+    touch2.clientX;
+
+  const dy =
+    touch1.clientY -
+    touch2.clientY;
+
+  return Math.sqrt(
+    dx * dx +
+    dy * dy
+  );
+
+}
+
+
+noteImageViewer.addEventListener(
+  "touchstart",
+  event => {
+
+    if (
+      event.touches.length === 2
+    ) {
+
+      initialPinchDistance =
+        getTouchDistance(
+          event.touches[0],
+          event.touches[1]
+        );
+
+      initialPinchZoom =
+        imageZoom;
+
+    }
+
+  },
+  {
+    passive: true
+  }
+);
+
+
+noteImageViewer.addEventListener(
+  "touchmove",
+  event => {
+
+    if (
+      event.touches.length !== 2 ||
+      initialPinchDistance === null
+    ) {
+      return;
+    }
+
+
+    event.preventDefault();
+
+
+    const currentDistance =
+      getTouchDistance(
+        event.touches[0],
+        event.touches[1]
+      );
+
+
+    const scale =
+      currentDistance /
+      initialPinchDistance;
+
+
+    imageZoom =
+      initialPinchZoom *
+      scale;
+
+
+    updateImageZoom();
+
+  },
+  {
+    passive: false
+  }
+);
+
+
+noteImageViewer.addEventListener(
+  "touchend",
+  event => {
+
+    if (
+      event.touches.length < 2
+    ) {
+
+      initialPinchDistance =
+        null;
+
+    }
+
+  }
+);
 
     /* =========================
        START

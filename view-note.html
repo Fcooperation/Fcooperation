@@ -27,7 +27,9 @@
 
 <body>
 
-  <!-- TOP BAR -->
+  <!-- =========================
+       TOP BAR
+  ========================= -->
 
   <div id="top">
 
@@ -50,7 +52,130 @@
   </div>
 
 
-  <!-- LOADING -->
+  <!-- =========================
+       NOTE IMAGE PREVIEW
+  ========================= -->
+
+  <div
+    id="note-preview-container"
+    class="note-preview-container hidden"
+  >
+
+    <button
+      id="note-preview-btn"
+      class="note-preview-btn"
+      type="button"
+      aria-label="Open study material"
+    >
+
+      <img
+        id="note-preview-image"
+        class="note-preview-image"
+        alt="Study material preview"
+      >
+
+      <span class="note-preview-label">
+        View material
+      </span>
+
+    </button>
+
+  </div>
+
+
+  <!-- =========================
+       NOTE IMAGE OVERLAY
+  ========================= -->
+
+  <div
+    id="note-image-overlay"
+    class="note-image-overlay hidden"
+  >
+
+    <div class="note-image-overlay-content">
+
+      <!-- TOP BAR -->
+
+      <div class="note-image-overlay-top">
+
+        <span id="note-image-page">
+          Page 1
+        </span>
+
+        <button
+          id="note-image-cancel"
+          class="note-image-cancel"
+          type="button"
+        >
+          Cancel
+        </button>
+
+      </div>
+
+
+      <!-- IMAGE AREA -->
+
+      <div
+        id="note-image-viewer"
+        class="note-image-viewer"
+      >
+
+        <img
+          id="note-overlay-image"
+          class="note-overlay-image"
+          alt="Study material"
+          draggable="false"
+        >
+
+      </div>
+
+
+      <!-- CONTROLS -->
+
+      <div class="note-image-controls">
+
+        <button
+          id="note-image-zoom-out"
+          type="button"
+          class="note-image-control"
+        >
+          −
+        </button>
+
+        <button
+          id="note-image-zoom-reset"
+          type="button"
+          class="note-image-control"
+        >
+          Reset
+        </button>
+
+        <button
+          id="note-image-zoom-in"
+          type="button"
+          class="note-image-control"
+        >
+          +
+        </button>
+
+        <button
+          id="note-image-next"
+          type="button"
+          class="note-image-next"
+        >
+          Next
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       LOADING
+  ========================= -->
 
   <div id="loading">
 
@@ -63,7 +188,9 @@
   </div>
 
 
-  <!-- ERROR -->
+  <!-- =========================
+       ERROR
+  ========================= -->
 
   <div
     id="error"
@@ -73,7 +200,9 @@
   </div>
 
 
-  <!-- NOTE -->
+  <!-- =========================
+       NOTE
+  ========================= -->
 
   <main
     id="note"
@@ -106,7 +235,7 @@
   </main>
 
 
- <script src="/config.js"></script>
+  <script src="/config.js"></script>
 
   <script src="/view-note.js"></script>
 
