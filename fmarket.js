@@ -35,11 +35,26 @@ document.addEventListener(
       document.getElementById(
         "balance-value"
       );
+      
+      const balanceNaira =
+  document.getElementById(
+    "balance-naira"
+  );
 
     const categoryButtons =
       document.querySelectorAll(
         ".category-card"
       );
+      
+      const balanceNaira =
+  document.getElementById(
+    "balance-naira"
+  );
+
+const balanceEye =
+  document.getElementById(
+    "balance-eye"
+  );
 
 
     /* =========================
@@ -83,6 +98,8 @@ document.addEventListener(
       "all";
 
     let currentMaterials = [];
+    
+    let balanceHidden = false;
 
 
     /* =========================
@@ -131,6 +148,60 @@ document.addEventListener(
 
     }
 
+// Update Balance Display
+function updateBalanceDisplay(
+  fcoins
+) {
+
+  balanceValue.dataset.value =
+    fcoins;
+
+
+  const naira =
+    Math.floor(
+      fcoins * 1.5
+    );
+
+
+  if (balanceHidden) {
+
+    balanceValue.textContent =
+      "••••••";
+
+    balanceNaira.textContent =
+      "₦••••••";
+
+    balanceEye.textContent =
+      "🙈";
+
+    balanceEye.setAttribute(
+      "aria-label",
+      "Show balance"
+    );
+
+  } else {
+
+    balanceValue.textContent =
+      fcoins.toLocaleString(
+        "en-NG"
+      );
+
+    balanceNaira.textContent =
+      `₦${naira.toLocaleString(
+        "en-NG"
+      )}`;
+
+    balanceEye.textContent =
+      "👁";
+
+    balanceEye.setAttribute(
+      "aria-label",
+      "Hide balance"
+    );
+
+  }
+
+}
 
     /* =========================
        LOAD FMARKET
@@ -231,8 +302,9 @@ document.addEventListener(
           ) || 0;
 
 
-        balanceValue.textContent =
-          fcoins.toLocaleString();
+        updateBalanceDisplay(
+  fcoins
+);
 
 
         /*
@@ -651,10 +723,22 @@ document.addEventListener(
         "product-price";
 
 
-      price.textContent =
-        `₣${Number(
-          material.price || 0
-        ).toLocaleString()}`;
+      const fcoinPrice =
+  Number(
+    material.price || 0
+  );
+
+price.innerHTML = `
+  <div class="price-fcoins">
+    ₣${fcoinPrice.toLocaleString("en-NG")}
+  </div>
+
+  <div class="price-naira">
+    ₦${Math.floor(
+      fcoinPrice * 1.5
+    ).toLocaleString("en-NG")}
+  </div>
+`;
 
 
       const seller =
@@ -1010,6 +1094,29 @@ document.addEventListener(
     loadMarket(
       1
     );
+
+// Balance eye 
+balanceEye.addEventListener(
+  "click",
+  () => {
+
+    balanceHidden =
+      !balanceHidden;
+
+
+    const currentFcoins =
+      Number(
+        balanceValue.dataset.value ||
+        0
+      );
+
+
+    updateBalanceDisplay(
+      currentFcoins
+    );
+
+  }
+);
 
   }
 );

@@ -97,109 +97,155 @@ document.addEventListener(
 
     function calculate() {
 
-      let value =
-        Number(
-          amountInput.value
-        );
+  let value =
+    Number(
+      amountInput.value
+    );
 
 
-      if (!value || value < 0) {
+  if (!value || value < 0) {
 
-        resultValue.textContent =
-          "0 FCoins";
+    resultValue.textContent =
+      "0 FCoins";
 
-        resultBreakdown.textContent =
-          "Enter an amount to calculate";
+    resultBreakdown.textContent =
+      "Enter an amount to calculate";
 
-        selectedNaira = 0;
+    selectedNaira = 0;
 
-        return;
-      }
+    continueBtn.disabled = true;
 
-
-      let grossNaira;
-
-
-      if (
-        inputMode === "naira"
-      ) {
-
-        grossNaira = value;
-
-      } else {
-
-        /*
-         * FCoins requested by the user.
-         *
-         * Convert requested FCoins
-         * into the amount needed before fee.
-         */
-
-        grossNaira =
-          value /
-          FCOINS_PER_NAIRA;
-      }
+    return;
+  }
 
 
-      const fee =
-        grossNaira *
-        FEE_RATE;
+  let grossNaira;
+  let fee;
+  let netNaira;
+  let receivedFcoins;
 
 
-      const netNaira =
-        grossNaira -
-        fee;
+  /* =========================
+     NAIRA INPUT
+  ========================= */
+
+  if (
+    inputMode === "naira"
+  ) {
+
+    /*
+     * User enters the amount
+     * they want to pay in Naira.
+     *
+     * The 5% fee is deducted
+     * from that amount.
+     */
+
+    grossNaira = value;
+
+    fee =
+      grossNaira *
+      FEE_RATE;
+
+    netNaira =
+      grossNaira -
+      fee;
+
+    receivedFcoins =
+      Math.floor(
+        netNaira *
+        FCOINS_PER_NAIRA
+      );
 
 
-      const receivedFcoins =
-        Math.floor(
-          netNaira *
-          FCOINS_PER_NAIRA
-        );
+    selectedNaira =
+      grossNaira;
 
 
-      selectedNaira =
-        grossNaira;
+    resultValue.textContent =
+      `${formatNumber(
+        receivedFcoins
+      )} FCoins`;
+
+    resultBreakdown.textContent =
+      `₦${formatNumber(
+        grossNaira
+      )} top-up • ₦${formatNumber(
+        fee
+      )} charge`;
+
+  }
 
 
-      if (
-        inputMode === "naira"
-      ) {
+  /* =========================
+     FCOINS INPUT
+  ========================= */
 
-        resultValue.textContent =
-          `${formatNumber(
-            receivedFcoins
-          )} FCoins`;
+  else {
 
-        resultBreakdown.textContent =
-          `₦${formatNumber(
-            grossNaira
-          )} top-up • ₦${formatNumber(
-            fee
-          )} charge`;
+    /*
+     * User enters the amount
+     * of FCoins they want to RECEIVE.
+     *
+     * First convert FCoins to
+     * their Naira value.
+     */
 
-      } else {
-
-        resultValue.textContent =
-          `₦${formatNumber(
-            netNaira
-          )}`;
-
-        resultBreakdown.textContent =
-          `${formatNumber(
-            value
-          )} FCoins requested • ₦${formatNumber(
-            fee
-          )} charge`;
-
-      }
+    netNaira =
+      value /
+      FCOINS_PER_NAIRA;
 
 
-      continueBtn.disabled =
-        grossNaira < MIN_NAIRA ||
-        grossNaira > MAX_NAIRA;
+    /*
+     * Add the 5% charge ON TOP
+     * of the amount.
+     */
 
-    }
+    grossNaira =
+      netNaira /
+      (1 - FEE_RATE);
+
+
+    fee =
+      grossNaira -
+      netNaira;
+
+
+    receivedFcoins =
+      Math.floor(
+        netNaira *
+        FCOINS_PER_NAIRA
+      );
+
+
+    selectedNaira =
+      grossNaira;
+
+
+    resultValue.textContent =
+      `₦${formatNumber(
+        grossNaira
+      )}`;
+
+    resultBreakdown.textContent =
+      `${formatNumber(
+        receivedFcoins
+      )} FCoins requested • ₦${formatNumber(
+        fee
+      )} charge`;
+
+  }
+
+
+  /* =========================
+     VALIDATE
+  ========================= */
+
+  continueBtn.disabled =
+    grossNaira < MIN_NAIRA ||
+    grossNaira > MAX_NAIRA;
+
+}
 
 
     /* =========================
