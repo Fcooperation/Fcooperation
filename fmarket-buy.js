@@ -1250,11 +1250,13 @@ if (
   ========================= */
 
   const category =
-    String(
-      material.category ||
-      ""
-    ).toLowerCase()
-     .trim();
+  String(
+    material.category ||
+    ""
+  )
+    .toLowerCase()
+    .trim()
+    .replace(/[\s-]+/g, "_");
 
 
   /* =========================
