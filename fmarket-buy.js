@@ -509,6 +509,10 @@ document.addEventListener(
    SAVE PURCHASED MATERIAL
 ========================= */
 
+/* =========================
+   SAVE PURCHASED MATERIAL
+========================= */
+
 function savePurchasedMaterial(
   purchasedMaterial
 ) {
@@ -542,26 +546,78 @@ function savePurchasedMaterial(
   const source =
     purchasedMaterial?.source ||
     material?.source ||
-    "manual";
+    (
+      material?.category === "past_questions" ||
+      material?.category === "past-questions"
+        ? "past_questions"
+        : "manual"
+    );
 
 
   /* =========================
      GET NOTE DATA
-     BOTH FSTUDY NOTES AND
-     PAST QUESTIONS USE THIS
   ========================= */
 
-  const originalData =
+  let originalData =
     purchasedMaterial?.note_data;
 
 
+  /*
+   * Supabase JSONB normally comes
+   * back as an object/array.
+   *
+   * But if the backend sends it
+   * as a JSON string, parse it.
+   */
+
   if (
-    !originalData ||
-    typeof originalData !== "object"
+    typeof originalData ===
+    "string"
+  ) {
+
+    try {
+
+      originalData =
+        JSON.parse(
+          originalData
+        );
+
+    } catch {
+
+      throw new Error(
+        "The material study data could not be read."
+      );
+
+    }
+
+  }
+
+
+  /* =========================
+     CHECK DATA
+  ========================= */
+
+  if (
+    originalData ===
+    null ||
+    originalData ===
+    undefined
   ) {
 
     throw new Error(
-      "This material does not contain valid study data."
+      "This material has no study data attached to it."
+    );
+
+  }
+
+
+  if (
+    typeof originalData !==
+      "object"
+  ) {
+
+    throw new Error(
+      "The material study data has an invalid format."
     );
 
   }
@@ -576,7 +632,7 @@ function savePurchasedMaterial(
   ) {
 
     /* =========================
-       ACCOUNT-SPECIFIC KEY
+       ACCOUNT KEY
     ========================= */
 
     let notesKey =
@@ -633,19 +689,23 @@ function savePurchasedMaterial(
 
 
     /* =========================
-       CHECK DUPLICATE
+       DUPLICATE
     ========================= */
 
     const existingNote =
       myNotes.find(
         note =>
-          note.fmarket_id ===
-          purchasedMaterial.id
+          String(
+            note.fmarket_id
+          ) ===
+          String(
+            purchasedMaterial.id
+          )
       );
 
 
     /* =========================
-       OPEN EXISTING PURCHASE
+       ALREADY OWNED
     ========================= */
 
     if (
@@ -668,7 +728,7 @@ function savePurchasedMaterial(
 
 
     /* =========================
-       PRESERVE FSTUDY IMAGES
+       FILES
     ========================= */
 
     let noteFiles = [];
@@ -710,7 +770,7 @@ function savePurchasedMaterial(
 
 
     /* =========================
-       CREATE PURCHASED NOTE
+       CREATE NOTE
     ========================= */
 
     const materialToSave = {
@@ -741,7 +801,7 @@ function savePurchasedMaterial(
 
 
     /* =========================
-       SAVE NOTE
+       SAVE
     ========================= */
 
     myNotes.push(
@@ -785,7 +845,7 @@ function savePurchasedMaterial(
   ) {
 
     /* =========================
-       ACCOUNT-SPECIFIC KEY
+       ACCOUNT KEY
     ========================= */
 
     let questionsKey =
@@ -802,7 +862,7 @@ function savePurchasedMaterial(
 
 
     /* =========================
-       GET EXISTING QUESTIONS
+       GET EXISTING
     ========================= */
 
     let myQuestions = [];
@@ -842,16 +902,11 @@ function savePurchasedMaterial(
 
 
     /* =========================
-       NORMALIZE QUESTION DATA
+       GET QUESTIONS
     ========================= */
 
     let questions = [];
 
-
-    /*
-     * Past Questions may have been
-     * stored directly as an array.
-     */
 
     if (
       Array.isArray(
@@ -863,11 +918,6 @@ function savePurchasedMaterial(
         originalData;
 
     }
-
-    /*
-     * Or the data may contain a
-     * questions array.
-     */
 
     else if (
       Array.isArray(
@@ -882,10 +932,6 @@ function savePurchasedMaterial(
 
     else {
 
-      /*
-       * Single question object.
-       */
-
       questions = [
         originalData
       ];
@@ -894,7 +940,8 @@ function savePurchasedMaterial(
 
 
     if (
-      questions.length === 0
+      questions.length ===
+      0
     ) {
 
       throw new Error(
@@ -905,7 +952,23 @@ function savePurchasedMaterial(
 
 
     /* =========================
-       ADD PURCHASE METADATA
+       CHECK DUPLICATE
+    ========================= */
+
+    const alreadyOwned =
+      myQuestions.some(
+        question =>
+          String(
+            question.fmarket_id
+          ) ===
+          String(
+            purchasedMaterial.id
+          )
+      );
+
+
+    /* =========================
+       PREPARE QUESTIONS
     ========================= */
 
     const purchasedQuestions =
@@ -936,19 +999,7 @@ function savePurchasedMaterial(
 
 
     /* =========================
-       CHECK IF ALREADY OWNED
-    ========================= */
-
-    const alreadyOwned =
-      myQuestions.some(
-        question =>
-          question.fmarket_id ===
-          purchasedMaterial.id
-      );
-
-
-    /* =========================
-       SAVE QUESTIONS
+       SAVE NEW PURCHASE
     ========================= */
 
     if (
@@ -970,18 +1021,26 @@ function savePurchasedMaterial(
 
 
     /* =========================
-       SAVE CURRENT BATCH
+       QUESTIONS TO VIEW
     ========================= */
 
     const questionsToView =
       alreadyOwned
         ? myQuestions.filter(
             question =>
-              question.fmarket_id ===
-              purchasedMaterial.id
+              String(
+                question.fmarket_id
+              ) ===
+              String(
+                purchasedMaterial.id
+              )
           )
         : purchasedQuestions;
 
+
+    /* =========================
+       SAVE CURRENT BATCH
+    ========================= */
 
     localStorage.setItem(
       "viewing_past_questions_batch",
@@ -991,14 +1050,13 @@ function savePurchasedMaterial(
     );
 
 
-    /*
-     * Also save the first question
-     * for compatibility with the
-     * existing Past Question page.
-     */
+    /* =========================
+       COMPATIBILITY
+    ========================= */
 
     if (
-      questionsToView.length > 0
+      questionsToView.length >
+      0
     ) {
 
       localStorage.setItem(
@@ -1019,9 +1077,9 @@ function savePurchasedMaterial(
   }
 
 
-  /* ==================================================
-     OTHER FMARKET MATERIAL
-  ================================================== */
+  /* =========================
+     OTHER MATERIAL
+  ========================= */
 
   return {
     type: "other",
@@ -1029,7 +1087,6 @@ function savePurchasedMaterial(
   };
 
 }
-
 
 /* =========================
    BUY MATERIAL
@@ -1148,37 +1205,40 @@ async function buyMaterial() {
     }
 
 
-    /* =========================
-       GET SOURCE
-    ========================= */
+/* =========================
+   CHECK STUDY DATA
+========================= */
 
-    const source =
-      purchasedMaterial.source ||
-      material.source ||
-      "manual";
+const source =
+  purchasedMaterial.source ||
+  material.source ||
+  (
+    material.category === "past_questions" ||
+    material.category === "past-questions"
+      ? "past_questions"
+      : "manual"
+  );
 
 
-    /* =========================
-       NOTE DATA REQUIRED FOR
-       FSTUDY + PAST QUESTIONS
-    ========================= */
+if (
+  source === "fstudy_note" ||
+  source === "past_questions"
+) {
 
-    if (
-      (
-        source === "fstudy_note" ||
-        source === "past_questions"
-      ) &&
-      (
-        !purchasedMaterial.note_data ||
-        typeof purchasedMaterial.note_data !== "object"
-      )
-    ) {
+  if (
+    purchasedMaterial.note_data ===
+      null ||
+    purchasedMaterial.note_data ===
+      undefined
+  ) {
 
-      throw new Error(
-        "Purchase succeeded, but the study data was not returned."
-      );
+    throw new Error(
+      "Purchase succeeded, but the study data was not returned."
+    );
 
-    }
+  }
+
+}
 
 
     /* =========================
