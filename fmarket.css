@@ -620,6 +620,8 @@ a {
   width: 36px;
   height: 36px;
 
+  padding: 0;
+
   border: none;
   border-radius: 50%;
 
@@ -627,11 +629,20 @@ a {
 
   color: white;
 
-  font-size: 17px;
-
   cursor: pointer;
+
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease;
 }
 
 .balance-eye:active {
-  transform: scale(0.94);
+  transform: scale(0.92);
+}
+
+.eye-icon {
+  width: 18px;
+  height: 18px;
+
+  display: block;
 }

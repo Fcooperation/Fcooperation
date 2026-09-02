@@ -45,11 +45,6 @@ document.addEventListener(
       document.querySelectorAll(
         ".category-card"
       );
-      
-      const balanceNaira =
-  document.getElementById(
-    "balance-naira"
-  );
 
 const balanceEye =
   document.getElementById(
@@ -148,7 +143,10 @@ const balanceEye =
 
     }
 
-// Update Balance Display
+/* =========================
+   UPDATE BALANCE DISPLAY
+========================= */
+
 function updateBalanceDisplay(
   fcoins
 ) {
@@ -171,13 +169,52 @@ function updateBalanceDisplay(
     balanceNaira.textContent =
       "₦••••••";
 
-    balanceEye.textContent =
-      "🙈";
+
+    balanceEye.innerHTML = `
+      <svg
+        class="eye-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M3 3L21 21"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+        />
+
+        <path
+          d="M10.58 10.58A2 2 0 0 0 13.42 13.42"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+        />
+
+        <path
+          d="M9.88 5.09A10.74 10.74 0 0 1 12 4.8c6.5 0 10 7.2 10 7.2a18.6 18.6 0 0 1-3.05 3.87"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+
+        <path
+          d="M6.61 6.61C3.6 8.72 2 12 2 12s3.5 7.2 10 7.2c1.61 0 3.04-.38 4.29-1.02"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    `;
+
 
     balanceEye.setAttribute(
       "aria-label",
       "Show balance"
     );
+
 
   } else {
 
@@ -191,8 +228,32 @@ function updateBalanceDisplay(
         "en-NG"
       )}`;
 
-    balanceEye.textContent =
-      "👁";
+
+    balanceEye.innerHTML = `
+      <svg
+        class="eye-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+
+        <circle
+          cx="12"
+          cy="12"
+          r="3"
+          stroke="currentColor"
+          stroke-width="2"
+        />
+      </svg>
+    `;
+
 
     balanceEye.setAttribute(
       "aria-label",
