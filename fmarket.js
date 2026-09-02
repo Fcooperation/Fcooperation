@@ -961,32 +961,35 @@ price.innerHTML = `
        CATEGORY ICON
     ========================= */
 
-    function getCategoryIcon(
-      category
-    ) {
+   function getCategoryIcon(
+  category
+) {
 
-      switch (
-        category
-      ) {
+  switch (
+    category
+  ) {
 
-        case "notes":
-          return "📝";
+    case "notes":
+      return "📝";
 
-        case "past-questions":
-          return "📄";
+    case "past-questions":
+    case "past_questions":
+      return "📄";
 
-        case "textbooks":
-          return "📚";
+    case "textbooks":
+    case "textbook":
+      return "📚";
 
-        case "handouts":
-          return "📑";
+    case "handouts":
+    case "handout":
+      return "📑";
 
-        default:
-          return "🛍️";
+    default:
+      return "🛍️";
 
-      }
+  }
 
-    }
+}
 
 
     /* =========================
@@ -994,31 +997,34 @@ price.innerHTML = `
     ========================= */
 
     function formatCategory(
-      category
-    ) {
+  category
+) {
 
-      switch (
-        category
-      ) {
+  switch (
+    category
+  ) {
 
-        case "past-questions":
-          return "Past Qs";
+    case "past-questions":
+    case "past_questions":
+      return "Past Qs";
 
-        case "textbooks":
-          return "Textbook";
+    case "textbooks":
+    case "textbook":
+      return "Textbook";
 
-        case "notes":
-          return "Notes";
+    case "notes":
+      return "Notes";
 
-        case "handouts":
-          return "Handout";
+    case "handouts":
+    case "handout":
+      return "Handout";
 
-        default:
-          return "Material";
+    default:
+      return "Material";
 
-      }
+  }
 
-    }
+}
 
 
     /* =========================
