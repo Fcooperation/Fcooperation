@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Buy Material - FMarket</title>
+
+  <link
+    rel="stylesheet"
+    href="fmarket-buy.css"
+  >
+
+</head>
+
+<body>
+
+  <div class="app">
+
+    <!-- =========================
+         TOP BAR
+    ========================== -->
+
+    <header class="topbar">
+
+      <button
+        id="back-btn"
+        class="back-btn"
+        type="button"
+        aria-label="Go back"
+      >
+        ←
+      </button>
+
+      <div class="topbar-title">
+        <h1>Material Details</h1>
+        <span>FMARKET</span>
+      </div>
+
+    </header>
+
+
+    <!-- =========================
+         LOADING
+    ========================== -->
+
+    <div
+      id="loading"
+      class="loading"
+    >
+      Loading material...
+    </div>
+
+
+    <!-- =========================
+         ERROR
+    ========================== -->
+
+    <section
+      id="error"
+      class="error-box hidden"
+    >
+
+      <div class="error-icon">
+        ⚠️
+      </div>
+
+      <h2>Material unavailable</h2>
+
+      <p id="error-message">
+        This material could not be loaded.
+      </p>
+
+      <button
+        id="back-error-btn"
+        type="button"
+      >
+        Back to FMarket
+      </button>
+
+    </section>
+
+
+    <!-- =========================
+         MATERIAL
+    ========================== -->
+
+    <main
+      id="material-page"
+      class="hidden"
+    >
+
+      <!-- IMAGE -->
+
+      <section class="image-section">
+
+        <div class="material-image">
+
+          <img
+            id="material-image"
+            src=""
+            alt="Material image"
+          >
+
+          <div
+            id="image-placeholder"
+            class="image-placeholder hidden"
+          >
+            📚
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- MAIN INFORMATION -->
+
+      <section class="material-content">
+
+        <div class="category-badge">
+          <span id="material-category">
+            Material
+          </span>
+        </div>
+
+
+        <h2 id="material-title">
+          Material title
+        </h2>
+
+
+        <div
+          id="material-price"
+          class="material-price"
+        >
+          ₣0
+        </div>
+
+
+        <!-- =========================
+             META
+        ========================== -->
+
+        <div
+          id="material-meta"
+          class="material-meta"
+        >
+
+          <div
+            id="university-row"
+            class="meta-row hidden"
+          >
+            <span class="meta-icon">🎓</span>
+
+            <div>
+              <small>University</small>
+              <strong id="material-university"></strong>
+            </div>
+          </div>
+
+
+          <div
+            id="course-row"
+            class="meta-row hidden"
+          >
+            <span class="meta-icon">📘</span>
+
+            <div>
+              <small>Course</small>
+              <strong id="material-course"></strong>
+            </div>
+          </div>
+
+
+          <div
+            id="department-row"
+            class="meta-row hidden"
+          >
+            <span class="meta-icon">🏫</span>
+
+            <div>
+              <small>Department</small>
+              <strong id="material-department"></strong>
+            </div>
+          </div>
+
+
+          <div
+            id="location-row"
+            class="meta-row hidden"
+          >
+            <span class="meta-icon">📍</span>
+
+            <div>
+              <small>Location</small>
+              <strong id="material-location"></strong>
+            </div>
+          </div>
+
+
+          <div
+            id="condition-row"
+            class="meta-row hidden"
+          >
+            <span class="meta-icon">✨</span>
+
+            <div>
+              <small>Condition</small>
+              <strong id="material-condition"></strong>
+            </div>
+          </div>
+
+        </div>
+
+
+        <!-- =========================
+             DESCRIPTION
+        ========================== -->
+
+        <section class="description-section">
+
+          <h3>
+            About this material
+          </h3>
+
+          <p id="material-description">
+            No description provided.
+          </p>
+
+        </section>
+
+
+        <!-- =========================
+             SELLER
+        ========================== -->
+
+        <section class="seller-section">
+
+          <div class="section-heading">
+            <h3>Seller</h3>
+          </div>
+
+          <div class="seller-card">
+
+            <div class="seller-avatar">
+              👤
+            </div>
+
+            <div class="seller-info">
+
+              <strong id="seller-name">
+                Unknown seller
+              </strong>
+
+              <span>
+                FMarket seller
+              </span>
+
+            </div>
+
+            <button
+              id="message-btn"
+              class="message-btn"
+              type="button"
+              aria-label="Message seller"
+            >
+              💬
+            </button>
+
+          </div>
+
+        </section>
+
+      </section>
+
+    </main>
+
+
+    <!-- =========================
+         STATUS
+    ========================== -->
+
+    <div
+      id="status"
+      class="status hidden"
+    ></div>
+
+
+    <!-- =========================
+         BUY BAR
+    ========================== -->
+
+    <div
+      id="buy-bar"
+      class="buy-bar hidden"
+    >
+
+      <div class="buy-price">
+
+        <small>Total</small>
+
+        <strong id="bottom-price">
+          ₣0
+        </strong>
+
+      </div>
+
+      <button
+        id="buy-btn"
+        type="button"
+        class="buy-btn"
+      >
+        Buy Now
+      </button>
+
+    </div>
+
+
+  </div>
+
+
+  <script src="fmarket-buy.js"></script>
+
+</body>
+
+</html>
