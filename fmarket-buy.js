@@ -398,6 +398,209 @@ case "textbook":
     }
 
 /* =========================
+   CHECK LOCAL OWNERSHIP
+========================= */
+
+function isLocallyOwnedMaterial() {
+
+  if (
+    !material ||
+    !material.id
+  ) {
+
+    return false;
+
+  }
+
+
+  /* =========================
+     CURRENT MATERIAL
+  ========================= */
+
+  const materialId =
+    String(
+      material.id
+    );
+
+
+  /* =========================
+     CHECK FMARKET MATERIAL
+  ========================= */
+
+  try {
+
+    const storedMaterial =
+      localStorage.getItem(
+        "fmarket_material"
+      );
+
+    if (
+      storedMaterial
+    ) {
+
+      const parsed =
+        JSON.parse(
+          storedMaterial
+        );
+
+      if (
+        parsed &&
+        parsed.id &&
+        String(
+          parsed.id
+        ) === materialId
+      ) {
+
+        /*
+          Only treat it as owned
+          if the stored material
+          explicitly says so.
+        */
+
+        if (
+          parsed.owned === true
+        ) {
+
+          return true;
+
+        }
+
+      }
+
+    }
+
+  } catch {
+
+    /* Ignore invalid localStorage */
+
+  }
+
+
+  /* =========================
+     CHECK FSTUDY NOTES
+  ========================= */
+
+  try {
+
+    const currentAccount =
+      JSON.parse(
+        localStorage.getItem(
+          "faccount"
+        )
+      ) || {};
+
+    if (
+      currentAccount.id
+    ) {
+
+      const notesKey =
+        `myfstudynote_${currentAccount.id}`;
+
+      const notes =
+        JSON.parse(
+          localStorage.getItem(
+            notesKey
+          )
+        ) || [];
+
+      if (
+        Array.isArray(
+          notes
+        )
+      ) {
+
+        const foundNote =
+          notes.some(
+            note =>
+              String(
+                note?.fmarket_id
+              ) === materialId
+          );
+
+        if (
+          foundNote
+        ) {
+
+          return true;
+
+        }
+
+      }
+
+    }
+
+  } catch {
+
+    /* Ignore invalid localStorage */
+
+  }
+
+
+  /* =========================
+     CHECK PAST QUESTIONS
+  ========================= */
+
+  try {
+
+    const currentAccount =
+      JSON.parse(
+        localStorage.getItem(
+          "faccount"
+        )
+      ) || {};
+
+    if (
+      currentAccount.id
+    ) {
+
+      const questionsKey =
+        `my_past_questions_${currentAccount.id}`;
+
+      const questions =
+        JSON.parse(
+          localStorage.getItem(
+            questionsKey
+          )
+        ) || [];
+
+      if (
+        Array.isArray(
+          questions
+        )
+      ) {
+
+        const foundQuestions =
+          questions.some(
+            question =>
+              String(
+                question?.fmarket_id
+              ) === materialId
+          );
+
+        if (
+          foundQuestions
+        ) {
+
+          return true;
+
+        }
+
+      }
+
+    }
+
+  } catch {
+
+    /* Ignore invalid localStorage */
+
+  }
+
+
+  return false;
+
+}
+
+/* =========================
    CHECK OWNERSHIP
 ========================= */
 
@@ -413,7 +616,8 @@ function getOwnedMaterial() {
 
 
   return (
-    material.owned === true
+    material.owned === true ||
+    isLocallyOwnedMaterial()
   );
 
 }
@@ -421,7 +625,7 @@ function getOwnedMaterial() {
 function updateOwnershipUI() {
 
   const isOwned =
-    material?.owned === true;
+    getOwnedMaterial();
 
 
   /* =========================
@@ -1313,7 +1517,7 @@ async function buyMaterial() {
 ========================= */
 
 const isOwned =
-  material?.owned === true;
+  getOwnedMaterial();
 
 
 if (

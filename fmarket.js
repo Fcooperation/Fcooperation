@@ -833,6 +833,53 @@ function openShareBox(material) {
 
 }
 
+/* =========================
+   CHECK LOCAL FMarket ITEM
+========================= */
+
+function isLocallyOwnedMaterial(
+  material
+) {
+
+  try {
+
+    const stored =
+      localStorage.getItem(
+        "fmarket_material"
+      );
+
+    if (!stored) {
+      return false;
+    }
+
+    const localMaterial =
+      JSON.parse(
+        stored
+      );
+
+    if (
+      !localMaterial ||
+      !localMaterial.id ||
+      !material ||
+      !material.id
+    ) {
+      return false;
+    }
+
+    return String(
+      localMaterial.id
+    ) === String(
+      material.id
+    );
+
+  } catch {
+
+    return false;
+
+  }
+
+}
+
     /* =========================
        CREATE PRODUCT CARD
     ========================= */
@@ -840,6 +887,26 @@ function openShareBox(material) {
     function createProductCard(
   material
 ) {
+
+  /*
+   * Material is owned if:
+   *
+   * 1. Backend says it is owned
+   * OR
+   *
+   * 2. The same material is stored
+   * locally as fmarket_material.
+   */
+
+  const locallyOwned =
+    isLocallyOwnedMaterial(
+      material
+    );
+
+  const isOwned =
+    material.owned === true ||
+    locallyOwned;
+
 
   const article =
     document.createElement(
@@ -1150,7 +1217,7 @@ description.textContent =
 ========================= */
 
 if (
-  material.owned === true
+  isOwned
 ) {
 
   const ownedBadge =
