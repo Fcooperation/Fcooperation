@@ -1258,24 +1258,11 @@ if (
 
 
   /* =========================
-     CHECK SUPPORTED FREE TYPES
-  ========================= */
-
-  const isNote =
-    category === "notes";
-
-  const isPastQuestions =
-    category === "past_questions" ||
-    category === "past-questions";
-
-
-  /* =========================
-     OPEN FREE NOTE / PAST QUESTIONS
+     NOTES
   ========================= */
 
   if (
-    isNote ||
-    isPastQuestions
+    category === "notes"
   ) {
 
     if (
@@ -1286,7 +1273,7 @@ if (
     ) {
 
       showStatus(
-        "This free material has no study data.",
+        "This free note has no study data.",
         "error"
       );
 
@@ -1304,17 +1291,13 @@ if (
 
 
       showStatus(
-        "Opening material...",
+        "Opening note...",
         "success"
       );
 
 
       setTimeout(
         () => {
-
-          /* =========================
-             NOTE
-          ========================= */
 
           if (
             savedMaterial.type ===
@@ -1323,25 +1306,6 @@ if (
 
             window.location.href =
               "/view-note";
-
-            return;
-
-          }
-
-
-          /* =========================
-             PAST QUESTIONS
-          ========================= */
-
-          if (
-            savedMaterial.type ===
-            "past_questions"
-          ) {
-
-            window.location.href =
-              "/view-past-question";
-
-            return;
 
           }
 
@@ -1356,8 +1320,168 @@ if (
 
       showStatus(
         error.message ||
-        "Unable to open this material.",
+        "Unable to open this note.",
         "error"
+      );
+
+      return;
+
+    }
+
+  }
+
+
+  /* =========================
+     PAST QUESTIONS
+  ========================= */
+
+  if (
+    category === "past_questions" ||
+    category === "past-questions"
+  ) {
+
+    if (
+      material.note_data ===
+        null ||
+      material.note_data ===
+        undefined
+    ) {
+
+      showStatus(
+        "This free Past Questions material has no study data.",
+        "error"
+      );
+
+      return;
+
+    }
+
+
+    try {
+
+      const savedMaterial =
+        savePurchasedMaterial(
+          material
+        );
+
+
+      showStatus(
+        "Opening Past Questions...",
+        "success"
+      );
+
+
+      setTimeout(
+        () => {
+
+          if (
+            savedMaterial.type ===
+            "past_questions"
+          ) {
+
+            window.location.href =
+              "/view-past-question";
+
+          }
+
+        },
+        300
+      );
+
+
+      return;
+
+    } catch (error) {
+
+      showStatus(
+        error.message ||
+        "Unable to open Past Questions.",
+        "error"
+      );
+
+      return;
+
+    }
+
+  }
+
+
+  /* =========================
+     DIGITAL TEXTBOOK
+  ========================= */
+
+  if (
+    category === "textbook" ||
+    category === "textbooks"
+  ) {
+
+    const materialType =
+      String(
+        material.material_type ||
+        ""
+      ).toLowerCase()
+       .trim();
+
+
+    if (
+      materialType === "digital"
+    ) {
+
+      if (
+        !material.file_url
+      ) {
+
+        showStatus(
+          "This free textbook has no file attached.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      localStorage.setItem(
+        "viewing_textbook",
+        JSON.stringify(
+          material
+        )
+      );
+
+
+      showStatus(
+        "Opening textbook...",
+        "success"
+      );
+
+
+      setTimeout(
+        () => {
+
+          window.location.href =
+            "/view-textbook";
+
+        },
+        300
+      );
+
+
+      return;
+
+    }
+
+
+    /* =========================
+       FREE PHYSICAL TEXTBOOK
+    ========================= */
+
+    if (
+      materialType === "physical"
+    ) {
+
+      showStatus(
+        "This is a physical textbook. Please contact the seller.",
+        "info"
       );
 
       return;
@@ -1552,64 +1676,51 @@ if (
     }
 
 
-    /* =========================
-       FSTUDY / PAST QUESTIONS
-    ========================= */
+/* =========================
+   NOTES / PAST QUESTIONS
+========================= */
 
-    else {
+else {
 
-      const category =
-  String(
-    purchasedMaterial.category ||
-    material.category ||
-    ""
-  ).toLowerCase()
-   .trim();
+  const category =
+    String(
+      purchasedMaterial.category ||
+      material.category ||
+      ""
+    ).toLowerCase()
+     .trim();
 
 
-if (
-  category === "notes" ||
-  category === "past_questions" ||
-  category === "past-questions"
-) {
+  const isNote =
+    category === "notes";
+
+
+  const isPastQuestions =
+    category === "past_questions" ||
+    category === "past-questions";
+
 
   if (
-    purchasedMaterial.note_data ===
-      null ||
-    purchasedMaterial.note_data ===
-      undefined
+    isNote ||
+    isPastQuestions
   ) {
 
-    throw new Error(
-      "Purchase succeeded, but the study data was not returned."
-    );
+    if (
+      purchasedMaterial.note_data ===
+        null ||
+      purchasedMaterial.note_data ===
+        undefined
+    ) {
+
+      throw new Error(
+        "Purchase succeeded, but the study data was not returned."
+      );
+
+    }
 
   }
 
 }
-
-
-      if (
-        source === "fstudy_note" ||
-        source === "past_questions"
-      ) {
-
-        if (
-          purchasedMaterial.note_data ===
-            null ||
-          purchasedMaterial.note_data ===
-            undefined
-        ) {
-
-          throw new Error(
-            "Purchase succeeded, but the study data was not returned."
-          );
-
-        }
-
-      }
-
-    }
 
 
     /* =========================
