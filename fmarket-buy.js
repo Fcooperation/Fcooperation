@@ -138,9 +138,12 @@ async function loadMaterial() {
             },
 
             body: JSON.stringify({
-              itemId:
-                sharedItemId
-            })
+  itemId:
+    sharedItemId,
+
+  userId:
+    account.id || null
+})
           }
         );
 
@@ -165,6 +168,9 @@ async function loadMaterial() {
 
       material =
         data.material;
+        
+        material.owned =
+  data.owned === true;
 
 
       /* =========================
@@ -398,162 +404,29 @@ case "textbook":
 function getOwnedMaterial() {
 
   if (
-    !material ||
-    !material.id ||
-    !account.id
+    !material
   ) {
 
-    return null;
+    return false;
 
   }
 
 
-  const category =
-    String(
-      material.category ||
-      ""
-    )
-      .toLowerCase()
-      .trim()
-      .replace(
-        /[\s-]+/g,
-        "_"
-      );
-
-
-  /* =========================
-     NOTES
-  ========================= */
-
-  if (
-    category === "notes"
-  ) {
-
-    const notesKey =
-      `myfstudynote_${account.id}`;
-
-    let notes = [];
-
-    try {
-
-      notes =
-        JSON.parse(
-          localStorage.getItem(
-            notesKey
-          )
-        ) || [];
-
-    } catch {
-
-      notes = [];
-
-    }
-
-
-    if (
-      !Array.isArray(notes)
-    ) {
-
-      return null;
-
-    }
-
-
-    return (
-      notes.find(
-        note =>
-          String(
-            note?.fmarket_id
-          ) ===
-          String(
-            material.id
-          )
-      ) || null
-    );
-
-  }
-
-
-  /* =========================
-     PAST QUESTIONS
-  ========================= */
-
-  if (
-    category === "past_questions"
-  ) {
-
-    const questionsKey =
-      `my_past_questions_${account.id}`;
-
-    let questions = [];
-
-    try {
-
-      questions =
-        JSON.parse(
-          localStorage.getItem(
-            questionsKey
-          )
-        ) || [];
-
-    } catch {
-
-      questions = [];
-
-    }
-
-
-    if (
-      !Array.isArray(
-        questions
-      )
-    ) {
-
-      return null;
-
-    }
-
-
-    const ownedQuestions =
-      questions.filter(
-        question =>
-          String(
-            question?.fmarket_id
-          ) ===
-          String(
-            material.id
-          )
-      );
-
-
-    if (
-      ownedQuestions.length ===
-      0
-    ) {
-
-      return null;
-
-    }
-
-
-    return ownedQuestions;
-
-  }
-
-
-  return null;
+  return (
+    material.owned === true
+  );
 
 }
 
 function updateOwnershipUI() {
 
-  const ownedMaterial =
-    getOwnedMaterial();
-
-
   const isOwned =
-    !!ownedMaterial;
+    material?.owned === true;
 
+
+  /* =========================
+     OWNED BAR
+  ========================= */
 
   if (
     ownedBar
@@ -578,6 +451,10 @@ function updateOwnershipUI() {
   }
 
 
+  /* =========================
+     BUY / OPEN BUTTON
+  ========================= */
+
   if (
     buyBtn
   ) {
@@ -596,7 +473,7 @@ function updateOwnershipUI() {
   }
 
 
-  return ownedMaterial;
+  return isOwned;
 
 }
 
@@ -1432,31 +1309,110 @@ async function buyMaterial() {
   }
 
 /* =========================
-   CHECK IF ALREADY OWNED
+   CHECK BACKEND OWNERSHIP
 ========================= */
 
-const ownedMaterial =
-  getOwnedMaterial();
+const isOwned =
+  material?.owned === true;
 
 
 if (
-  ownedMaterial
+  isOwned
 ) {
+
+  const category =
+    String(
+      material.category ||
+      ""
+    )
+      .toLowerCase()
+      .trim()
+      .replace(
+        /[\s-]+/g,
+        "_"
+      );
+
 
   /* =========================
      OWNED NOTE
   ========================= */
 
   if (
-    !Array.isArray(
-      ownedMaterial
-    )
+    category === "notes"
   ) {
+
+    let currentAccount = {};
+
+    try {
+
+      currentAccount =
+        JSON.parse(
+          localStorage.getItem(
+            "faccount"
+          )
+        ) || {};
+
+    } catch {
+
+      currentAccount = {};
+
+    }
+
+
+    const notesKey =
+      `myfstudynote_${currentAccount.id}`;
+
+
+    let notes = [];
+
+    try {
+
+      notes =
+        JSON.parse(
+          localStorage.getItem(
+            notesKey
+          )
+        ) || [];
+
+    } catch {
+
+      notes = [];
+
+    }
+
+
+    const ownedNote =
+      Array.isArray(notes)
+        ? notes.find(
+            note =>
+              String(
+                note?.fmarket_id
+              ) ===
+              String(
+                material.id
+              )
+          )
+        : null;
+
+
+    if (
+      !ownedNote
+    ) {
+
+      showStatus(
+        "You own this material, but its study data is not available on this device.",
+        "error"
+      );
+
+      return;
+
+    }
+
 
     localStorage.setItem(
       "viewing_note",
       JSON.stringify(
-        ownedMaterial
+        ownedNote
       )
     );
 
@@ -1487,40 +1443,116 @@ if (
      OWNED PAST QUESTIONS
   ========================= */
 
-  localStorage.setItem(
-    "viewing_past_questions_batch",
-    JSON.stringify(
-      ownedMaterial
-    )
-  );
+  if (
+    category ===
+      "past_questions"
+  ) {
+
+    let currentAccount = {};
+
+    try {
+
+      currentAccount =
+        JSON.parse(
+          localStorage.getItem(
+            "faccount"
+          )
+        ) || {};
+
+    } catch {
+
+      currentAccount = {};
+
+    }
 
 
-  localStorage.setItem(
-    "viewing_past_question",
-    JSON.stringify(
-      ownedMaterial[0]
-    )
-  );
+    const questionsKey =
+      `my_past_questions_${currentAccount.id}`;
 
 
-  showStatus(
-    "Opening Past Questions...",
-    "success"
-  );
+    let questions = [];
+
+    try {
+
+      questions =
+        JSON.parse(
+          localStorage.getItem(
+            questionsKey
+          )
+        ) || [];
+
+    } catch {
+
+      questions = [];
+
+    }
 
 
-  setTimeout(
-    () => {
+    const ownedQuestions =
+      Array.isArray(questions)
+        ? questions.filter(
+            question =>
+              String(
+                question?.fmarket_id
+              ) ===
+              String(
+                material.id
+              )
+          )
+        : [];
 
-      window.location.href =
-        "/view-past-question";
 
-    },
-    300
-  );
+    if (
+      ownedQuestions.length ===
+      0
+    ) {
+
+      showStatus(
+        "You own this material, but its questions are not available on this device.",
+        "error"
+      );
+
+      return;
+
+    }
 
 
-  return;
+    localStorage.setItem(
+      "viewing_past_questions_batch",
+      JSON.stringify(
+        ownedQuestions
+      )
+    );
+
+
+    localStorage.setItem(
+      "viewing_past_question",
+      JSON.stringify(
+        ownedQuestions[0]
+      )
+    );
+
+
+    showStatus(
+      "Opening Past Questions...",
+      "success"
+    );
+
+
+    setTimeout(
+      () => {
+
+        window.location.href =
+          "/view-past-question";
+
+      },
+      300
+    );
+
+
+    return;
+
+  }
 
 }
 
