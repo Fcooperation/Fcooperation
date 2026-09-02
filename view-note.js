@@ -211,31 +211,56 @@ else {
 }
 
 
-    /* =========================
-       SAFETY
-    ========================= */
+/* =========================
+   SAFETY
+========================= */
 
-    if (
-      !viewingNote ||
-      !viewingNote.university ||
-      !viewingNote.course ||
-      !viewingNote.topic
-    ) {
+if (!viewingNote) {
 
-      loading.classList.add(
-        "hidden"
-      );
+  loading.classList.add(
+    "hidden"
+  );
 
-      error.textContent =
-        "No note selected.";
+  error.textContent =
+    "No note selected.";
 
-      error.classList.remove(
-        "hidden"
-      );
+  error.classList.remove(
+    "hidden"
+  );
 
-      return;
+  return;
 
-    }
+}
+
+
+/*
+ * FMarket materials do not need
+ * the normal FStudy topic field.
+ */
+
+if (
+  viewingNote.source !== "fmarket" &&
+  (
+    !viewingNote.university ||
+    !viewingNote.course ||
+    !viewingNote.topic
+  )
+) {
+
+  loading.classList.add(
+    "hidden"
+  );
+
+  error.textContent =
+    "No note selected.";
+
+  error.classList.remove(
+    "hidden"
+  );
+
+  return;
+
+}
 
 
     const university =
@@ -315,6 +340,571 @@ function containsEnglish(text) {
   return (
     englishCount / words.length
   ) >= 0.15;
+
+}
+
+/* =========================
+   RENDER FMARKET MATERIAL
+========================= */
+
+async function renderFMarketMaterial(
+  material
+) {
+
+  try {
+
+    /* =========================
+       HIDE LOADING
+    ========================= */
+
+    loading.classList.add(
+      "hidden"
+    );
+
+
+    /* =========================
+       SHOW NOTE
+    ========================= */
+
+    note.classList.remove(
+      "hidden"
+    );
+
+
+    /* =========================
+       TOP INFORMATION
+    ========================= */
+
+    const university =
+      material.university ||
+      "FMarket";
+
+    const course =
+      material.course ||
+      "Material";
+
+
+    topSubtitle.textContent =
+      `${university} • ${course}`;
+
+
+    noteTopic.textContent =
+      material.category ||
+      "FMarket Material";
+
+
+    noteTitle.textContent =
+      material.title ||
+      "Untitled Material";
+
+
+    noteMeta.textContent =
+      `${university} • ${course}` +
+      (
+        material.seller_name
+          ? ` • Sold by ${material.seller_name}`
+          : ""
+      );
+
+
+    /* =========================
+       IMAGE
+    ========================= */
+
+    if (
+      material.image_url
+    ) {
+
+      notePreviewContainer.classList.remove(
+        "hidden"
+      );
+
+      notePreviewImage.src =
+        material.image_url;
+
+      notePreviewImage.alt =
+        material.title ||
+        "FMarket material";
+
+      /*
+       * FMarket image is already
+       * a normal remote URL.
+       *
+       * Do not use IndexedDB here.
+       */
+
+      notePreviewBtn.onclick =
+        () => {
+
+          noteImages = [
+            {
+              id:
+                "fmarket-image",
+
+              name:
+                material.title ||
+                "FMarket image",
+
+              type:
+                "image",
+
+              url:
+                material.image_url
+            }
+          ];
+
+          currentImageIndex = 0;
+
+          openNoteImage();
+
+        };
+
+    } else {
+
+      notePreviewContainer.classList.add(
+        "hidden"
+      );
+
+    }
+
+
+    /* =========================
+       CONTENT
+    ========================= */
+
+    sections.innerHTML =
+      "";
+
+
+    const sectionElement =
+      document.createElement(
+        "section"
+      );
+
+    sectionElement.className =
+      "note-section";
+
+
+    /* =========================
+       SECTION TOP
+    ========================= */
+
+    const sectionTop =
+      document.createElement(
+        "div"
+      );
+
+    sectionTop.className =
+      "section-top";
+
+
+    const sectionHeading =
+      document.createElement(
+        "div"
+      );
+
+    sectionHeading.className =
+      "section-heading";
+
+
+    const number =
+      document.createElement(
+        "div"
+      );
+
+    number.className =
+      "section-number";
+
+    number.textContent =
+      "Material";
+
+
+    const heading =
+      document.createElement(
+        "h2"
+      );
+
+    heading.className =
+      "section-title";
+
+    heading.textContent =
+      material.title ||
+      "FMarket Material";
+
+
+    sectionHeading.appendChild(
+      number
+    );
+
+    sectionHeading.appendChild(
+      heading
+    );
+
+
+    sectionTop.appendChild(
+      sectionHeading
+    );
+
+
+    /* =========================
+       ASK FAI
+    ========================= */
+
+    const askFaiBtn =
+      document.createElement(
+        "button"
+      );
+
+    askFaiBtn.type =
+      "button";
+
+    askFaiBtn.className =
+      "ask-fai-btn";
+
+    askFaiBtn.textContent =
+      "Ask FAI";
+
+
+    sectionTop.appendChild(
+      askFaiBtn
+    );
+
+
+    /* =========================
+       CONTENT
+    ========================= */
+
+    const content =
+      document.createElement(
+        "div"
+      );
+
+    content.className =
+      "section-content";
+
+
+    content.textContent =
+      material.description ||
+      "No description provided.";
+
+
+    /* =========================
+       FAI MENU
+    ========================= */
+
+    const faiMenu =
+      document.createElement(
+        "div"
+      );
+
+    faiMenu.className =
+      "fai-menu hidden";
+
+
+    const cancelFaiBtn =
+      document.createElement(
+        "button"
+      );
+
+    cancelFaiBtn.type =
+      "button";
+
+    cancelFaiBtn.className =
+      "fai-cancel-btn";
+
+    cancelFaiBtn.textContent =
+      "Cancel";
+
+
+    faiMenu.appendChild(
+      cancelFaiBtn
+    );
+
+
+    const faiActions =
+      document.createElement(
+        "div"
+      );
+
+    faiActions.className =
+      "fai-actions";
+
+
+    /* =========================
+       SUMMARIZE
+    ========================= */
+
+    const summarizeBtn =
+      document.createElement(
+        "button"
+      );
+
+    summarizeBtn.type =
+      "button";
+
+    summarizeBtn.className =
+      "fai-action";
+
+    summarizeBtn.textContent =
+      "Summarize";
+
+
+    /* =========================
+       QUIZ
+    ========================= */
+
+    const quizBtn =
+      document.createElement(
+        "button"
+      );
+
+    quizBtn.type =
+      "button";
+
+    quizBtn.className =
+      "fai-action";
+
+    quizBtn.textContent =
+      "Quiz Me";
+
+
+    /* =========================
+       ASK FAI
+    ========================= */
+
+    const askQuestionBtn =
+      document.createElement(
+        "button"
+      );
+
+    askQuestionBtn.type =
+      "button";
+
+    askQuestionBtn.className =
+      "fai-action";
+
+    askQuestionBtn.textContent =
+      "Ask FAI";
+
+
+    faiActions.appendChild(
+      summarizeBtn
+    );
+
+    faiActions.appendChild(
+      quizBtn
+    );
+
+    faiActions.appendChild(
+      askQuestionBtn
+    );
+
+
+    faiMenu.appendChild(
+      faiActions
+    );
+
+
+    /* =========================
+       OPEN FAI MENU
+    ========================= */
+
+    askFaiBtn.addEventListener(
+      "click",
+      () => {
+
+        faiMenu.classList.toggle(
+          "hidden"
+        );
+
+      }
+    );
+
+
+    /* =========================
+       CANCEL
+    ========================= */
+
+    cancelFaiBtn.addEventListener(
+      "click",
+      () => {
+
+        faiMenu.classList.add(
+          "hidden"
+        );
+
+        faiActions.classList.remove(
+          "hidden"
+        );
+
+      }
+    );
+
+
+    /* =========================
+       SUMMARIZE
+    ========================= */
+
+    summarizeBtn.addEventListener(
+      "click",
+      async () => {
+
+        await summarizeSection(
+          {
+            title:
+              material.title ||
+              "FMarket Material",
+
+            content:
+              material.description ||
+              ""
+          },
+          faiMenu,
+          faiActions,
+          summarizeBtn
+        );
+
+      }
+    );
+
+
+    /* =========================
+       QUIZ
+    ========================= */
+
+    quizBtn.addEventListener(
+      "click",
+      async () => {
+
+        await quizSection(
+          {
+            title:
+              material.title ||
+              "FMarket Material",
+
+            content:
+              material.description ||
+              ""
+          },
+          faiMenu,
+          faiActions,
+          quizBtn
+        );
+
+      }
+    );
+
+
+    /* =========================
+       ASK FAI
+    ========================= */
+
+    askQuestionBtn.addEventListener(
+      "click",
+      () => {
+
+        openAskFai(
+          {
+            title:
+              material.title ||
+              "FMarket Material",
+
+            content:
+              material.description ||
+              ""
+          },
+          faiMenu,
+          faiActions
+        );
+
+      }
+    );
+
+
+    /* =========================
+       APPEND
+    ========================= */
+
+    sectionElement.appendChild(
+      sectionTop
+    );
+
+    sectionElement.appendChild(
+      content
+    );
+
+    sectionElement.appendChild(
+      faiMenu
+    );
+
+    sections.appendChild(
+      sectionElement
+    );
+
+
+    /* =========================
+       FILE
+    ========================= */
+
+    if (
+      material.file_url
+    ) {
+
+      const fileContainer =
+        document.createElement(
+          "div"
+        );
+
+      fileContainer.className =
+        "fmarket-file-container";
+
+
+      const fileButton =
+        document.createElement(
+          "a"
+        );
+
+      fileButton.href =
+        material.file_url;
+
+      fileButton.target =
+        "_blank";
+
+      fileButton.rel =
+        "noopener noreferrer";
+
+      fileButton.className =
+        "fmarket-file-btn";
+
+      fileButton.textContent =
+        "Open Material File";
+
+
+      fileContainer.appendChild(
+        fileButton
+      );
+
+      sections.appendChild(
+        fileContainer
+      );
+
+    }
+
+  } catch (err) {
+
+    loading.classList.add(
+      "hidden"
+    );
+
+    error.textContent =
+      err.message ||
+      "Failed to display FMarket material.";
+
+    error.classList.remove(
+      "hidden"
+    );
+
+  }
 
 }
 
