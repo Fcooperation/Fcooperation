@@ -659,3 +659,28 @@ button {
   text-decoration: underline;
   cursor: pointer;
 }
+.owned-bar {
+  width: 100%;
+  box-sizing: border-box;
+
+  background: #2563eb;
+  color: white;
+
+  padding: 12px 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  position: relative;
+  z-index: 9999;
+}
+
+.owned-bar.hidden {
+  display: none;
+}

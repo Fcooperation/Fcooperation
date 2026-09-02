@@ -55,6 +55,11 @@ document.addEventListener(
       document.getElementById(
         "status"
       );
+      
+      const ownedBar =
+  document.getElementById(
+    "owned-bar"
+  );
 
 
     /* =========================
@@ -386,6 +391,214 @@ case "textbook":
 
     }
 
+/* =========================
+   CHECK OWNERSHIP
+========================= */
+
+function getOwnedMaterial() {
+
+  if (
+    !material ||
+    !material.id ||
+    !account.id
+  ) {
+
+    return null;
+
+  }
+
+
+  const category =
+    String(
+      material.category ||
+      ""
+    )
+      .toLowerCase()
+      .trim()
+      .replace(
+        /[\s-]+/g,
+        "_"
+      );
+
+
+  /* =========================
+     NOTES
+  ========================= */
+
+  if (
+    category === "notes"
+  ) {
+
+    const notesKey =
+      `myfstudynote_${account.id}`;
+
+    let notes = [];
+
+    try {
+
+      notes =
+        JSON.parse(
+          localStorage.getItem(
+            notesKey
+          )
+        ) || [];
+
+    } catch {
+
+      notes = [];
+
+    }
+
+
+    if (
+      !Array.isArray(notes)
+    ) {
+
+      return null;
+
+    }
+
+
+    return (
+      notes.find(
+        note =>
+          String(
+            note?.fmarket_id
+          ) ===
+          String(
+            material.id
+          )
+      ) || null
+    );
+
+  }
+
+
+  /* =========================
+     PAST QUESTIONS
+  ========================= */
+
+  if (
+    category === "past_questions"
+  ) {
+
+    const questionsKey =
+      `my_past_questions_${account.id}`;
+
+    let questions = [];
+
+    try {
+
+      questions =
+        JSON.parse(
+          localStorage.getItem(
+            questionsKey
+          )
+        ) || [];
+
+    } catch {
+
+      questions = [];
+
+    }
+
+
+    if (
+      !Array.isArray(
+        questions
+      )
+    ) {
+
+      return null;
+
+    }
+
+
+    const ownedQuestions =
+      questions.filter(
+        question =>
+          String(
+            question?.fmarket_id
+          ) ===
+          String(
+            material.id
+          )
+      );
+
+
+    if (
+      ownedQuestions.length ===
+      0
+    ) {
+
+      return null;
+
+    }
+
+
+    return ownedQuestions;
+
+  }
+
+
+  return null;
+
+}
+
+function updateOwnershipUI() {
+
+  const ownedMaterial =
+    getOwnedMaterial();
+
+
+  const isOwned =
+    !!ownedMaterial;
+
+
+  if (
+    ownedBar
+  ) {
+
+    if (
+      isOwned
+    ) {
+
+      ownedBar.classList.remove(
+        "hidden"
+      );
+
+    } else {
+
+      ownedBar.classList.add(
+        "hidden"
+      );
+
+    }
+
+  }
+
+
+  if (
+    buyBtn
+  ) {
+
+    buyBtn.textContent =
+      isOwned
+        ? "Open"
+        : (
+            Number(
+              material.price
+            ) === 0
+              ? "Open"
+              : "Buy Now"
+          );
+
+  }
+
+
+  return ownedMaterial;
+
+}
 
     /* =========================
        RENDER MATERIAL
@@ -493,21 +706,7 @@ case "textbook":
    BUY / OPEN BUTTON
 ========================= */
 
-if (
-  buyBtn
-) {
-
-  const price =
-    Number(
-      material.price
-    ) || 0;
-
-  buyBtn.textContent =
-    price === 0
-      ? "Open"
-      : "Buy Now";
-
-}
+updateOwnershipUI();
 
 
       /* =========================
@@ -1232,6 +1431,98 @@ async function buyMaterial() {
 
   }
 
+/* =========================
+   CHECK IF ALREADY OWNED
+========================= */
+
+const ownedMaterial =
+  getOwnedMaterial();
+
+
+if (
+  ownedMaterial
+) {
+
+  /* =========================
+     OWNED NOTE
+  ========================= */
+
+  if (
+    !Array.isArray(
+      ownedMaterial
+    )
+  ) {
+
+    localStorage.setItem(
+      "viewing_note",
+      JSON.stringify(
+        ownedMaterial
+      )
+    );
+
+
+    showStatus(
+      "Opening note...",
+      "success"
+    );
+
+
+    setTimeout(
+      () => {
+
+        window.location.href =
+          "/view-note";
+
+      },
+      300
+    );
+
+
+    return;
+
+  }
+
+
+  /* =========================
+     OWNED PAST QUESTIONS
+  ========================= */
+
+  localStorage.setItem(
+    "viewing_past_questions_batch",
+    JSON.stringify(
+      ownedMaterial
+    )
+  );
+
+
+  localStorage.setItem(
+    "viewing_past_question",
+    JSON.stringify(
+      ownedMaterial[0]
+    )
+  );
+
+
+  showStatus(
+    "Opening Past Questions...",
+    "success"
+  );
+
+
+  setTimeout(
+    () => {
+
+      window.location.href =
+        "/view-past-question";
+
+    },
+    300
+  );
+
+
+  return;
+
+}
 
 /* =========================
    FREE MATERIAL
@@ -1687,12 +1978,17 @@ if (
 else {
 
   const category =
-    String(
-      purchasedMaterial.category ||
-      material.category ||
-      ""
-    ).toLowerCase()
-     .trim();
+  String(
+    purchasedMaterial.category ||
+    material.category ||
+    ""
+  )
+    .toLowerCase()
+    .trim()
+    .replace(
+      /[\s-]+/g,
+      "_"
+    );
 
 
   const isNote =
