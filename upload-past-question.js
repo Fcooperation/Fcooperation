@@ -103,7 +103,7 @@ document.addEventListener(
 
     let selectedFiles = [];
 
-    let generatedQuestion = null;
+    let generatedQuestions = [];
 
 
     /* =========================
@@ -879,8 +879,8 @@ document.addEventListener(
         }
 
 
-        generatedQuestion =
-          null;
+        generatedQuestions =
+  [];
 
 
         previewCard.classList.add(
@@ -1176,49 +1176,45 @@ document.addEventListener(
              PARSE JSON
           ========================== */
 
-          let questionData;
+          let questionsData;
 
+try {
 
-          try {
+  questionsData =
+    JSON.parse(
+      cleanJson(
+        answer
+      )
+    );
 
-            questionData =
-              JSON.parse(
-                cleanJson(
-                  answer
-                )
-              );
+} catch {
 
-          } catch {
+  previewCard.classList.remove(
+    "hidden"
+  );
 
-            previewCard.classList.remove(
-              "hidden"
-            );
+  preview.textContent =
+    answer ||
+    "(FAI returned nothing)";
 
-            preview.textContent =
-              answer ||
-              "(FAI returned nothing)";
+  showStatus(
+    "FAI returned invalid JSON. The raw response is shown below.",
+    "error"
+  );
 
+  previewCard.scrollIntoView({
+    behavior:
+      "smooth",
 
-            showStatus(
-              "FAI returned invalid JSON. The raw response is shown below.",
-              "error"
-            );
+    block:
+      "start"
+  });
 
+  throw new Error(
+    "FAI did not return valid JSON."
+  );
 
-            previewCard.scrollIntoView({
-              behavior:
-                "smooth",
-
-              block:
-                "start"
-            });
-
-
-            throw new Error(
-              "FAI did not return valid JSON."
-            );
-
-          }
+}
 
 
           /* =========================
@@ -1235,57 +1231,57 @@ document.addEventListener(
           ========================== */
 
           const questionFiles =
-            [];
+  [];
 
+for (
+  const file
+  of selectedFiles
+) {
 
-          for (
-            const file
-            of selectedFiles
-          ) {
+  showStatus(
+    `Saving ${file.name}...`,
+    "info"
+  );
 
-            showStatus(
-              `Saving ${file.name}...`,
-              "info"
-            );
+  const imageId =
+    await saveImageToDB(
+      file
+    );
 
+  questionFiles.push({
 
-            const imageId =
-              await saveImageToDB(
-                file
-              );
+    id:
+      imageId,
 
+    name:
+      file.name,
 
-            questionFiles.push({
+    type:
+      file.type,
 
-              id:
-                imageId,
+    size:
+      file.size
 
-              name:
-                file.name,
+  });
 
-              type:
-                file.type,
-
-              size:
-                file.size
-
-            });
-
-          }
+}
 
 
           /* =========================
              COMPLETE QUESTION
           ========================== */
 
-          generatedQuestion = {
+          generatedQuestions =
+  questionsData.map(
+    question => ({
 
-            ...questionData,
+      ...question,
 
-            files:
-              questionFiles
+      files:
+        questionFiles
 
-          };
+    })
+  );
 
 
           /* =========================
@@ -1293,11 +1289,11 @@ document.addEventListener(
           ========================== */
 
           preview.textContent =
-            JSON.stringify(
-              generatedQuestion,
-              null,
-              2
-            );
+  JSON.stringify(
+    generatedQuestions,
+    null,
+    2
+  );
 
 
           previewCard.classList.remove(
@@ -1306,9 +1302,9 @@ document.addEventListener(
 
 
           showStatus(
-            "FAI successfully created the past question. Review it below.",
-            "success"
-          );
+  `FAI successfully created ${generatedQuestions.length} past questions. Review them below.`,
+  "success"
+);
 
 
           previewCard.scrollIntoView({
@@ -1343,116 +1339,154 @@ document.addEventListener(
        CLEAN JSON
     ========================= */
 
-    function cleanJson(
-      text
-    ) {
+    function cleanJson(text) {
 
-      if (!text) {
-        return "";
-      }
+  if (!text) {
+    return "";
+  }
 
+  let clean =
+    String(text).trim();
 
-      let clean =
-        String(text).trim();
+  /* =========================
+     REMOVE CODE FENCES
+  ========================= */
 
+  clean =
+    clean.replace(
+      /^```json\s*/i,
+      ""
+    );
 
-      clean =
-        clean.replace(
-          /^```json\s*/i,
-          ""
-        );
+  clean =
+    clean.replace(
+      /^```\s*/i,
+      ""
+    );
 
+  clean =
+    clean.replace(
+      /\s*```$/i,
+      ""
+    );
 
-      clean =
-        clean.replace(
-          /^```\s*/i,
-          ""
-        );
+  clean =
+    clean.trim();
 
+  /* =========================
+     FIND JSON ARRAY
+  ========================= */
 
-      clean =
-        clean.replace(
-          /\s*```$/i,
-          ""
-        );
+  const first =
+    clean.indexOf("[");
 
+  const last =
+    clean.lastIndexOf("]");
 
-      clean =
-        clean.trim();
+  if (
+    first !== -1 &&
+    last !== -1 &&
+    last > first
+  ) {
 
+    clean =
+      clean.slice(
+        first,
+        last + 1
+      );
 
-      const first =
-        clean.indexOf(
-          "{"
-        );
+  }
 
-      const last =
-        clean.lastIndexOf(
-          "}"
-        );
+  return clean.trim();
 
-
-      if (
-        first !== -1 &&
-        last !== -1 &&
-        last > first
-      ) {
-
-        clean =
-          clean.slice(
-            first,
-            last + 1
-          );
-
-      }
-
-
-      return clean.trim();
-
-    }
+}
 
 
     /* =========================
        VALIDATE QUESTION
     ========================= */
 
-    function validateQuestion(
-      question
-    ) {
+    function validateQuestions(
+  questions
+) {
+
+  /* =========================
+     ARRAY CHECK
+  ========================= */
+
+  if (
+    !Array.isArray(
+      questions
+    )
+  ) {
+
+    throw new Error(
+      "FAI must return an array of past questions."
+    );
+
+  }
+
+  if (
+    questions.length === 0
+  ) {
+
+    throw new Error(
+      "FAI returned no past questions."
+    );
+
+  }
+
+  /* =========================
+     VALIDATE EACH QUESTION
+  ========================= */
+
+  const requiredFields = [
+
+    "id",
+    "university",
+    "course",
+    "question",
+    "options",
+    "answer",
+    "explanation",
+    "formula",
+    "difficulty",
+    "topic",
+    "type",
+    "year",
+    "session",
+    "question_number",
+    "xp_reward",
+    "instructor",
+    "verified"
+
+  ];
+
+  const ids =
+    new Set();
+
+  const numbers =
+    new Set();
+
+  questions.forEach(
+    (question, index) => {
 
       if (
         !question ||
         typeof question !==
-          "object"
+          "object" ||
+        Array.isArray(question)
       ) {
 
         throw new Error(
-          "FAI returned an invalid past question."
+          `Past question ${index + 1} is invalid.`
         );
 
       }
 
-
-      const requiredFields = [
-        "id",
-        "university",
-        "course",
-        "question",
-        "options",
-        "answer",
-        "explanation",
-        "formula",
-        "difficulty",
-        "topic",
-        "type",
-        "year",
-        "session",
-        "question_number",
-        "xp_reward",
-        "instructor",
-        "verified"
-      ];
-
+      /* =========================
+         REQUIRED FIELDS
+      ========================= */
 
       for (
         const field
@@ -1464,13 +1498,70 @@ document.addEventListener(
         ) {
 
           throw new Error(
-            `FAI question is missing "${field}".`
+            `Past question ${
+              index + 1
+            } is missing "${field}".`
           );
 
         }
 
       }
 
+      /* =========================
+         ID
+      ========================= */
+
+      if (
+        typeof question.id !==
+        "string" ||
+        !question.id.trim()
+      ) {
+
+        throw new Error(
+          `Past question ${
+            index + 1
+          } has an invalid ID.`
+        );
+
+      }
+
+      if (
+        ids.has(
+          question.id
+        )
+      ) {
+
+        throw new Error(
+          `Duplicate question ID: ${question.id}`
+        );
+
+      }
+
+      ids.add(
+        question.id
+      );
+
+      /* =========================
+         QUESTION TEXT
+      ========================= */
+
+      if (
+        typeof question.question !==
+          "string" ||
+        !question.question.trim()
+      ) {
+
+        throw new Error(
+          `Past question ${
+            index + 1
+          } has empty question text.`
+        );
+
+      }
+
+      /* =========================
+         OPTIONS
+      ========================= */
 
       if (
         !Array.isArray(
@@ -1479,11 +1570,12 @@ document.addEventListener(
       ) {
 
         throw new Error(
-          "FAI question options must be an array."
+          `Past question ${
+            index + 1
+          } options must be an array.`
         );
 
       }
-
 
       if (
         question.options.length !==
@@ -1491,49 +1583,56 @@ document.addEventListener(
       ) {
 
         throw new Error(
-          "FAI question must contain exactly 4 options."
+          `Past question ${
+            index + 1
+          } must contain exactly 4 options.`
         );
 
       }
 
+      question.options.forEach(
+        (option, optionIndex) => {
 
-      if (
-        typeof question.id !==
-        "string"
-      ) {
+          if (
+            typeof option !==
+              "string" ||
+            !option.trim()
+          ) {
 
-        throw new Error(
-          "FAI question has an invalid ID."
-        );
+            throw new Error(
+              `Past question ${
+                index + 1
+              } option ${
+                optionIndex + 1
+              } is invalid.`
+            );
 
-      }
+          }
 
+        }
+      );
 
-      if (
-        typeof question.question !==
-        "string" ||
-        !question.question.trim()
-      ) {
-
-        throw new Error(
-          "FAI question text is empty."
-        );
-
-      }
-
+      /* =========================
+         ANSWER
+      ========================= */
 
       if (
         typeof question.answer !==
-        "string" ||
+          "string" ||
         !question.answer.trim()
       ) {
 
         throw new Error(
-          "FAI question has no answer."
+          `Past question ${
+            index + 1
+          } has no answer.`
         );
 
       }
 
+      /* =========================
+         FORMULA
+      ========================= */
 
       if (
         typeof question.formula !==
@@ -1541,12 +1640,122 @@ document.addEventListener(
       ) {
 
         throw new Error(
-          "FAI question has an invalid formula."
+          `Past question ${
+            index + 1
+          } has an invalid formula.`
+        );
+
+      }
+
+      /* =========================
+         TYPE
+      ========================= */
+
+      if (
+        question.type !==
+        "mcq"
+      ) {
+
+        throw new Error(
+          `Past question ${
+            index + 1
+          } must have type "mcq".`
+        );
+
+      }
+
+      /* =========================
+         YEAR
+      ========================= */
+
+      if (
+        typeof question.year !==
+        "number"
+      ) {
+
+        throw new Error(
+          `Past question ${
+            index + 1
+          } has an invalid year.`
+        );
+
+      }
+
+      /* =========================
+         QUESTION NUMBER
+      ========================= */
+
+      if (
+        typeof question.question_number !==
+        "number"
+      ) {
+
+        throw new Error(
+          `Past question ${
+            index + 1
+          } has an invalid question number.`
+        );
+
+      }
+
+      if (
+        numbers.has(
+          question.question_number
+        )
+      ) {
+
+        throw new Error(
+          `Duplicate question number: ${
+            question.question_number
+          }`
+        );
+
+      }
+
+      numbers.add(
+        question.question_number
+      );
+
+      /* =========================
+         XP
+      ========================= */
+
+      if (
+        typeof question.xp_reward !==
+        "number"
+      ) {
+
+        throw new Error(
+          `Past question ${
+            index + 1
+          } has an invalid XP reward.`
+        );
+
+      }
+
+      /* =========================
+         VERIFIED
+      ========================= */
+
+      if (
+        question.verified !==
+        true
+      ) {
+
+        throw new Error(
+          `Past question ${
+            index + 1
+          } must have verified=true.`
         );
 
       }
 
     }
+  );
+
+  return true;
+
+}
 
 
     /* =========================
@@ -1554,126 +1763,122 @@ document.addEventListener(
     ========================= */
 
     saveBtn.addEventListener(
-      "click",
-      () => {
+  "click",
+  () => {
 
-        if (
-          !generatedQuestion
-        ) {
+    if (
+      !Array.isArray(
+        generatedQuestions
+      ) ||
+      generatedQuestions.length === 0
+    ) {
 
-          showStatus(
-            "There is no generated question to save.",
-            "error"
-          );
+      showStatus(
+        "There are no generated questions to save.",
+        "error"
+      );
 
-          return;
+      return;
 
-        }
+    }
 
+    saveBtn.disabled =
+      true;
 
-        saveBtn.disabled =
-          true;
+    showStatus(
+      `Saving ${generatedQuestions.length} past questions...`,
+      "info"
+    );
 
+    try {
 
-        showStatus(
-          "Saving past question...",
-          "info"
+      /* =========================
+         ACCOUNT
+      ========================= */
+
+      let account = {};
+
+      try {
+
+        account =
+          JSON.parse(
+            localStorage.getItem(
+              "faccount"
+            )
+          ) || {};
+
+      } catch {
+
+        account = {};
+
+      }
+
+      /* =========================
+         ACCOUNT KEY
+      ========================= */
+
+      let questionsKey =
+        "my_past_questions";
+
+      if (
+        account.id
+      ) {
+
+        questionsKey =
+          `my_past_questions_${account.id}`;
+
+      }
+
+      /* =========================
+         EXISTING QUESTIONS
+      ========================= */
+
+      let myQuestions =
+        [];
+
+      const existing =
+        localStorage.getItem(
+          questionsKey
         );
 
+      if (existing) {
 
         try {
 
-          /* =========================
-             ACCOUNT
-          ========================== */
-
-          let account = {};
-
-
-          try {
-
-            account =
-              JSON.parse(
-                localStorage.getItem(
-                  "faccount"
-                )
-              ) || {};
-
-          } catch {
-
-            account = {};
-
-          }
-
-
-          /* =========================
-             ACCOUNT KEY
-          ========================== */
-
-          let questionsKey =
-            "my_past_questions";
-
-
-          if (
-            account.id
-          ) {
-
-            questionsKey =
-              `my_past_questions_${account.id}`;
-
-          }
-
-
-          /* =========================
-             EXISTING QUESTIONS
-          ========================== */
-
-          let myQuestions = [];
-
-
-          const existing =
-            localStorage.getItem(
-              questionsKey
+          const parsed =
+            JSON.parse(
+              existing
             );
 
+          if (
+            Array.isArray(
+              parsed
+            )
+          ) {
 
-          if (existing) {
-
-            try {
-
-              const parsed =
-                JSON.parse(
-                  existing
-                );
-
-
-              if (
-                Array.isArray(
-                  parsed
-                )
-              ) {
-
-                myQuestions =
-                  parsed;
-
-              }
-
-            } catch {
-
-              myQuestions = [];
-
-            }
+            myQuestions =
+              parsed;
 
           }
 
+        } catch {
 
-          /* =========================
-             ADD OWNER
-          ========================== */
+          myQuestions =
+            [];
 
-          const questionToSave = {
+        }
 
-            ...generatedQuestion,
+      }
+
+      /* =========================
+         ADD OWNER + SAVE TIME
+      ========================= */
+
+      const questionsToSave =
+        generatedQuestions.map(
+          question => ({
+
+            ...question,
 
             owner_id:
               account.id ||
@@ -1683,61 +1888,69 @@ document.addEventListener(
               new Date()
                 .toISOString()
 
-          };
+          })
+        );
 
+      /* =========================
+         SAVE ALL 20
+      ========================= */
 
-          /* =========================
-             SAVE
-          ========================== */
+      myQuestions.push(
+        ...questionsToSave
+      );
 
-          myQuestions.push(
-            questionToSave
-          );
+      localStorage.setItem(
+        questionsKey,
+        JSON.stringify(
+          myQuestions
+        )
+      );
 
+      /* =========================
+         CURRENT QUESTION
+         FIRST QUESTION
+      ========================= */
 
-          localStorage.setItem(
-            questionsKey,
-            JSON.stringify(
-              myQuestions
-            )
-          );
+      localStorage.setItem(
+        "viewing_past_question",
+        JSON.stringify(
+          questionsToSave[0]
+        )
+      );
 
+      /* =========================
+         SAVE ENTIRE BATCH
+      ========================= */
 
-          /* =========================
-             CURRENT QUESTION
-          ========================== */
+      localStorage.setItem(
+        "viewing_past_questions_batch",
+        JSON.stringify(
+          questionsToSave
+        )
+      );
 
-          localStorage.setItem(
-            "viewing_past_question",
-            JSON.stringify(
-              questionToSave
-            )
-          );
+      /* =========================
+         REDIRECT
+      ========================= */
 
+      window.location.href =
+        "/view-past-question";
 
-          /* =========================
-             REDIRECT
-          ========================== */
+    } catch (error) {
 
-          window.location.href =
-            "/view-past-question";
+      showStatus(
+        error.message ||
+          "Failed to save past questions.",
+        "error"
+      );
 
+      saveBtn.disabled =
+        false;
 
-        } catch (error) {
+    }
 
-          showStatus(
-            error.message ||
-              "Failed to save past question.",
-            "error"
-          );
-
-          saveBtn.disabled =
-            false;
-
-        }
-
-      }
-    );
+  }
+);
 
   }
 );

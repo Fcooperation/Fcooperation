@@ -192,11 +192,77 @@ if (
     let currentIndex = 0;
 
 
-    /* =========================
+     /* =========================
        LOAD QUESTIONS
     ========================= */
 
     async function loadQuestions() {
+
+      /* =========================
+         CHECK LOCAL STORAGE FIRST
+      ========================= */
+
+      const localBatch =
+        localStorage.getItem(
+          "viewing_past_questions_batch"
+        );
+
+      if (localBatch) {
+
+        try {
+
+          const parsed =
+            JSON.parse(
+              localBatch
+            );
+
+          if (
+            Array.isArray(parsed) &&
+            parsed.length > 0
+          ) {
+
+            questions =
+              parsed;
+
+            loading.classList.add(
+              "hidden"
+            );
+
+            empty.classList.add(
+              "hidden"
+            );
+
+            error.classList.add(
+              "hidden"
+            );
+
+            currentIndex = 0;
+
+            renderQuestion();
+
+            return;
+
+          }
+
+        } catch (err) {
+
+          /*
+           * Invalid local data.
+           * Continue to backend.
+           */
+
+          localStorage.removeItem(
+            "viewing_past_questions_batch"
+          );
+
+        }
+
+      }
+
+
+      /* =========================
+         BACKEND FALLBACK
+      ========================= */
 
       try {
 
@@ -258,7 +324,11 @@ if (
 
 
         questions =
-          data.questions || [];
+          Array.isArray(
+            data.questions
+          )
+            ? data.questions
+            : [];
 
 
         loading.classList.add(
@@ -267,7 +337,6 @@ if (
 
 
         if (
-          !Array.isArray(questions) ||
           !questions.length
         ) {
 
@@ -279,6 +348,8 @@ if (
 
         }
 
+
+        currentIndex = 0;
 
         renderQuestion();
 
