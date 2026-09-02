@@ -202,7 +202,8 @@ document.addEventListener(
       return "Past Questions";
 
     case "textbooks":
-      return "Textbook";
+case "textbook":
+  return "Textbook";
 
     case "notes":
       return "Notes";
@@ -436,6 +437,20 @@ document.addEventListener(
         "material-condition",
         material.condition
       );
+      
+      /* =========================
+   TEXTBOOK TYPE
+========================= */
+
+setRow(
+  "textbook-type-row",
+  "material-textbook-type",
+  material.material_type === "digital"
+    ? "Digital"
+    : material.material_type === "physical"
+      ? "Physical"
+      : null
+);
 
 
       /* =========================
@@ -492,7 +507,8 @@ document.addEventListener(
       return "📄";
 
     case "textbooks":
-      return "📚";
+case "textbook":
+  return "📚";
 
     case "handouts":
       return "📑";
@@ -1206,34 +1222,76 @@ async function buyMaterial() {
 
 
 /* =========================
-   CHECK STUDY DATA
+   CHECK PURCHASE TYPE
 ========================= */
 
-const source =
-  purchasedMaterial.source ||
-  material.source ||
-  (
-    material.category === "past_questions" ||
-    material.category === "past-questions"
-      ? "past_questions"
-      : "manual"
+const purchaseType =
+  data.type ||
+  "";
+
+
+/* =========================
+   PHYSICAL TEXTBOOK
+========================= */
+
+if (
+  purchaseType ===
+  "physical_textbook"
+) {
+
+  /*
+   * Physical textbooks do not
+   * contain study data that
+   * needs to be saved locally.
+   */
+
+  account.fcoins =
+    Number(
+      data.fcoins
+    ) || 0;
+
+  localStorage.setItem(
+    "faccount",
+    JSON.stringify(
+      account
+    )
   );
 
 
-if (
-  source === "fstudy_note" ||
-  source === "past_questions"
+  /*
+   * Save the order information
+   * so the order page can open it.
+   */
+
+  localStorage.setItem(
+    "fmarket_current_order",
+    JSON.stringify({
+      order_id:
+        data.order_id,
+
+      material:
+        purchasedMaterial
+    })
+  );
+
+}
+
+
+/* =========================
+   DIGITAL TEXTBOOK
+========================= */
+
+else if (
+  purchaseType ===
+  "digital_textbook"
 ) {
 
   if (
-    purchasedMaterial.note_data ===
-      null ||
-    purchasedMaterial.note_data ===
-      undefined
+    !purchasedMaterial.file_url
   ) {
 
     throw new Error(
-      "Purchase succeeded, but the study data was not returned."
+      "Purchase succeeded, but the textbook file was not returned."
     );
 
   }
@@ -1241,14 +1299,94 @@ if (
 }
 
 
+/* =========================
+   FSTUDY / PAST QUESTIONS
+========================= */
+
+else {
+
+  const source =
+    purchasedMaterial.source ||
+    material.source ||
+    (
+      material.category === "past_questions" ||
+      material.category === "past-questions"
+        ? "past_questions"
+        : "manual"
+    );
+
+
+  if (
+    source === "fstudy_note" ||
+    source === "past_questions"
+  ) {
+
+    if (
+      purchasedMaterial.note_data ===
+        null ||
+      purchasedMaterial.note_data ===
+        undefined
+    ) {
+
+      throw new Error(
+        "Purchase succeeded, but the study data was not returned."
+      );
+
+    }
+
+  }
+
+}
+
+
+
     /* =========================
        SAVE PURCHASE
     ========================= */
 
-    const savedMaterial =
-      savePurchasedMaterial(
-        purchasedMaterial
-      );
+    let savedMaterial = null;
+
+if (
+  data.type ===
+  "physical_textbook"
+) {
+
+  savedMaterial = {
+    type:
+      "physical_textbook",
+
+    orderId:
+      data.order_id,
+
+    data:
+      purchasedMaterial
+  };
+
+}
+
+else if (
+  data.type ===
+  "digital_textbook"
+) {
+
+  savedMaterial = {
+    type:
+      "digital_textbook",
+
+    data:
+      purchasedMaterial
+  };
+
+}
+
+else {
+
+  savedMaterial =
+    savePurchasedMaterial(
+      purchasedMaterial
+    );
+
+}
 
 
     /* =========================
@@ -1290,44 +1428,104 @@ if (
     ========================= */
 
     setTimeout(
-      () => {
+  () => {
 
-        if (
-          savedMaterial.type ===
-          "fstudy_note"
-        ) {
+    /* =========================
+       PHYSICAL TEXTBOOK
+    ========================= */
 
-          window.location.href =
-            "view-note";
+    if (
+      savedMaterial.type ===
+      "physical_textbook"
+    ) {
 
-          return;
+      window.location.href =
+        "/fmarket-orders";
 
-        }
+      return;
 
-
-        if (
-          savedMaterial.type ===
-          "past_questions"
-        ) {
-
-          window.location.href =
-            "view-past-question";
-
-          return;
-
-        }
+    }
 
 
-        /*
-         * Generic FMarket material
-         */
+    /* =========================
+       DIGITAL TEXTBOOK
+    ========================= */
 
-        window.location.href =
-          "fmarket";
+    if (
+      savedMaterial.type ===
+      "digital_textbook"
+    ) {
 
-      },
-      700
-    );
+      /*
+       * Save the textbook so
+       * the viewer can open it.
+       */
+
+      localStorage.setItem(
+        "viewing_textbook",
+        JSON.stringify(
+          savedMaterial.data
+        )
+      );
+
+
+      /*
+       * We'll create this page
+       * next.
+       */
+
+      window.location.href =
+        "/view-textbook";
+
+      return;
+
+    }
+
+
+    /* =========================
+       FSTUDY NOTE
+    ========================= */
+
+    if (
+      savedMaterial.type ===
+      "fstudy_note"
+    ) {
+
+      window.location.href =
+        "view-note";
+
+      return;
+
+    }
+
+
+    /* =========================
+       PAST QUESTIONS
+    ========================= */
+
+    if (
+      savedMaterial.type ===
+      "past_questions"
+    ) {
+
+      window.location.href =
+        "view-past-question";
+
+      return;
+
+    }
+
+
+    /* =========================
+       OTHER
+    ========================= */
+
+    window.location.href =
+      "fmarket";
+
+  },
+  700
+);
 
 
   } catch (error) {
