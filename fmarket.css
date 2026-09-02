@@ -986,3 +986,37 @@ a {
 .share-copy-btn:active {
   transform: scale(0.97);
 }
+
+.product-description-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.product-description {
+  flex: 1;
+  min-width: 0;
+}
+
+.product-owned-badge {
+  flex-shrink: 0;
+
+  padding: 4px 9px;
+
+  border: 1px solid #2563eb;
+
+  border-radius: 8px;
+
+  color: #2563eb;
+
+  background: rgba(37, 99, 235, 0.06);
+
+  font-size: 11px;
+
+  font-weight: 600;
+
+  line-height: 1.2;
+
+  white-space: nowrap;
+}

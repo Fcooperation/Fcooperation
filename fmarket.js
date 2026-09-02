@@ -1119,23 +1119,66 @@ shareButton.addEventListener(
         "Untitled material";
 
 
-      /* =========================
-         DESCRIPTION
-      ========================= */
+     /* =========================
+   DESCRIPTION
+========================= */
 
-      const description =
-        document.createElement(
-          "p"
-        );
+const descriptionRow =
+  document.createElement(
+    "div"
+  );
+
+descriptionRow.className =
+  "product-description-row";
 
 
-      description.className =
-        "product-description";
+const description =
+  document.createElement(
+    "p"
+  );
+
+description.className =
+  "product-description";
+
+description.textContent =
+  material.description ||
+  "No description provided.";
 
 
-      description.textContent =
-        material.description ||
-        "No description provided.";
+/* =========================
+   OWNED BADGE
+========================= */
+
+if (
+  material.owned === true
+) {
+
+  const ownedBadge =
+    document.createElement(
+      "span"
+    );
+
+  ownedBadge.className =
+    "product-owned-badge";
+
+  ownedBadge.textContent =
+    "Owned";
+
+  descriptionRow.appendChild(
+    description
+  );
+
+  descriptionRow.appendChild(
+    ownedBadge
+  );
+
+} else {
+
+  descriptionRow.appendChild(
+    description
+  );
+
+}
 
 
       /* =========================
@@ -1371,8 +1414,8 @@ price.innerHTML = `
       );
 
       content.appendChild(
-        description
-      );
+  descriptionRow
+);
 
       content.appendChild(
         meta
