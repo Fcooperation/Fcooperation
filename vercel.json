@@ -13,10 +13,6 @@
       "destination": "/view-note"
     },
     {
-      "source": "/fmarket",
-      "destination": "/fmarket-buy"
-    },
-    {
       "source": "/:page",
       "destination": "/:page.html"
     }
