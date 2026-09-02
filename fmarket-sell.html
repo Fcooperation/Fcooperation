@@ -245,6 +245,155 @@
 
       </div>
 
+<!-- =========================
+     TEXTBOOK OPTIONS
+========================= -->
+
+<div
+  id="textbook-section"
+  class="textbook-section hidden"
+>
+
+  <div class="textbook-heading">
+
+    <h3>
+      Textbook Type
+    </h3>
+
+    <p>
+      Choose whether you are selling a digital or physical textbook.
+    </p>
+
+  </div>
+
+
+  <!-- TYPE -->
+
+  <div class="textbook-type">
+
+    <button
+      type="button"
+      id="digital-textbook-btn"
+      class="textbook-type-btn active"
+    >
+      <span class="textbook-type-icon">
+        📱
+      </span>
+
+      <span>
+        <strong>
+          Digital
+        </strong>
+
+        <small>
+          Students receive the textbook online.
+        </small>
+      </span>
+
+    </button>
+
+
+    <button
+      type="button"
+      id="physical-textbook-btn"
+      class="textbook-type-btn"
+    >
+      <span class="textbook-type-icon">
+        📚
+      </span>
+
+      <span>
+        <strong>
+          Physical
+        </strong>
+
+        <small>
+          Students receive the actual book.
+        </small>
+      </span>
+
+    </button>
+
+  </div>
+
+
+  <!-- DIGITAL FILE -->
+
+  <div
+    id="digital-textbook-upload"
+    class="textbook-upload"
+  >
+
+    <label
+      for="textbook-file"
+      class="textbook-file-picker"
+    >
+
+      <div class="textbook-file-icon">
+        📄
+      </div>
+
+      <strong>
+        Upload textbook file
+      </strong>
+
+      <small>
+        PDF recommended
+      </small>
+
+      <span
+        id="textbook-file-name"
+        class="textbook-file-name"
+      >
+        No file selected
+      </span>
+
+    </label>
+
+    <input
+      type="file"
+      id="textbook-file"
+      accept=".pdf,.epub,.doc,.docx"
+      hidden
+    >
+
+    <button
+      type="button"
+      id="remove-textbook-file"
+      class="remove-textbook-file hidden"
+    >
+      Remove file
+    </button>
+
+  </div>
+
+
+  <!-- PHYSICAL INFO -->
+
+  <div
+    id="physical-textbook-info"
+    class="physical-textbook-info hidden"
+  >
+
+    <div class="physical-info-icon">
+      📦
+    </div>
+
+    <div>
+
+      <strong>
+        Physical textbook
+      </strong>
+
+      <p>
+        Buyers will contact you for pickup or delivery after purchasing.
+      </p>
+
+    </div>
+
+  </div>
+
+</div>
 
       <!-- DESCRIPTION -->
 

@@ -140,6 +140,56 @@ const noPastQuestions =
       document.getElementById(
         "status"
       );
+      
+      /* =========================
+   TEXTBOOK ELEMENTS
+========================= */
+
+const textbookSection =
+  document.getElementById(
+    "textbook-section"
+  );
+
+const digitalTextbookBtn =
+  document.getElementById(
+    "digital-textbook-btn"
+  );
+
+const physicalTextbookBtn =
+  document.getElementById(
+    "physical-textbook-btn"
+  );
+
+const digitalTextbookUpload =
+  document.getElementById(
+    "digital-textbook-upload"
+  );
+
+const physicalTextbookInfo =
+  document.getElementById(
+    "physical-textbook-info"
+  );
+
+const textbookFile =
+  document.getElementById(
+    "textbook-file"
+  );
+
+const textbookFileName =
+  document.getElementById(
+    "textbook-file-name"
+  );
+
+const removeTextbookFile =
+  document.getElementById(
+    "remove-textbook-file"
+  );
+
+let textbookType =
+  "digital";
+
+let selectedTextbookFile =
+  null;
 
 
     /* =========================
@@ -1668,6 +1718,49 @@ productImage.addEventListener(
 
       }
 
+/* =========================
+   TEXTBOOK VALIDATION
+========================= */
+
+if (
+  categoryInput.value ===
+  "textbook"
+) {
+
+  if (
+    textbookType ===
+    "digital" &&
+    !selectedTextbookFile
+  ) {
+
+    showStatus(
+      "Please upload the digital textbook file.",
+      "error"
+    );
+
+    return false;
+
+  }
+
+
+  if (
+    textbookType ===
+    "physical" &&
+    !conditionInput.value
+  ) {
+
+    showStatus(
+      "Select the physical textbook condition.",
+      "error"
+    );
+
+    conditionInput.focus();
+
+    return false;
+
+  }
+
+}
 
       return true;
 
@@ -1816,6 +1909,264 @@ async function getImageFromDB(
 
 }
 
+/* =========================
+   TEXTBOOK TYPE
+========================= */
+
+function updateTextbookSection() {
+
+  if (
+    categoryInput.value !==
+    "textbook"
+  ) {
+
+    textbookSection.classList.add(
+      "hidden"
+    );
+
+    selectedTextbookFile =
+      null;
+
+    textbookFile.value =
+      "";
+
+    return;
+
+  }
+
+
+  textbookSection.classList.remove(
+    "hidden"
+  );
+
+
+  if (
+    textbookType ===
+    "digital"
+  ) {
+
+    digitalTextbookBtn.classList.add(
+      "active"
+    );
+
+    physicalTextbookBtn.classList.remove(
+      "active"
+    );
+
+    digitalTextbookUpload.classList.remove(
+      "hidden"
+    );
+
+    physicalTextbookInfo.classList.add(
+      "hidden"
+    );
+
+
+    conditionInput.value =
+      "digital";
+
+  } else {
+
+    digitalTextbookBtn.classList.remove(
+      "active"
+    );
+
+    physicalTextbookBtn.classList.add(
+      "active"
+    );
+
+    digitalTextbookUpload.classList.add(
+      "hidden"
+    );
+
+    physicalTextbookInfo.classList.remove(
+      "hidden"
+    );
+
+
+    /*
+     * Physical books use
+     * the normal condition field.
+     */
+    if (
+      conditionInput.value ===
+      "digital"
+    ) {
+
+      conditionInput.value =
+        "";
+
+    }
+
+  }
+
+}
+
+
+/* =========================
+   CATEGORY CHANGE
+========================= */
+
+categoryInput.addEventListener(
+  "change",
+  () => {
+
+    updateTextbookSection();
+
+  }
+);
+
+
+/* =========================
+   DIGITAL
+========================= */
+
+digitalTextbookBtn.addEventListener(
+  "click",
+  () => {
+
+    textbookType =
+      "digital";
+
+    updateTextbookSection();
+
+  }
+);
+
+
+/* =========================
+   PHYSICAL
+========================= */
+
+physicalTextbookBtn.addEventListener(
+  "click",
+  () => {
+
+    textbookType =
+      "physical";
+
+    updateTextbookSection();
+
+  }
+);
+
+
+/* =========================
+   TEXTBOOK FILE
+========================= */
+
+textbookFile.addEventListener(
+  "change",
+  () => {
+
+    const file =
+      textbookFile.files?.[0];
+
+
+    if (!file) {
+
+      selectedTextbookFile =
+        null;
+
+      textbookFileName.textContent =
+        "No file selected";
+
+      removeTextbookFile.classList.add(
+        "hidden"
+      );
+
+      return;
+
+    }
+
+
+    /*
+     * Maximum file size:
+     * 100MB
+     */
+
+    const maxSize =
+      100 *
+      1024 *
+      1024;
+
+
+    if (
+      file.size >
+      maxSize
+    ) {
+
+      showStatus(
+        "Textbook file is too large. Maximum size is 100MB.",
+        "error"
+      );
+
+      textbookFile.value =
+        "";
+
+      selectedTextbookFile =
+        null;
+
+      textbookFileName.textContent =
+        "No file selected";
+
+      removeTextbookFile.classList.add(
+        "hidden"
+      );
+
+      return;
+
+    }
+
+
+    selectedTextbookFile =
+      file;
+
+
+    textbookFileName.textContent =
+      `${file.name} • ${Math.round(
+        file.size / 1024 / 1024
+      )}MB`;
+
+
+    removeTextbookFile.classList.remove(
+      "hidden"
+    );
+
+
+    showStatus(
+      "Textbook file selected.",
+      "success"
+    );
+
+  }
+);
+
+
+/* =========================
+   REMOVE TEXTBOOK FILE
+========================= */
+
+removeTextbookFile.addEventListener(
+  "click",
+  () => {
+
+    selectedTextbookFile =
+      null;
+
+    textbookFile.value =
+      "";
+
+    textbookFileName.textContent =
+      "No file selected";
+
+    removeTextbookFile.classList.add(
+      "hidden"
+    );
+
+  }
+);
+
     /* =========================
        LIST ITEM
     ========================= */
@@ -1913,6 +2264,43 @@ formData.append(
   "condition",
   conditionInput.value
 );
+
+/* =========================
+   TEXTBOOK DATA
+========================= */
+
+if (
+  categoryInput.value ===
+  "textbook"
+) {
+
+  formData.append(
+    "material_type",
+    textbookType
+  );
+
+
+  /*
+   * Digital textbook:
+   * send the actual file.
+   */
+
+  if (
+    textbookType ===
+    "digital" &&
+    selectedTextbookFile
+  ) {
+
+    formData.append(
+      "textbook_file",
+      selectedTextbookFile,
+      selectedTextbookFile.name
+    );
+
+  }
+
+}
+
 
 let materialSource =
   "manual";
