@@ -87,41 +87,142 @@ document.addEventListener(
     }
 
 
-    /* =========================
-       GET MATERIAL
-    ========================= */
+/* =========================
+   GET MATERIAL
+========================= */
 
-    let material = null;
+let material = null;
+
+
+/* =========================
+   GET URL ITEM ID
+========================= */
+
+const urlParams =
+  new URLSearchParams(
+    window.location.search
+  );
+
+const sharedItemId =
+  urlParams.get("id");
+
+
+/* =========================
+   LOAD MATERIAL
+========================= */
+
+async function loadMaterial() {
+
+  /* =========================
+     SHARED LINK
+  ========================= */
+
+  if (sharedItemId) {
 
     try {
 
-      material =
-        JSON.parse(
-          localStorage.getItem(
-            "fmarket_material"
-          )
+      const response =
+        await fetch(
+          "https://fweb-backend.onrender.com/get-fmarket-item",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+
+            body: JSON.stringify({
+              itemId:
+                sharedItemId
+            })
+          }
         );
 
-    } catch {
 
-      material = null;
-
-    }
+      const data =
+        await response.json();
 
 
-    /* =========================
-       CHECK MATERIAL
-    ========================= */
+      if (
+        !response.ok ||
+        !data.success ||
+        !data.material
+      ) {
 
-    if (!material) {
+        throw new Error(
+          data.error ||
+          "This material could not be found."
+        );
 
-      showError(
-        "No material was selected."
+      }
+
+
+      material =
+        data.material;
+
+
+      /* =========================
+         SAVE FOR NORMAL FLOW
+      ========================= */
+
+      localStorage.setItem(
+        "fmarket_material",
+        JSON.stringify(
+          material
+        )
       );
+
 
       return;
 
+    } catch (error) {
+
+      showError(
+        error.message ||
+        "Unable to load this material."
+      );
+
+      throw error;
+
     }
+
+  }
+
+
+  /* =========================
+     NORMAL FMARKET NAVIGATION
+  ========================= */
+
+  try {
+
+    material =
+      JSON.parse(
+        localStorage.getItem(
+          "fmarket_material"
+        )
+      );
+
+  } catch {
+
+    material = null;
+
+  }
+
+
+  if (!material) {
+
+    showError(
+      "No material was selected."
+    );
+
+    throw new Error(
+      "No material selected."
+    );
+
+  }
+
+}
 
 
     /* =========================
@@ -387,6 +488,26 @@ case "textbook":
         "bottom-price"
       ).textContent =
         priceText;
+        
+        /* =========================
+   BUY / OPEN BUTTON
+========================= */
+
+if (
+  buyBtn
+) {
+
+  const price =
+    Number(
+      material.price
+    ) || 0;
+
+  buyBtn.textContent =
+    price === 0
+      ? "Open"
+      : "Buy Now";
+
+}
 
 
       /* =========================
@@ -1629,11 +1750,20 @@ else {
     );
 
 
-    /* =========================
-       INITIAL RENDER
-    ========================= */
+/* =========================
+   INITIAL LOAD
+========================= */
+
+loadMaterial()
+  .then(() => {
 
     renderMaterial();
 
+  })
+  .catch(() => {
+
+    /* Error already displayed */
+
+  });
   }
 );
