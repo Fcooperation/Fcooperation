@@ -521,3 +521,70 @@ body {
   transform: scale(0.98);
 
 }
+
+/* =========================
+   SECTION TITLE
+========================= */
+
+.past-question-section-title {
+  margin-top: 24px;
+  margin-bottom: 12px;
+
+  font-size: 16px;
+  font-weight: 800;
+
+  color: #111;
+}
+
+
+/* =========================
+   ACTION BUTTONS
+========================= */
+
+.past-question-actions {
+  display: flex;
+  gap: 10px;
+
+  margin-bottom: 20px;
+
+  flex-wrap: wrap;
+}
+
+
+.past-question-action {
+  flex: 1;
+
+  min-width: 160px;
+
+  border: none;
+
+  border-radius: 12px;
+
+  padding: 13px 16px;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.15s ease,
+    opacity 0.15s ease;
+}
+
+
+.past-question-action:active {
+  transform: scale(0.97);
+}
+
+
+.past-question-action.upload {
+  background: #111;
+  color: white;
+}
+
+
+.past-question-action.market {
+  background: #f1f1f1;
+  color: #111;
+}
