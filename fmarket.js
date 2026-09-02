@@ -834,49 +834,159 @@ function openShareBox(material) {
 }
 
 /* =========================
-   CHECK LOCAL FMarket ITEM
+   CHECK LOCAL OWNERSHIP
 ========================= */
 
 function isLocallyOwnedMaterial(
   material
 ) {
 
-  try {
-
-    const stored =
-      localStorage.getItem(
-        "fmarket_material"
-      );
-
-    if (!stored) {
-      return false;
-    }
-
-    const localMaterial =
-      JSON.parse(
-        stored
-      );
-
-    if (
-      !localMaterial ||
-      !localMaterial.id ||
-      !material ||
-      !material.id
-    ) {
-      return false;
-    }
-
-    return String(
-      localMaterial.id
-    ) === String(
-      material.id
-    );
-
-  } catch {
+  if (
+    !material ||
+    !material.id
+  ) {
 
     return false;
 
   }
+
+
+  const materialId =
+    String(
+      material.id
+    );
+
+
+  /* =========================
+     GET CURRENT ACCOUNT
+  ========================= */
+
+  let currentAccount = {};
+
+  try {
+
+    currentAccount =
+      JSON.parse(
+        localStorage.getItem(
+          "faccount"
+        )
+      ) || {};
+
+  } catch {
+
+    currentAccount = {};
+
+  }
+
+
+  if (
+    !currentAccount.id
+  ) {
+
+    return false;
+
+  }
+
+
+  /* =========================
+     CHECK FSTUDY NOTES
+  ========================= */
+
+  try {
+
+    const notesKey =
+      `myfstudynote_${currentAccount.id}`;
+
+    const notes =
+      JSON.parse(
+        localStorage.getItem(
+          notesKey
+        )
+      ) || [];
+
+
+    if (
+      Array.isArray(
+        notes
+      )
+    ) {
+
+      const ownedNote =
+        notes.some(
+          note =>
+            String(
+              note?.fmarket_id
+            ) === materialId
+        );
+
+
+      if (
+        ownedNote
+      ) {
+
+        return true;
+
+      }
+
+    }
+
+  } catch {
+
+    /* Ignore invalid notes data */
+
+  }
+
+
+  /* =========================
+     CHECK PAST QUESTIONS
+  ========================= */
+
+  try {
+
+    const questionsKey =
+      `my_past_questions_${currentAccount.id}`;
+
+    const questions =
+      JSON.parse(
+        localStorage.getItem(
+          questionsKey
+        )
+      ) || [];
+
+
+    if (
+      Array.isArray(
+        questions
+      )
+    ) {
+
+      const ownedQuestions =
+        questions.some(
+          question =>
+            String(
+              question?.fmarket_id
+            ) === materialId
+        );
+
+
+      if (
+        ownedQuestions
+      ) {
+
+        return true;
+
+      }
+
+    }
+
+  } catch {
+
+    /* Ignore invalid questions data */
+
+  }
+
+
+  return false;
 
 }
 
