@@ -88,6 +88,41 @@ document.addEventListener(
       document.getElementById(
         "status"
       );
+      
+      const deliveryModal =
+  document.getElementById(
+    "delivery-modal"
+  );
+
+const closeDeliveryModal =
+  document.getElementById(
+    "close-delivery-modal"
+  );
+
+const pickupOption =
+  document.getElementById(
+    "pickup-option"
+  );
+
+const deliveryOption =
+  document.getElementById(
+    "delivery-option"
+  );
+
+const deliveryLocationInput =
+  document.getElementById(
+    "delivery-location-input"
+  );
+
+const saveDeliveryBtn =
+  document.getElementById(
+    "save-delivery-btn"
+  );
+  
+  let currentDeliveryOrder = null;
+
+let selectedDeliveryMethod =
+  "pickup";
 
 
     /* =========================
@@ -533,9 +568,32 @@ document.addEventListener(
 
 
         <div
-          class="order-actions"
-          data-order-id="${escapeHtml(order.id)}"
-        ></div>
+  class="order-actions"
+  data-order-id="${escapeHtml(order.id)}"
+></div>
+
+
+${
+  role === "buyer" &&
+  (
+    order.status === "pending"
+  )
+    ? `
+      <button
+        class="delivery-edit-btn"
+        type="button"
+        data-delivery-order="${escapeHtml(order.id)}"
+      >
+        ${
+          order.delivery_method &&
+          order.delivery_location
+            ? "Edit Delivery Details"
+            : "Set Delivery Details"
+        }
+      </button>
+    `
+    : ""
+}
 
       `;
 
@@ -544,6 +602,27 @@ document.addEventListener(
         card.querySelector(
           ".order-actions"
         );
+        
+        const deliveryButton =
+  card.querySelector(
+    "[data-delivery-order]"
+  );
+
+
+if (deliveryButton) {
+
+  deliveryButton.addEventListener(
+    "click",
+    () => {
+
+      openDeliveryModal(
+        order
+      );
+
+    }
+  );
+
+}
 
 
       renderActions(
@@ -709,6 +788,251 @@ document.addEventListener(
 
     }
 
+/* =========================
+   DELIVERY DETAILS
+========================= */
+
+function openDeliveryModal(order) {
+
+  currentDeliveryOrder =
+    order;
+
+
+  selectedDeliveryMethod =
+    order.delivery_method ||
+    "pickup";
+
+
+  deliveryLocationInput.value =
+    order.delivery_location ||
+    "";
+
+
+  updateDeliveryMethodUI();
+
+
+  deliveryModal.classList.remove(
+    "hidden"
+  );
+
+}
+
+
+function closeDeliveryModalWindow() {
+
+  deliveryModal.classList.add(
+    "hidden"
+  );
+
+  currentDeliveryOrder =
+    null;
+
+}
+
+
+function updateDeliveryMethodUI() {
+
+  pickupOption.classList.toggle(
+    "active",
+    selectedDeliveryMethod ===
+      "pickup"
+  );
+
+
+  deliveryOption.classList.toggle(
+    "active",
+    selectedDeliveryMethod ===
+      "delivery"
+  );
+
+}
+
+
+pickupOption.addEventListener(
+  "click",
+  () => {
+
+    selectedDeliveryMethod =
+      "pickup";
+
+    updateDeliveryMethodUI();
+
+  }
+);
+
+
+deliveryOption.addEventListener(
+  "click",
+  () => {
+
+    selectedDeliveryMethod =
+      "delivery";
+
+    updateDeliveryMethodUI();
+
+  }
+);
+
+
+closeDeliveryModal.addEventListener(
+  "click",
+  closeDeliveryModalWindow
+);
+
+
+deliveryModal.addEventListener(
+  "click",
+  event => {
+
+    if (
+      event.target ===
+      deliveryModal
+    ) {
+
+      closeDeliveryModalWindow();
+
+    }
+
+  }
+);
+
+
+saveDeliveryBtn.addEventListener(
+  "click",
+  saveDeliveryDetails
+);
+
+
+async function saveDeliveryDetails() {
+
+  if (
+    !currentDeliveryOrder
+  ) {
+
+    return;
+
+  }
+
+
+  const location =
+    deliveryLocationInput.value
+      .trim();
+
+
+  if (!location) {
+
+    showStatus(
+      "Please enter a pickup or delivery location."
+    );
+
+    return;
+
+  }
+
+
+  if (
+    location.length < 3
+  ) {
+
+    showStatus(
+      "Please enter a valid location."
+    );
+
+    return;
+
+  }
+
+
+  saveDeliveryBtn.disabled =
+    true;
+
+  saveDeliveryBtn.textContent =
+    "Saving...";
+
+
+  try {
+
+    const response =
+      await fetch(
+        API_URL,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+
+            action:
+              "set_delivery",
+
+            userId:
+              account.id,
+
+            orderId:
+              currentDeliveryOrder.id,
+
+            deliveryMethod:
+              selectedDeliveryMethod,
+
+            deliveryLocation:
+              location
+
+          })
+
+        }
+      );
+
+
+    const data =
+      await response.json();
+
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+
+      throw new Error(
+        data.error ||
+        "Unable to save delivery details."
+      );
+
+    }
+
+
+    closeDeliveryModalWindow();
+
+
+    showStatus(
+      data.message ||
+      "Delivery details saved."
+    );
+
+
+    await loadOrders();
+
+
+  } catch (error) {
+
+    showStatus(
+      error.message ||
+      "Unable to save delivery details."
+    );
+
+  } finally {
+
+    saveDeliveryBtn.disabled =
+      false;
+
+    saveDeliveryBtn.textContent =
+      "Save Delivery Details";
+
+  }
+
+}
 
     /* =========================
        UPDATE ORDER

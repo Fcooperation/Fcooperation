@@ -192,6 +192,126 @@
 
     </main>
 
+<!-- =========================
+     DELIVERY MODAL
+========================= -->
+
+<div
+  id="delivery-modal"
+  class="delivery-modal hidden"
+>
+
+  <div class="delivery-modal-box">
+
+    <div class="delivery-modal-header">
+
+      <div>
+        <h2>Delivery Details</h2>
+
+        <p>
+          Choose how you want to receive this textbook.
+        </p>
+      </div>
+
+      <button
+        id="close-delivery-modal"
+        class="close-delivery-modal"
+        type="button"
+        aria-label="Close"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <!-- DELIVERY METHOD -->
+
+    <div class="delivery-method-section">
+
+      <label>
+        Delivery method
+      </label>
+
+      <div class="delivery-method-options">
+
+        <button
+          id="pickup-option"
+          class="delivery-method-option active"
+          type="button"
+        >
+
+          <span class="delivery-option-icon">
+            📍
+          </span>
+
+          <span>
+            <strong>Pickup</strong>
+            <small>I'll pick it up</small>
+          </span>
+
+        </button>
+
+
+        <button
+          id="delivery-option"
+          class="delivery-method-option"
+          type="button"
+        >
+
+          <span class="delivery-option-icon">
+            🚚
+          </span>
+
+          <span>
+            <strong>Delivery</strong>
+            <small>Have it delivered</small>
+          </span>
+
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- LOCATION -->
+
+    <div class="delivery-location-section">
+
+      <label
+        for="delivery-location-input"
+      >
+        Pickup / Delivery Location
+      </label>
+
+      <textarea
+        id="delivery-location-input"
+        rows="3"
+        maxlength="300"
+        placeholder="Enter the location where you want to receive the textbook..."
+      ></textarea>
+
+      <small class="delivery-location-hint">
+        Example: EBSU Perm Site, Block B hostel
+      </small>
+
+    </div>
+
+
+    <!-- SAVE -->
+
+    <button
+      id="save-delivery-btn"
+      class="save-delivery-btn"
+      type="button"
+    >
+      Save Delivery Details
+    </button>
+
+  </div>
+
+</div>
 
     <!-- =========================
          STATUS
