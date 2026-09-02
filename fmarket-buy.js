@@ -534,6 +534,26 @@ function savePurchasedMaterial(
 
 
   /* =========================
+     CHECK NOTE DATA
+  ========================= */
+
+  const originalNote =
+    purchasedMaterial?.note_data;
+
+
+  if (
+    !originalNote ||
+    typeof originalNote !== "object"
+  ) {
+
+    throw new Error(
+      "This material does not contain a valid FStudy note."
+    );
+
+  }
+
+
+  /* =========================
      ACCOUNT-SPECIFIC KEY
   ========================= */
 
@@ -621,41 +641,19 @@ function savePurchasedMaterial(
 
 
   /* =========================
-     CREATE NOTE OBJECT
+     CREATE FROM ORIGINAL
+     FSTUDY NOTE DATA
   ========================= */
 
   const materialToSave = {
 
     /*
-     * Original FMarket data
+     * IMPORTANT:
+     * Start with the REAL
+     * FStudy note JSON.
      */
 
-    ...purchasedMaterial,
-
-
-    /*
-     * FStudy-compatible fields
-     */
-
-    title:
-      purchasedMaterial.title ||
-      "FMarket Material",
-
-    topic:
-      purchasedMaterial.title ||
-      "FMarket Material",
-
-    university:
-      purchasedMaterial.university ||
-      "",
-
-    course:
-      purchasedMaterial.course ||
-      "",
-
-    uploaded_by:
-      purchasedMaterial.seller_name ||
-      "FMarket Seller",
+    ...originalNote,
 
 
     /*
@@ -673,7 +671,19 @@ function savePurchasedMaterial(
       null,
 
     purchased_at:
-      new Date().toISOString()
+      new Date().toISOString(),
+
+
+    /*
+     * FMarket image
+     *
+     * This is the image uploaded
+     * with the marketplace listing.
+     */
+
+    fmarket_image_url:
+      purchasedMaterial.image_url ||
+      null
 
   };
 
@@ -815,8 +825,28 @@ function savePurchasedMaterial(
         ========================= */
 
         const purchasedMaterial =
-          data.material ||
-          material;
+  data.material;
+
+if (
+  !purchasedMaterial
+) {
+
+  throw new Error(
+    "Purchase succeeded, but the material data was not returned."
+  );
+
+}
+
+
+if (
+  !purchasedMaterial.note_data
+) {
+
+  throw new Error(
+    "Purchase succeeded, but the FStudy note data was not returned."
+  );
+
+}
 
 
         /*

@@ -1292,6 +1292,24 @@ formData.append(
 
 
 /*
+ * Send the complete FStudy
+ * note JSON when an FStudy
+ * note was selected.
+ */
+
+if (selectedNote) {
+
+  formData.append(
+    "note_data",
+    JSON.stringify(
+      selectedNote
+    )
+  );
+
+}
+
+
+/*
  * Send the selected image.
  */
 
