@@ -323,6 +323,23 @@ function containsEnglish(text) {
     ========================= */
 
     async function loadNote() {
+      
+/* =========================
+   FMARKET MATERIAL
+========================= */
+
+if (
+  viewingNote &&
+  viewingNote.source === "fmarket"
+) {
+
+  renderFMarketMaterial(
+    viewingNote
+  );
+
+  return;
+
+}
 
   try {
 
