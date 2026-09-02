@@ -389,22 +389,44 @@ document.addEventListener(
     ========================= */
 
     function createProductCard(
-      material
-    ) {
+  material
+) {
 
-      const article =
-        document.createElement(
-          "article"
-        );
-
-
-      article.className =
-        "product-card";
+  const article =
+    document.createElement(
+      "article"
+    );
 
 
-      article.dataset.category =
-        material.category ||
-        "";
+  article.className =
+    "product-card";
+
+
+  /* =========================
+     OPEN MATERIAL
+  ========================= */
+
+  article.addEventListener(
+    "click",
+    () => {
+
+      localStorage.setItem(
+        "fmarket_material",
+        JSON.stringify(
+          material
+        )
+      );
+
+      window.location.href =
+        "/fmarket-buy";
+
+    }
+  );
+
+
+  article.dataset.category =
+    material.category ||
+    "";
 
 
       /* =========================
@@ -695,29 +717,58 @@ document.addEventListener(
 
 
       messageButton.addEventListener(
-        "click",
-        event => {
+  "click",
+  event => {
 
-          event.stopPropagation();
+    /* =========================
+       STOP CARD CLICK
+    ========================= */
 
-
-          localStorage.setItem(
-            "fmarket_chat_seller",
-            material.seller_id || ""
-          );
+    event.stopPropagation();
 
 
-          localStorage.setItem(
-            "fmarket_chat_seller_name",
-            material.seller_name || ""
-          );
+    /* =========================
+       CHECK SELLER
+    ========================= */
+
+    if (
+      !material.seller_id
+    ) {
+
+      return;
+
+    }
 
 
-          window.location.href =
-            "/fmarket-inbox";
+    /* =========================
+       SAVE SELLER ID
+    ========================= */
 
-        }
-      );
+    localStorage.setItem(
+      "chatting_with",
+      material.seller_id
+    );
+
+
+    /* =========================
+       OPTIONAL SELLER NAME
+    ========================= */
+
+    localStorage.setItem(
+      "fmarket_chat_seller_name",
+      material.seller_name || ""
+    );
+
+
+    /* =========================
+       OPEN CHAT
+    ========================= */
+
+    window.location.href =
+      "/chat";
+
+  }
+);
 
 
       footer.appendChild(
