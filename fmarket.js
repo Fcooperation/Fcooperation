@@ -520,29 +520,35 @@ function updateBalanceDisplay(
    SHARE BOX
 ========================= */
 
-function openShareBox(
-  material
-) {
+function openShareBox(material) {
 
-  /*
-   * Remove existing share box
-   */
+  /* =========================
+     REMOVE EXISTING BOX
+  ========================= */
 
   const existing =
     document.getElementById(
-      "fmarket-share-box"
+      "fmarket-share-overlay"
     );
 
   if (existing) {
-
     existing.remove();
-
   }
 
 
-  /*
-   * Create overlay
-   */
+  /* =========================
+     SHARE URL
+  ========================= */
+
+  const shareUrl =
+    `${window.location.origin}/fmarket?id=${encodeURIComponent(
+      material.id
+    )}`;
+
+
+  /* =========================
+     OVERLAY
+  ========================= */
 
   const overlay =
     document.createElement(
@@ -556,9 +562,9 @@ function openShareBox(
     "fmarket-share-overlay";
 
 
-  /*
-   * Create box
-   */
+  /* =========================
+     SHARE BOX
+  ========================= */
 
   const box =
     document.createElement(
@@ -572,89 +578,148 @@ function openShareBox(
     "fmarket-share-box";
 
 
-  /*
-   * Generate share URL
-   */
+  /* =========================
+     HEADER
+  ========================= */
 
-  const shareUrl =
-    `${window.location.origin}/fmarket?id=${encodeURIComponent(
-      material.id
-    )}`;
+  const header =
+    document.createElement(
+      "div"
+    );
 
-
-  box.innerHTML = `
-
-    <div class="share-box-header">
-
-      <strong>
-        Share this item
-      </strong>
-
-      <button
-        type="button"
-        class="share-close-btn"
-        aria-label="Close"
-      >
-        ×
-      </button>
-
-    </div>
+  header.className =
+    "share-box-header";
 
 
-    <div class="share-link-row">
+  const title =
+    document.createElement(
+      "strong"
+    );
 
-      <input
-        type="text"
-        class="share-link-input"
-        value="${escapeHtml(shareUrl)}"
-        readonly
-      >
+  title.textContent =
+    "Share this item";
 
-      <button
-        type="button"
-        class="share-copy-btn"
-      >
-        Copy
-      </button>
 
-    </div>
+  const closeButton =
+    document.createElement(
+      "button"
+    );
 
-  `;
+  closeButton.type =
+    "button";
 
+  closeButton.className =
+    "share-close-btn";
+
+  closeButton.setAttribute(
+    "aria-label",
+    "Close"
+  );
+
+  closeButton.textContent =
+    "×";
+
+
+  header.appendChild(
+    title
+  );
+
+  header.appendChild(
+    closeButton
+  );
+
+
+  /* =========================
+     LINK SECTION
+  ========================= */
+
+  const linkRow =
+    document.createElement(
+      "div"
+    );
+
+  linkRow.className =
+    "share-link-row";
+
+
+  const input =
+    document.createElement(
+      "input"
+    );
+
+  input.type =
+    "text";
+
+  input.className =
+    "share-link-input";
+
+  input.value =
+    shareUrl;
+
+  input.readOnly =
+    true;
+
+
+  const copyButton =
+    document.createElement(
+      "button"
+    );
+
+  copyButton.type =
+    "button";
+
+  copyButton.className =
+    "share-copy-btn";
+
+  copyButton.textContent =
+    "Copy";
+
+
+  linkRow.appendChild(
+    input
+  );
+
+  linkRow.appendChild(
+    copyButton
+  );
+
+
+  /* =========================
+     BUILD BOX
+  ========================= */
+
+  box.appendChild(
+    header
+  );
+
+  box.appendChild(
+    linkRow
+  );
 
   overlay.appendChild(
     box
   );
-
 
   document.body.appendChild(
     overlay
   );
 
 
-  /*
-   * Close button
-   */
-
-  const closeButton =
-    box.querySelector(
-      ".share-close-btn"
-    );
-
+  /* =========================
+     CLOSE
+  ========================= */
 
   closeButton.addEventListener(
     "click",
     () => {
-
       overlay.remove();
-
     }
   );
 
 
-  /*
-   * Click outside box
-   */
+  /* =========================
+     CLICK OUTSIDE
+  ========================= */
 
   overlay.addEventListener(
     "click",
@@ -664,24 +729,16 @@ function openShareBox(
         event.target ===
         overlay
       ) {
-
         overlay.remove();
-
       }
 
     }
   );
 
 
-  /*
-   * Copy button
-   */
-
-  const copyButton =
-    box.querySelector(
-      ".share-copy-btn"
-    );
-
+  /* =========================
+     COPY
+  ========================= */
 
   copyButton.addEventListener(
     "click",
@@ -689,9 +746,25 @@ function openShareBox(
 
       try {
 
-        await navigator.clipboard.writeText(
-          shareUrl
-        );
+        if (
+          navigator.clipboard &&
+          navigator.clipboard.writeText
+        ) {
+
+          await navigator.clipboard.writeText(
+            shareUrl
+          );
+
+        } else {
+
+          input.focus();
+          input.select();
+
+          document.execCommand(
+            "copy"
+          );
+
+        }
 
 
         copyButton.textContent =
@@ -702,8 +775,7 @@ function openShareBox(
           () => {
 
             if (
-              copyButton
-                .isConnected
+              copyButton.isConnected
             ) {
 
               copyButton.textContent =
@@ -712,32 +784,17 @@ function openShareBox(
             }
 
           },
-          2000
+          1800
         );
 
 
       } catch {
 
-        /*
-         * Fallback for browsers
-         * where clipboard API
-         * isn't available.
-         */
-
-        const input =
-          box.querySelector(
-            ".share-link-input"
-          );
-
+        input.focus();
         input.select();
 
-        document.execCommand(
-          "copy"
-        );
-
-
         copyButton.textContent =
-          "Copied!";
+          "Select & copy";
 
       }
 
@@ -745,12 +802,16 @@ function openShareBox(
   );
 
 
-  /*
-   * Optional native share
-   *
-   * You can later add a
-   * native Share button here.
-   */
+  /* =========================
+     SELECT LINK
+  ========================= */
+
+  input.addEventListener(
+    "click",
+    () => {
+      input.select();
+    }
+  );
 
 }
 
