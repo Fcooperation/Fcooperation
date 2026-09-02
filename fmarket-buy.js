@@ -190,31 +190,32 @@ document.addEventListener(
     ========================= */
 
     function formatCategory(
-      category
-    ) {
+  category
+) {
 
-      switch (
-        category
-      ) {
+  switch (
+    category
+  ) {
 
-        case "past-questions":
-          return "Past Questions";
+    case "past-questions":
+    case "past_questions":
+      return "Past Questions";
 
-        case "textbooks":
-          return "Textbook";
+    case "textbooks":
+      return "Textbook";
 
-        case "notes":
-          return "Notes";
+    case "notes":
+      return "Notes";
 
-        case "handouts":
-          return "Handout";
+    case "handouts":
+      return "Handout";
 
-        default:
-          return "Material";
+    default:
+      return "Material";
 
-      }
+  }
 
-    }
+}
 
 
     /* =========================
@@ -476,31 +477,32 @@ document.addEventListener(
     ========================= */
 
     function getCategoryIcon(
-      category
-    ) {
+  category
+) {
 
-      switch (
-        category
-      ) {
+  switch (
+    category
+  ) {
 
-        case "notes":
-          return "📝";
+    case "notes":
+      return "📝";
 
-        case "past-questions":
-          return "📄";
+    case "past-questions":
+    case "past_questions":
+      return "📄";
 
-        case "textbooks":
-          return "📚";
+    case "textbooks":
+      return "📚";
 
-        case "handouts":
-          return "📑";
+    case "handouts":
+      return "📑";
 
-        default:
-          return "🛍️";
+    default:
+      return "🛍️";
 
-      }
+  }
 
-    }
+}
 
 
 /* =========================
@@ -508,460 +510,781 @@ document.addEventListener(
 ========================= */
 
 function savePurchasedMaterial(
-purchasedMaterial
+  purchasedMaterial
 ) {
 
-/* =========================
-GET ACCOUNT
-========================= */
+  /* =========================
+     GET ACCOUNT
+  ========================= */
 
-let currentAccount = {};
+  let currentAccount = {};
 
-try {
+  try {
 
-currentAccount =
-  JSON.parse(
-    localStorage.getItem(
-      "faccount"
-    )
-  ) || {};
+    currentAccount =
+      JSON.parse(
+        localStorage.getItem(
+          "faccount"
+        )
+      ) || {};
 
-} catch {
+  } catch {
 
-currentAccount = {};
-
-}
-
-/* =========================
-CHECK NOTE DATA
-========================= */
-
-const originalNote =
-purchasedMaterial?.note_data;
-
-if (
-!originalNote ||
-typeof originalNote !== "object"
-) {
-
-throw new Error(
-  "This material does not contain a valid FStudy note."
-);
-
-}
-
-/* =========================
-ACCOUNT-SPECIFIC KEY
-========================= */
-
-let notesKey =
-"myfstudynote";
-
-if (
-currentAccount.id
-) {
-
-notesKey =
-  `myfstudynote_${currentAccount.id}`;
-
-}
-
-/* =========================
-GET EXISTING NOTES
-========================= */
-
-let myNotes = [];
-
-const existing =
-localStorage.getItem(
-notesKey
-);
-
-if (existing) {
-
-try {
-
-  const parsed =
-    JSON.parse(
-      existing
-    );
-
-  if (
-    Array.isArray(
-      parsed
-    )
-  ) {
-
-    myNotes =
-      parsed;
+    currentAccount = {};
 
   }
 
-} catch {
 
-  myNotes = [];
+  /* =========================
+     GET SOURCE
+  ========================= */
 
-}
-
-}
-
-/* =========================
-CHECK DUPLICATE
-========================= */
-
-const existingNote =
-myNotes.find(
-note =>
-note.fmarket_id ===
-purchasedMaterial.id
-);
-
-/* =========================
-OPEN EXISTING PURCHASE
-========================= */
-
-if (existingNote) {
-
-localStorage.setItem(
-  "viewing_note",
-  JSON.stringify(
-    existingNote
-  )
-);
-
-return existingNote;
-
-}
-
-/* =========================
-PRESERVE FSTUDY IMAGES
-FROM CLOUDINARY
-========================= */
-
-let noteFiles = [];
-
-if (
-Array.isArray(
-originalNote.files
-)
-) {
-
-noteFiles =
-  originalNote.files.map(
-    file => ({
-
-      /*
-       * Permanent Cloudinary URL
-       * uploaded by FMarket seller.
-       */
-
-      id:
-        file?.id ||
-        null,
-
-      name:
-        file?.name ||
-        "Study image",
-
-      type:
-        file?.type ||
-        "image/jpeg",
-
-      size:
-        file?.size ||
-        0,
-
-      url:
-        file?.url ||
-        null
-
-    })
-  );
-
-}
-
-/* =========================
-CREATE PURCHASED NOTE
-========================= */
-
-const materialToSave = {
-
-/*
- * Start with the complete
- * FStudy note JSON.
- */
-
-...originalNote,
+  const source =
+    purchasedMaterial?.source ||
+    material?.source ||
+    "manual";
 
 
-/*
- * Replace files with the
- * permanent marketplace
- * image references.
- */
+  /* =========================
+     GET NOTE DATA
+     BOTH FSTUDY NOTES AND
+     PAST QUESTIONS USE THIS
+  ========================= */
 
-files:
-  noteFiles,
+  const originalData =
+    purchasedMaterial?.note_data;
 
 
-/* =========================
-   FMARKET INFORMATION
-========================= */
+  if (
+    !originalData ||
+    typeof originalData !== "object"
+  ) {
 
-fmarket_id:
-  purchasedMaterial.id,
+    throw new Error(
+      "This material does not contain valid study data."
+    );
 
-source:
-  "fmarket",
+  }
 
-owner_id:
-  currentAccount.id ||
-  null,
 
-purchased_at:
-  new Date().toISOString(),
+  /* ==================================================
+     FSTUDY NOTE
+  ================================================== */
 
-fmarket_image_url:
-  purchasedMaterial.image_url ||
-  null
+  if (
+    source === "fstudy_note"
+  ) {
 
-};
+    /* =========================
+       ACCOUNT-SPECIFIC KEY
+    ========================= */
 
-/* =========================
-SAVE TO MY NOTES
-========================= */
+    let notesKey =
+      "myfstudynote";
 
-myNotes.push(
-materialToSave
-);
+    if (
+      currentAccount.id
+    ) {
 
-localStorage.setItem(
-notesKey,
-JSON.stringify(
-myNotes
-)
-);
+      notesKey =
+        `myfstudynote_${currentAccount.id}`;
 
-/* =========================
-SAVE CURRENT NOTE
-========================= */
-
-localStorage.setItem(
-"viewing_note",
-JSON.stringify(
-materialToSave
-)
-);
-
-return materialToSave;
-
-}
+    }
 
 
     /* =========================
-       BUY MATERIAL
+       GET EXISTING NOTES
     ========================= */
 
-    async function buyMaterial() {
+    let myNotes = [];
 
-      if (
-        !material ||
-        !material.id
-      ) {
-
-        showStatus(
-          "This material is unavailable.",
-          "error"
-        );
-
-        return;
-
-      }
-
-
-      if (
-        !account.id
-      ) {
-
-        showStatus(
-          "Please log in before buying a material.",
-          "error"
-        );
-
-        return;
-
-      }
-
-
-      buyBtn.disabled =
-        true;
-
-
-      showStatus(
-        "Processing purchase...",
-        "info"
+    const existing =
+      localStorage.getItem(
+        notesKey
       );
 
+    if (existing) {
 
       try {
 
-        /* =========================
-           BACKEND PURCHASE
-        ========================= */
-
-        const response =
-          await fetch(
-            API_URL,
-            {
-              method: "POST",
-
-              headers: {
-                "Content-Type":
-                  "application/json"
-              },
-
-              body:
-                JSON.stringify({
-
-                  userId:
-                    account.id,
-
-                  materialId:
-                    material.id
-
-                })
-
-            }
+        const parsed =
+          JSON.parse(
+            existing
           );
-
-
-        const data =
-          await response.json();
-
-
-        /* =========================
-           BACKEND FAILURE
-        ========================= */
 
         if (
-          !response.ok ||
-          !data.success
+          Array.isArray(
+            parsed
+          )
         ) {
 
-          throw new Error(
-            data.error ||
-            "Purchase failed."
-          );
+          myNotes =
+            parsed;
 
         }
 
+      } catch {
 
-        /* =========================
-           SUCCESS ONLY
-           SAVE MATERIAL
-        ========================= */
-
-        const purchasedMaterial =
-  data.material;
-
-if (
-  !purchasedMaterial
-) {
-
-  throw new Error(
-    "Purchase succeeded, but the material data was not returned."
-  );
-
-}
-
-
-if (
-  !purchasedMaterial.note_data
-) {
-
-  throw new Error(
-    "Purchase succeeded, but the FStudy note data was not returned."
-  );
-
-}
-
-
-        /*
-         * Save ONLY after the
-         * backend says success.
-         */
-
-        const savedMaterial =
-          savePurchasedMaterial(
-            purchasedMaterial
-          );
-
-
-        /* =========================
-           UPDATE ACCOUNT FCOINS
-        ========================= */
-
-        if (
-          data.fcoins !==
-          undefined
-        ) {
-
-          account.fcoins =
-            Number(
-              data.fcoins
-            ) || 0;
-
-          localStorage.setItem(
-            "faccount",
-            JSON.stringify(
-              account
-            )
-          );
-
-        }
-
-
-        /* =========================
-           SUCCESS
-        ========================= */
-
-        showStatus(
-          "Purchase successful! Opening material...",
-          "success"
-        );
-
-
-        /*
-         * Small delay so the user
-         * can see the success state.
-         */
-
-        setTimeout(
-          () => {
-
-            window.location.href =
-              "view-note";
-
-          },
-          700
-        );
-
-
-      } catch (error) {
-
-        showStatus(
-          error.message ||
-          "Unable to complete purchase.",
-          "error"
-        );
-
-
-        buyBtn.disabled =
-          false;
+        myNotes = [];
 
       }
 
     }
+
+
+    /* =========================
+       CHECK DUPLICATE
+    ========================= */
+
+    const existingNote =
+      myNotes.find(
+        note =>
+          note.fmarket_id ===
+          purchasedMaterial.id
+      );
+
+
+    /* =========================
+       OPEN EXISTING PURCHASE
+    ========================= */
+
+    if (
+      existingNote
+    ) {
+
+      localStorage.setItem(
+        "viewing_note",
+        JSON.stringify(
+          existingNote
+        )
+      );
+
+      return {
+        type: "fstudy_note",
+        data: existingNote
+      };
+
+    }
+
+
+    /* =========================
+       PRESERVE FSTUDY IMAGES
+    ========================= */
+
+    let noteFiles = [];
+
+    if (
+      Array.isArray(
+        originalData.files
+      )
+    ) {
+
+      noteFiles =
+        originalData.files.map(
+          file => ({
+
+            id:
+              file?.id ||
+              null,
+
+            name:
+              file?.name ||
+              "Study image",
+
+            type:
+              file?.type ||
+              "image/jpeg",
+
+            size:
+              file?.size ||
+              0,
+
+            url:
+              file?.url ||
+              null
+
+          })
+        );
+
+    }
+
+
+    /* =========================
+       CREATE PURCHASED NOTE
+    ========================= */
+
+    const materialToSave = {
+
+      ...originalData,
+
+      files:
+        noteFiles,
+
+      fmarket_id:
+        purchasedMaterial.id,
+
+      source:
+        "fmarket",
+
+      owner_id:
+        currentAccount.id ||
+        null,
+
+      purchased_at:
+        new Date().toISOString(),
+
+      fmarket_image_url:
+        purchasedMaterial.image_url ||
+        null
+
+    };
+
+
+    /* =========================
+       SAVE NOTE
+    ========================= */
+
+    myNotes.push(
+      materialToSave
+    );
+
+    localStorage.setItem(
+      notesKey,
+      JSON.stringify(
+        myNotes
+      )
+    );
+
+
+    /* =========================
+       CURRENT NOTE
+    ========================= */
+
+    localStorage.setItem(
+      "viewing_note",
+      JSON.stringify(
+        materialToSave
+      )
+    );
+
+
+    return {
+      type: "fstudy_note",
+      data: materialToSave
+    };
+
+  }
+
+
+  /* ==================================================
+     PAST QUESTIONS
+  ================================================== */
+
+  if (
+    source === "past_questions"
+  ) {
+
+    /* =========================
+       ACCOUNT-SPECIFIC KEY
+    ========================= */
+
+    let questionsKey =
+      "my_past_questions";
+
+    if (
+      currentAccount.id
+    ) {
+
+      questionsKey =
+        `my_past_questions_${currentAccount.id}`;
+
+    }
+
+
+    /* =========================
+       GET EXISTING QUESTIONS
+    ========================= */
+
+    let myQuestions = [];
+
+    const existing =
+      localStorage.getItem(
+        questionsKey
+      );
+
+    if (existing) {
+
+      try {
+
+        const parsed =
+          JSON.parse(
+            existing
+          );
+
+        if (
+          Array.isArray(
+            parsed
+          )
+        ) {
+
+          myQuestions =
+            parsed;
+
+        }
+
+      } catch {
+
+        myQuestions = [];
+
+      }
+
+    }
+
+
+    /* =========================
+       NORMALIZE QUESTION DATA
+    ========================= */
+
+    let questions = [];
+
+
+    /*
+     * Past Questions may have been
+     * stored directly as an array.
+     */
+
+    if (
+      Array.isArray(
+        originalData
+      )
+    ) {
+
+      questions =
+        originalData;
+
+    }
+
+    /*
+     * Or the data may contain a
+     * questions array.
+     */
+
+    else if (
+      Array.isArray(
+        originalData.questions
+      )
+    ) {
+
+      questions =
+        originalData.questions;
+
+    }
+
+    else {
+
+      /*
+       * Single question object.
+       */
+
+      questions = [
+        originalData
+      ];
+
+    }
+
+
+    if (
+      questions.length === 0
+    ) {
+
+      throw new Error(
+        "This Past Questions material contains no questions."
+      );
+
+    }
+
+
+    /* =========================
+       ADD PURCHASE METADATA
+    ========================= */
+
+    const purchasedQuestions =
+      questions.map(
+        question => ({
+
+          ...question,
+
+          fmarket_id:
+            purchasedMaterial.id,
+
+          source:
+            "fmarket",
+
+          owner_id:
+            currentAccount.id ||
+            null,
+
+          purchased_at:
+            new Date().toISOString(),
+
+          fmarket_image_url:
+            purchasedMaterial.image_url ||
+            null
+
+        })
+      );
+
+
+    /* =========================
+       CHECK IF ALREADY OWNED
+    ========================= */
+
+    const alreadyOwned =
+      myQuestions.some(
+        question =>
+          question.fmarket_id ===
+          purchasedMaterial.id
+      );
+
+
+    /* =========================
+       SAVE QUESTIONS
+    ========================= */
+
+    if (
+      !alreadyOwned
+    ) {
+
+      myQuestions.push(
+        ...purchasedQuestions
+      );
+
+      localStorage.setItem(
+        questionsKey,
+        JSON.stringify(
+          myQuestions
+        )
+      );
+
+    }
+
+
+    /* =========================
+       SAVE CURRENT BATCH
+    ========================= */
+
+    const questionsToView =
+      alreadyOwned
+        ? myQuestions.filter(
+            question =>
+              question.fmarket_id ===
+              purchasedMaterial.id
+          )
+        : purchasedQuestions;
+
+
+    localStorage.setItem(
+      "viewing_past_questions_batch",
+      JSON.stringify(
+        questionsToView
+      )
+    );
+
+
+    /*
+     * Also save the first question
+     * for compatibility with the
+     * existing Past Question page.
+     */
+
+    if (
+      questionsToView.length > 0
+    ) {
+
+      localStorage.setItem(
+        "viewing_past_question",
+        JSON.stringify(
+          questionsToView[0]
+        )
+      );
+
+    }
+
+
+    return {
+      type: "past_questions",
+      data: questionsToView
+    };
+
+  }
+
+
+  /* ==================================================
+     OTHER FMARKET MATERIAL
+  ================================================== */
+
+  return {
+    type: "other",
+    data: purchasedMaterial
+  };
+
+}
+
+
+/* =========================
+   BUY MATERIAL
+========================= */
+
+async function buyMaterial() {
+
+  if (
+    !material ||
+    !material.id
+  ) {
+
+    showStatus(
+      "This material is unavailable.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  if (
+    !account.id
+  ) {
+
+    showStatus(
+      "Please log in before buying a material.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  buyBtn.disabled =
+    true;
+
+
+  showStatus(
+    "Processing purchase...",
+    "info"
+  );
+
+
+  try {
+
+    /* =========================
+       BACKEND PURCHASE
+    ========================= */
+
+    const response =
+      await fetch(
+        API_URL,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify({
+
+              userId:
+                account.id,
+
+              materialId:
+                material.id
+
+            })
+
+        }
+      );
+
+
+    const data =
+      await response.json();
+
+
+    /* =========================
+       BACKEND FAILURE
+    ========================= */
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+
+      throw new Error(
+        data.error ||
+        "Purchase failed."
+      );
+
+    }
+
+
+    /* =========================
+       GET PURCHASED MATERIAL
+    ========================= */
+
+    const purchasedMaterial =
+      data.material;
+
+
+    if (
+      !purchasedMaterial
+    ) {
+
+      throw new Error(
+        "Purchase succeeded, but the material data was not returned."
+      );
+
+    }
+
+
+    /* =========================
+       GET SOURCE
+    ========================= */
+
+    const source =
+      purchasedMaterial.source ||
+      material.source ||
+      "manual";
+
+
+    /* =========================
+       NOTE DATA REQUIRED FOR
+       FSTUDY + PAST QUESTIONS
+    ========================= */
+
+    if (
+      (
+        source === "fstudy_note" ||
+        source === "past_questions"
+      ) &&
+      (
+        !purchasedMaterial.note_data ||
+        typeof purchasedMaterial.note_data !== "object"
+      )
+    ) {
+
+      throw new Error(
+        "Purchase succeeded, but the study data was not returned."
+      );
+
+    }
+
+
+    /* =========================
+       SAVE PURCHASE
+    ========================= */
+
+    const savedMaterial =
+      savePurchasedMaterial(
+        purchasedMaterial
+      );
+
+
+    /* =========================
+       UPDATE ACCOUNT FCOINS
+    ========================= */
+
+    if (
+      data.fcoins !==
+      undefined
+    ) {
+
+      account.fcoins =
+        Number(
+          data.fcoins
+        ) || 0;
+
+      localStorage.setItem(
+        "faccount",
+        JSON.stringify(
+          account
+        )
+      );
+
+    }
+
+
+    /* =========================
+       SUCCESS MESSAGE
+    ========================= */
+
+    showStatus(
+      "Purchase successful! Opening material...",
+      "success"
+    );
+
+
+    /* =========================
+       OPEN CORRECT MATERIAL
+    ========================= */
+
+    setTimeout(
+      () => {
+
+        if (
+          savedMaterial.type ===
+          "fstudy_note"
+        ) {
+
+          window.location.href =
+            "view-note";
+
+          return;
+
+        }
+
+
+        if (
+          savedMaterial.type ===
+          "past_questions"
+        ) {
+
+          window.location.href =
+            "view-past-question";
+
+          return;
+
+        }
+
+
+        /*
+         * Generic FMarket material
+         */
+
+        window.location.href =
+          "fmarket";
+
+      },
+      700
+    );
+
+
+  } catch (error) {
+
+    showStatus(
+      error.message ||
+      "Unable to complete purchase.",
+      "error"
+    );
+
+
+    buyBtn.disabled =
+      false;
+
+  }
+
+}
 
 
     /* =========================
