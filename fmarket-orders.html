@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>My Orders - FMarket</title>
+
+  <link
+    rel="stylesheet"
+    href="fmarket-orders.css"
+  >
+
+</head>
+
+<body>
+
+  <div class="app">
+
+    <!-- =========================
+         TOP BAR
+    ========================== -->
+
+    <header class="topbar">
+
+      <button
+        id="back-btn"
+        class="back-btn"
+        type="button"
+      >
+        ←
+      </button>
+
+      <div class="topbar-title">
+
+        <h1>My Orders</h1>
+
+        <span>FMARKET</span>
+
+      </div>
+
+    </header>
+
+
+    <!-- =========================
+         LOADING
+    ========================== -->
+
+    <div
+      id="loading"
+      class="loading"
+    >
+      Loading orders...
+    </div>
+
+
+    <!-- =========================
+         ERROR
+    ========================== -->
+
+    <section
+      id="error"
+      class="error-box hidden"
+    >
+
+      <div class="error-icon">
+        ⚠️
+      </div>
+
+      <h2>Unable to load orders</h2>
+
+      <p id="error-message">
+        Something went wrong.
+      </p>
+
+      <button
+        id="retry-btn"
+        type="button"
+      >
+        Try Again
+      </button>
+
+    </section>
+
+
+    <!-- =========================
+         ORDER PAGE
+    ========================== -->
+
+    <main
+      id="orders-page"
+      class="hidden"
+    >
+
+      <!-- =========================
+           TABS
+      ========================== -->
+
+      <div class="order-tabs">
+
+        <button
+          id="buying-tab"
+          class="order-tab active"
+          type="button"
+        >
+          Buying
+        </button>
+
+        <button
+          id="selling-tab"
+          class="order-tab"
+          type="button"
+        >
+          Selling
+        </button>
+
+      </div>
+
+
+      <!-- =========================
+           BUYING
+      ========================== -->
+
+      <section
+        id="buying-section"
+        class="orders-section"
+      >
+
+        <div
+          id="buying-orders"
+          class="orders-list"
+        ></div>
+
+        <div
+          id="no-buying-orders"
+          class="empty-state hidden"
+        >
+
+          <div class="empty-icon">
+            📚
+          </div>
+
+          <h2>No orders yet</h2>
+
+          <p>
+            Physical textbook orders you make will appear here.
+          </p>
+
+        </div>
+
+      </section>
+
+
+      <!-- =========================
+           SELLING
+      ========================== -->
+
+      <section
+        id="selling-section"
+        class="orders-section hidden"
+      >
+
+        <div
+          id="selling-orders"
+          class="orders-list"
+        ></div>
+
+        <div
+          id="no-selling-orders"
+          class="empty-state hidden"
+        >
+
+          <div class="empty-icon">
+            📦
+          </div>
+
+          <h2>No sales yet</h2>
+
+          <p>
+            Orders for your physical textbooks will appear here.
+          </p>
+
+        </div>
+
+      </section>
+
+    </main>
+
+
+    <!-- =========================
+         STATUS
+    ========================== -->
+
+    <div
+      id="status"
+      class="status hidden"
+    ></div>
+
+  </div>
+
+
+  <script src="fmarket-orders.js"></script>
+
+</body>
+
+</html>
