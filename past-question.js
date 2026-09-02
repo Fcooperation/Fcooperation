@@ -104,13 +104,6 @@ document.addEventListener(
 
 
     /* =========================
-       TOP ACTIONS
-    ========================= */
-
-    createActionButtons();
-
-
-    /* =========================
        LOAD EVERYTHING
     ========================= */
 
@@ -135,7 +128,7 @@ document.addEventListener(
 
 
       /* =========================
-         LOAD BACKEND QUESTIONS
+         BACKEND
       ========================= */
 
       try {
@@ -143,10 +136,12 @@ document.addEventListener(
         const formData =
           new FormData();
 
+
         formData.append(
           "university",
           studyingUni
         );
+
 
         formData.append(
           "course",
@@ -198,13 +193,12 @@ document.addEventListener(
             ? data.years
             : [];
 
-
-      } catch (err) {
+      } catch {
 
         /*
           Backend failure should not
-          prevent My Past Questions
-          from being displayed.
+          stop local questions from
+          appearing.
         */
 
         backendYears = [];
@@ -213,16 +207,17 @@ document.addEventListener(
 
 
       /* =========================
-         RENDER BACKEND
+         BACKEND SECTION
       ========================= */
 
       if (
-        backendYears.length
+        backendYears.length > 0
       ) {
 
         renderSectionTitle(
           "Past Questions"
         );
+
 
         renderBackendQuestions(
           backendYears
@@ -232,24 +227,21 @@ document.addEventListener(
 
 
       /* =========================
-         LOAD MY QUESTIONS
+         MY PAST QUESTIONS
       ========================= */
 
       const myQuestions =
         getMyPastQuestions();
 
 
-      /* =========================
-         RENDER MY QUESTIONS
-      ========================= */
-
       if (
-        myQuestions.length
+        myQuestions.length > 0
       ) {
 
         renderSectionTitle(
           "My Past Questions"
         );
+
 
         renderMyPastQuestions(
           myQuestions
@@ -259,7 +251,7 @@ document.addEventListener(
 
 
       /* =========================
-         FINISH LOADING
+         EMPTY
       ========================= */
 
       loading.classList.add(
@@ -268,8 +260,8 @@ document.addEventListener(
 
 
       if (
-        !backendYears.length &&
-        !myQuestions.length
+        backendYears.length === 0 &&
+        myQuestions.length === 0
       ) {
 
         empty.classList.remove(
@@ -278,16 +270,24 @@ document.addEventListener(
 
       }
 
+
+      /* =========================
+         ACTION BUTTONS
+      ========================= */
+
+      createActionButtons();
+
     }
 
 
     /* =========================
-       GET MY QUESTIONS
+       GET MY PAST QUESTIONS
     ========================= */
 
     function getMyPastQuestions() {
 
       let account = {};
+
 
       try {
 
@@ -305,98 +305,161 @@ document.addEventListener(
       }
 
 
-      let key =
-        "my_past_questions";
+      /*
+        If logged in, use the account-specific
+        storage key.
+
+        Otherwise use the general key.
+      */
+
+      let keys = [];
 
 
       if (
         account.id
       ) {
 
-        key =
-          `my_past_questions_${account.id}`;
-
-      }
-
-
-      const saved =
-        localStorage.getItem(
-          key
+        keys.push(
+          `my_past_questions_${account.id}`
         );
 
-
-      if (!saved) {
-
-        return [];
-
       }
 
 
-      try {
-
-        const parsed =
-          JSON.parse(
-            saved
-          );
+      keys.push(
+        "my_past_questions"
+      );
 
 
-        if (
-          !Array.isArray(
-            parsed
-          )
-        ) {
+      let allQuestions = [];
 
-          return [];
+
+      /* =========================
+         READ STORAGE
+      ========================= */
+
+      keys.forEach(
+        key => {
+
+          const saved =
+            localStorage.getItem(
+              key
+            );
+
+
+          if (!saved) {
+
+            return;
+
+          }
+
+
+          try {
+
+            const parsed =
+              JSON.parse(
+                saved
+              );
+
+
+            if (
+              !Array.isArray(
+                parsed
+              )
+            ) {
+
+              return;
+
+            }
+
+
+            allQuestions.push(
+              ...parsed
+            );
+
+
+          } catch {
+
+            /*
+              Ignore invalid storage.
+            */
+
+          }
 
         }
+      );
 
 
-        /*
-          Only show questions belonging
-          to the currently selected
-          university and course.
-        */
+      /* =========================
+         REMOVE DUPLICATES
+      ========================= */
 
-        return parsed.filter(
-          question => {
-
-            const sameUniversity =
-              String(
-                question.university ||
-                  ""
-              ).trim()
-              .toLowerCase() ===
-              String(
-                studyingUni
-              ).trim()
-              .toLowerCase();
+      const unique =
+        new Map();
 
 
-            const sameCourse =
-              String(
-                question.course ||
-                  ""
-              ).trim()
-              .toLowerCase() ===
-              String(
-                studying
-              ).trim()
-              .toLowerCase();
+      allQuestions.forEach(
+        question => {
+
+          if (
+            !question ||
+            typeof question !==
+              "object"
+          ) {
+
+            return;
+
+          }
 
 
-            return (
-              sameUniversity &&
-              sameCourse
+          const id =
+            question.id;
+
+
+          if (
+            id
+          ) {
+
+            unique.set(
+              id,
+              question
+            );
+
+          } else {
+
+            /*
+              Keep questions that somehow
+              have no ID as well.
+            */
+
+            const fallbackId =
+              JSON.stringify(
+                question
+              );
+
+
+            unique.set(
+              fallbackId,
+              question
             );
 
           }
-        );
 
-      } catch {
+        }
+      );
 
-        return [];
 
-      }
+      /*
+        NO UNIVERSITY FILTER.
+        NO COURSE FILTER.
+
+        Every saved past question
+        is displayed.
+      */
+
+      return Array.from(
+        unique.values()
+      );
 
     }
 
@@ -414,11 +477,14 @@ document.addEventListener(
           "div"
         );
 
+
       section.className =
         "past-question-section-title";
 
+
       section.textContent =
         text;
+
 
       list.appendChild(
         section
@@ -443,9 +509,9 @@ document.addEventListener(
               item.year,
               item.question_count,
               item.questions || [],
-              item,
-              false
+              item
             );
+
 
           list.appendChild(
             card
@@ -464,11 +530,6 @@ document.addEventListener(
     function renderMyPastQuestions(
       questions
     ) {
-
-      /*
-        Group individual questions
-        into years.
-      */
 
       const grouped =
         {};
@@ -500,9 +561,9 @@ document.addEventListener(
       );
 
 
-      /*
-        Sort years newest first.
-      */
+      /* =========================
+         SORT YEARS
+      ========================= */
 
       const years =
         Object.keys(
@@ -518,25 +579,30 @@ document.addEventListener(
 
 
             if (
-              Number.isNaN(yearA) ||
-              Number.isNaN(yearB)
+              !Number.isNaN(yearA) &&
+              !Number.isNaN(yearB)
             ) {
 
-              return String(b)
-                .localeCompare(
-                  String(a)
-                );
+              return (
+                yearB -
+                yearA
+              );
 
             }
 
 
-            return (
-              yearB - yearA
-            );
+            return String(b)
+              .localeCompare(
+                String(a)
+              );
 
           }
         );
 
+
+      /* =========================
+         CREATE CARDS
+      ========================= */
 
       years.forEach(
         year => {
@@ -554,8 +620,7 @@ document.addEventListener(
                 year,
                 questions:
                   yearQuestions
-              },
-              true
+              }
             );
 
 
@@ -577,8 +642,7 @@ document.addEventListener(
       year,
       questionCount,
       questions,
-      originalItem,
-      isLocal
+      originalItem
     ) {
 
       const card =
@@ -586,18 +650,20 @@ document.addEventListener(
           "div"
         );
 
+
       card.className =
         "past-question-card";
 
 
       /* =========================
-         CARD INFORMATION
+         INFORMATION
       ========================= */
 
       const cardInfo =
         document.createElement(
           "div"
         );
+
 
       cardInfo.className =
         "past-question-info";
@@ -608,8 +674,10 @@ document.addEventListener(
           "div"
         );
 
+
       yearElement.className =
         "year";
+
 
       yearElement.textContent =
         year ||
@@ -621,8 +689,10 @@ document.addEventListener(
           "div"
         );
 
+
       count.className =
         "question-count";
+
 
       count.textContent =
         `${questionCount || 0} questions`;
@@ -631,6 +701,7 @@ document.addEventListener(
       cardInfo.appendChild(
         yearElement
       );
+
 
       cardInfo.appendChild(
         count
@@ -646,6 +717,7 @@ document.addEventListener(
           "div"
         );
 
+
       menuWrapper.className =
         "card-menu";
 
@@ -655,14 +727,18 @@ document.addEventListener(
           "button"
         );
 
+
       menuBtn.type =
         "button";
+
 
       menuBtn.className =
         "card-menu-btn";
 
+
       menuBtn.textContent =
         "⋮";
+
 
       menuBtn.setAttribute(
         "aria-label",
@@ -679,6 +755,7 @@ document.addEventListener(
           "div"
         );
 
+
       dropdown.className =
         "card-dropdown hidden";
 
@@ -688,11 +765,14 @@ document.addEventListener(
           "button"
         );
 
+
       shareBtn.type =
         "button";
 
+
       shareBtn.className =
         "card-dropdown-item";
+
 
       shareBtn.textContent =
         "Share";
@@ -707,13 +787,14 @@ document.addEventListener(
         menuBtn
       );
 
+
       menuWrapper.appendChild(
         dropdown
       );
 
 
       /* =========================
-         OPEN MENU
+         MENU
       ========================= */
 
       menuBtn.addEventListener(
@@ -763,9 +844,11 @@ document.addEventListener(
 
           event.stopPropagation();
 
+
           dropdown.classList.add(
             "hidden"
           );
+
 
           openShareInterface(
             originalItem
@@ -776,12 +859,13 @@ document.addEventListener(
 
 
       /* =========================
-         CARD LAYOUT
+         CARD
       ========================= */
 
       card.appendChild(
         cardInfo
       );
+
 
       card.appendChild(
         menuWrapper
@@ -789,7 +873,7 @@ document.addEventListener(
 
 
       /* =========================
-         OPEN QUESTIONS
+         OPEN
       ========================= */
 
       card.addEventListener(
@@ -804,7 +888,9 @@ document.addEventListener(
               : [];
 
 
-          if (!batch.length) {
+          if (
+            batch.length === 0
+          ) {
 
             return;
 
@@ -836,11 +922,6 @@ document.addEventListener(
             studying
           );
 
-
-          /*
-            Also save the batch used by
-            view-past-question.js.
-          */
 
           localStorage.setItem(
             "viewing_past_questions_batch",
@@ -876,17 +957,39 @@ document.addEventListener(
 
     function createActionButtons() {
 
+      /*
+        Remove an existing action
+        container first.
+
+        This prevents duplicates if
+        the function runs again.
+      */
+
+      const oldActions =
+        document.querySelector(
+          ".past-question-actions"
+        );
+
+
+      if (oldActions) {
+
+        oldActions.remove();
+
+      }
+
+
       const container =
         document.createElement(
           "div"
         );
+
 
       container.className =
         "past-question-actions";
 
 
       /* =========================
-         UPLOAD BUTTON
+         UPLOAD
       ========================= */
 
       const uploadBtn =
@@ -894,11 +997,14 @@ document.addEventListener(
           "button"
         );
 
+
       uploadBtn.type =
         "button";
 
+
       uploadBtn.className =
         "past-question-action upload";
+
 
       uploadBtn.textContent =
         "Upload Past Questions";
@@ -916,7 +1022,7 @@ document.addEventListener(
 
 
       /* =========================
-         MARKET BUTTON
+         FMARKET
       ========================= */
 
       const marketBtn =
@@ -924,11 +1030,14 @@ document.addEventListener(
           "button"
         );
 
+
       marketBtn.type =
         "button";
 
+
       marketBtn.className =
         "past-question-action market";
+
 
       marketBtn.textContent =
         "Explore Other Materials";
@@ -945,9 +1054,14 @@ document.addEventListener(
       );
 
 
+      /* =========================
+         APPEND
+      ========================= */
+
       container.appendChild(
         uploadBtn
       );
+
 
       container.appendChild(
         marketBtn
@@ -955,13 +1069,12 @@ document.addEventListener(
 
 
       /*
-        Put buttons directly before
-        the question list.
+        Put the buttons AFTER
+        everything in the list.
       */
 
-      list.parentNode.insertBefore(
-        container,
-        list
+      list.parentNode.appendChild(
+        container
       );
 
     }
@@ -980,6 +1093,7 @@ document.addEventListener(
           "div"
         );
 
+
       overlay.className =
         "share-overlay";
 
@@ -988,6 +1102,7 @@ document.addEventListener(
         document.createElement(
           "div"
         );
+
 
       sheet.className =
         "share-sheet";
@@ -1002,6 +1117,7 @@ document.addEventListener(
           "div"
         );
 
+
       header.className =
         "share-header";
 
@@ -1010,6 +1126,7 @@ document.addEventListener(
         document.createElement(
           "h2"
         );
+
 
       shareTitle.textContent =
         "Share Past Question";
@@ -1020,11 +1137,14 @@ document.addEventListener(
           "button"
         );
 
+
       closeBtn.type =
         "button";
 
+
       closeBtn.className =
         "share-close-btn";
+
 
       closeBtn.textContent =
         "×";
@@ -1033,6 +1153,7 @@ document.addEventListener(
       header.appendChild(
         shareTitle
       );
+
 
       header.appendChild(
         closeBtn
@@ -1048,6 +1169,7 @@ document.addEventListener(
           "p"
         );
 
+
       description.className =
         "share-description";
 
@@ -1058,7 +1180,7 @@ document.addEventListener(
 
 
       description.textContent =
-        `${studyingUni} • ${studying} • ${itemYear}`;
+        `${item?.university || studyingUni} • ${item?.course || studying} • ${itemYear}`;
 
 
       /* =========================
@@ -1069,6 +1191,7 @@ document.addEventListener(
         document.createElement(
           "div"
         );
+
 
       linkBox.className =
         "share-link-box";
@@ -1100,11 +1223,14 @@ document.addEventListener(
           "button"
         );
 
+
       copyBtn.type =
         "button";
 
+
       copyBtn.className =
         "share-copy-btn";
+
 
       copyBtn.textContent =
         "Copy Link";
@@ -1151,18 +1277,23 @@ document.addEventListener(
                 "input"
               );
 
+
             input.value =
               link;
+
 
             document.body.appendChild(
               input
             );
 
+
             input.select();
+
 
             document.execCommand(
               "copy"
             );
+
 
             input.remove();
 
@@ -1196,11 +1327,14 @@ document.addEventListener(
           "button"
         );
 
+
       nativeShareBtn.type =
         "button";
 
+
       nativeShareBtn.className =
         "share-native-btn";
+
 
       nativeShareBtn.textContent =
         "Share";
@@ -1225,10 +1359,10 @@ document.addEventListener(
               await navigator.share({
 
                 title:
-                  `${studying} Past Questions - ${itemYear}`,
+                  `${item?.course || studying} Past Questions - ${itemYear}`,
 
                 text:
-                  `Check out these ${studying} past questions from ${studyingUni} (${itemYear}).`,
+                  `Check out these past questions from ${item?.university || studyingUni} (${itemYear}).`,
 
                 url:
                   link
@@ -1252,6 +1386,7 @@ document.addEventListener(
                 .writeText(
                   link
                 );
+
 
               nativeShareBtn.textContent =
                 "Link Copied!";
@@ -1277,17 +1412,21 @@ document.addEventListener(
         header
       );
 
+
       sheet.appendChild(
         description
       );
+
 
       sheet.appendChild(
         linkBox
       );
 
+
       sheet.appendChild(
         copyBtn
       );
+
 
       sheet.appendChild(
         nativeShareBtn
@@ -1349,13 +1488,16 @@ document.addEventListener(
         new URLSearchParams({
 
           university:
+            item?.university ||
             studyingUni,
 
           course:
+            item?.course ||
             studying,
 
           year:
-            item.year
+            item?.year ||
+            ""
 
         });
 
