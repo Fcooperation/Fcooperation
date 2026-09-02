@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Upload Past Question</title>
+
+  <link
+    rel="stylesheet"
+    href="upload-past-question.css"
+  >
+
+</head>
+
+<body>
+
+  <header class="topbar">
+
+    <button
+      id="back-btn"
+      class="back-btn"
+      type="button"
+      aria-label="Go back"
+    >
+      ←
+    </button>
+
+    <div class="topbar-title">
+      Upload Past Question
+    </div>
+
+  </header>
+
+
+  <main class="page">
+
+    <section class="intro">
+
+      <h1>
+        Add Past Question
+      </h1>
+
+      <p>
+        Enter the question manually or upload an image and let FAI create the structured question.
+      </p>
+
+    </section>
+
+
+    <!-- =========================
+         QUESTION INFORMATION
+    ========================== -->
+
+    <section class="form-card">
+
+      <div class="form-group">
+
+        <label for="university">
+          University
+        </label>
+
+        <input
+          id="university"
+          type="text"
+          placeholder="e.g. EBSU"
+        >
+
+      </div>
+
+
+      <div class="form-row">
+
+        <div class="form-group">
+
+          <label for="course">
+            Course
+          </label>
+
+          <input
+            id="course"
+            type="text"
+            placeholder="e.g. MTH 103"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="year">
+            Year
+          </label>
+
+          <input
+            id="year"
+            type="number"
+            placeholder="e.g. 2025"
+            min="0"
+          >
+
+        </div>
+
+      </div>
+
+
+      <div class="form-row">
+
+        <div class="form-group">
+
+          <label for="session">
+            Session
+          </label>
+
+          <input
+            id="session"
+            type="text"
+            placeholder="e.g. First Semester"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="difficulty">
+            Difficulty
+          </label>
+
+          <select id="difficulty">
+
+            <option value="easy">
+              Easy
+            </option>
+
+            <option value="medium">
+              Medium
+            </option>
+
+            <option value="hard">
+              Hard
+            </option>
+
+          </select>
+
+        </div>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="topic">
+          Topic
+        </label>
+
+        <input
+          id="topic"
+          type="text"
+          placeholder="e.g. Coordinate Geometry"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="instructor">
+          Instructor
+        </label>
+
+        <input
+          id="instructor"
+          type="text"
+          placeholder="Optional"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="question">
+          Question
+        </label>
+
+        <textarea
+          id="question"
+          rows="6"
+          placeholder="Enter the question here..."
+        ></textarea>
+
+      </div>
+
+
+      <!-- =========================
+           IMAGE UPLOAD
+      ========================== -->
+
+      <div class="form-group">
+
+        <label>
+          Question Image
+        </label>
+
+        <label
+          for="files"
+          class="file-drop"
+          id="file-drop"
+        >
+
+          <div class="upload-icon">
+            +
+          </div>
+
+          <div class="upload-title">
+            Upload question image
+          </div>
+
+          <div class="upload-subtitle">
+            PNG, JPG, JPEG or WebP
+          </div>
+
+          <input
+            id="files"
+            type="file"
+            accept="image/*"
+            multiple
+            hidden
+          >
+
+        </label>
+
+        <div
+          id="file-count"
+          class="file-count"
+        >
+          0 / 20
+        </div>
+
+        <div
+          id="file-list"
+          class="file-list"
+        ></div>
+
+      </div>
+
+
+      <!-- =========================
+           GENERATE
+      ========================== -->
+
+      <button
+        id="generate-btn"
+        class="primary-btn"
+        type="button"
+      >
+        Generate Past Question
+      </button>
+
+
+      <!-- =========================
+           STATUS
+      ========================== -->
+
+      <div
+        id="status"
+        class="status hidden"
+      ></div>
+
+    </section>
+
+
+    <!-- =========================
+         PREVIEW
+    ========================== -->
+
+    <section
+      id="preview-card"
+      class="preview-card hidden"
+    >
+
+      <div class="preview-header">
+
+        <h2>
+          Generated Question
+        </h2>
+
+      </div>
+
+      <pre
+        id="preview"
+        class="preview"
+      ></pre>
+
+
+      <button
+        id="save-btn"
+        class="primary-btn"
+        type="button"
+      >
+        Save & View Question
+      </button>
+
+    </section>
+
+  </main>
+
+
+  <script src="config.js"></script>
+
+  <script src="upload-past-question.js"></script>
+
+</body>
+
+</html>
