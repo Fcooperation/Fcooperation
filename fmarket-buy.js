@@ -677,12 +677,14 @@ function savePurchasedMaterial(
   ========================= */
 
   const category =
-    String(
-      purchasedMaterial?.category ||
-      material?.category ||
-      ""
-    ).toLowerCase()
-     .trim();
+  String(
+    purchasedMaterial?.category ||
+    material?.category ||
+    ""
+  )
+    .toLowerCase()
+    .trim()
+    .replace(/[\s-]+/g, "_");
 
 
   /* =========================
@@ -1853,16 +1855,16 @@ else {
 
 
         if (
-          savedMaterial.type ===
-          "fstudy_note"
-        ) {
+  savedMaterial.type ===
+  "note"
+) {
 
-          window.location.href =
-            "/view-note";
+  window.location.href =
+    "/view-note";
 
-          return;
+  return;
 
-        }
+}
 
 
         if (
