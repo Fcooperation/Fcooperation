@@ -508,215 +508,252 @@ document.addEventListener(
 ========================= */
 
 function savePurchasedMaterial(
-  purchasedMaterial
+purchasedMaterial
 ) {
 
-  /* =========================
-     GET ACCOUNT
-  ========================= */
+/* =========================
+GET ACCOUNT
+========================= */
 
-  let currentAccount = {};
+let currentAccount = {};
 
-  try {
+try {
 
-    currentAccount =
-      JSON.parse(
-        localStorage.getItem(
-          "faccount"
-        )
-      ) || {};
-
-  } catch {
-
-    currentAccount = {};
-
-  }
-
-
-  /* =========================
-     CHECK NOTE DATA
-  ========================= */
-
-  const originalNote =
-    purchasedMaterial?.note_data;
-
-
-  if (
-    !originalNote ||
-    typeof originalNote !== "object"
-  ) {
-
-    throw new Error(
-      "This material does not contain a valid FStudy note."
-    );
-
-  }
-
-
-  /* =========================
-     ACCOUNT-SPECIFIC KEY
-  ========================= */
-
-  let notesKey =
-    "myfstudynote";
-
-  if (
-    currentAccount.id
-  ) {
-
-    notesKey =
-      `myfstudynote_${currentAccount.id}`;
-
-  }
-
-
-  /* =========================
-     GET EXISTING NOTES
-  ========================= */
-
-  let myNotes = [];
-
-  const existing =
+currentAccount =
+  JSON.parse(
     localStorage.getItem(
-      notesKey
+      "faccount"
+    )
+  ) || {};
+
+} catch {
+
+currentAccount = {};
+
+}
+
+/* =========================
+CHECK NOTE DATA
+========================= */
+
+const originalNote =
+purchasedMaterial?.note_data;
+
+if (
+!originalNote ||
+typeof originalNote !== "object"
+) {
+
+throw new Error(
+  "This material does not contain a valid FStudy note."
+);
+
+}
+
+/* =========================
+ACCOUNT-SPECIFIC KEY
+========================= */
+
+let notesKey =
+"myfstudynote";
+
+if (
+currentAccount.id
+) {
+
+notesKey =
+  `myfstudynote_${currentAccount.id}`;
+
+}
+
+/* =========================
+GET EXISTING NOTES
+========================= */
+
+let myNotes = [];
+
+const existing =
+localStorage.getItem(
+notesKey
+);
+
+if (existing) {
+
+try {
+
+  const parsed =
+    JSON.parse(
+      existing
     );
 
-  if (existing) {
+  if (
+    Array.isArray(
+      parsed
+    )
+  ) {
 
-    try {
-
-      const parsed =
-        JSON.parse(
-          existing
-        );
-
-      if (
-        Array.isArray(
-          parsed
-        )
-      ) {
-
-        myNotes =
-          parsed;
-
-      }
-
-    } catch {
-
-      myNotes = [];
-
-    }
+    myNotes =
+      parsed;
 
   }
 
+} catch {
 
-  /* =========================
-     CHECK DUPLICATE
-  ========================= */
+  myNotes = [];
 
-  const existingNote =
-    myNotes.find(
-      note =>
-        note.fmarket_id ===
-        purchasedMaterial.id
-    );
+}
 
+}
 
-  /* =========================
-     USE EXISTING PURCHASE
-  ========================= */
+/* =========================
+CHECK DUPLICATE
+========================= */
 
-  if (existingNote) {
+const existingNote =
+myNotes.find(
+note =>
+note.fmarket_id ===
+purchasedMaterial.id
+);
 
-    localStorage.setItem(
-      "viewing_note",
-      JSON.stringify(
-        existingNote
-      )
-    );
+/* =========================
+OPEN EXISTING PURCHASE
+========================= */
 
-    return existingNote;
+if (existingNote) {
 
-  }
+localStorage.setItem(
+  "viewing_note",
+  JSON.stringify(
+    existingNote
+  )
+);
 
+return existingNote;
 
-  /* =========================
-     CREATE FROM ORIGINAL
-     FSTUDY NOTE DATA
-  ========================= */
+}
 
-  const materialToSave = {
+/* =========================
+PRESERVE FSTUDY IMAGES
+FROM CLOUDINARY
+========================= */
 
-    /*
-     * IMPORTANT:
-     * Start with the REAL
-     * FStudy note JSON.
-     */
+let noteFiles = [];
 
-    ...originalNote,
+if (
+Array.isArray(
+originalNote.files
+)
+) {
 
+noteFiles =
+  originalNote.files.map(
+    file => ({
 
-    /*
-     * FMarket information
-     */
+      /*
+       * Permanent Cloudinary URL
+       * uploaded by FMarket seller.
+       */
 
-    fmarket_id:
-      purchasedMaterial.id,
+      id:
+        file?.id ||
+        null,
 
-    source:
-      "fmarket",
+      name:
+        file?.name ||
+        "Study image",
 
-    owner_id:
-      currentAccount.id ||
-      null,
+      type:
+        file?.type ||
+        "image/jpeg",
 
-    purchased_at:
-      new Date().toISOString(),
+      size:
+        file?.size ||
+        0,
 
+      url:
+        file?.url ||
+        null
 
-    /*
-     * FMarket image
-     *
-     * This is the image uploaded
-     * with the marketplace listing.
-     */
-
-    fmarket_image_url:
-      purchasedMaterial.image_url ||
-      null
-
-  };
-
-
-  /* =========================
-     SAVE TO MY NOTES
-  ========================= */
-
-  myNotes.push(
-    materialToSave
+    })
   );
 
-  localStorage.setItem(
-    notesKey,
-    JSON.stringify(
-      myNotes
-    )
-  );
+}
+
+/* =========================
+CREATE PURCHASED NOTE
+========================= */
+
+const materialToSave = {
+
+/*
+ * Start with the complete
+ * FStudy note JSON.
+ */
+
+...originalNote,
 
 
-  /* =========================
-     SAVE CURRENT NOTE
-  ========================= */
+/*
+ * Replace files with the
+ * permanent marketplace
+ * image references.
+ */
 
-  localStorage.setItem(
-    "viewing_note",
-    JSON.stringify(
-      materialToSave
-    )
-  );
+files:
+  noteFiles,
 
 
-  return materialToSave;
+/* =========================
+   FMARKET INFORMATION
+========================= */
+
+fmarket_id:
+  purchasedMaterial.id,
+
+source:
+  "fmarket",
+
+owner_id:
+  currentAccount.id ||
+  null,
+
+purchased_at:
+  new Date().toISOString(),
+
+fmarket_image_url:
+  purchasedMaterial.image_url ||
+  null
+
+};
+
+/* =========================
+SAVE TO MY NOTES
+========================= */
+
+myNotes.push(
+materialToSave
+);
+
+localStorage.setItem(
+notesKey,
+JSON.stringify(
+myNotes
+)
+);
+
+/* =========================
+SAVE CURRENT NOTE
+========================= */
+
+localStorage.setItem(
+"viewing_note",
+JSON.stringify(
+materialToSave
+)
+);
+
+return materialToSave;
 
 }
 

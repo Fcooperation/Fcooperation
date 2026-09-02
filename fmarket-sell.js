@@ -1297,14 +1297,108 @@ formData.append(
  * note was selected.
  */
 
+/* =========================
+   FSTUDY NOTE
+========================= */
+
 if (selectedNote) {
 
+  /*
+   * Send the note JSON.
+   */
   formData.append(
     "note_data",
     JSON.stringify(
       selectedNote
     )
   );
+
+
+  /*
+   * Collect the original
+   * IndexedDB image IDs.
+   */
+  const noteFileIds = [];
+
+
+  /*
+   * Get the actual image files
+   * from IndexedDB.
+   */
+  if (
+    Array.isArray(
+      selectedNote.files
+    )
+  ) {
+
+    for (
+      const noteFile of
+      selectedNote.files
+    ) {
+
+      if (
+        !noteFile ||
+        !noteFile.id
+      ) {
+        continue;
+      }
+
+
+      const storedImage =
+        await getImageFromDB(
+          noteFile.id
+        );
+
+
+      if (
+        !storedImage ||
+        !storedImage.file
+      ) {
+        continue;
+      }
+
+
+      /*
+       * Send the actual File/Blob.
+       */
+      formData.append(
+        "note_files",
+        storedImage.file,
+        storedImage.name ||
+        noteFile.name ||
+        "image"
+      );
+
+
+      /*
+       * Keep the ID so the backend
+       * knows which note image this is.
+       */
+      noteFileIds.push(
+        noteFile.id
+      );
+
+    }
+
+  }
+
+
+  /*
+   * Send the IDs in the exact
+   * same order as note_files.
+   */
+  if (
+    noteFileIds.length > 0
+  ) {
+
+    formData.append(
+      "note_file_ids",
+      JSON.stringify(
+        noteFileIds
+      )
+    );
+
+  }
 
 }
 
