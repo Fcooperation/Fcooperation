@@ -646,10 +646,6 @@ case "textbook":
    SAVE PURCHASED MATERIAL
 ========================= */
 
-/* =========================
-   SAVE PURCHASED MATERIAL
-========================= */
-
 function savePurchasedMaterial(
   purchasedMaterial
 ) {
@@ -677,18 +673,16 @@ function savePurchasedMaterial(
 
 
   /* =========================
-     GET SOURCE
+     GET CATEGORY
   ========================= */
 
-  const source =
-    purchasedMaterial?.source ||
-    material?.source ||
-    (
-      material?.category === "past_questions" ||
-      material?.category === "past-questions"
-        ? "past_questions"
-        : "manual"
-    );
+  const category =
+    String(
+      purchasedMaterial?.category ||
+      material?.category ||
+      ""
+    ).toLowerCase()
+     .trim();
 
 
   /* =========================
@@ -698,14 +692,6 @@ function savePurchasedMaterial(
   let originalData =
     purchasedMaterial?.note_data;
 
-
-  /*
-   * Supabase JSONB normally comes
-   * back as an object/array.
-   *
-   * But if the backend sends it
-   * as a JSON string, parse it.
-   */
 
   if (
     typeof originalData ===
@@ -735,10 +721,8 @@ function savePurchasedMaterial(
   ========================= */
 
   if (
-    originalData ===
-    null ||
-    originalData ===
-    undefined
+    originalData === null ||
+    originalData === undefined
   ) {
 
     throw new Error(
@@ -765,7 +749,7 @@ function savePurchasedMaterial(
   ================================================== */
 
   if (
-    source === "fstudy_note"
+    category === "notes"
   ) {
 
     /* =========================
@@ -857,7 +841,7 @@ function savePurchasedMaterial(
       );
 
       return {
-        type: "fstudy_note",
+        type: "note",
         data: existingNote
       };
 
@@ -966,7 +950,7 @@ function savePurchasedMaterial(
 
 
     return {
-      type: "fstudy_note",
+      type: "note",
       data: materialToSave
     };
 
@@ -978,7 +962,8 @@ function savePurchasedMaterial(
   ================================================== */
 
   if (
-    source === "past_questions"
+    category === "past_questions" ||
+    category === "past-questions"
   ) {
 
     /* =========================
@@ -1246,143 +1231,154 @@ async function buyMaterial() {
   }
 
 
+/* =========================
+   FREE MATERIAL
+========================= */
+
+const price =
+  Number(
+    material.price
+  ) || 0;
+
+
+if (
+  price === 0
+) {
+
   /* =========================
-     FREE MATERIAL
+     GET CATEGORY
   ========================= */
 
-  const price =
-    Number(
-      material.price
-    ) || 0;
+  const category =
+    String(
+      material.category ||
+      ""
+    ).toLowerCase()
+     .trim();
 
+
+  /* =========================
+     CHECK SUPPORTED FREE TYPES
+  ========================= */
+
+  const isNote =
+    category === "notes";
+
+  const isPastQuestions =
+    category === "past_questions" ||
+    category === "past-questions";
+
+
+  /* =========================
+     OPEN FREE NOTE / PAST QUESTIONS
+  ========================= */
 
   if (
-    price === 0
+    isNote ||
+    isPastQuestions
   ) {
 
-    /*
-     * Free shared FStudy materials
-     * already contain note_data from
-     * /get-fmarket-item.
-     *
-     * Do NOT contact /fmarket-buy.
-     */
-
-    const source =
-      material.source ||
-      (
-        material.category === "past_questions" ||
-        material.category === "past-questions"
-          ? "past_questions"
-          : "manual"
-      );
-
-
-    /*
-     * Only FStudy notes and
-     * Past Questions need to be
-     * saved/opened locally.
-     */
-
     if (
-      source === "fstudy_note" ||
-      source === "past_questions"
+      material.note_data ===
+        null ||
+      material.note_data ===
+        undefined
     ) {
 
-      if (
-        material.note_data ===
-          null ||
-        material.note_data ===
-          undefined
-      ) {
+      showStatus(
+        "This free material has no study data.",
+        "error"
+      );
 
-        showStatus(
-          "This free material has no study data.",
-          "error"
-        );
-
-        return;
-
-      }
-
-
-      try {
-
-        const savedMaterial =
-          savePurchasedMaterial(
-            material
-          );
-
-
-        showStatus(
-          "Opening material...",
-          "success"
-        );
-
-
-        setTimeout(
-          () => {
-
-            if (
-              savedMaterial.type ===
-              "fstudy_note"
-            ) {
-
-              window.location.href =
-                "/view-note";
-
-              return;
-
-            }
-
-
-            if (
-              savedMaterial.type ===
-              "past_questions"
-            ) {
-
-              window.location.href =
-                "/view-past-question";
-
-              return;
-
-            }
-
-          },
-          300
-        );
-
-
-        return;
-
-      } catch (error) {
-
-        showStatus(
-          error.message ||
-          "Unable to open this material.",
-          "error"
-        );
-
-        return;
-
-      }
+      return;
 
     }
 
 
-    /*
-     * Free material that is not
-     * an FStudy/Past Questions item.
-     */
+    try {
 
-    showStatus(
-      "This free material cannot be opened here.",
-      "error"
-    );
+      const savedMaterial =
+        savePurchasedMaterial(
+          material
+        );
 
-    return;
+
+      showStatus(
+        "Opening material...",
+        "success"
+      );
+
+
+      setTimeout(
+        () => {
+
+          /* =========================
+             NOTE
+          ========================= */
+
+          if (
+            savedMaterial.type ===
+            "note"
+          ) {
+
+            window.location.href =
+              "/view-note";
+
+            return;
+
+          }
+
+
+          /* =========================
+             PAST QUESTIONS
+          ========================= */
+
+          if (
+            savedMaterial.type ===
+            "past_questions"
+          ) {
+
+            window.location.href =
+              "/view-past-question";
+
+            return;
+
+          }
+
+        },
+        300
+      );
+
+
+      return;
+
+    } catch (error) {
+
+      showStatus(
+        error.message ||
+        "Unable to open this material.",
+        "error"
+      );
+
+      return;
+
+    }
 
   }
+
+
+  /* =========================
+     OTHER FREE MATERIAL
+  ========================= */
+
+  showStatus(
+    "This free material cannot be opened here.",
+    "error"
+  );
+
+  return;
+
+}
 
 
   /* =========================
@@ -1562,15 +1558,35 @@ async function buyMaterial() {
 
     else {
 
-      const source =
-        purchasedMaterial.source ||
-        material.source ||
-        (
-          material.category === "past_questions" ||
-          material.category === "past-questions"
-            ? "past_questions"
-            : "manual"
-        );
+      const category =
+  String(
+    purchasedMaterial.category ||
+    material.category ||
+    ""
+  ).toLowerCase()
+   .trim();
+
+
+if (
+  category === "notes" ||
+  category === "past_questions" ||
+  category === "past-questions"
+) {
+
+  if (
+    purchasedMaterial.note_data ===
+      null ||
+    purchasedMaterial.note_data ===
+      undefined
+  ) {
+
+    throw new Error(
+      "Purchase succeeded, but the study data was not returned."
+    );
+
+  }
+
+}
 
 
       if (
