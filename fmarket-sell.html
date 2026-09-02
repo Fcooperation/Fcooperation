@@ -83,40 +83,87 @@
          SELL FROM FSTUDY
     ========================== -->
 
-    <section
-      class="notes-section"
-      id="notes-section"
+<section
+  class="notes-section"
+  id="notes-section"
+>
+
+  <div class="section-heading">
+
+    <div>
+
+      <h2>
+        Sell from My Study Materials
+      </h2>
+
+      <p>
+        Choose something you've already created.
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       MATERIAL SWITCH
+  ========================== -->
+
+  <div class="material-switch">
+
+    <button
+      type="button"
+      id="notes-tab"
+      class="material-tab active"
     >
+      FStudy Notes
+    </button>
 
-      <div class="section-heading">
+    <button
+      type="button"
+      id="past-questions-tab"
+      class="material-tab"
+    >
+      Past Questions
+    </button>
 
-        <div>
+  </div>
 
-          <h2>
-            Sell from My FStudy Notes
-          </h2>
 
-          <p>
-            Choose a note you've already created.
-          </p>
+  <!-- =========================
+       FSTUDY NOTES
+  ========================== -->
 
-        </div>
+  <div
+    id="my-notes-list"
+    class="my-notes-list"
+  ></div>
 
-      </div>
+  <div
+    id="no-notes"
+    class="no-notes hidden"
+  >
+    You don't have any saved FStudy notes yet.
+  </div>
 
-      <div
-        id="my-notes-list"
-        class="my-notes-list"
-      ></div>
 
-      <div
-        id="no-notes"
-        class="no-notes hidden"
-      >
-        You don't have any saved FStudy notes yet.
-      </div>
+  <!-- =========================
+       PAST QUESTIONS
+  ========================== -->
 
-    </section>
+  <div
+    id="my-past-questions-list"
+    class="my-notes-list hidden"
+  ></div>
+
+  <div
+    id="no-past-questions"
+    class="no-notes hidden"
+  >
+    You don't have any saved past questions yet.
+  </div>
+
+</section>
 
 
     <!-- =========================

@@ -35,7 +35,27 @@ document.addEventListener(
       document.getElementById(
         "no-notes"
       );
+      
+      const notesTab =
+  document.getElementById(
+    "notes-tab"
+  );
 
+const pastQuestionsTab =
+  document.getElementById(
+    "past-questions-tab"
+  );
+
+const myPastQuestionsList =
+  document.getElementById(
+    "my-past-questions-list"
+  );
+
+const noPastQuestions =
+  document.getElementById(
+    "no-past-questions"
+  );
+  
     const titleInput =
       document.getElementById(
         "title"
@@ -466,6 +486,473 @@ document.addEventListener(
 
     }
 
+/* =========================
+   MATERIAL TABS
+========================= */
+
+function showNotesTab() {
+
+  notesTab.classList.add(
+    "active"
+  );
+
+  pastQuestionsTab.classList.remove(
+    "active"
+  );
+
+
+  myNotesList.classList.remove(
+    "hidden"
+  );
+
+  noNotes.classList.remove(
+    "hidden"
+  );
+
+
+  myPastQuestionsList.classList.add(
+    "hidden"
+  );
+
+  noPastQuestions.classList.add(
+    "hidden"
+  );
+
+}
+
+
+function showPastQuestionsTab() {
+
+  pastQuestionsTab.classList.add(
+    "active"
+  );
+
+  notesTab.classList.remove(
+    "active"
+  );
+
+
+  myNotesList.classList.add(
+    "hidden"
+  );
+
+  noNotes.classList.add(
+    "hidden"
+  );
+
+
+  myPastQuestionsList.classList.remove(
+    "hidden"
+  );
+
+
+  /*
+   * Only show the empty message
+   * if there are actually no
+   * past questions.
+   */
+
+  if (
+    myPastQuestionsList.children.length === 0
+  ) {
+
+    noPastQuestions.classList.remove(
+      "hidden"
+    );
+
+  } else {
+
+    noPastQuestions.classList.add(
+      "hidden"
+    );
+
+  }
+
+}
+
+
+notesTab.addEventListener(
+  "click",
+  showNotesTab
+);
+
+
+pastQuestionsTab.addEventListener(
+  "click",
+  showPastQuestionsTab
+);
+
+
+loadMyPastQuestions();
+
+/* =========================
+   LOAD MY PAST QUESTIONS
+========================= */
+
+function loadMyPastQuestions() {
+
+  let key =
+    "my_past_questions";
+
+
+  /*
+   * Logged-in users use
+   * account-specific storage.
+   */
+
+  if (userId) {
+
+    key =
+      `my_past_questions_${userId}`;
+
+  }
+
+
+  let questions = [];
+
+  const stored =
+    localStorage.getItem(
+      key
+    );
+
+
+  if (stored) {
+
+    try {
+
+      const parsed =
+        JSON.parse(
+          stored
+        );
+
+
+      if (
+        Array.isArray(
+          parsed
+        )
+      ) {
+
+        questions =
+          parsed;
+
+      }
+
+    } catch {
+
+      questions = [];
+
+    }
+
+  }
+
+
+  myPastQuestionsList.innerHTML =
+    "";
+
+
+  if (
+    questions.length === 0
+  ) {
+
+    noPastQuestions.classList.remove(
+      "hidden"
+    );
+
+    return;
+
+  }
+
+
+  noPastQuestions.classList.add(
+    "hidden"
+  );
+
+
+  /*
+   * Group questions by year.
+   */
+
+  const grouped =
+    {};
+
+
+  questions.forEach(
+    (question) => {
+
+      const year =
+        question.year ||
+        "Unknown Year";
+
+
+      if (
+        !grouped[year]
+      ) {
+
+        grouped[year] =
+          [];
+
+      }
+
+
+      grouped[year].push(
+        question
+      );
+
+    }
+  );
+
+
+  /*
+   * Newest year first.
+   */
+
+  const years =
+    Object.keys(
+      grouped
+    ).sort(
+      (a, b) =>
+        String(b).localeCompare(
+          String(a)
+        )
+    );
+
+
+  years.forEach(
+    (year) => {
+
+      const batch =
+        grouped[year];
+
+
+      const card =
+        document.createElement(
+          "div"
+        );
+
+      card.className =
+        "my-note-card";
+
+
+      const info =
+        document.createElement(
+          "div"
+        );
+
+      info.className =
+        "my-note-info";
+
+
+      const title =
+        document.createElement(
+          "div"
+        );
+
+      title.className =
+        "my-note-title";
+
+      title.textContent =
+        `Past Questions — ${year}`;
+
+
+      const first =
+        batch[0] || {};
+
+
+      const metaParts = [
+        first.university,
+        first.course,
+        `${batch.length} question${
+          batch.length === 1
+            ? ""
+            : "s"
+        }`
+      ].filter(Boolean);
+
+
+      const meta =
+        document.createElement(
+          "div"
+        );
+
+      meta.className =
+        "my-note-meta";
+
+      meta.textContent =
+        metaParts.join(
+          " • "
+        );
+
+
+      const arrow =
+        document.createElement(
+          "div"
+        );
+
+      arrow.className =
+        "my-note-arrow";
+
+      arrow.textContent =
+        "›";
+
+
+      info.appendChild(
+        title
+      );
+
+      info.appendChild(
+        meta
+      );
+
+
+      card.appendChild(
+        info
+      );
+
+      card.appendChild(
+        arrow
+      );
+
+
+      card.addEventListener(
+        "click",
+        () => {
+
+          selectPastQuestions(
+            batch
+          );
+
+        }
+      );
+
+
+      myPastQuestionsList.appendChild(
+        card
+      );
+
+    }
+  );
+
+}
+
+/* =========================
+   SELECT PAST QUESTIONS
+========================= */
+
+function selectPastQuestions(
+  questions
+) {
+
+  if (
+    !Array.isArray(
+      questions
+    ) ||
+    questions.length === 0
+  ) {
+
+    return;
+
+  }
+
+
+  const first =
+    questions[0] || {};
+
+
+  /*
+   * Fill the selling form.
+   */
+
+  titleInput.value =
+    first.title ||
+    `${first.course || "Course"} Past Questions ${first.year || ""}`.trim();
+
+
+  categoryInput.value =
+    "past_questions";
+
+
+  universityInput.value =
+    first.university ||
+    studyingUni ||
+    "";
+
+
+  courseInput.value =
+    first.course ||
+    studying ||
+    "";
+
+
+  departmentInput.value =
+    first.department ||
+    "";
+
+
+  /*
+   * Create a useful description.
+   */
+
+  descriptionInput.value =
+    `Past questions for ${
+      first.course ||
+      studying ||
+      "this course"
+    }${
+      first.year
+        ? ` (${first.year})`
+        : ""
+    }. Contains ${
+      questions.length
+    } question${
+      questions.length === 1
+        ? ""
+        : "s"
+    }.`;
+
+  updateDescriptionCount();
+
+
+  /*
+   * Remember the selected
+   * past-question batch.
+   */
+
+  selectedPastQuestions =
+    questions;
+
+
+  /*
+   * A past question is digital.
+   */
+
+  conditionInput.value =
+    "digital";
+
+
+  /*
+   * Clear any previously
+   * selected FStudy note.
+   */
+
+  selectedNote =
+    null;
+
+
+  document
+    .querySelector(".form-card")
+    ?.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+
+
+  showStatus(
+    "Past-question batch selected. Review the details and price before listing it.",
+    "info"
+  );
+
+}
+
 
     /* =========================
        SELECT FSTUDY NOTE
@@ -550,6 +1037,8 @@ document.addEventListener(
 
     let selectedNote =
       null;
+      let selectedPastQuestions =
+  null;
 
 
     loadMyNotes();
@@ -1425,11 +1914,30 @@ formData.append(
   conditionInput.value
 );
 
+let materialSource =
+  "manual";
+
+
+if (
+  selectedNote
+) {
+
+  materialSource =
+    "fstudy_note";
+
+} else if (
+  selectedPastQuestions
+) {
+
+  materialSource =
+    "past_questions";
+
+}
+
+
 formData.append(
   "source",
-  selectedNote
-    ? "fstudy_note"
-    : "manual"
+  materialSource
 );
 
 
@@ -1438,6 +1946,23 @@ formData.append(
  * note JSON when an FStudy
  * note was selected.
  */
+
+/* =========================
+   PAST QUESTIONS
+========================= */
+
+if (
+  selectedPastQuestions
+) {
+
+  formData.append(
+    "past_questions_data",
+    JSON.stringify(
+      selectedPastQuestions
+    )
+  );
+
+}
 
 /* =========================
    FSTUDY NOTE

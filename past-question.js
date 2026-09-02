@@ -1015,7 +1015,7 @@ document.addEventListener(
         () => {
 
           location.href =
-            "/upload-past-questions";
+            "/upload-past-question";
 
         }
       );

@@ -440,3 +440,33 @@ textarea {
   }
 
 }
+/* =========================
+   MATERIAL SWITCH
+========================= */
+
+.material-switch {
+  display: flex;
+  gap: 8px;
+  background: #f3f3f3;
+  padding: 4px;
+  border-radius: 11px;
+  margin-bottom: 14px;
+}
+
+.material-tab {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  color: #777;
+  padding: 10px 8px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.material-tab.active {
+  background: #fff;
+  color: #111;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
