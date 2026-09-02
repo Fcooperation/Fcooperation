@@ -73,6 +73,24 @@ const balanceEye =
       account.id || null;
 
 
+const urlParams =
+  new URLSearchParams(
+    window.location.search
+  );
+
+const sharedItemId =
+  urlParams.get("id");
+
+if (sharedItemId) {
+
+  window.location.href =
+    `/fmarket-buy?id=${encodeURIComponent(
+      sharedItemId
+    )}`;
+
+  return;
+}
+
     /* =========================
        API
     ========================= */
