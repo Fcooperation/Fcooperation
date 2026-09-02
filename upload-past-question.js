@@ -1222,7 +1222,7 @@ try {
           ========================== */
 
           validateQuestions(
-            questionData
+            questionsData
           );
 
 
