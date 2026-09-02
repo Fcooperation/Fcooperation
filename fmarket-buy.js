@@ -503,197 +503,212 @@ document.addEventListener(
     }
 
 
-    /* =========================
-       SAVE PURCHASED MATERIAL
-    ========================= */
+/* =========================
+   SAVE PURCHASED MATERIAL
+========================= */
 
-    function savePurchasedMaterial(
-      purchasedMaterial
-    ) {
+function savePurchasedMaterial(
+  purchasedMaterial
+) {
 
-      /* =========================
-         GET ACCOUNT AGAIN
-      ========================= */
+  /* =========================
+     GET ACCOUNT
+  ========================= */
 
-      let currentAccount = {};
+  let currentAccount = {};
 
-      try {
+  try {
 
-        currentAccount =
-          JSON.parse(
-            localStorage.getItem(
-              "faccount"
-            )
-          ) || {};
-
-      } catch {
-
-        currentAccount = {};
-
-      }
-
-
-      /* =========================
-         ACCOUNT-SPECIFIC KEY
-      ========================= */
-
-      let notesKey =
-        "myfstudynote";
-
-
-      if (
-        currentAccount.id
-      ) {
-
-        notesKey =
-          `myfstudynote_${currentAccount.id}`;
-
-      }
-
-
-      /* =========================
-         GET EXISTING NOTES
-      ========================= */
-
-      let myNotes = [];
-
-      const existing =
+    currentAccount =
+      JSON.parse(
         localStorage.getItem(
-          notesKey
+          "faccount"
+        )
+      ) || {};
+
+  } catch {
+
+    currentAccount = {};
+
+  }
+
+
+  /* =========================
+     ACCOUNT-SPECIFIC KEY
+  ========================= */
+
+  let notesKey =
+    "myfstudynote";
+
+  if (
+    currentAccount.id
+  ) {
+
+    notesKey =
+      `myfstudynote_${currentAccount.id}`;
+
+  }
+
+
+  /* =========================
+     GET EXISTING NOTES
+  ========================= */
+
+  let myNotes = [];
+
+  const existing =
+    localStorage.getItem(
+      notesKey
+    );
+
+  if (existing) {
+
+    try {
+
+      const parsed =
+        JSON.parse(
+          existing
         );
-
-
-      if (existing) {
-
-        try {
-
-          const parsed =
-            JSON.parse(
-              existing
-            );
-
-
-          if (
-            Array.isArray(
-              parsed
-            )
-          ) {
-
-            myNotes =
-              parsed;
-
-          }
-
-        } catch {
-
-          myNotes = [];
-
-        }
-
-      }
-
-
-      /* =========================
-         PREVENT DUPLICATES
-      ========================= */
-
-      const alreadySaved =
-        myNotes.some(
-          note =>
-            note.fmarket_id ===
-            purchasedMaterial.id
-        );
-
-
-      /*
-       * If it already exists,
-       * simply make it the
-       * current viewing material.
-       */
-
-      let materialToSave =
-        purchasedMaterial;
-
 
       if (
-        alreadySaved
+        Array.isArray(
+          parsed
+        )
       ) {
 
-        const existingNote =
-          myNotes.find(
-            note =>
-              note.fmarket_id ===
-              purchasedMaterial.id
-          );
-
-        if (existingNote) {
-
-          materialToSave =
-            existingNote;
-
-        }
-
-      } else {
-
-        materialToSave = {
-
-          ...purchasedMaterial,
-
-          /*
-           * Mark this as an
-           * FMarket purchase.
-           */
-
-          fmarket_id:
-            purchasedMaterial.id,
-
-          owner_id:
-            currentAccount.id ||
-            null,
-
-          purchased_at:
-            new Date().toISOString(),
-
-          source:
-            "fmarket"
-
-        };
-
-
-        myNotes.push(
-          materialToSave
-        );
+        myNotes =
+          parsed;
 
       }
 
+    } catch {
 
-      /* =========================
-         SAVE NOTES
-      ========================= */
-
-      localStorage.setItem(
-        notesKey,
-        JSON.stringify(
-          myNotes
-        )
-      );
-
-
-      /* =========================
-         CURRENT VIEWING MATERIAL
-      ========================= */
-
-      localStorage.setItem(
-        "viewing_note",
-        JSON.stringify(
-          materialToSave
-        )
-      );
-
-
-      return materialToSave;
+      myNotes = [];
 
     }
+
+  }
+
+
+  /* =========================
+     CHECK DUPLICATE
+  ========================= */
+
+  const existingNote =
+    myNotes.find(
+      note =>
+        note.fmarket_id ===
+        purchasedMaterial.id
+    );
+
+
+  /* =========================
+     USE EXISTING PURCHASE
+  ========================= */
+
+  if (existingNote) {
+
+    localStorage.setItem(
+      "viewing_note",
+      JSON.stringify(
+        existingNote
+      )
+    );
+
+    return existingNote;
+
+  }
+
+
+  /* =========================
+     CREATE NOTE OBJECT
+  ========================= */
+
+  const materialToSave = {
+
+    /*
+     * Original FMarket data
+     */
+
+    ...purchasedMaterial,
+
+
+    /*
+     * FStudy-compatible fields
+     */
+
+    title:
+      purchasedMaterial.title ||
+      "FMarket Material",
+
+    topic:
+      purchasedMaterial.title ||
+      "FMarket Material",
+
+    university:
+      purchasedMaterial.university ||
+      "",
+
+    course:
+      purchasedMaterial.course ||
+      "",
+
+    uploaded_by:
+      purchasedMaterial.seller_name ||
+      "FMarket Seller",
+
+
+    /*
+     * FMarket information
+     */
+
+    fmarket_id:
+      purchasedMaterial.id,
+
+    source:
+      "fmarket",
+
+    owner_id:
+      currentAccount.id ||
+      null,
+
+    purchased_at:
+      new Date().toISOString()
+
+  };
+
+
+  /* =========================
+     SAVE TO MY NOTES
+  ========================= */
+
+  myNotes.push(
+    materialToSave
+  );
+
+  localStorage.setItem(
+    notesKey,
+    JSON.stringify(
+      myNotes
+    )
+  );
+
+
+  /* =========================
+     SAVE CURRENT NOTE
+  ========================= */
+
+  localStorage.setItem(
+    "viewing_note",
+    JSON.stringify(
+      materialToSave
+    )
+  );
+
+
+  return materialToSave;
+
+}
 
 
     /* =========================
