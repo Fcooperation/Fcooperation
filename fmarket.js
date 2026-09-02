@@ -516,6 +516,243 @@ function updateBalanceDisplay(
 
     }
 
+/* =========================
+   SHARE BOX
+========================= */
+
+function openShareBox(
+  material
+) {
+
+  /*
+   * Remove existing share box
+   */
+
+  const existing =
+    document.getElementById(
+      "fmarket-share-box"
+    );
+
+  if (existing) {
+
+    existing.remove();
+
+  }
+
+
+  /*
+   * Create overlay
+   */
+
+  const overlay =
+    document.createElement(
+      "div"
+    );
+
+  overlay.id =
+    "fmarket-share-overlay";
+
+  overlay.className =
+    "fmarket-share-overlay";
+
+
+  /*
+   * Create box
+   */
+
+  const box =
+    document.createElement(
+      "div"
+    );
+
+  box.id =
+    "fmarket-share-box";
+
+  box.className =
+    "fmarket-share-box";
+
+
+  /*
+   * Generate share URL
+   */
+
+  const shareUrl =
+    `${window.location.origin}/fmarket?id=${encodeURIComponent(
+      material.id
+    )}`;
+
+
+  box.innerHTML = `
+
+    <div class="share-box-header">
+
+      <strong>
+        Share this item
+      </strong>
+
+      <button
+        type="button"
+        class="share-close-btn"
+        aria-label="Close"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <div class="share-link-row">
+
+      <input
+        type="text"
+        class="share-link-input"
+        value="${escapeHtml(shareUrl)}"
+        readonly
+      >
+
+      <button
+        type="button"
+        class="share-copy-btn"
+      >
+        Copy
+      </button>
+
+    </div>
+
+  `;
+
+
+  overlay.appendChild(
+    box
+  );
+
+
+  document.body.appendChild(
+    overlay
+  );
+
+
+  /*
+   * Close button
+   */
+
+  const closeButton =
+    box.querySelector(
+      ".share-close-btn"
+    );
+
+
+  closeButton.addEventListener(
+    "click",
+    () => {
+
+      overlay.remove();
+
+    }
+  );
+
+
+  /*
+   * Click outside box
+   */
+
+  overlay.addEventListener(
+    "click",
+    event => {
+
+      if (
+        event.target ===
+        overlay
+      ) {
+
+        overlay.remove();
+
+      }
+
+    }
+  );
+
+
+  /*
+   * Copy button
+   */
+
+  const copyButton =
+    box.querySelector(
+      ".share-copy-btn"
+    );
+
+
+  copyButton.addEventListener(
+    "click",
+    async () => {
+
+      try {
+
+        await navigator.clipboard.writeText(
+          shareUrl
+        );
+
+
+        copyButton.textContent =
+          "Copied!";
+
+
+        setTimeout(
+          () => {
+
+            if (
+              copyButton
+                .isConnected
+            ) {
+
+              copyButton.textContent =
+                "Copy";
+
+            }
+
+          },
+          2000
+        );
+
+
+      } catch {
+
+        /*
+         * Fallback for browsers
+         * where clipboard API
+         * isn't available.
+         */
+
+        const input =
+          box.querySelector(
+            ".share-link-input"
+          );
+
+        input.select();
+
+        document.execCommand(
+          "copy"
+        );
+
+
+        copyButton.textContent =
+          "Copied!";
+
+      }
+
+    }
+  );
+
+
+  /*
+   * Optional native share
+   *
+   * You can later add a
+   * native Share button here.
+   */
+
+}
 
     /* =========================
        CREATE PRODUCT CARD
@@ -534,6 +771,130 @@ function updateBalanceDisplay(
   article.className =
     "product-card";
 
+/* =========================
+   THREE DOT MENU
+========================= */
+
+const menuButton =
+  document.createElement(
+    "button"
+  );
+
+menuButton.type =
+  "button";
+
+menuButton.className =
+  "product-menu-btn";
+
+menuButton.textContent =
+  "⋮";
+
+menuButton.setAttribute(
+  "aria-label",
+  "More options"
+);
+
+
+const menu =
+  document.createElement(
+    "div"
+  );
+
+menu.className =
+  "product-menu";
+
+menu.innerHTML = `
+  <button
+    type="button"
+    class="product-menu-share"
+  >
+    Share
+  </button>
+`;
+
+
+menuButton.addEventListener(
+  "click",
+  event => {
+
+    event.stopPropagation();
+
+    /*
+     * Close other open menus
+     */
+    document
+      .querySelectorAll(
+        ".product-menu.open"
+      )
+      .forEach(
+        otherMenu => {
+
+          if (
+            otherMenu !== menu
+          ) {
+
+            otherMenu.classList.remove(
+              "open"
+            );
+
+          }
+
+        }
+      );
+
+
+    menu.classList.toggle(
+      "open"
+    );
+
+  }
+);
+
+
+menu.addEventListener(
+  "click",
+  event => {
+
+    event.stopPropagation();
+
+  }
+);
+
+
+article.appendChild(
+  menuButton
+);
+
+article.appendChild(
+  menu
+);
+
+/* =========================
+   SHARE ITEM
+========================= */
+
+const shareButton =
+  menu.querySelector(
+    ".product-menu-share"
+  );
+
+
+shareButton.addEventListener(
+  "click",
+  event => {
+
+    event.stopPropagation();
+
+    menu.classList.remove(
+      "open"
+    );
+
+    openShareBox(
+      material
+    );
+
+  }
+);
 
   /* =========================
      OPEN MATERIAL

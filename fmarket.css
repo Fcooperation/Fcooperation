@@ -646,3 +646,254 @@ a {
 
   display: block;
 }
+/* =========================
+   PRODUCT MENU
+========================= */
+
+.product-card {
+  position: relative;
+}
+
+
+.product-menu-btn {
+  position: absolute;
+
+  top: 10px;
+  left: 10px;
+
+  z-index: 5;
+
+  width: 36px;
+  height: 36px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: rgba(0, 0, 0, 0.55);
+
+  color: white;
+
+  font-size: 24px;
+
+  line-height: 30px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  cursor: pointer;
+}
+
+
+.product-menu-btn:active {
+  transform: scale(0.94);
+}
+
+
+/* =========================
+   DROPDOWN
+========================= */
+
+.product-menu {
+
+  position: absolute;
+
+  top: 50px;
+  left: 10px;
+
+  z-index: 20;
+
+  min-width: 120px;
+
+  background: white;
+
+  border-radius: 10px;
+
+  padding: 5px;
+
+  box-shadow:
+    0 8px 25px
+    rgba(0, 0, 0, 0.18);
+
+  display: none;
+}
+
+
+.product-menu.open {
+  display: block;
+}
+
+
+.product-menu button {
+
+  width: 100%;
+
+  border: none;
+
+  background: transparent;
+
+  padding: 11px 14px;
+
+  text-align: left;
+
+  font-size: 14px;
+
+  cursor: pointer;
+
+  border-radius: 7px;
+}
+
+
+.product-menu button:active {
+
+  background: #f1f1f1;
+
+}
+
+
+/* =========================
+   SHARE OVERLAY
+========================= */
+
+.fmarket-share-overlay {
+
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 9999;
+
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: center;
+
+  padding-top: 80px;
+
+  background:
+    rgba(0, 0, 0, 0.18);
+}
+
+
+/* =========================
+   SHARE BOX
+========================= */
+
+.fmarket-share-box {
+
+  width: 90%;
+
+  max-width: 520px;
+
+  background: white;
+
+  border-radius: 14px;
+
+  padding: 16px;
+
+  box-shadow:
+    0 12px 40px
+    rgba(0, 0, 0, 0.25);
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+.share-box-header {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  margin-bottom: 14px;
+}
+
+
+.share-box-header strong {
+
+  font-size: 17px;
+}
+
+
+.share-close-btn {
+
+  border: none;
+
+  background: transparent;
+
+  font-size: 27px;
+
+  line-height: 1;
+
+  cursor: pointer;
+
+  padding: 2px 6px;
+}
+
+
+/* =========================
+   LINK ROW
+========================= */
+
+.share-link-row {
+
+  display: flex;
+
+  align-items: stretch;
+
+  gap: 8px;
+}
+
+
+.share-link-input {
+
+  flex: 1;
+
+  min-width: 0;
+
+  height: 42px;
+
+  border: 1px solid #ddd;
+
+  border-radius: 9px;
+
+  padding: 0 11px;
+
+  font-size: 13px;
+
+  outline: none;
+}
+
+
+.share-copy-btn {
+
+  height: 42px;
+
+  border: none;
+
+  border-radius: 9px;
+
+  padding: 0 15px;
+
+  background: #111;
+
+  color: white;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+
+.share-copy-btn:active {
+
+  transform: scale(0.97);
+
+}
