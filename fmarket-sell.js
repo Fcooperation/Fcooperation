@@ -1184,6 +1184,148 @@ productImage.addEventListener(
 
     }
 
+/* =========================
+   FSTUDY IMAGE DATABASE
+========================= */
+
+const FSTUDY_DB_NAME =
+  "fstudy_files";
+
+const FSTUDY_DB_VERSION =
+  1;
+
+const FSTUDY_STORE =
+  "images";
+
+
+/* =========================
+   OPEN FSTUDY DATABASE
+========================= */
+
+function openFstudyDB() {
+
+  return new Promise(
+    (resolve, reject) => {
+
+      const request =
+        indexedDB.open(
+          FSTUDY_DB_NAME,
+          FSTUDY_DB_VERSION
+        );
+
+
+      request.onupgradeneeded =
+        function (event) {
+
+          const db =
+            event.target.result;
+
+
+          if (
+            !db.objectStoreNames.contains(
+              FSTUDY_STORE
+            )
+          ) {
+
+            db.createObjectStore(
+              FSTUDY_STORE,
+              {
+                keyPath: "id"
+              }
+            );
+
+          }
+
+        };
+
+
+      request.onsuccess =
+        function () {
+
+          resolve(
+            request.result
+          );
+
+        };
+
+
+      request.onerror =
+        function () {
+
+          reject(
+            request.error ||
+            new Error(
+              "Failed to open FStudy file database."
+            )
+          );
+
+        };
+
+    }
+  );
+
+}
+
+
+/* =========================
+   GET IMAGE FROM INDEXEDDB
+========================= */
+
+async function getImageFromDB(
+  id
+) {
+
+  const db =
+    await openFstudyDB();
+
+
+  return new Promise(
+    (resolve, reject) => {
+
+      const transaction =
+        db.transaction(
+          FSTUDY_STORE,
+          "readonly"
+        );
+
+
+      const store =
+        transaction.objectStore(
+          FSTUDY_STORE
+        );
+
+
+      const request =
+        store.get(id);
+
+
+      request.onsuccess =
+        () => {
+
+          resolve(
+            request.result ||
+            null
+          );
+
+        };
+
+
+      request.onerror =
+        () => {
+
+          reject(
+            request.error ||
+            new Error(
+              "Failed to retrieve FStudy image."
+            )
+          );
+
+        };
+
+    }
+  );
+
+}
 
     /* =========================
        LIST ITEM
@@ -1351,11 +1493,18 @@ if (selectedNote) {
 
 
       if (
-        !storedImage ||
-        !storedImage.file
-      ) {
-        continue;
-      }
+  !storedImage ||
+  !storedImage.file
+) {
+
+  throw new Error(
+    `Could not load FStudy image: ${
+      noteFile.name ||
+      noteFile.id
+    }`
+  );
+
+}
 
 
       /*
