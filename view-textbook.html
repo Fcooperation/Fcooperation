@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>View Textbook</title>
+
+  <link
+    rel="stylesheet"
+    href="/view-textbook.css"
+  >
+
+</head>
+
+<body>
+
+  <!-- =========================
+       APP
+  ========================= -->
+
+  <div
+    id="app"
+    class="app"
+  >
+
+    <!-- =========================
+         TOP BAR
+    ========================= -->
+
+    <header class="reader-header">
+
+      <button
+        id="back-btn"
+        class="icon-btn"
+        type="button"
+        aria-label="Back"
+      >
+        ←
+      </button>
+
+      <div class="header-title">
+
+        <div
+          id="book-title"
+          class="book-title"
+        >
+          Textbook
+        </div>
+
+        <div
+          id="book-course"
+          class="book-course"
+        >
+          Digital textbook
+        </div>
+
+      </div>
+
+      <button
+        id="menu-btn"
+        class="icon-btn"
+        type="button"
+        aria-label="More options"
+      >
+        ⋮
+      </button>
+
+    </header>
+
+
+    <!-- =========================
+         SEARCH
+    ========================= -->
+
+    <section
+      id="search-panel"
+      class="search-panel hidden"
+    >
+
+      <div class="search-box">
+
+        <span>🔍</span>
+
+        <input
+          id="search-input"
+          type="search"
+          placeholder="Search textbook..."
+          autocomplete="off"
+        >
+
+        <button
+          id="close-search-btn"
+          type="button"
+        >
+          ×
+        </button>
+
+      </div>
+
+      <div
+        id="search-results"
+        class="search-results"
+      ></div>
+
+    </section>
+
+
+    <!-- =========================
+         READER
+    ========================= -->
+
+    <main class="reader-main">
+
+      <div
+        id="reader"
+        class="reader"
+      >
+
+        <div
+          id="loading"
+          class="reader-state"
+        >
+
+          <div class="spinner"></div>
+
+          <p>Opening textbook...</p>
+
+        </div>
+
+
+        <div
+          id="error"
+          class="reader-state hidden"
+        >
+
+          <div class="error-icon">
+            ⚠️
+          </div>
+
+          <h3>
+            Unable to open textbook
+          </h3>
+
+          <p id="error-message">
+            Something went wrong.
+          </p>
+
+          <button
+            id="back-error-btn"
+            class="primary-btn"
+            type="button"
+          >
+            Go Back
+          </button>
+
+        </div>
+
+
+        <!-- PDF PAGE -->
+
+        <div
+          id="page-stage"
+          class="page-stage hidden"
+        >
+
+          <div
+            id="page-container"
+            class="page-container"
+          >
+
+            <canvas
+              id="pdf-canvas"
+            ></canvas>
+
+          </div>
+
+          <div
+            id="swipe-hint"
+            class="swipe-hint"
+          >
+            Swipe left or right to turn pages
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+
+
+    <!-- =========================
+         PAGE CONTROLS
+    ========================= -->
+
+    <section
+      id="page-controls"
+      class="page-controls hidden"
+    >
+
+      <button
+        id="prev-btn"
+        class="page-btn"
+        type="button"
+        aria-label="Previous page"
+      >
+        ‹
+      </button>
+
+      <div class="page-info">
+
+        <span id="page-number">
+          1
+        </span>
+
+        <span>
+          /
+        </span>
+
+        <span id="page-count">
+          0
+        </span>
+
+      </div>
+
+      <button
+        id="next-btn"
+        class="page-btn"
+        type="button"
+        aria-label="Next page"
+      >
+        ›
+      </button>
+
+    </section>
+
+
+    <!-- =========================
+         TOOLBAR
+    ========================= -->
+
+    <section
+      id="toolbar"
+      class="toolbar hidden"
+    >
+
+      <button
+        id="zoom-out-btn"
+        type="button"
+      >
+        −
+      </button>
+
+      <button
+        id="zoom-reset-btn"
+        type="button"
+      >
+        100%
+      </button>
+
+      <button
+        id="zoom-in-btn"
+        type="button"
+      >
+        +
+      </button>
+
+      <button
+        id="bookmark-btn"
+        type="button"
+        aria-label="Bookmark page"
+      >
+        🔖
+      </button>
+
+    </section>
+
+
+    <!-- =========================
+         AI ACTIONS
+    ========================= -->
+
+    <section
+      id="ai-actions"
+      class="ai-actions hidden"
+    >
+
+      <button
+        id="ask-fai-btn"
+        type="button"
+        class="ai-btn"
+      >
+        ✨ Ask FAI
+      </button>
+
+      <button
+        id="summarize-btn"
+        type="button"
+        class="ai-btn"
+      >
+        📝 Summarize
+      </button>
+
+      <button
+        id="quiz-btn"
+        type="button"
+        class="ai-btn"
+      >
+        🧪 Quiz Me
+      </button>
+
+    </section>
+
+
+    <!-- =========================
+         MENU
+    ========================= -->
+
+    <div
+      id="menu-overlay"
+      class="menu-overlay hidden"
+    >
+
+      <div
+        id="menu-card"
+        class="menu-card"
+      >
+
+        <div class="menu-header">
+
+          <strong>
+            Textbook
+          </strong>
+
+          <button
+            id="close-menu-btn"
+            type="button"
+          >
+            ×
+          </button>
+
+        </div>
+
+        <button
+          id="menu-search"
+          class="menu-item"
+          type="button"
+        >
+          🔍 Search textbook
+        </button>
+
+        <button
+          id="menu-bookmark"
+          class="menu-item"
+          type="button"
+        >
+          🔖 Bookmark page
+        </button>
+
+        <button
+          id="menu-fullscreen"
+          class="menu-item"
+          type="button"
+        >
+          ⛶ Fullscreen
+        </button>
+
+        <button
+          id="menu-toc"
+          class="menu-item"
+          type="button"
+        >
+          📑 Table of contents
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- =========================
+         FAI PANEL
+    ========================= -->
+
+    <div
+      id="fai-overlay"
+      class="fai-overlay hidden"
+    >
+
+      <div class="fai-panel">
+
+        <div class="fai-header">
+
+          <div>
+
+            <strong>
+              ✨ FAI
+            </strong>
+
+            <span>
+              Your study assistant
+            </span>
+
+          </div>
+
+          <button
+            id="close-fai-btn"
+            type="button"
+          >
+            ×
+          </button>
+
+        </div>
+
+
+        <div
+          id="fai-content"
+          class="fai-content"
+        >
+
+          <div class="fai-empty">
+
+            Ask FAI anything about
+            this textbook.
+
+          </div>
+
+        </div>
+
+
+        <div class="fai-input-area">
+
+          <textarea
+            id="fai-input"
+            rows="2"
+            placeholder="Ask FAI about this textbook..."
+          ></textarea>
+
+          <button
+            id="send-fai-btn"
+            type="button"
+          >
+            Send
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- =========================
+         TOAST
+    ========================= -->
+
+    <div
+      id="toast"
+      class="toast hidden"
+    ></div>
+
+  </div>
+
+
+  <!-- =========================
+       PDF.JS
+  ========================= -->
+
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"
+  ></script>
+
+  <script
+    src="/view-textbook.js"
+  ></script>
+
+</body>
+
+</html>
