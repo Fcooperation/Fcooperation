@@ -96,11 +96,6 @@ document.addEventListener(
         "book-course"
       );
 
-    const swipeHint =
-      document.getElementById(
-        "swipe-hint"
-      );
-
     const toast =
       document.getElementById(
         "toast"
@@ -689,6 +684,8 @@ document.addEventListener(
 
 
       rendering = true;
+      pageContainer.style.transform =
+  "scale(1)";
 
 
       try {
@@ -718,17 +715,16 @@ document.addEventListener(
 
 
         const widthScale =
-          (
-            readerWidth - 20
-          ) /
-          viewport.width;
+  (
+    readerWidth - 40
+  ) /
+  viewport.width;
 
-
-        const heightScale =
-          (
-            readerHeight - 20
-          ) /
-          viewport.height;
+const heightScale =
+  (
+    readerHeight - 40
+  ) /
+  viewport.height;
 
 
         if (
@@ -978,7 +974,7 @@ document.addEventListener(
 
 
 /* =========================
-   PINCH ZOOM + PAN
+   SMOOTH PINCH ZOOM + PAN
 ========================= */
 
 const pointers =
@@ -990,20 +986,50 @@ let pinchStartDistance =
 let pinchStartScale =
   1;
 
-let pinchCenterX =
+let pinchStartCenterX =
   0;
 
-let pinchCenterY =
+let pinchStartCenterY =
+  0;
+
+let pinchStartScrollLeft =
+  0;
+
+let pinchStartScrollTop =
+  0;
+
+let pinchStartCanvasWidth =
+  0;
+
+let pinchStartCanvasHeight =
   0;
 
 
-/*
-  The page is allowed to move
-  naturally when zoomed.
-*/
+/* =========================
+   PAN STATE
+========================= */
 
-pageStage.style.touchAction =
-  "none";
+let panActive =
+  false;
+
+let panLastX =
+  0;
+
+let panLastY =
+  0;
+
+
+/* =========================
+   HELPERS
+========================= */
+
+function getPointerArray() {
+
+  return [
+    ...pointers.values()
+  ];
+
+}
 
 
 function getDistance(
@@ -1052,6 +1078,66 @@ function getCenter(
 
 
 /* =========================
+   LIMIT SCALE
+========================= */
+
+function clampScale(
+  value
+) {
+
+  return Math.max(
+    1,
+    Math.min(
+      value,
+      3
+    )
+  );
+
+}
+
+
+/* =========================
+   APPLY TEMPORARY ZOOM
+========================= */
+
+function applyGestureZoom(
+  newScale
+) {
+
+  if (
+    !canvas.width ||
+    !canvas.height
+  ) {
+
+    return;
+
+  }
+
+
+  /*
+    Scale relative to the
+    currently rendered page.
+
+    This does NOT re-render
+    PDF.js on every finger movement.
+  */
+
+  const ratio =
+    newScale /
+    pinchStartScale;
+
+
+  pageContainer.style.transformOrigin =
+    "0 0";
+
+
+  pageContainer.style.transform =
+    `scale(${ratio})`;
+
+}
+
+
+/* =========================
    POINTER DOWN
 ========================= */
 
@@ -1059,9 +1145,26 @@ pageStage.addEventListener(
   "pointerdown",
   event => {
 
+    if (
+      event.pointerType ===
+      "mouse" &&
+      event.button !== 0
+    ) {
+
+      return;
+
+    }
+
+
     pointers.set(
       event.pointerId,
-      event
+      {
+        clientX:
+          event.clientX,
+
+        clientY:
+          event.clientY
+      }
     );
 
 
@@ -1074,15 +1177,23 @@ pageStage.addEventListener(
     } catch {}
 
 
+    /*
+      Two fingers = start pinch.
+    */
+
     if (
       pointers.size === 2
     ) {
+
+      panActive =
+        false;
+
 
       const [
         first,
         second
       ] =
-        [...pointers.values()];
+        getPointerArray();
 
 
       pinchStartDistance =
@@ -1103,11 +1214,60 @@ pageStage.addEventListener(
         );
 
 
-      pinchCenterX =
+      pinchStartCenterX =
         center.x;
 
-      pinchCenterY =
+      pinchStartCenterY =
         center.y;
+
+
+      pinchStartScrollLeft =
+        pageStage.scrollLeft;
+
+      pinchStartScrollTop =
+        pageStage.scrollTop;
+
+
+      pinchStartCanvasWidth =
+        canvas.getBoundingClientRect()
+          .width;
+
+      pinchStartCanvasHeight =
+        canvas.getBoundingClientRect()
+          .height;
+
+
+      /*
+        Remove any old temporary
+        transform before beginning
+        a new gesture.
+      */
+
+      pageContainer.style.transform =
+        "scale(1)";
+
+    }
+
+
+    /*
+      One finger while zoomed =
+      start manual pan.
+    */
+
+    else if (
+      pointers.size === 1 &&
+      scale > 1
+    ) {
+
+      panActive =
+        true;
+
+
+      panLastX =
+        event.clientX;
+
+      panLastY =
+        event.clientY;
 
     }
 
@@ -1136,87 +1296,255 @@ pageStage.addEventListener(
 
     pointers.set(
       event.pointerId,
-      event
+      {
+        clientX:
+          event.clientX,
+
+        clientY:
+          event.clientY
+      }
     );
-
-
-    if (
-      pointers.size < 2
-    ) {
-
-      return;
-
-    }
-
-
-    const [
-      first,
-      second
-    ] =
-      [...pointers.values()];
-
-
-    const currentDistance =
-      getDistance(
-        first,
-        second
-      );
-
-
-    if (
-      pinchStartDistance <= 0
-    ) {
-
-      return;
-
-    }
-
-
-    const ratio =
-      currentDistance /
-      pinchStartDistance;
-
-
-    let newScale =
-      pinchStartScale *
-      ratio;
-
-
-    newScale =
-      Math.max(
-        0.6,
-        Math.min(
-          newScale,
-          3
-        )
-      );
-
-
-    scale =
-      newScale;
-
-
-    updateZoomLabel();
 
 
     /*
-      Re-render the current page
-      using the new zoom level.
+      ========================
+      PINCH
+      ========================
     */
 
-    renderPage(
-      currentPage
-    );
+    if (
+      pointers.size === 2
+    ) {
+
+      const [
+        first,
+        second
+      ] =
+        getPointerArray();
+
+
+      const currentDistance =
+        getDistance(
+          first,
+          second
+        );
+
+
+      if (
+        pinchStartDistance <= 0
+      ) {
+
+        return;
+
+      }
+
+
+      const ratio =
+        currentDistance /
+        pinchStartDistance;
+
+
+      let newScale =
+        pinchStartScale *
+        ratio;
+
+
+      newScale =
+        clampScale(
+          newScale
+        );
+
+
+      scale =
+        newScale;
+
+
+      updateZoomLabel();
+
+
+      /*
+        Smooth visual zoom.
+
+        PDF.js is NOT rendered here.
+      */
+
+      applyGestureZoom(
+        newScale
+      );
+
+
+      return;
+
+    }
+
+
+    /*
+      ========================
+      ONE-FINGER PAN
+      ========================
+    */
+
+    if (
+      pointers.size === 1 &&
+      panActive &&
+      scale > 1
+    ) {
+
+      const dx =
+        event.clientX -
+        panLastX;
+
+      const dy =
+        event.clientY -
+        panLastY;
+
+
+      pageStage.scrollLeft -=
+        dx;
+
+      pageStage.scrollTop -=
+        dy;
+
+
+      panLastX =
+        event.clientX;
+
+      panLastY =
+        event.clientY;
+
+    }
 
   }
 );
 
 
 /* =========================
+   FINISH PINCH
+========================= */
+
+async function finishPinch() {
+
+  if (
+    pinchStartDistance <= 0
+  ) {
+
+    return;
+
+  }
+
+
+  /*
+    Save the zoom level reached
+    by the fingers.
+  */
+
+  const finalScale =
+    scale;
+
+
+  /*
+    Remove temporary CSS zoom.
+  */
+
+  pageContainer.style.transform =
+    "scale(1)";
+
+
+  /*
+    Render the PDF only once,
+    after the fingers are released.
+  */
+
+  await renderPage(
+    currentPage
+  );
+
+
+  /*
+    Keep the user's view roughly
+    around the same area after the
+    real PDF render.
+  */
+
+  if (
+    finalScale > 1
+  ) {
+
+    requestAnimationFrame(
+      () => {
+
+        const rect =
+          pageStage.getBoundingClientRect();
+
+
+        const centerX =
+          pinchStartCenterX -
+          rect.left;
+
+
+        const centerY =
+          pinchStartCenterY -
+          rect.top;
+
+
+        const widthRatio =
+          canvas.getBoundingClientRect()
+            .width /
+          Math.max(
+            1,
+            pinchStartCanvasWidth
+          );
+
+
+        const heightRatio =
+          canvas.getBoundingClientRect()
+            .height /
+          Math.max(
+            1,
+            pinchStartCanvasHeight
+          );
+
+
+        pageStage.scrollLeft =
+          Math.max(
+            0,
+            (
+              pinchStartScrollLeft +
+              centerX
+            ) *
+              widthRatio -
+              centerX
+          );
+
+
+        pageStage.scrollTop =
+          Math.max(
+            0,
+            (
+              pinchStartScrollTop +
+              centerY
+            ) *
+              heightRatio -
+              centerY
+          );
+
+      }
+    );
+
+  }
+
+
+  pinchStartDistance =
+    0;
+
+}
+
+
+/* =========================
    POINTER UP
 ========================= */
 
-function removePointer(
+function finishPointer(
   event
 ) {
 
@@ -1225,48 +1553,68 @@ function removePointer(
   );
 
 
+  /*
+    If the pinch has ended,
+    convert the temporary zoom
+    into a real PDF render.
+  */
+
   if (
-    pointers.size < 2
+    pointers.size < 2 &&
+    pinchStartDistance > 0
   ) {
+
+    finishPinch();
+
+  }
+
+
+  /*
+    No fingers left.
+  */
+
+  if (
+    pointers.size === 0
+  ) {
+
+    panActive =
+      false;
 
     pinchStartDistance =
       0;
 
   }
 
+
+  try {
+
+    if (
+      pageStage.hasPointerCapture(
+        event.pointerId
+      )
+    ) {
+
+      pageStage.releasePointerCapture(
+        event.pointerId
+      );
+
+    }
+
+  } catch {}
+
 }
 
 
 pageStage.addEventListener(
   "pointerup",
-  removePointer
+  finishPointer
 );
 
 
 pageStage.addEventListener(
   "pointercancel",
-  removePointer
+  finishPointer
 );
-
-
-pageStage.addEventListener(
-  "pointerleave",
-  event => {
-
-    if (
-      event.pointerType ===
-      "mouse"
-    ) {
-
-      removePointer(
-        event
-      );
-
-    }
-
-  }
-);
-
 
     /* =========================
        KEYBOARD
@@ -1317,10 +1665,10 @@ pageStage.addEventListener(
       () => {
 
         scale =
-          Math.min(
-            scale + 0.1,
-            2.5
-          );
+  Math.min(
+    scale + 0.1,
+    3
+  );
 
         updateZoomLabel();
 
@@ -2351,23 +2699,7 @@ pageStage.addEventListener(
         await renderPage(
           currentPage
         );
-
-
-        /*
-          Hide swipe hint after
-          a short period.
-        */
-
-        setTimeout(
-          () => {
-
-            swipeHint.style.opacity =
-              "0";
-
-          },
-          3000
-        );
-
+        
       } catch (error) {
 
         showError(
