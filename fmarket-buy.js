@@ -1779,13 +1779,16 @@ if (
   ========================= */
 
   const category =
-  String(
-    material.category ||
-    ""
-  )
-    .toLowerCase()
-    .trim()
-    .replace(/[\s-]+/g, "_");
+    String(
+      material.category ||
+      ""
+    )
+      .toLowerCase()
+      .trim()
+      .replace(
+        /[\s-]+/g,
+        "_"
+      );
 
 
   /* =========================
@@ -1867,8 +1870,7 @@ if (
   ========================= */
 
   if (
-    category === "past_questions" ||
-    category === "past-questions"
+    category === "past_questions"
   ) {
 
     if (
@@ -1938,7 +1940,7 @@ if (
 
 
   /* =========================
-     DIGITAL TEXTBOOK
+     DIGITAL / PHYSICAL TEXTBOOK
   ========================= */
 
   if (
@@ -1950,9 +1952,14 @@ if (
       String(
         material.material_type ||
         ""
-      ).toLowerCase()
-       .trim();
+      )
+        .toLowerCase()
+        .trim();
 
+
+    /* =========================
+       DIGITAL TEXTBOOK
+    ========================= */
 
     if (
       materialType === "digital"
@@ -1963,7 +1970,7 @@ if (
       ) {
 
         showStatus(
-          "This free textbook has no file attached.",
+          "This textbook has no PDF file attached.",
           "error"
         );
 
@@ -1971,6 +1978,10 @@ if (
 
       }
 
+
+      /* =========================
+         SAVE TEXTBOOK
+      ========================= */
 
       localStorage.setItem(
         "viewing_textbook",
@@ -2003,7 +2014,7 @@ if (
 
 
     /* =========================
-       FREE PHYSICAL TEXTBOOK
+       PHYSICAL TEXTBOOK
     ========================= */
 
     if (
@@ -2011,13 +2022,25 @@ if (
     ) {
 
       showStatus(
-        "This is a physical textbook. Please contact the seller.",
+        "This is a physical textbook.",
         "info"
       );
 
       return;
 
     }
+
+
+    /* =========================
+       UNKNOWN TEXTBOOK TYPE
+    ========================= */
+
+    showStatus(
+      "This textbook type is unavailable.",
+      "error"
+    );
+
+    return;
 
   }
 
