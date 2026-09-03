@@ -1,816 +1,179 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FAI Camera Test</title>  <style>
-    * {
-      box-sizing: border-box;
-    }
 
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>FMarket Material Test</title>
+
+  <style>
     body {
-      margin: 0;
-      padding: 20px;
       font-family: Arial, sans-serif;
-      background: #111;
-      color: #fff;
+      padding: 20px;
+      background: #f5f5f5;
     }
 
     h2 {
-      margin-top: 0;
+      margin-bottom: 15px;
     }
 
-    textarea {
-      width: 100%;
-      min-height: 100px;
-      padding: 12px;
+    pre {
+      background: white;
+      padding: 15px;
       border-radius: 10px;
-      border: 1px solid #444;
-      background: #222;
-      color: #fff;
-      resize: vertical;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .field {
+      background: white;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+    }
+
+    .label {
+      font-weight: bold;
     }
 
     button {
-      padding: 12px 16px;
-      margin: 6px 4px 6px 0;
-      border: 0;
+      padding: 10px 15px;
+      border: none;
       border-radius: 8px;
       cursor: pointer;
-      font-size: 15px;
+      margin-bottom: 15px;
     }
+  </style>
+</head>
 
-    .send {
-      background: #4caf50;
-      color: white;
-    }
+<body>
 
-    .test {
-      background: #333;
-      color: white;
-      border: 1px solid #555;
-    }
+  <h2>FMarket Material Test</h2>
 
-    #preview img {
-      max-width: 100%;
-      max-height: 300px;
-      margin-top: 15px;
-      border-radius: 10px;
-    }
+  <button onclick="checkMaterial()">
+    Check localStorage
+  </button>
 
-    #logs,
-    #response {
-      white-space: pre-wrap;
-      word-break: break-word;
-      background: #050505;
-      border: 1px solid #333;
-      padding: 12px;
-      border-radius: 10px;
-      margin-top: 15px;
-      min-height: 80px;
-      overflow-x: auto;
-    }
+  <div id="fields"></div>
 
-    .section {
-      margin-top: 25px;
-    }
+  <h3>Full Stored Object</h3>
 
-    #status {
-      margin-top: 10px;
-      font-weight: bold;
-    }
-  </style></head><body>  <h2>FAI Camera / Query Test</h2>  <!-- CAMERA -->  <div class="section">
-    <h3>Camera</h3><input
-  type="file"
-  id="cameraInput"
-  accept="image/*"
-  capture="environment"
-  hidden
->
-
-<button
-  class="test"
-  id="cameraBtn"
->
-  📷 Open Camera
-</button>
-
-  </div>  <!-- PHOTOS -->  <div class="section">
-    <h3>Photos</h3><input
-  type="file"
-  id="photoInput"
-  accept="image/*"
-  hidden
->
-
-<button
-  class="test"
-  id="photoBtn"
->
-  🖼️ Choose Photo
-</button>
-
-  </div>  <!-- PREVIEW -->  <div id="preview"></div>  <!-- QUERY -->  <div class="section"><h3>Text Query</h3>
-
-<textarea
-  id="query"
-  placeholder="Type something to send to FAI..."
-></textarea>
-
-<br>
-
-<button
-  class="send"
-  id="sendBtn"
->
-  🚀 Send
-</button>
-
-<button
-  class="test"
-  id="clearBtn"
->
-  Clear
-</button>
-
-  </div>  <div id="status"></div>  <!-- RESPONSE -->  <div class="section"><h3>FAI Response</h3>
-
-<div id="response">
-  Nothing sent yet.
-</div>
-
-  </div>  <!-- LOGS -->  <div class="section"><h3>Test Logs</h3>
-
-<div id="logs">
-  No logs yet.
-</div>
-
-  </div><script>
-
-const cameraInput =
-  document.getElementById("cameraInput");
-
-const photoInput =
-  document.getElementById("photoInput");
-
-const cameraBtn =
-  document.getElementById("cameraBtn");
-
-const photoBtn =
-  document.getElementById("photoBtn");
-
-const sendBtn =
-  document.getElementById("sendBtn");
-
-const clearBtn =
-  document.getElementById("clearBtn");
-
-const queryInput =
-  document.getElementById("query");
-
-const preview =
-  document.getElementById("preview");
-
-const responseBox =
-  document.getElementById("response");
-
-const logsBox =
-  document.getElementById("logs");
-
-const statusBox =
-  document.getElementById("status");
+  <pre id="output">
+Nothing checked yet.
+  </pre>
 
 
-let selectedFile = null;
+  <script>
+
+    function checkMaterial() {
+
+      const raw =
+        localStorage.getItem(
+          "fmarket_material"
+        );
+
+      const fields =
+        document.getElementById(
+          "fields"
+        );
+
+      const output =
+        document.getElementById(
+          "output"
+        );
+
+      if (!raw) {
+
+        fields.innerHTML =
+          "<div class='field'>❌ No fmarket_material found in localStorage.</div>";
+
+        output.textContent =
+          "localStorage.getItem('fmarket_material') returned null.";
+
+        return;
+      }
 
 
-/* -------------------------
-   LOGGING
-------------------------- */
+      let material;
 
-function log(message, data) {
+      try {
 
-  const time =
-    new Date().toLocaleTimeString();
+        material =
+          JSON.parse(raw);
 
-  let output =
-    `[${time}] ${message}`;
+      } catch (error) {
 
-  if (data !== undefined) {
+        fields.innerHTML =
+          "<div class='field'>❌ fmarket_material exists but is not valid JSON.</div>";
 
-    try {
+        output.textContent =
+          raw;
 
-      output +=
-        "\n" +
+        return;
+      }
+
+
+      fields.innerHTML = `
+
+        <div class="field">
+          <span class="label">ID:</span>
+          ${material.id ?? "undefined"}
+        </div>
+
+        <div class="field">
+          <span class="label">Title:</span>
+          ${material.title ?? "undefined"}
+        </div>
+
+        <div class="field">
+          <span class="label">Category:</span>
+          ${material.category ?? "undefined"}
+        </div>
+
+        <div class="field">
+          <span class="label">Material Type:</span>
+          ${material.material_type ?? "undefined"}
+        </div>
+
+        <div class="field">
+          <span class="label">Owned:</span>
+          ${material.owned ?? "undefined"}
+        </div>
+
+        <div class="field">
+          <span class="label">Price:</span>
+          ${material.price ?? "undefined"}
+        </div>
+
+        <div class="field">
+          <span class="label">File URL:</span>
+          ${material.file_url ?? "❌ undefined / missing"}
+        </div>
+
+      `;
+
+
+      output.textContent =
         JSON.stringify(
-          data,
+          material,
           null,
           2
         );
 
-    } catch {
-
-      output +=
-        "\n" +
-        String(data);
-
-    }
-
-  }
-
-  console.log(message, data);
-
-  logsBox.textContent +=
-    output + "\n\n";
-
-  logsBox.scrollTop =
-    logsBox.scrollHeight;
-}
-
-
-/* -------------------------
-   CAMERA
-------------------------- */
-
-cameraBtn.onclick = () => {
-
-  log("📷 Opening camera...");
-
-  cameraInput.click();
-
-};
-
-
-/* -------------------------
-   PHOTO
-------------------------- */
-
-photoBtn.onclick = () => {
-
-  log("🖼️ Opening photo picker...");
-
-  photoInput.click();
-
-};
-
-
-/* -------------------------
-   CAMERA FILE
-------------------------- */
-
-cameraInput.addEventListener(
-  "change",
-  () => {
-
-    const file =
-      cameraInput.files?.[0];
-
-    if (!file) {
-
-      log("❌ Camera returned no file.");
-
-      return;
-
-    }
-
-    selectedFile = file;
-
-    log(
-      "📷 Camera file received",
-      {
-        isFile: file instanceof File,
-        name: file.name,
-        type: file.type,
-        size: file.size,
-        lastModified: file.lastModified
-      }
-    );
-
-    showPreview(file);
-
-  }
-);
-
-
-/* -------------------------
-   PHOTO FILE
-------------------------- */
-
-photoInput.addEventListener(
-  "change",
-  () => {
-
-    const file =
-      photoInput.files?.[0];
-
-    if (!file) {
-
-      log("❌ Photo picker returned no file.");
-
-      return;
-
-    }
-
-    selectedFile = file;
-
-    log(
-      "🖼️ Photo file received",
-      {
-        isFile: file instanceof File,
-        name: file.name,
-        type: file.type,
-        size: file.size,
-        lastModified: file.lastModified
-      }
-    );
-
-    showPreview(file);
-
-  }
-);
-
-
-/* -------------------------
-   PREVIEW
-------------------------- */
-
-function showPreview(file) {
-
-  preview.innerHTML = "";
-
-  if (
-    file.type &&
-    file.type.startsWith("image/")
-  ) {
-
-    const img =
-      document.createElement("img");
-
-    img.src =
-      URL.createObjectURL(file);
-
-    preview.appendChild(img);
-
-  } else {
-
-    preview.textContent =
-      `Selected: ${file.name}`;
-
-  }
-
-}
-
-/* -------------------------
-   COMPRESS / RESIZE IMAGE
-------------------------- */
-
-async function compressImage(
-  file,
-  maxWidth = 1600,
-  maxHeight = 1600,
-  quality = 0.75
-) {
-
-  if (!file.type.startsWith("image/")) {
-    return file;
-  }
-
-  return new Promise((resolve, reject) => {
-
-    const img = new Image();
-
-    const url =
-      URL.createObjectURL(file);
-
-    img.onload = () => {
-
-      URL.revokeObjectURL(url);
-
-      let width = img.width;
-      let height = img.height;
-
-      // Resize while keeping aspect ratio
-      if (
-        width > maxWidth ||
-        height > maxHeight
-      ) {
-
-        const scale =
-          Math.min(
-            maxWidth / width,
-            maxHeight / height
-          );
-
-        width =
-          Math.round(width * scale);
-
-        height =
-          Math.round(height * scale);
-      }
-
-      const canvas =
-        document.createElement("canvas");
-
-      canvas.width = width;
-      canvas.height = height;
-
-      const ctx =
-        canvas.getContext("2d");
-
-      ctx.drawImage(
-        img,
-        0,
-        0,
-        width,
-        height
-      );
-
-      canvas.toBlob(
-        blob => {
-
-          if (!blob) {
-            reject(
-              new Error(
-                "Image compression failed."
-              )
-            );
-            return;
-          }
-
-          const compressedFile =
-            new File(
-              [blob],
-              "compressed-camera.jpg",
-              {
-                type: "image/jpeg",
-                lastModified: Date.now()
-              }
-            );
-
-          resolve(compressedFile);
-
-        },
-        "image/jpeg",
-        quality
-      );
-
-    };
-
-    img.onerror = () => {
-
-      URL.revokeObjectURL(url);
-
-      reject(
-        new Error(
-          "Could not load image for compression."
-        )
-      );
-
-    };
-
-    img.src = url;
-
-  });
-
-}
-
-/* -------------------------
-   SEND
-------------------------- */
-
-sendBtn.onclick =
-async () => {
-
-  const prompt =
-    queryInput.value.trim();
-
-  if (!prompt && !selectedFile) {
-
-    statusBox.textContent =
-      "Enter a query or select a file.";
-
-    return;
-
-  }
-
-  responseBox.textContent =
-    "";
-
-  statusBox.textContent =
-    "Sending...";
-
-  log(
-    "🚀 Starting FAI request..."
-  );
-
-
-  try {
-
-    const formData =
-      new FormData();
-
-
-    /* USER ID */
-
-    formData.append(
-      "userId",
-      "test-user"
-    );
-
-
-    /* PROMPT */
-
-    formData.append(
-      "prompt",
-      prompt
-    );
-
-
-    /* MESSAGES */
-
-    formData.append(
-      "messages",
-      JSON.stringify([])
-    );
-
-
-    /* FILE */
-
-    if (selectedFile) {
-
-  log(
-    "📤 Original file",
-    {
-      name: selectedFile.name,
-      type: selectedFile.type,
-      size: selectedFile.size,
-      isFile:
-        selectedFile instanceof File
-    }
-  );
-
-  const uploadFile =
-    await compressImage(
-      selectedFile
-    );
-
-  log(
-    "🗜️ Compressed file",
-    {
-      name: uploadFile.name,
-      type: uploadFile.type,
-      size: uploadFile.size,
-      isFile:
-        uploadFile instanceof File
-    }
-  );
-
-  formData.append(
-    "file",
-    uploadFile,
-    uploadFile.name
-  );
-
-}
-
-
-    log(
-      "🌐 Sending POST /fai"
-    );
-
-
-    const res =
-      await fetch(
-        "https://fweb-backend.onrender.com/fai",
-        {
-          method: "POST",
-          body: formData
-        }
-      );
-
-
-    log(
-      "📥 Response received",
-      {
-        status: res.status,
-        statusText: res.statusText,
-        contentType:
-          res.headers.get(
-            "content-type"
-          )
-      }
-    );
-
-
-    const reader =
-      res.body?.getReader();
-
-
-    if (!reader) {
-
-      throw new Error(
-        "Response has no readable body."
-      );
-
     }
 
 
-    const decoder =
-      new TextDecoder();
+    // Automatically check when page opens
+    checkMaterial();
 
-    let buffer = "";
-    let fullResponse = "";
+  </script>
 
+</body>
 
-    while (true) {
-
-      const {
-        value,
-        done
-      } =
-        await reader.read();
-
-
-      if (done) break;
-
-
-      const text =
-        decoder.decode(
-          value,
-          {
-            stream: true
-          }
-        );
-
-
-      log(
-        "📦 Raw chunk received",
-        text
-      );
-
-
-      buffer += text;
-
-
-      const lines =
-        buffer.split("\n");
-
-
-      buffer =
-        lines.pop() || "";
-
-
-      for (
-        const line of lines
-      ) {
-
-        if (
-          !line.startsWith("data:")
-        ) {
-
-          continue;
-
-        }
-
-
-        const jsonText =
-          line
-            .replace(
-              /^data:\s*/,
-              ""
-            )
-            .trim();
-
-
-        if (!jsonText) continue;
-
-
-        try {
-
-          const event =
-            JSON.parse(
-              jsonText
-            );
-
-
-          log(
-            "📨 SSE event",
-            event
-          );
-
-
-          if (
-            event.type === "chunk"
-          ) {
-
-            fullResponse +=
-              event.text || "";
-
-            responseBox.textContent =
-              fullResponse;
-
-          }
-
-
-          if (
-            event.type === "error"
-          ) {
-
-            fullResponse +=
-              "\n\nERROR: " +
-              (
-                event.message ||
-                "Unknown FAI error"
-              );
-
-            responseBox.textContent =
-              fullResponse;
-
-          }
-
-
-          if (
-            event.type === "done"
-          ) {
-
-            log(
-              "✅ FAI stream finished."
-            );
-
-          }
-
-        } catch (err) {
-
-          log(
-            "⚠️ Could not parse SSE event",
-            {
-              line,
-              error:
-                err.message
-            }
-          );
-
-        }
-
-      }
-
-    }
-
-
-    statusBox.textContent =
-      "Finished.";
-
-    log(
-      "🏁 Request completed."
-    );
-
-
-  } catch (err) {
-
-    statusBox.textContent =
-      "Request failed.";
-
-    responseBox.textContent =
-      err.message;
-
-    log(
-      "❌ REQUEST FAILED",
-      {
-        name: err.name,
-        message: err.message,
-        stack: err.stack
-      }
-    );
-
-  }
-
-};
-
-
-/* -------------------------
-   CLEAR
-------------------------- */
-
-clearBtn.onclick = () => {
-
-  selectedFile = null;
-
-  cameraInput.value = "";
-  photoInput.value = "";
-
-  queryInput.value = "";
-
-  preview.innerHTML = "";
-
-  responseBox.textContent =
-    "Nothing sent yet.";
-
-  logsBox.textContent =
-    "No logs yet.";
-
-  statusBox.textContent = "";
-
-};
-
-
-</script></body>
 </html>
