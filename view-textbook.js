@@ -731,11 +731,18 @@ document.addEventListener(
           viewport.height;
 
 
-        baseScale =
-          Math.min(
-            widthScale,
-            heightScale
-          );
+        if (
+  !baseScale ||
+  baseScale <= 0
+) {
+
+  baseScale =
+    Math.min(
+      widthScale,
+      heightScale
+    );
+
+}
 
 
         if (
@@ -970,128 +977,295 @@ document.addEventListener(
     }
 
 
-    /* =========================
-       SWIPE
-    ========================= */
+/* =========================
+   PINCH ZOOM + PAN
+========================= */
 
-    let pointerStartX = 0;
+const pointers =
+  new Map();
 
-    let pointerStartY = 0;
+let pinchStartDistance =
+  0;
 
-    let pointerActive =
-      false;
+let pinchStartScale =
+  1;
 
+let pinchCenterX =
+  0;
 
-    reader.addEventListener(
-      "pointerdown",
-      event => {
-
-        if (
-          event.pointerType ===
-          "mouse" &&
-          event.button !== 0
-        ) {
-
-          return;
-
-        }
-
-        pointerActive =
-          true;
-
-        pointerStartX =
-          event.clientX;
-
-        pointerStartY =
-          event.clientY;
+let pinchCenterY =
+  0;
 
 
-        try {
+/*
+  The page is allowed to move
+  naturally when zoomed.
+*/
 
-          reader.setPointerCapture(
-            event.pointerId
-          );
+pageStage.style.touchAction =
+  "none";
 
-        } catch {}
 
-      }
+function getDistance(
+  first,
+  second
+) {
+
+  const dx =
+    second.clientX -
+    first.clientX;
+
+  const dy =
+    second.clientY -
+    first.clientY;
+
+  return Math.sqrt(
+    dx * dx +
+    dy * dy
+  );
+
+}
+
+
+function getCenter(
+  first,
+  second
+) {
+
+  return {
+
+    x:
+      (
+        first.clientX +
+        second.clientX
+      ) / 2,
+
+    y:
+      (
+        first.clientY +
+        second.clientY
+      ) / 2
+
+  };
+
+}
+
+
+/* =========================
+   POINTER DOWN
+========================= */
+
+pageStage.addEventListener(
+  "pointerdown",
+  event => {
+
+    pointers.set(
+      event.pointerId,
+      event
     );
 
 
-    reader.addEventListener(
-      "pointerup",
-      event => {
+    try {
 
-        if (
-          !pointerActive
-        ) {
+      pageStage.setPointerCapture(
+        event.pointerId
+      );
 
-          return;
-
-        }
-
-        pointerActive =
-          false;
+    } catch {}
 
 
-        const deltaX =
-          event.clientX -
-          pointerStartX;
+    if (
+      pointers.size === 2
+    ) {
 
-        const deltaY =
-          event.clientY -
-          pointerStartY;
-
-
-        const horizontalDistance =
-          Math.abs(
-            deltaX
-          );
-
-        const verticalDistance =
-          Math.abs(
-            deltaY
-          );
+      const [
+        first,
+        second
+      ] =
+        [...pointers.values()];
 
 
-        /*
-          Require a clear horizontal
-          swipe.
-        */
+      pinchStartDistance =
+        getDistance(
+          first,
+          second
+        );
 
-        if (
-          horizontalDistance >= 60 &&
-          horizontalDistance >
-            verticalDistance * 1.25
-        ) {
 
-          if (
-            deltaX < 0
-          ) {
+      pinchStartScale =
+        scale;
 
-            nextPage();
 
-          } else {
+      const center =
+        getCenter(
+          first,
+          second
+        );
 
-            previousPage();
 
-          }
+      pinchCenterX =
+        center.x;
 
-        }
+      pinchCenterY =
+        center.y;
 
-      }
+    }
+
+  }
+);
+
+
+/* =========================
+   POINTER MOVE
+========================= */
+
+pageStage.addEventListener(
+  "pointermove",
+  event => {
+
+    if (
+      !pointers.has(
+        event.pointerId
+      )
+    ) {
+
+      return;
+
+    }
+
+
+    pointers.set(
+      event.pointerId,
+      event
     );
 
 
-    reader.addEventListener(
-      "pointercancel",
-      () => {
+    if (
+      pointers.size < 2
+    ) {
 
-        pointerActive =
-          false;
+      return;
 
-      }
+    }
+
+
+    const [
+      first,
+      second
+    ] =
+      [...pointers.values()];
+
+
+    const currentDistance =
+      getDistance(
+        first,
+        second
+      );
+
+
+    if (
+      pinchStartDistance <= 0
+    ) {
+
+      return;
+
+    }
+
+
+    const ratio =
+      currentDistance /
+      pinchStartDistance;
+
+
+    let newScale =
+      pinchStartScale *
+      ratio;
+
+
+    newScale =
+      Math.max(
+        0.6,
+        Math.min(
+          newScale,
+          3
+        )
+      );
+
+
+    scale =
+      newScale;
+
+
+    updateZoomLabel();
+
+
+    /*
+      Re-render the current page
+      using the new zoom level.
+    */
+
+    renderPage(
+      currentPage
     );
+
+  }
+);
+
+
+/* =========================
+   POINTER UP
+========================= */
+
+function removePointer(
+  event
+) {
+
+  pointers.delete(
+    event.pointerId
+  );
+
+
+  if (
+    pointers.size < 2
+  ) {
+
+    pinchStartDistance =
+      0;
+
+  }
+
+}
+
+
+pageStage.addEventListener(
+  "pointerup",
+  removePointer
+);
+
+
+pageStage.addEventListener(
+  "pointercancel",
+  removePointer
+);
+
+
+pageStage.addEventListener(
+  "pointerleave",
+  event => {
+
+    if (
+      event.pointerType ===
+      "mouse"
+    ) {
+
+      removePointer(
+        event
+      );
+
+    }
+
+  }
+);
 
 
     /* =========================
@@ -2240,14 +2414,17 @@ document.addEventListener(
             () => {
 
               if (
-                pdf
-              ) {
+  pdf
+) {
 
-                renderPage(
-                  currentPage
-                );
+  baseScale =
+    0;
 
-              }
+  renderPage(
+    currentPage
+  );
+
+}
 
             },
             250
