@@ -2266,7 +2266,7 @@ pageStage.addEventListener(
     */
 
     const FAI_API_URL =
-      "https://fweb-backend.onrender.com/fai";
+      "https://fweb-backend.onrender.com/fai2";
 
 
     /* =========================
