@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>FMarket Backend Test</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+
+    h2 {
+      margin-bottom: 10px;
+    }
+
+    button {
+      padding: 12px 18px;
+      border: none;
+      border-radius: 8px;
+      background: #222;
+      color: white;
+      font-size: 15px;
+      cursor: pointer;
+      margin-bottom: 15px;
+    }
+
+    .status {
+      background: white;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+
+    pre {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .found {
+      color: green;
+      font-weight: bold;
+    }
+
+    .missing {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>FMarket Backend Test</h2>
+
+  <button onclick="testBackend()">
+    Call /fmarket
+  </button>
+
+  <div
+    id="status"
+    class="status"
+  >
+    Waiting...
+  </div>
+
+  <h3>Matching Material</h3>
+
+  <pre id="material">
+Nothing yet.
+  </pre>
+
+  <h3>Full Backend Response</h3>
+
+  <pre id="response">
+Nothing yet.
+  </pre>
+
+
+  <script>
+
+    const API_URL =
+      "https://fweb-backend.onrender.com/fmarket";
+
+
+    const ITEM_ID =
+      "1a5ac598-cdfe-482a-bb0d-dc32eb5d93af";
+
+
+    async function testBackend() {
+
+      const status =
+        document.getElementById(
+          "status"
+        );
+
+      const materialBox =
+        document.getElementById(
+          "material"
+        );
+
+      const responseBox =
+        document.getElementById(
+          "response"
+        );
+
+
+      status.textContent =
+        "Calling backend...";
+
+
+      try {
+
+        const account =
+          JSON.parse(
+            localStorage.getItem(
+              "faccount"
+            ) || "null"
+          );
+
+
+        const userId =
+          account?.id || null;
+
+
+        const response =
+          await fetch(
+            API_URL,
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json"
+              },
+
+              body:
+                JSON.stringify({
+                  userId
+                })
+            }
+          );
+
+
+        const data =
+          await response.json();
+
+
+        responseBox.textContent =
+          JSON.stringify(
+            data,
+            null,
+            2
+          );
+
+
+        if (
+          !data.success
+        ) {
+
+          status.innerHTML =
+            "<span class='missing'>❌ Backend returned an error.</span>";
+
+          return;
+        }
+
+
+        const materials =
+          data.materials || [];
+
+
+        const material =
+          materials.find(
+            item =>
+              String(item.id) ===
+              String(ITEM_ID)
+          );
+
+
+        if (!material) {
+
+          status.innerHTML =
+            "<span class='missing'>❌ Item was not found in /fmarket response.</span>";
+
+          materialBox.textContent =
+            "No matching material.";
+
+          return;
+        }
+
+
+        const fileUrl =
+          material.file_url;
+
+
+        const materialType =
+          material.material_type;
+
+
+        const category =
+          material.category;
+
+
+        materialBox.textContent =
+          JSON.stringify(
+            material,
+            null,
+            2
+          );
+
+
+        if (
+          fileUrl
+        ) {
+
+          status.innerHTML = `
+            <span class="found">
+              ✅ file_url FOUND
+            </span>
+
+            <br><br>
+
+            <b>file_url:</b><br>
+            ${fileUrl}
+
+            <br><br>
+
+            <b>category:</b>
+            ${category}
+
+            <br>
+
+            <b>material_type:</b>
+            ${materialType}
+          `;
+
+        } else {
+
+          status.innerHTML = `
+            <span class="missing">
+              ❌ file_url is missing/null
+            </span>
+
+            <br><br>
+
+            <b>category:</b>
+            ${category}
+
+            <br>
+
+            <b>material_type:</b>
+            ${materialType}
+
+            <br>
+
+            <b>file_url:</b>
+            ${fileUrl ?? "undefined/null"}
+          `;
+
+        }
+
+      } catch (error) {
+
+        status.innerHTML =
+          `<span class="missing">
+            ❌ Request failed:
+            ${error.message}
+          </span>`;
+
+        materialBox.textContent =
+          "";
+
+        responseBox.textContent =
+          error.stack ||
+          error.message;
+
+      }
+
+    }
+
+
+    testBackend();
+
+  </script>
+
+</body>
+
+</html>
