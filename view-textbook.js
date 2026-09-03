@@ -318,7 +318,7 @@ document.addEventListener(
 
     let scale = 1;
 
-    let baseScale = 1;
+    let baseScale = 0;
 
     let rendering = false;
 
@@ -1685,10 +1685,10 @@ pageStage.addEventListener(
       () => {
 
         scale =
-          Math.max(
-            scale - 0.1,
-            0.6
-          );
+  Math.max(
+    scale - 0.1,
+    1
+  );
 
         updateZoomLabel();
 
