@@ -1758,6 +1758,86 @@ if (
 
   }
 
+/* =========================
+   OWNED TEXTBOOK
+========================= */
+
+if (
+  category === "textbook"
+) {
+
+  const materialType =
+    String(
+      material.material_type ||
+      ""
+    )
+      .toLowerCase()
+      .trim();
+
+
+  if (
+    materialType === "digital"
+  ) {
+
+    if (
+      !material.file_url
+    ) {
+
+      showStatus(
+        "You own this textbook, but its file is not available.",
+        "error"
+      );
+
+      return;
+
+    }
+
+
+    localStorage.setItem(
+      "viewing_textbook",
+      JSON.stringify(
+        material
+      )
+    );
+
+
+    showStatus(
+      "Opening textbook...",
+      "success"
+    );
+
+
+    setTimeout(
+      () => {
+
+        window.location.href =
+          "/view-textbook";
+
+      },
+      300
+    );
+
+
+    return;
+
+  }
+
+
+  if (
+    materialType === "physical"
+  ) {
+
+    showStatus(
+      "This is a physical textbook.",
+      "info"
+    );
+
+    return;
+
+  }
+
+}
+
 }
 
 /* =========================
