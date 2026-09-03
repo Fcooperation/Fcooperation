@@ -684,8 +684,6 @@ document.addEventListener(
 
 
       rendering = true;
-      pageContainer.style.transform =
-  "scale(1)";
 
 
       try {
@@ -974,7 +972,7 @@ const heightScale =
 
 
 /* =========================
-   SMOOTH PINCH ZOOM + PAN
+   PINCH ZOOM + PAN
 ========================= */
 
 const pointers =
@@ -986,16 +984,16 @@ let pinchStartDistance =
 let pinchStartScale =
   1;
 
-let pinchStartCenterX =
-  0;
-
-let pinchStartCenterY =
-  0;
-
 let pinchStartScrollLeft =
   0;
 
 let pinchStartScrollTop =
+  0;
+
+let pinchStartCenterX =
+  0;
+
+let pinchStartCenterY =
   0;
 
 let pinchStartCanvasWidth =
@@ -1003,11 +1001,6 @@ let pinchStartCanvasWidth =
 
 let pinchStartCanvasHeight =
   0;
-
-
-/* =========================
-   PAN STATE
-========================= */
 
 let panActive =
   false;
@@ -1020,7 +1013,7 @@ let panLastY =
 
 
 /* =========================
-   HELPERS
+   POINTER HELPERS
 ========================= */
 
 function getPointerArray() {
@@ -1078,7 +1071,7 @@ function getCenter(
 
 
 /* =========================
-   LIMIT SCALE
+   LIMIT ZOOM
 ========================= */
 
 function clampScale(
@@ -1097,10 +1090,10 @@ function clampScale(
 
 
 /* =========================
-   APPLY TEMPORARY ZOOM
+   APPLY PINCH ZOOM
 ========================= */
 
-function applyGestureZoom(
+function applyPinchZoom(
   newScale
 ) {
 
@@ -1115,11 +1108,15 @@ function applyGestureZoom(
 
 
   /*
-    Scale relative to the
-    currently rendered page.
+    The page was originally rendered
+    at pinchStartScale.
 
-    This does NOT re-render
-    PDF.js on every finger movement.
+    Calculate the new dimensions
+    directly instead of using CSS
+    transform.
+
+    This keeps the scroll area in
+    sync with what the user sees.
   */
 
   const ratio =
@@ -1127,12 +1124,60 @@ function applyGestureZoom(
     pinchStartScale;
 
 
-  pageContainer.style.transformOrigin =
-    "0 0";
+  const newWidth =
+    pinchStartCanvasWidth *
+    ratio;
+
+  const newHeight =
+    pinchStartCanvasHeight *
+    ratio;
 
 
-  pageContainer.style.transform =
-    `scale(${ratio})`;
+  canvas.style.width =
+    `${newWidth}px`;
+
+  canvas.style.height =
+    `${newHeight}px`;
+
+
+  /*
+    Keep the point between the
+    fingers stationary.
+
+    Convert the finger center into
+    coordinates inside the scroll
+    area.
+  */
+
+  const newScrollLeft =
+    (
+      pinchStartScrollLeft +
+      pinchStartCenterX
+    ) *
+      ratio -
+    pinchStartCenterX;
+
+
+  const newScrollTop =
+    (
+      pinchStartScrollTop +
+      pinchStartCenterY
+    ) *
+      ratio -
+    pinchStartCenterY;
+
+
+  pageStage.scrollLeft =
+    Math.max(
+      0,
+      newScrollLeft
+    );
+
+  pageStage.scrollTop =
+    Math.max(
+      0,
+      newScrollTop
+    );
 
 }
 
@@ -1178,7 +1223,9 @@ pageStage.addEventListener(
 
 
     /*
-      Two fingers = start pinch.
+      ========================
+      TWO FINGERS
+      ========================
     */
 
     if (
@@ -1214,11 +1261,22 @@ pageStage.addEventListener(
         );
 
 
+      const stageRect =
+        pageStage.getBoundingClientRect();
+
+
+      /*
+        Finger center relative
+        to the visible reader.
+      */
+
       pinchStartCenterX =
-        center.x;
+        center.x -
+        stageRect.left;
 
       pinchStartCenterY =
-        center.y;
+        center.y -
+        stageRect.top;
 
 
       pinchStartScrollLeft =
@@ -1236,22 +1294,13 @@ pageStage.addEventListener(
         canvas.getBoundingClientRect()
           .height;
 
-
-      /*
-        Remove any old temporary
-        transform before beginning
-        a new gesture.
-      */
-
-      pageContainer.style.transform =
-        "scale(1)";
-
     }
 
 
     /*
-      One finger while zoomed =
-      start manual pan.
+      ========================
+      ONE FINGER
+      ========================
     */
 
     else if (
@@ -1308,7 +1357,7 @@ pageStage.addEventListener(
 
     /*
       ========================
-      PINCH
+      PINCH ZOOM
       ========================
     */
 
@@ -1344,14 +1393,10 @@ pageStage.addEventListener(
         pinchStartDistance;
 
 
-      let newScale =
-        pinchStartScale *
-        ratio;
-
-
-      newScale =
+      const newScale =
         clampScale(
-          newScale
+          pinchStartScale *
+          ratio
         );
 
 
@@ -1362,13 +1407,7 @@ pageStage.addEventListener(
       updateZoomLabel();
 
 
-      /*
-        Smooth visual zoom.
-
-        PDF.js is NOT rendered here.
-      */
-
-      applyGestureZoom(
+      applyPinchZoom(
         newScale
       );
 
@@ -1433,26 +1472,26 @@ async function finishPinch() {
   }
 
 
-  /*
-    Save the zoom level reached
-    by the fingers.
-  */
-
   const finalScale =
     scale;
 
 
   /*
-    Remove temporary CSS zoom.
+    Save the current scroll
+    position before PDF.js
+    re-renders the page.
   */
 
-  pageContainer.style.transform =
-    "scale(1)";
+  const finalScrollLeft =
+    pageStage.scrollLeft;
+
+  const finalScrollTop =
+    pageStage.scrollTop;
 
 
   /*
-    Render the PDF only once,
-    after the fingers are released.
+    PDF.js now renders the page
+    at the actual final zoom.
   */
 
   await renderPage(
@@ -1461,9 +1500,13 @@ async function finishPinch() {
 
 
   /*
-    Keep the user's view roughly
-    around the same area after the
-    real PDF render.
+    Restore approximately the
+    same visible area.
+
+    Because the actual canvas now
+    has the correct dimensions,
+    there is no temporary transform
+    jump.
   */
 
   if (
@@ -1473,59 +1516,21 @@ async function finishPinch() {
     requestAnimationFrame(
       () => {
 
-        const rect =
-          pageStage.getBoundingClientRect();
-
-
-        const centerX =
-          pinchStartCenterX -
-          rect.left;
-
-
-        const centerY =
-          pinchStartCenterY -
-          rect.top;
-
-
-        const widthRatio =
-          canvas.getBoundingClientRect()
-            .width /
-          Math.max(
-            1,
-            pinchStartCanvasWidth
-          );
-
-
-        const heightRatio =
-          canvas.getBoundingClientRect()
-            .height /
-          Math.max(
-            1,
-            pinchStartCanvasHeight
-          );
+        const ratio =
+          finalScale /
+          pinchStartScale;
 
 
         pageStage.scrollLeft =
           Math.max(
             0,
-            (
-              pinchStartScrollLeft +
-              centerX
-            ) *
-              widthRatio -
-              centerX
+            finalScrollLeft
           );
-
 
         pageStage.scrollTop =
           Math.max(
             0,
-            (
-              pinchStartScrollTop +
-              centerY
-            ) *
-              heightRatio -
-              centerY
+            finalScrollTop
           );
 
       }
@@ -1541,7 +1546,7 @@ async function finishPinch() {
 
 
 /* =========================
-   POINTER UP
+   POINTER UP / CANCEL
 ========================= */
 
 function finishPointer(
@@ -1554,9 +1559,9 @@ function finishPointer(
 
 
   /*
-    If the pinch has ended,
-    convert the temporary zoom
-    into a real PDF render.
+    Finish the pinch when
+    one of the two fingers
+    is released.
   */
 
   if (
@@ -1568,10 +1573,6 @@ function finishPointer(
 
   }
 
-
-  /*
-    No fingers left.
-  */
 
   if (
     pointers.size === 0
