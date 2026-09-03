@@ -24,21 +24,25 @@
       margin-bottom: 10px;
     }
 
+    button {
+      padding: 12px 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-bottom: 15px;
+      font-size: 15px;
+    }
+
     .box {
       background: white;
       padding: 15px;
-      margin: 12px 0;
       border-radius: 10px;
-      word-break: break-word;
-    }
-
-    .label {
-      font-weight: bold;
+      margin-bottom: 15px;
     }
 
     pre {
       background: #111;
-      color: #eee;
+      color: white;
       padding: 15px;
       border-radius: 10px;
       overflow-x: auto;
@@ -46,12 +50,9 @@
       word-break: break-word;
     }
 
-    button {
-      padding: 12px 18px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 15px;
+    .error {
+      color: red;
+      font-weight: bold;
     }
 
   </style>
@@ -63,22 +64,27 @@
 
   <h2>FMarket Backend Test</h2>
 
-  <button onclick="testBackend()">
+  <button onclick="testFMarket()">
     Test /fmarket
   </button>
 
-  <div id="info"></div>
+  <div
+    id="info"
+    class="box"
+  >
+    Waiting...
+  </div>
 
-  <h3>Raw Backend Response</h3>
+  <h3>Full Backend Response</h3>
 
   <pre id="output">
-Waiting...
+Nothing yet.
   </pre>
 
 
   <script>
 
-    async function testBackend() {
+    async function testFMarket() {
 
       const info =
         document.getElementById(
@@ -92,36 +98,17 @@ Waiting...
 
 
       info.innerHTML =
-        "⏳ Calling backend...";
+        "⏳ Calling /fmarket...";
 
       output.textContent =
         "Loading...";
 
 
       /*
-       * =========================
-       * GET USER ID
-       * =========================
-       */
-
-      const accountRaw =
-        localStorage.getItem(
-          "faccount"
-        );
-
-
-      if (!accountRaw) {
-
-        info.innerHTML =
-          "❌ No faccount found in localStorage.";
-
-        output.textContent =
-          "localStorage.getItem('faccount') returned null.";
-
-        return;
-
-      }
-
+        =========================
+        GET ACCOUNT
+        =========================
+      */
 
       let account;
 
@@ -129,19 +116,32 @@ Waiting...
 
         account =
           JSON.parse(
-            accountRaw
+            localStorage.getItem(
+              "faccount"
+            )
           );
 
       } catch (error) {
 
         info.innerHTML =
-          "❌ faccount is not valid JSON.";
+          "<span class='error'>❌ Invalid faccount in localStorage.</span>";
 
         output.textContent =
-          accountRaw;
+          error.message;
 
         return;
+      }
 
+
+      if (!account) {
+
+        info.innerHTML =
+          "<span class='error'>❌ No faccount found in localStorage.</span>";
+
+        output.textContent =
+          "localStorage.getItem('faccount') returned null.";
+
+        return;
       }
 
 
@@ -152,7 +152,7 @@ Waiting...
       if (!userId) {
 
         info.innerHTML =
-          "❌ faccount exists, but account.id is missing.";
+          "<span class='error'>❌ faccount exists but account.id is missing.</span>";
 
         output.textContent =
           JSON.stringify(
@@ -162,15 +162,14 @@ Waiting...
           );
 
         return;
-
       }
 
 
       /*
-       * =========================
-       * CALL BACKEND
-       * =========================
-       */
+        =========================
+        CALL BACKEND
+        =========================
+      */
 
       try {
 
@@ -179,16 +178,13 @@ Waiting...
             "https://fweb-backend.onrender.com/fmarket",
             {
               method: "GET",
-
               headers: {
                 "Content-Type":
-                  "application/json"
-              },
+                  "application/json",
 
-              body:
-                JSON.stringify({
-                  userId: userId
-                })
+                "x-user-id":
+                  userId
+              }
             }
           );
 
@@ -202,170 +198,136 @@ Waiting...
         try {
 
           data =
-            JSON.parse(
-              text
-            );
+            JSON.parse(text);
 
         } catch (error) {
 
           info.innerHTML =
-            "❌ Backend did not return valid JSON.";
+            "<span class='error'>❌ Backend did not return JSON.</span>";
 
           output.textContent =
             text;
 
           return;
-
         }
 
 
         /*
-         * =========================
-         * DISPLAY BASIC INFO
-         * =========================
-         */
+          =========================
+          SHOW BASIC RESULT
+          =========================
+        */
 
-        let html = `
+        info.innerHTML = `
+          <strong>Status:</strong>
+          ${response.status}
+          <br><br>
 
-          <div class="box">
-            <span class="label">
-              User ID:
-            </span>
+          <strong>User ID:</strong>
+          ${userId}
+          <br><br>
 
-            ${userId}
-          </div>
+          <strong>Success:</strong>
+          ${data.success}
+          <br><br>
 
-          <div class="box">
-            <span class="label">
-              HTTP Status:
-            </span>
-
-            ${response.status}
-          </div>
-
-          <div class="box">
-            <span class="label">
-              Success:
-            </span>
-
-            ${data.success}
-          </div>
-
+          <strong>Materials:</strong>
+          ${
+            Array.isArray(
+              data.materials
+            )
+              ? data.materials.length
+              : "Not an array"
+          }
         `;
 
 
         /*
-         * =========================
-         * FIND BIO101
-         * =========================
-         */
+          =========================
+          FIND BIO101
+          =========================
+        */
 
-        const materials =
-          data.materials || [];
+        if (
+          Array.isArray(
+            data.materials
+          )
+        ) {
+
+          const bio101 =
+            data.materials.find(
+              item =>
+                String(
+                  item.id
+                ) ===
+                "1a5ac598-cdfe-482a-bb0d-dc32eb5d93af"
+            );
 
 
-        const bio101 =
-          materials.find(
-            item =>
-              String(
-                item.id
-              ) ===
-              "1a5ac598-cdfe-482b-bb0d-dc32eb5d93af"
-          );
+          if (bio101) {
 
+            info.innerHTML += `
 
-        if (bio101) {
+              <hr>
 
-          html += `
+              <strong>BIO101 FOUND</strong>
 
-            <div class="box">
+              <br><br>
 
-              <div>
-                <span class="label">
-                  BIO101 found:
-                </span>
-
-                ✅ YES
-              </div>
+              <strong>Title:</strong>
+              ${bio101.title}
 
               <br>
 
-              <div>
-                <span class="label">
-                  Category:
-                </span>
+              <strong>Category:</strong>
+              ${bio101.category}
 
-                ${bio101.category ?? "undefined"}
-              </div>
+              <br>
 
-              <div>
-                <span class="label">
-                  Material Type:
-                </span>
+              <strong>Material Type:</strong>
+              ${bio101.material_type}
 
-                ${bio101.material_type ?? "undefined"}
-              </div>
+              <br>
 
-              <div>
-                <span class="label">
-                  Price:
-                </span>
+              <strong>Owned:</strong>
+              ${bio101.owned}
 
-                ${bio101.price ?? "undefined"}
-              </div>
+              <br>
 
-              <div>
-                <span class="label">
-                  Owned:
-                </span>
+              <strong>Price:</strong>
+              ${bio101.price}
 
-                ${bio101.owned ?? "undefined"}
-              </div>
+              <br>
 
-              <div>
-                <span class="label">
-                  File URL:
-                </span>
+              <strong>File URL:</strong>
+              ${
+                bio101.file_url ??
+                "❌ NULL / UNDEFINED"
+              }
 
-                ${
-                  bio101.file_url ||
-                  "❌ MISSING / NULL / EMPTY"
-                }
+            `;
 
-              </div>
+          } else {
 
-            </div>
+            info.innerHTML += `
 
-          `;
+              <hr>
 
-        } else {
+              ❌ BIO101 was not found
+              in the returned materials.
 
-          html += `
+            `;
 
-            <div class="box">
-
-              <span class="label">
-                BIO101:
-              </span>
-
-              ❌ Not found in materials
-
-            </div>
-
-          `;
+          }
 
         }
 
 
-        info.innerHTML =
-          html;
-
-
         /*
-         * =========================
-         * FULL RESPONSE
-         * =========================
-         */
+          =========================
+          FULL RESPONSE
+          =========================
+        */
 
         output.textContent =
           JSON.stringify(
@@ -378,7 +340,7 @@ Waiting...
       } catch (error) {
 
         info.innerHTML =
-          "❌ Request failed.";
+          "<span class='error'>❌ Request failed.</span>";
 
         output.textContent =
           error.message;
@@ -388,8 +350,11 @@ Waiting...
     }
 
 
-    // Run automatically
-    testBackend();
+    /*
+      Automatically run test
+    */
+
+    testFMarket();
 
   </script>
 
