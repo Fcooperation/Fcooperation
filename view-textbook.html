@@ -163,25 +163,72 @@
         </div>
 
 
-        <!-- PDF PAGE -->
+<!-- =========================
+     TEXTBOOK READER STAGE
+========================= -->
 
-        <div
-          id="page-stage"
-          class="page-stage hidden"
-        >
+<div
+  id="page-stage"
+  class="page-stage hidden"
+>
 
-          <div
-            id="page-container"
-            class="page-container"
-          >
+  <!-- =========================
+       PDF READER
+  ========================= -->
 
-            <canvas
-              id="pdf-canvas"
-            ></canvas>
+  <div
+    id="pdf-reader"
+    class="reader-engine hidden"
+  >
 
-          </div>
+    <div
+      id="page-container"
+      class="page-container"
+    >
 
-        </div>
+      <canvas
+        id="pdf-canvas"
+      ></canvas>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       EPUB READER
+  ========================= -->
+
+  <div
+    id="epub-reader"
+    class="reader-engine hidden"
+  >
+
+    <div
+      id="epub-container"
+      class="epub-container"
+    ></div>
+
+  </div>
+
+
+  <!-- =========================
+       DOCX READER
+  ========================= -->
+
+  <div
+    id="docx-reader"
+    class="reader-engine hidden"
+  >
+
+    <div
+      id="docx-container"
+      class="docx-container"
+    ></div>
+
+  </div>
+
+</div>
 
       </div>
 
@@ -461,17 +508,50 @@
   </div>
 
 
-  <!-- =========================
-       PDF.JS
-  ========================= -->
+ <!-- =========================
+     PDF.JS
+========================= -->
 
-  <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"
-  ></script>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"
+></script>
 
-  <script
-    src="/view-textbook.js"
-  ></script>
+
+<!-- =========================
+     JSZIP
+     Required by EPUB.js
+========================= -->
+
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"
+></script>
+
+
+<!-- =========================
+     EPUB.JS
+========================= -->
+
+<script
+  src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js"
+></script>
+
+
+<!-- =========================
+     DOCX PREVIEW
+========================= -->
+
+<script
+  src="https://cdn.jsdelivr.net/npm/docx-preview@0.3.6/dist/docx-preview.min.js"
+></script>
+
+
+<!-- =========================
+     YOUR READER
+========================= -->
+
+<script
+  src="/view-textbook.js"
+></script>
 
 </body>
 

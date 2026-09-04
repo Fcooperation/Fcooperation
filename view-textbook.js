@@ -50,6 +50,35 @@ document.addEventListener(
       document.getElementById(
         "pdf-canvas"
       );
+      
+      /* =========================
+   READER ENGINES
+========================= */
+
+const pdfReader =
+  document.getElementById(
+    "pdf-reader"
+  );
+
+const epubReader =
+  document.getElementById(
+    "epub-reader"
+  );
+
+const docxReader =
+  document.getElementById(
+    "docx-reader"
+  );
+
+const epubContainer =
+  document.getElementById(
+    "epub-container"
+  );
+
+const docxContainer =
+  document.getElementById(
+    "docx-container"
+  );
 
     const pageControls =
       document.getElementById(
@@ -309,6 +338,76 @@ let faiMessages = [];
       return;
 
     }
+    
+    /* =========================
+   DETECT TEXTBOOK TYPE
+========================= */
+
+function getTextbookType() {
+
+  const fileType =
+    String(
+      textbook.file_type ||
+      textbook.mime_type ||
+      ""
+    ).toLowerCase();
+
+
+  const fileUrl =
+    String(
+      textbook.file_url ||
+      ""
+    ).toLowerCase();
+
+
+  const fileName =
+    String(
+      textbook.file_name ||
+      textbook.filename ||
+      textbook.original_name ||
+      ""
+    ).toLowerCase();
+
+
+  if (
+    fileType ===
+      "application/pdf" ||
+    fileUrl.endsWith(".pdf") ||
+    fileName.endsWith(".pdf")
+  ) {
+
+    return "pdf";
+
+  }
+
+
+  if (
+    fileType ===
+      "application/epub+zip" ||
+    fileUrl.endsWith(".epub") ||
+    fileName.endsWith(".epub")
+  ) {
+
+    return "epub";
+
+  }
+
+
+  if (
+    fileType ===
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+    fileUrl.endsWith(".docx") ||
+    fileName.endsWith(".docx")
+  ) {
+
+    return "docx";
+
+  }
+
+
+  return "unknown";
+
+}
 
 
     /* =========================
@@ -316,6 +415,12 @@ let faiMessages = [];
     ========================= */
 
     let pdf = null;
+
+let epubBook = null;
+
+let epubRendition = null;
+
+let readerType = null;
 
     let currentPage = 1;
 
@@ -647,12 +752,13 @@ let faiMessages = [];
     ) {
 
       if (
-        !pdf
-      ) {
+  readerType !== "pdf" ||
+  !pdf
+) {
 
-        return;
+  return;
 
-      }
+}
 
 
       if (
@@ -901,23 +1007,210 @@ const heightScale =
     ========================= */
 
     function goToPage(
+  page
+) {
+
+  if (
+    page < 1 ||
+    page > totalPages
+  ) {
+
+    return;
+
+  }
+
+
+  if (
+    readerType ===
+    "pdf"
+  ) {
+
+    renderPage(
       page
-    ) {
+    );
 
-      if (
-        page < 1 ||
-        page > totalPages
-      ) {
+    return;
 
-        return;
+  }
 
-      }
 
-      renderPage(
-        page
-      );
+  if (
+    readerType ===
+    "epub"
+  ) {
 
-    }
+    goToEPUBPage(
+      page
+    );
+
+    return;
+
+  }
+
+
+  if (
+    readerType ===
+    "docx"
+  ) {
+
+    goToDOCXPage(
+      page
+    );
+
+    return;
+
+  }
+
+}
+
+/* =========================
+   EPUB NAVIGATION
+========================= */
+
+async function goToEPUBPage(
+  page
+) {
+
+  if (
+    !epubBook ||
+    !epubRendition
+  ) {
+
+    return;
+
+  }
+
+
+  const target =
+    Math.max(
+      1,
+      Math.min(
+        page,
+        totalPages
+      )
+    );
+
+
+  const section =
+    epubBook.spine.get(
+      target - 1
+    );
+
+
+  if (
+    !section
+  ) {
+
+    return;
+
+  }
+
+
+  await epubRendition.display(
+    section.href
+  );
+
+
+  currentPage =
+    target;
+
+
+  pageNumber.textContent =
+    currentPage;
+
+
+  saveProgress();
+
+  updateNavigation();
+
+}
+
+/* =========================
+   DOCX NAVIGATION
+========================= */
+
+function goToDOCXPage(
+  page
+) {
+
+  if (
+    !docxContainer
+  ) {
+
+    return;
+
+  }
+
+
+  const pages =
+    docxContainer.querySelectorAll(
+      ".docx"
+    );
+
+
+  if (
+    !pages.length
+  ) {
+
+    return;
+
+  }
+
+
+  const target =
+    Math.max(
+      1,
+      Math.min(
+        page,
+        pages.length
+      )
+    );
+
+
+  const targetPage =
+    pages[
+      target - 1
+    ];
+
+
+  if (
+    !targetPage
+  ) {
+
+    return;
+
+  }
+
+
+  targetPage.scrollIntoView({
+    behavior:
+      "smooth",
+    block:
+      "start"
+  });
+
+
+  currentPage =
+    target;
+
+
+  pageNumber.textContent =
+    currentPage;
+
+
+  totalPages =
+    pages.length;
+
+
+  pageCount.textContent =
+    totalPages;
+
+
+  saveProgress();
+
+  updateNavigation();
+
+}
 
 
     function nextPage() {
@@ -2201,57 +2494,188 @@ pageStage.addEventListener(
     );
 
 
-    /* =========================
-       GET CURRENT PAGE TEXT
-    ========================= */
+/* =========================
+   GET CURRENT PAGE TEXT
+========================= */
 
-    async function getCurrentPageText() {
+async function getCurrentPageText() {
+
+  /* =========================
+     PDF
+  ========================= */
+
+  if (
+    readerType ===
+    "pdf"
+  ) {
+
+    if (
+      pageTextCache.has(
+        currentPage
+      )
+    ) {
+
+      return pageTextCache.get(
+        currentPage
+      );
+
+    }
+
+
+    try {
+
+      const page =
+        await pdf.getPage(
+          currentPage
+        );
+
+
+      const content =
+        await page.getTextContent();
+
+
+      const text =
+        content.items
+          .map(
+            item =>
+              item.str || ""
+          )
+          .join(" ");
+
+
+      pageTextCache.set(
+        currentPage,
+        text
+      );
+
+
+      return text;
+
+    } catch {
+
+      return "";
+
+    }
+
+  }
+
+
+  /* =========================
+     EPUB
+  ========================= */
+
+  if (
+    readerType ===
+    "epub"
+  ) {
+
+    try {
+
+      const contents =
+        epubRendition
+          ?.getContents?.();
+
 
       if (
-        pageTextCache.has(
-          currentPage
-        )
+        !contents ||
+        !contents.length
       ) {
-
-        return pageTextCache.get(
-          currentPage
-        );
-
-      }
-
-
-      try {
-
-        const page =
-          await pdf.getPage(
-            currentPage
-          );
-
-        const content =
-          await page.getTextContent();
-
-        const text =
-          content.items
-            .map(
-              item =>
-                item.str || ""
-            )
-            .join(" ");
-
-        pageTextCache.set(
-          currentPage,
-          text
-        );
-
-        return text;
-
-      } catch {
 
         return "";
 
       }
 
+
+      const textParts = [];
+
+
+      contents.forEach(
+        content => {
+
+          const body =
+            content.document
+              ?.body;
+
+
+          if (
+            body
+          ) {
+
+            textParts.push(
+              body.innerText ||
+              body.textContent ||
+              ""
+            );
+
+          }
+
+        }
+      );
+
+
+      return textParts
+        .join("\n")
+        .trim();
+
+    } catch {
+
+      return "";
+
     }
+
+  }
+
+
+  /* =========================
+     DOCX
+  ========================= */
+
+  if (
+    readerType ===
+    "docx"
+  ) {
+
+    try {
+
+      const pages =
+        docxContainer.querySelectorAll(
+          ".docx"
+        );
+
+
+      const page =
+        pages[
+          currentPage - 1
+        ];
+
+
+      if (
+        !page
+      ) {
+
+        return "";
+
+      }
+
+
+      return (
+        page.innerText ||
+        page.textContent ||
+        ""
+      ).trim();
+
+    } catch {
+
+      return "";
+
+    }
+
+  }
+
+
+  return "";
+
+}
 
 
     /* =========================
@@ -2339,33 +2763,28 @@ pageStage.addEventListener(
 
               context: {
 
-                type:
-                  "digital_textbook",
+  type:
+    "digital_textbook",
 
-                textbookId:
-                  textbook.id ||
-                  null,
+  textbookId:
+    textbook.id || null,
 
-                title:
-                  textbook.title ||
-                  "",
+  title:
+    textbook.title || "",
 
-                course:
-                  textbook.course ||
-                  "",
+  course:
+    textbook.course || "",
 
-                page:
-                  currentPage,
+  page:
+    currentPage,
 
-                pageText:
-                  pageText,
+  pageText:
+    pageText,
 
-                fileType:
-                  textbook.file_type ||
-                  textbook.mime_type ||
-                  "application/pdf"
+  fileType:
+    readerType
 
-              }
+}
 
             })
 
@@ -2709,78 +3128,423 @@ ${pageText}`
 
       }
     );
-
-
+    
     /* =========================
-       LOAD PDF
-    ========================= */
+   SHOW READER ENGINE
+========================= */
 
-    async function loadTextbook() {
+function showReaderEngine(
+  type
+) {
 
-      try {
+  pdfReader.classList.add(
+    "hidden"
+  );
 
-        const loadingTask =
-          pdfjsLib.getDocument({
-            url:
-              textbook.file_url
-          });
+  epubReader.classList.add(
+    "hidden"
+  );
 
-
-        pdf =
-          await loadingTask.promise;
-
-
-        totalPages =
-          pdf.numPages;
+  docxReader.classList.add(
+    "hidden"
+  );
 
 
-        pageCount.textContent =
-          totalPages;
+  if (
+    type === "pdf"
+  ) {
+
+    pdfReader.classList.remove(
+      "hidden"
+    );
+
+  }
 
 
-        loadProgress();
+  if (
+    type === "epub"
+  ) {
 
-        loadBookmarks();
+    epubReader.classList.remove(
+      "hidden"
+    );
 
-
-        loading.classList.add(
-          "hidden"
-        );
-
-        errorBox.classList.add(
-          "hidden"
-        );
-
-        pageStage.classList.remove(
-          "hidden"
-        );
-
-        pageControls.classList.remove(
-          "hidden"
-        );
-
-        toolbar.classList.remove(
-          "hidden"
-        );
-
-        aiActions.classList.remove(
-          "hidden"
-        );
+  }
 
 
-        await renderPage(
-          currentPage
-        );
-        
-      } catch (error) {
+  if (
+    type === "docx"
+  ) {
 
-        showError(
-          "This textbook could not be opened. The digital file may be unavailable."
-        );
+    docxReader.classList.remove(
+      "hidden"
+    );
+
+  }
+
+}
+
+/* =========================
+   LOAD EPUB
+========================= */
+
+async function loadEPUB() {
+
+  if (
+    typeof ePub ===
+    "undefined"
+  ) {
+
+    throw new Error(
+      "The EPUB reader could not be loaded."
+    );
+
+  }
+
+
+  epubBook =
+    ePub(
+      textbook.file_url
+    );
+
+
+  epubRendition =
+    epubBook.renderTo(
+      epubContainer,
+      {
+        width: "100%",
+        height: "100%",
+        flow: "paginated",
+        manager: "default"
+      }
+    );
+
+
+  await epubBook.ready;
+
+
+  await epubRendition.display();
+
+
+  /*
+   * EPUB does not use PDF-style
+   * numeric pages in the same way.
+   *
+   * We use the EPUB location
+   * information for navigation.
+   */
+
+  totalPages =
+    epubBook.spine.length || 1;
+
+  currentPage = 1;
+
+
+  pageNumber.textContent =
+    currentPage;
+
+  pageCount.textContent =
+    totalPages;
+
+
+  updateNavigation();
+
+
+  epubRendition.on(
+    "relocated",
+    location => {
+
+      if (
+        location &&
+        location.start
+      ) {
+
+        currentPage =
+          location.start.index + 1;
+
+        pageNumber.textContent =
+          currentPage;
+
+        saveProgress();
 
       }
 
     }
+  );
+
+}
+
+/* =========================
+   LOAD DOCX
+========================= */
+
+async function loadDOCX() {
+
+  if (
+    typeof docx ===
+    "undefined"
+  ) {
+
+    throw new Error(
+      "The DOCX reader could not be loaded."
+    );
+
+  }
+
+
+  const response =
+    await fetch(
+      textbook.file_url
+    );
+
+
+  if (
+    !response.ok
+  ) {
+
+    throw new Error(
+      "Unable to download the DOCX textbook."
+    );
+
+  }
+
+
+  const blob =
+    await response.blob();
+
+
+  docxContainer.innerHTML =
+    "";
+
+
+  await docx.renderAsync(
+    blob,
+    docxContainer,
+    null,
+    null,
+    {
+      className:
+        "docx",
+
+      inWrapper:
+        true,
+
+      breakPages:
+        true,
+
+      ignoreWidth:
+        false,
+
+      ignoreHeight:
+        false,
+
+      ignoreFonts:
+        false,
+
+      renderHeaders:
+        true,
+
+      renderFooters:
+        true,
+
+      renderFootnotes:
+        true,
+
+      renderEndnotes:
+        true
+    }
+  );
+
+
+  /*
+   * DOCX does not have a
+   * native PDF-style page API.
+   *
+   * docx-preview creates the
+   * rendered pages in the DOM.
+   */
+
+  const pages =
+    docxContainer.querySelectorAll(
+      ".docx"
+    );
+
+
+  totalPages =
+    pages.length || 1;
+
+
+  currentPage = 1;
+
+
+  pageNumber.textContent =
+    currentPage;
+
+  pageCount.textContent =
+    totalPages;
+
+
+  updateNavigation();
+
+}
+
+
+/* =========================
+   LOAD TEXTBOOK
+========================= */
+
+async function loadTextbook() {
+
+  try {
+
+    readerType =
+      getTextbookType();
+
+
+    /* =========================
+       CHECK TYPE
+    ========================= */
+
+    if (
+      readerType ===
+      "unknown"
+    ) {
+
+      throw new Error(
+        "This textbook format is not supported."
+      );
+
+    }
+
+
+    /* =========================
+       SHOW READER
+    ========================= */
+
+    showReaderEngine(
+      readerType
+    );
+
+
+    /* =========================
+       PDF
+    ========================= */
+
+    if (
+      readerType ===
+      "pdf"
+    ) {
+
+      if (
+        typeof pdfjsLib ===
+        "undefined"
+      ) {
+
+        throw new Error(
+          "The PDF reader could not be loaded."
+        );
+
+      }
+
+
+      const loadingTask =
+        pdfjsLib.getDocument({
+          url:
+            textbook.file_url
+        });
+
+
+      pdf =
+        await loadingTask.promise;
+
+
+      totalPages =
+        pdf.numPages;
+
+
+      pageCount.textContent =
+        totalPages;
+
+
+      loadProgress();
+
+      loadBookmarks();
+
+
+      await renderPage(
+        currentPage
+      );
+
+    }
+
+
+    /* =========================
+       EPUB
+    ========================= */
+
+    else if (
+      readerType ===
+      "epub"
+    ) {
+
+      await loadEPUB();
+
+    }
+
+
+    /* =========================
+       DOCX
+    ========================= */
+
+    else if (
+      readerType ===
+      "docx"
+    ) {
+
+      await loadDOCX();
+
+    }
+
+
+    /* =========================
+       SHOW UI
+    ========================= */
+
+    loading.classList.add(
+      "hidden"
+    );
+
+    errorBox.classList.add(
+      "hidden"
+    );
+
+    pageStage.classList.remove(
+      "hidden"
+    );
+
+    pageControls.classList.remove(
+      "hidden"
+    );
+
+    toolbar.classList.remove(
+      "hidden"
+    );
+
+    aiActions.classList.remove(
+      "hidden"
+    );
+
+
+  } catch (error) {
+
+    showError(
+      error.message ||
+      "This textbook could not be opened."
+    );
+
+  }
+
+}
 
 
     /* =========================
