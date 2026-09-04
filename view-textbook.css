@@ -1048,3 +1048,22 @@ body {
 
   touch-action: none;
 }
+
+#docx-container {
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+#docx-container .docx {
+  margin-left: auto;
+  margin-right: auto;
+  transform-origin: top center;
+  box-sizing: border-box;
+}
+#docx-reader {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}

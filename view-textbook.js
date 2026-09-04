@@ -3451,6 +3451,13 @@ async function loadDOCX() {
       breakPages:
         true,
 
+      /*
+        Keep the real Word page
+        dimensions while rendering.
+
+        We will scale the rendered
+        pages to fit the phone below.
+      */
       ignoreWidth:
         false,
 
@@ -3476,12 +3483,19 @@ async function loadDOCX() {
 
 
   /*
-   * DOCX does not have a
-   * native PDF-style page API.
-   *
-   * docx-preview creates the
-   * rendered pages in the DOM.
-   */
+    =========================
+    FIT DOCX TO READER WIDTH
+    =========================
+
+    docx-preview preserves the
+    original Word page width.
+
+    On a phone that can make the
+    page appear zoomed in.
+
+    Calculate a scale based on the
+    available reader width.
+  */
 
   const pages =
     docxContainer.querySelectorAll(
@@ -3489,11 +3503,108 @@ async function loadDOCX() {
     );
 
 
+  if (
+    !pages.length
+  ) {
+
+    throw new Error(
+      "No pages were found in this DOCX textbook."
+    );
+
+  }
+
+
   totalPages =
-    pages.length || 1;
+    pages.length;
 
 
-  currentPage = 1;
+  /*
+    Use the first page to determine
+    the original rendered width.
+  */
+
+  const firstPage =
+    pages[0];
+
+
+  const pageWidth =
+    firstPage.getBoundingClientRect()
+      .width;
+
+
+  const availableWidth =
+    docxReader.clientWidth ||
+    reader.clientWidth ||
+    window.innerWidth;
+
+
+  /*
+    Leave a small amount of space
+    around the document.
+  */
+
+  const horizontalPadding =
+    20;
+
+
+  const targetWidth =
+    Math.max(
+      1,
+      availableWidth -
+      horizontalPadding
+    );
+
+
+  let docxScale =
+    targetWidth /
+    pageWidth;
+
+
+  /*
+    Never enlarge a DOCX page
+    automatically.
+
+    If the page already fits,
+    keep it at 100%.
+  */
+
+  docxScale =
+    Math.min(
+      docxScale,
+      1
+    );
+
+
+  /*
+    Apply the same scale to every
+    rendered DOCX page.
+  */
+
+  pages.forEach(
+    page => {
+
+      page.style.transformOrigin =
+        "top center";
+
+      page.style.transform =
+        `scale(${docxScale})`;
+
+      page.style.marginBottom =
+        `${(
+          page.offsetHeight *
+          (1 - docxScale)
+        )}px`;
+
+    }
+  );
+
+
+  /*
+    Reset to the first page.
+  */
+
+  currentPage =
+    1;
 
 
   pageNumber.textContent =
