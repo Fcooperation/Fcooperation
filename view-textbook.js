@@ -272,27 +272,6 @@ const docxContainer =
 let faiMessages = [];
 
     /* =========================
-       PDF.JS
-    ========================= */
-
-    if (
-      typeof pdfjsLib ===
-      "undefined"
-    ) {
-
-      showError(
-        "The PDF reader could not be loaded."
-      );
-
-      return;
-
-    }
-
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-
-
-    /* =========================
        GET TEXTBOOK
     ========================= */
 
@@ -339,7 +318,7 @@ let faiMessages = [];
 
     }
     
-    /* =========================
+/* =========================
    DETECT TEXTBOOK TYPE
 ========================= */
 
@@ -348,32 +327,48 @@ function getTextbookType() {
   const fileType =
     String(
       textbook.file_type ||
+      textbook.fileType ||
       textbook.mime_type ||
+      textbook.mimeType ||
+      textbook.file_mime ||
+      textbook.type ||
       ""
-    ).toLowerCase();
+    )
+      .toLowerCase()
+      .trim();
+
+
+  const fileName =
+    String(
+      textbook.file_name ||
+      textbook.fileName ||
+      textbook.filename ||
+      textbook.original_name ||
+      textbook.originalName ||
+      textbook.original_filename ||
+      textbook.name ||
+      ""
+    )
+      .toLowerCase()
+      .trim();
 
 
   const fileUrl =
     String(
       textbook.file_url ||
       ""
-    ).toLowerCase();
+    )
+      .trim();
 
 
-  const fileName =
-    String(
-      textbook.file_name ||
-      textbook.filename ||
-      textbook.original_name ||
-      ""
-    ).toLowerCase();
-
+  /* =========================
+     MIME TYPE
+  ========================= */
 
   if (
-    fileType ===
-      "application/pdf" ||
-    fileUrl.endsWith(".pdf") ||
-    fileName.endsWith(".pdf")
+    fileType.includes(
+      "application/pdf"
+    )
   ) {
 
     return "pdf";
@@ -382,10 +377,12 @@ function getTextbookType() {
 
 
   if (
-    fileType ===
-      "application/epub+zip" ||
-    fileUrl.endsWith(".epub") ||
-    fileName.endsWith(".epub")
+    fileType.includes(
+      "application/epub"
+    ) ||
+    fileType.includes(
+      "epub+zip"
+    )
   ) {
 
     return "epub";
@@ -394,13 +391,135 @@ function getTextbookType() {
 
 
   if (
-    fileType ===
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
-    fileUrl.endsWith(".docx") ||
-    fileName.endsWith(".docx")
+    fileType.includes(
+      "wordprocessingml.document"
+    )
   ) {
 
     return "docx";
+
+  }
+
+
+  if (
+    fileType.includes(
+      "application/msword"
+    )
+  ) {
+
+    return "doc";
+
+  }
+
+
+  /* =========================
+     FILE NAME
+  ========================= */
+
+  if (
+    /\.pdf(?:[?#]|$)/i.test(
+      fileName
+    )
+  ) {
+
+    return "pdf";
+
+  }
+
+
+  if (
+    /\.epub(?:[?#]|$)/i.test(
+      fileName
+    )
+  ) {
+
+    return "epub";
+
+  }
+
+
+  if (
+    /\.docx(?:[?#]|$)/i.test(
+      fileName
+    )
+  ) {
+
+    return "docx";
+
+  }
+
+
+  if (
+    /\.doc(?:[?#]|$)/i.test(
+      fileName
+    )
+  ) {
+
+    return "doc";
+
+  }
+
+
+  /* =========================
+     URL
+  ========================= */
+
+  let urlPath =
+    fileUrl.toLowerCase();
+
+  try {
+
+    urlPath =
+      new URL(
+        fileUrl,
+        window.location.href
+      )
+        .pathname
+        .toLowerCase();
+
+  } catch {}
+
+
+  if (
+    /\.pdf$/i.test(
+      urlPath
+    )
+  ) {
+
+    return "pdf";
+
+  }
+
+
+  if (
+    /\.epub$/i.test(
+      urlPath
+    )
+  ) {
+
+    return "epub";
+
+  }
+
+
+  if (
+    /\.docx$/i.test(
+      urlPath
+    )
+  ) {
+
+    return "docx";
+
+  }
+
+
+  if (
+    /\.doc$/i.test(
+      urlPath
+    )
+  ) {
+
+    return "doc";
 
   }
 
