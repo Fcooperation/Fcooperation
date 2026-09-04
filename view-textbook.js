@@ -236,6 +236,11 @@ document.addEventListener(
         "bookmark-btn"
       );
 
+/* =========================
+   FAI CONVERSATION
+========================= */
+
+let faiMessages = [];
 
     /* =========================
        PDF.JS
@@ -2274,156 +2279,169 @@ pageStage.addEventListener(
     ========================= */
 
     async function sendToFAI(
-      prompt
-    ) {
+  prompt
+) {
 
-      if (
-        !prompt
-      ) {
+  if (
+    !prompt
+  ) {
 
-        return;
+    return;
 
-      }
-
-
-      const pageText =
-        await getCurrentPageText();
+  }
 
 
-      addFaiMessage(
-        prompt,
-        "user"
+  const pageText =
+    await getCurrentPageText();
+
+
+  addFaiMessage(
+    prompt,
+    "user"
+  );
+
+
+  addFaiMessage(
+    "FAI is thinking...",
+    "ai",
+    "fai-thinking",
+    false
+  );
+
+
+  try {
+
+    const response =
+      await fetch(
+        FAI_API_URL,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify({
+
+              userId:
+                account.id ||
+                null,
+
+              message:
+                prompt,
+
+              messages:
+                faiMessages.slice(
+                  -7
+                ),
+
+              context: {
+
+                type:
+                  "digital_textbook",
+
+                textbookId:
+                  textbook.id ||
+                  null,
+
+                title:
+                  textbook.title ||
+                  "",
+
+                course:
+                  textbook.course ||
+                  "",
+
+                page:
+                  currentPage,
+
+                pageText:
+                  pageText,
+
+                fileType:
+                  textbook.file_type ||
+                  textbook.mime_type ||
+                  "application/pdf"
+
+              }
+
+            })
+
+        }
       );
 
 
-      addFaiMessage(
-        "FAI is thinking...",
-        "ai",
+    const data =
+      await response.json();
+
+
+    const thinking =
+      document.getElementById(
         "fai-thinking"
       );
 
+    if (
+      thinking
+    ) {
 
-      try {
-
-        const response =
-          await fetch(
-            FAI_API_URL,
-            {
-              method: "POST",
-
-              headers: {
-                "Content-Type":
-                  "application/json"
-              },
-
-              body:
-                JSON.stringify({
-
-                  userId:
-                    account.id ||
-                    null,
-
-                  message:
-                    prompt,
-
-                  context: {
-                    type:
-                      "digital_textbook",
-
-                    textbookId:
-                      textbook.id ||
-                      null,
-
-                    title:
-                      textbook.title ||
-                      "",
-
-                    course:
-                      textbook.course ||
-                      "",
-
-                    page:
-                      currentPage,
-
-                    pageText:
-                      pageText
-
-                  }
-
-                })
-
-            }
-          );
-
-
-        const data =
-          await response.json();
-
-
-        const thinking =
-          document.getElementById(
-            "fai-thinking"
-          );
-
-        if (
-          thinking
-        ) {
-
-          thinking.remove();
-
-        }
-
-
-        if (
-          !response.ok ||
-          !data.success
-        ) {
-
-          throw new Error(
-            data.error ||
-            "FAI could not answer."
-          );
-
-        }
-
-
-        const answer =
-          data.answer ||
-          data.response ||
-          data.message ||
-          "FAI returned no answer.";
-
-
-        addFaiMessage(
-          answer,
-          "ai"
-        );
-
-      } catch (error) {
-
-        const thinking =
-          document.getElementById(
-            "fai-thinking"
-          );
-
-        if (
-          thinking
-        ) {
-
-          thinking.remove();
-
-        }
-
-
-        addFaiMessage(
-          error.message ||
-          "Unable to reach FAI.",
-          "ai"
-        );
-
-      }
+      thinking.remove();
 
     }
+
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+
+      throw new Error(
+        data.error ||
+        "FAI could not answer."
+      );
+
+    }
+
+
+    const answer =
+      data.answer ||
+      data.response ||
+      data.message ||
+      "FAI returned no answer.";
+
+
+    addFaiMessage(
+      answer,
+      "ai"
+    );
+
+
+  } catch (error) {
+
+    const thinking =
+      document.getElementById(
+        "fai-thinking"
+      );
+
+    if (
+      thinking
+    ) {
+
+      thinking.remove();
+
+    }
+
+
+    addFaiMessage(
+      error.message ||
+      "Unable to reach FAI.",
+      "ai"
+    );
+
+  }
+
+}
 
 
     /* =========================
@@ -2431,48 +2449,85 @@ pageStage.addEventListener(
     ========================= */
 
     function addFaiMessage(
-      message,
-      type,
-      id = ""
+  message,
+  type,
+  id = "",
+  saveToHistory = true
+) {
+
+  const div =
+    document.createElement(
+      "div"
+    );
+
+  div.className =
+    `fai-message ${
+      type === "user"
+        ? "fai-user"
+        : "fai-ai"
+    }`;
+
+  if (id) {
+
+    div.id =
+      id;
+
+  }
+
+  div.textContent =
+    message;
+
+  faiContent.appendChild(
+    div
+  );
+
+  faiContent.scrollTop =
+    faiContent.scrollHeight;
+
+
+  /*
+    Save only real messages.
+    Do not save the temporary
+    "FAI is thinking..." message.
+  */
+
+  if (
+    saveToHistory &&
+    !id
+  ) {
+
+    faiMessages.push({
+
+      role:
+        type === "user"
+          ? "user"
+          : "assistant",
+
+      content:
+        String(message)
+
+    });
+
+
+    /*
+      Keep only the latest 7
+      messages.
+    */
+
+    if (
+      faiMessages.length > 7
     ) {
 
-      const div =
-        document.createElement(
-          "div"
+      faiMessages =
+        faiMessages.slice(
+          -7
         );
-
-      div.className =
-        `fai-message ${
-          type === "user"
-            ? "fai-user"
-            : "fai-ai"
-        }`;
-
-
-      if (
-        id
-      ) {
-
-        div.id =
-          id;
-
-      }
-
-
-      div.textContent =
-        message;
-
-
-      faiContent.appendChild(
-        div
-      );
-
-
-      faiContent.scrollTop =
-        faiContent.scrollHeight;
 
     }
 
+  }
+
+}
 
     /* =========================
        SEND BUTTON
@@ -2533,29 +2588,35 @@ pageStage.addEventListener(
     ========================= */
 
     summarizeBtn.addEventListener(
-      "click",
-      async () => {
+  "click",
+  async () => {
 
-        openFai(
-          `Summarize the textbook content on page ${currentPage} in simple student-friendly language. Highlight the most important points I should remember.`
-        );
+    openFai();
 
-        const pageText =
-          await getCurrentPageText();
+    const pageText =
+      await getCurrentPageText();
 
+    if (
+      pageText
+    ) {
 
-        if (
-          pageText
-        ) {
+      sendFaiButtonWithContext(
+        `Summarize this textbook page in simple student-friendly language. Give me the key points and important things to remember.
 
-          sendFaiButtonWithContext(
-            `Summarize this textbook page in simple student-friendly language. Give me the key points and important things to remember.\n\nPage ${currentPage}:\n${pageText}`
-          );
+Page ${currentPage}:
+${pageText}`
+      );
 
-        }
+    } else {
 
-      }
-    );
+      sendToFAI(
+        `Summarize the textbook content on page ${currentPage} in simple student-friendly language. Highlight the most important points I should remember.`
+      );
+
+    }
+
+  }
+);
 
 
     /* =========================
@@ -2563,30 +2624,39 @@ pageStage.addEventListener(
     ========================= */
 
     quizBtn.addEventListener(
-      "click",
-      async () => {
+  "click",
+  async () => {
 
-        openFai(
-          `Quiz me on page ${currentPage}.`
-        );
+    openFai();
 
+    const pageText =
+      await getCurrentPageText();
 
-        const pageText =
-          await getCurrentPageText();
+    if (
+      pageText
+    ) {
 
+      sendFaiButtonWithContext(
+        `Quiz me on the content of this textbook page.
 
-        if (
-          pageText
-        ) {
+Ask me one question at a time and wait for my answer before giving me the next question.
 
-          sendFaiButtonWithContext(
-            `Quiz me on the content of this textbook page. Ask me one question at a time and wait for my answer before giving me the next question. Start with question 1.\n\nPage ${currentPage}:\n${pageText}`
-          );
+Start with question 1.
 
-        }
+Page ${currentPage}:
+${pageText}`
+      );
 
-      }
-    );
+    } else {
+
+      sendToFAI(
+        `Quiz me on page ${currentPage}. Ask me one question at a time.`
+      );
+
+    }
+
+  }
+);
 
 
     /* =========================
@@ -2594,24 +2664,25 @@ pageStage.addEventListener(
     ========================= */
 
     function sendFaiButtonWithContext(
-      prompt
-    ) {
+  prompt
+) {
 
-      faiContent.innerHTML =
-        "";
+  faiContent.innerHTML = "";
 
+  /*
+    Do not manually add the user
+    message here.
 
-      addFaiMessage(
-        prompt,
-        "user"
-      );
+    sendToFAI() will add it once
+    and save it to the 7-message
+    conversation history.
+  */
 
+  sendToFAI(
+    prompt
+  );
 
-      sendToFAI(
-        prompt
-      );
-
-    }
+}
 
 
     /* =========================
