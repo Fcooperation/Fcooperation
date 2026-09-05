@@ -60,19 +60,9 @@ const pdfReader =
     "pdf-reader"
   );
 
-const epubReader =
-  document.getElementById(
-    "epub-reader"
-  );
-
 const docxReader =
   document.getElementById(
     "docx-reader"
-  );
-
-const epubContainer =
-  document.getElementById(
-    "epub-container"
   );
 
 const docxContainer =
@@ -378,36 +368,11 @@ function getTextbookType() {
 
   if (
     fileType.includes(
-      "application/epub"
-    ) ||
-    fileType.includes(
-      "epub+zip"
-    )
-  ) {
-
-    return "epub";
-
-  }
-
-
-  if (
-    fileType.includes(
       "wordprocessingml.document"
     )
   ) {
 
     return "docx";
-
-  }
-
-
-  if (
-    fileType.includes(
-      "application/msword"
-    )
-  ) {
-
-    return "doc";
 
   }
 
@@ -428,34 +393,12 @@ function getTextbookType() {
 
 
   if (
-    /\.epub(?:[?#]|$)/i.test(
-      fileName
-    )
-  ) {
-
-    return "epub";
-
-  }
-
-
-  if (
     /\.docx(?:[?#]|$)/i.test(
       fileName
     )
   ) {
 
     return "docx";
-
-  }
-
-
-  if (
-    /\.doc(?:[?#]|$)/i.test(
-      fileName
-    )
-  ) {
-
-    return "doc";
 
   }
 
@@ -492,34 +435,12 @@ function getTextbookType() {
 
 
   if (
-    /\.epub$/i.test(
-      urlPath
-    )
-  ) {
-
-    return "epub";
-
-  }
-
-
-  if (
     /\.docx$/i.test(
       urlPath
     )
   ) {
 
     return "docx";
-
-  }
-
-
-  if (
-    /\.doc$/i.test(
-      urlPath
-    )
-  ) {
-
-    return "doc";
 
   }
 
@@ -534,11 +455,7 @@ function getTextbookType() {
     ========================= */
 
     let pdf = null;
-
-let epubBook = null;
-
-let epubRendition = null;
-
+    
 let readerType = null;
 
     let currentPage = 1;
@@ -1155,20 +1072,6 @@ const heightScale =
 
   if (
     readerType ===
-    "epub"
-  ) {
-
-    goToEPUBPage(
-      page
-    );
-
-    return;
-
-  }
-
-
-  if (
-    readerType ===
     "docx"
   ) {
 
@@ -1177,113 +1080,6 @@ const heightScale =
     );
 
     return;
-
-  }
-
-}
-
-/* =========================
-   EPUB NAVIGATION
-========================= */
-
-async function goToEPUBPage(
-  page
-) {
-
-  if (
-    !epubRendition
-  ) {
-
-    return;
-
-  }
-
-
-  try {
-
-    const target =
-      Math.max(
-        1,
-        Math.min(
-          page,
-          totalPages
-        )
-      );
-
-
-    /*
-      Moving forward/backward
-      through an EPUB should use
-      epub.js navigation.
-
-      EPUB sections are not the same
-      thing as PDF pages.
-    */
-
-    if (
-      target >
-      currentPage
-    ) {
-
-      const steps =
-        target -
-        currentPage;
-
-
-      for (
-        let i = 0;
-        i < steps;
-        i++
-      ) {
-
-        await epubRendition.next();
-
-      }
-
-    }
-
-    else if (
-      target <
-      currentPage
-    ) {
-
-      const steps =
-        currentPage -
-        target;
-
-
-      for (
-        let i = 0;
-        i < steps;
-        i++
-      ) {
-
-        await epubRendition.prev();
-
-      }
-
-    }
-
-
-    currentPage =
-      target;
-
-
-    pageNumber.textContent =
-      currentPage;
-
-
-    saveProgress();
-
-    updateNavigation();
-
-    updateBookmarkUI();
-
-  } catch {
-
-    showToast(
-      "Unable to change EPUB page."
-    );
 
   }
 
@@ -2724,73 +2520,7 @@ async function getCurrentPageText() {
   }
 
 
-  /* =========================
-     EPUB
-  ========================= */
-
-  if (
-    readerType ===
-    "epub"
-  ) {
-
-    try {
-
-      const contents =
-        epubRendition
-          ?.getContents?.();
-
-
-      if (
-        !contents ||
-        !contents.length
-      ) {
-
-        return "";
-
-      }
-
-
-      const textParts = [];
-
-
-      contents.forEach(
-        content => {
-
-          const body =
-            content.document
-              ?.body;
-
-
-          if (
-            body
-          ) {
-
-            textParts.push(
-              body.innerText ||
-              body.textContent ||
-              ""
-            );
-
-          }
-
-        }
-      );
-
-
-      return textParts
-        .join("\n")
-        .trim();
-
-    } catch {
-
-      return "";
-
-    }
-
-  }
-
-
-  /* =========================
+/* =========================
      DOCX
   ========================= */
 
@@ -3293,7 +3023,7 @@ ${pageText}`
       }
     );
     
-    /* =========================
+/* =========================
    SHOW READER ENGINE
 ========================= */
 
@@ -3305,17 +3035,14 @@ function showReaderEngine(
     "hidden"
   );
 
-  epubReader.classList.add(
-    "hidden"
-  );
-
   docxReader.classList.add(
     "hidden"
   );
 
 
   if (
-    type === "pdf"
+    type ===
+    "pdf"
   ) {
 
     pdfReader.classList.remove(
@@ -3326,18 +3053,8 @@ function showReaderEngine(
 
 
   if (
-    type === "epub"
-  ) {
-
-    epubReader.classList.remove(
-      "hidden"
-    );
-
-  }
-
-
-  if (
-    type === "docx"
+    type ===
+    "docx"
   ) {
 
     docxReader.classList.remove(
@@ -3346,188 +3063,6 @@ function showReaderEngine(
 
   }
 
-}
-
-/* =========================
-LOAD EPUB
-========================= */
-
-async function loadEPUB() {
-
-  if (typeof ePub === "undefined") {
-    throw new Error("The EPUB reader could not be loaded.");
-  }
-
-  if (typeof JSZip === "undefined") {
-    throw new Error("The EPUB ZIP reader could not be loaded.");
-  }
-
-  if (!epubContainer) {
-    throw new Error("The EPUB reader container was not found.");
-  }
-
-  /* =========================
-  MAKE SURE READER IS VISIBLE
-  ========================= */
-
-  showReaderEngine("epub");
-
-  epubContainer.innerHTML = "";
-  epubContainer.style.width = "100%";
-  epubContainer.style.height = "100%";
-  epubContainer.style.minHeight = "1px";
-
-  /*
-  Give the browser time to
-  calculate the visible reader
-  dimensions.
-  */
-  await new Promise(resolve => {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(resolve);
-    });
-  });
-
-  /* =========================
-  DOWNLOAD EPUB
-  ========================= */
-
-  const controller = new AbortController();
-  const timeout = setTimeout(() => {
-    controller.abort();
-  }, 30000);
-
-  let response;
-
-  try {
-    response = await fetch(textbook.file_url, {
-      method: "GET",
-      mode: "cors",
-      credentials: "omit",
-      cache: "no-store",
-      signal: controller.signal
-    });
-  } catch (error) {
-    if (error.name === "AbortError") {
-      throw new Error("The EPUB download timed out. Please check the file URL.");
-    }
-    throw new Error("The EPUB file could not be downloaded.");
-  } finally {
-    clearTimeout(timeout);
-  }
-
-  if (!response.ok) {
-    throw new Error(`Unable to download EPUB textbook. Server returned ${response.status}.`);
-  }
-
-  const arrayBuffer = await response.arrayBuffer();
-
-  if (!arrayBuffer || arrayBuffer.byteLength < 100) {
-    throw new Error("The downloaded EPUB file is empty or invalid.");
-  }
-
-  /* =========================
-  CREATE EPUB BOOK
-  ========================= */
-
-  epubBook = ePub();
-  await epubBook.open(arrayBuffer, "binary");
-
-  /*
-  Wait until epub.js has completely
-  opened the book before creating
-  the rendition.
-  */
-  await epubBook.ready;
-
-  /* =========================
-  CREATE RENDITION
-  ========================= */
-
-  epubRendition = epubBook.renderTo(epubContainer, {
-    width: "100%",
-    height: "100%",
-    flow: "paginated",
-    manager: "default",
-    spread: "none"
-  });
-
-  /* =========================
-  INITIAL DISPLAY (With Fix)
-  ========================= */
-
-  // FIX: Create a promise to listen for the engine's 'rendered' event
-  const displayPromise = new Promise((resolve) => {
-    epubRendition.on("rendered", () => {
-      resolve();
-    });
-  });
-
-  // Kick off the rendering process
-  await epubRendition.display();
-  
-  // Wait until epub.js confirms the layout has loaded in the DOM
-  await displayPromise;
-
-  /*
-  Some epub.js builds expose
-  resize(), while others don't.
-  Do NOT depend on it.
-  */
-  if (epubRendition && typeof epubRendition.resize === "function") {
-    const width = epubContainer.clientWidth;
-    const height = epubContainer.clientHeight;
-
-    if (width > 0 && height > 0) {
-      epubRendition.resize(width, height);
-    }
-  }
-
-  /* =========================
-  FORCE LOCATION REPORT
-  ========================= */
-
-  if (epubRendition && typeof epubRendition.reportLocation === "function") {
-    await epubRendition.reportLocation();
-  }
-
-  /* =========================
-  EPUB PAGE COUNT
-  ========================= */
-
-  totalPages = epubBook.spine.length || 1;
-  currentPage = 1;
-  pageNumber.textContent = currentPage;
-  pageCount.textContent = totalPages;
-
-  loadProgress();
-  loadBookmarks();
-  updateNavigation();
-  updateBookmarkUI();
-
-  /* =========================
-  TRACK LOCATION
-  ========================= */
-
-  epubRendition.on("relocated", location => {
-    if (!location || !location.start) {
-      return;
-    }
-
-    /*  
-      For now we use the EPUB  
-      spine section as the page  
-      number.  
-      EPUBs don't have PDF-style  
-      fixed pages.  
-    */
-    currentPage = location.start.index + 1;
-    pageNumber.textContent = currentPage;
-
-    saveProgress();
-    updateNavigation();
-    updateBookmarkUI();
-  });
 }
 
 /* =========================
@@ -3960,22 +3495,7 @@ async function loadTextbook() {
 
     }
 
-
-    /* =========================
-       EPUB
-    ========================= */
-
-    else if (
-  readerType ===
-  "epub"
-) {
-
-  await loadEPUB();
-
-}
-
-
-    /* =========================
+/* =========================
        DOCX
     ========================= */
 
@@ -4006,8 +3526,8 @@ async function loadTextbook() {
     );
 
     pageControls.classList.remove(
-      "hidden"
-    );
+  "hidden"
+);
 
     toolbar.classList.remove(
       "hidden"
