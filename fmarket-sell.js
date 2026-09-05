@@ -141,9 +141,14 @@ const noPastQuestions =
         "status"
       );
       
-      /* =========================
+/* =========================
    TEXTBOOK ELEMENTS
 ========================= */
+
+const textbookTab =
+  document.getElementById(
+    "textbook-tab"
+  );
 
 const textbookSection =
   document.getElementById(
@@ -191,8 +196,7 @@ let textbookType =
 let selectedTextbookFile =
   null;
 
-
-    /* =========================
+/* =========================
        ACCOUNT
     ========================= */
 
@@ -550,6 +554,10 @@ function showNotesTab() {
     "active"
   );
 
+  textbookTab.classList.remove(
+    "active"
+  );
+
 
   myNotesList.classList.remove(
     "hidden"
@@ -568,6 +576,15 @@ function showNotesTab() {
     "hidden"
   );
 
+
+  textbookSection.classList.add(
+    "hidden"
+  );
+
+
+  categoryInput.value =
+    "notes";
+
 }
 
 
@@ -578,6 +595,10 @@ function showPastQuestionsTab() {
   );
 
   notesTab.classList.remove(
+    "active"
+  );
+
+  textbookTab.classList.remove(
     "active"
   );
 
@@ -596,11 +617,14 @@ function showPastQuestionsTab() {
   );
 
 
-  /*
-   * Only show the empty message
-   * if there are actually no
-   * past questions.
-   */
+  textbookSection.classList.add(
+    "hidden"
+  );
+
+
+  categoryInput.value =
+    "past_questions";
+
 
   if (
     myPastQuestionsList.children.length === 0
@@ -2002,20 +2026,83 @@ function updateTextbookSection() {
 
 }
 
-
 /* =========================
-   CATEGORY CHANGE
+   TEXTBOOK TAB
 ========================= */
 
-categoryInput.addEventListener(
-  "change",
+textbookTab.addEventListener(
+  "click",
   () => {
+
+    /* =========================
+       SELECT TEXTBOOK
+    ========================= */
+
+    categoryInput.value =
+      "textbook";
+
+
+    /* =========================
+       HIDE NOTES
+    ========================= */
+
+    myNotesList.classList.add(
+      "hidden"
+    );
+
+    noNotes.classList.add(
+      "hidden"
+    );
+
+
+    /* =========================
+       HIDE PAST QUESTIONS
+    ========================= */
+
+    myPastQuestionsList.classList.add(
+      "hidden"
+    );
+
+    noPastQuestions.classList.add(
+      "hidden"
+    );
+
+
+    /* =========================
+       ACTIVE MATERIAL CARD
+    ========================= */
+
+    notesTab.classList.remove(
+      "active"
+    );
+
+    pastQuestionsTab.classList.remove(
+      "active"
+    );
+
+    textbookTab.classList.add(
+      "active"
+    );
+
+
+    /* =========================
+       OPEN TEXTBOOK PANEL
+    ========================= */
 
     updateTextbookSection();
 
+
+    /* =========================
+       SCROLL TO PANEL
+    ========================= */
+
+    textbookSection.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+
   }
 );
-
 
 /* =========================
    DIGITAL
@@ -2064,6 +2151,41 @@ textbookFile.addEventListener(
 
 
     if (!file) {
+
+      selectedTextbookFile =
+        null;
+
+      textbookFileName.textContent =
+        "No file selected";
+
+      removeTextbookFile.classList.add(
+        "hidden"
+      );
+
+      return;
+
+    }
+    
+        /* =========================
+       CHECK FILE TYPE
+    ========================= */
+
+    const fileName =
+      file.name.toLowerCase();
+
+    const isValidTextbook =
+      fileName.endsWith(".pdf") ||
+      fileName.endsWith(".docx");
+
+    if (!isValidTextbook) {
+
+      showStatus(
+        "Only PDF and DOCX textbook files are allowed.",
+        "error"
+      );
+
+      textbookFile.value =
+        "";
 
       selectedTextbookFile =
         null;

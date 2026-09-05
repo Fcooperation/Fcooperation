@@ -1,103 +1,107 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<!DOCTYPE html><html lang="en"><head>  <meta charset="UTF-8"><meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
 
-  <meta charset="UTF-8">
+«»
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
-  <title>Sell on FMarket</title>
-
-  <link
+  <title>Sell on FMarket</title>  <link
     rel="stylesheet"
     href="fmarket-sell.css"
+  ></head><body>  <main class="sell-page"><!-- =========================
+     TOP BAR
+========================== -->
+
+<header class="sell-header">
+
+  <button
+    type="button"
+    id="back-btn"
+    class="back-btn"
+    aria-label="Go back"
   >
+    ←
+  </button>
 
-</head>
+  <div class="header-content">
 
-<body>
+    <div class="brand-line">
+      <span class="brand-dot"></span>
+      FMARKET
+    </div>
 
-  <div class="sell-page">
+    <h1>List something students need.</h1>
 
-    <!-- =========================
-         TOP BAR
-    ========================== -->
+    <p>
+      Turn your notes, past questions, textbooks and study materials
+      into something useful for other students.
+    </p>
 
-    <header class="sell-header">
+  </div>
 
-      <button
-        type="button"
-        id="back-btn"
-        class="back-btn"
-      >
-        ←
-      </button>
-
-      <div class="header-text">
-
-        <h1>
-          Sell on FMarket
-        </h1>
-
-        <p>
-          List your study material for other students to buy.
-        </p>
-
-      </div>
-
-    </header>
+</header>
 
 
-    <!-- =========================
-         BALANCE
-    ========================== -->
+<!-- =========================
+     BALANCE
+========================== -->
 
-    <section class="balance-card">
+<section class="balance-card">
 
-      <div>
+  <div class="balance-main">
 
-        <span class="balance-label">
-          Your FCoins
-        </span>
-
-        <strong id="fcoins-balance">
-          0
-        </strong>
-
-      </div>
-
-      <button
-        type="button"
-        id="topup-btn"
-      >
-        + Top Up
-      </button>
-
-    </section>
-
-
-    <!-- =========================
-         SELL FROM FSTUDY
-    ========================== -->
-
-<section
-  class="notes-section"
-  id="notes-section"
->
-
-  <div class="section-heading">
+    <div class="balance-symbol">
+      ₣
+    </div>
 
     <div>
 
+      <span class="balance-label">
+        YOUR BALANCE
+      </span>
+
+      <strong id="fcoins-balance">
+        0
+      </strong>
+
+      <span class="balance-unit">
+        FCoins
+      </span>
+
+    </div>
+
+  </div>
+
+  <button
+    type="button"
+    id="topup-btn"
+    class="balance-action"
+  >
+    + Top Up
+  </button>
+
+</section>
+
+
+<!-- =========================
+     QUICK START
+========================== -->
+
+<section class="material-section">
+
+  <div class="section-top">
+
+    <div>
+
+      <span class="eyebrow">
+        START HERE
+      </span>
+
       <h2>
-        Sell from My Study Materials
+        What are you selling?
       </h2>
 
       <p>
-        Choose something you've already created.
+        Pick a material type to get started.
       </p>
 
     </div>
@@ -105,45 +109,126 @@
   </div>
 
 
-  <!-- =========================
-       MATERIAL SWITCH
-  ========================== -->
+  <div class="material-grid">
 
-  <div class="material-switch">
-
+    <!-- NOTES -->
     <button
       type="button"
       id="notes-tab"
-      class="material-tab active"
+      class="material-card active"
     >
-      FStudy Notes
+
+      <div class="material-icon">
+        📝
+      </div>
+
+      <div class="material-card-body">
+
+        <strong>
+          FStudy Notes
+        </strong>
+
+        <span>
+          Your saved study notes
+        </span>
+
+      </div>
+
+      <span class="material-arrow">
+        →
+      </span>
+
     </button>
 
+
+    <!-- PAST QUESTIONS -->
     <button
       type="button"
       id="past-questions-tab"
-      class="material-tab"
+      class="material-card"
     >
-      Past Questions
+
+      <div class="material-icon">
+        📚
+      </div>
+
+      <div class="material-card-body">
+
+        <strong>
+          Past Questions
+        </strong>
+
+        <span>
+          Questions you've saved
+        </span>
+
+      </div>
+
+      <span class="material-arrow">
+        →
+      </span>
+
+    </button>
+
+
+    <!-- TEXTBOOK -->
+    <button
+      type="button"
+      id="textbook-tab"
+      class="material-card textbook-card"
+    >
+
+      <div class="material-icon">
+        📖
+      </div>
+
+      <div class="material-card-body">
+
+        <strong>
+          Textbook
+        </strong>
+
+        <span>
+          Sell a digital or physical book
+        </span>
+
+      </div>
+
+      <span class="material-arrow">
+        →
+      </span>
+
     </button>
 
   </div>
 
 
   <!-- =========================
-       FSTUDY NOTES
+       MY NOTES
   ========================== -->
 
   <div
     id="my-notes-list"
-    class="my-notes-list"
+    class="saved-materials"
   ></div>
 
   <div
     id="no-notes"
-    class="no-notes hidden"
+    class="empty-state hidden"
   >
-    You don't have any saved FStudy notes yet.
+
+    <div class="empty-icon">
+      📝
+    </div>
+
+    <strong>
+      No saved notes yet
+    </strong>
+
+    <span>
+      Your FStudy notes will appear here.
+    </span>
+
   </div>
 
 
@@ -153,519 +238,653 @@
 
   <div
     id="my-past-questions-list"
-    class="my-notes-list hidden"
+    class="saved-materials hidden"
   ></div>
 
   <div
     id="no-past-questions"
-    class="no-notes hidden"
+    class="empty-state hidden"
   >
-    You don't have any saved past questions yet.
+
+    <div class="empty-icon">
+      📚
+    </div>
+
+    <strong>
+      No past questions yet
+    </strong>
+
+    <span>
+      Your saved past questions will appear here.
+    </span>
+
+  </div>
+
+
+  <!-- =========================
+       TEXTBOOK SETUP
+  ========================== -->
+
+  <div
+    id="textbook-section"
+    class="textbook-panel hidden"
+  >
+
+    <div class="panel-heading">
+
+      <div class="panel-icon">
+        📖
+      </div>
+
+      <div>
+
+        <h3>
+          Textbook setup
+        </h3>
+
+        <p>
+          Choose how students will receive the book.
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <!-- DELIVERY TYPE -->
+
+    <div class="choice-label">
+      How will students receive it?
+    </div>
+
+    <div class="delivery-grid">
+
+      <button
+        type="button"
+        id="digital-textbook-btn"
+        class="delivery-card active"
+      >
+
+        <div class="delivery-icon">
+          📱
+        </div>
+
+        <div>
+
+          <strong>
+            Digital
+          </strong>
+
+          <span>
+            Download online
+          </span>
+
+        </div>
+
+        <div class="choice-check">
+          ✓
+        </div>
+
+      </button>
+
+
+      <button
+        type="button"
+        id="physical-textbook-btn"
+        class="delivery-card"
+      >
+
+        <div class="delivery-icon">
+          📦
+        </div>
+
+        <div>
+
+          <strong>
+            Physical
+          </strong>
+
+          <span>
+            Pickup or delivery
+          </span>
+
+        </div>
+
+        <div class="choice-check">
+          ✓
+        </div>
+
+      </button>
+
+    </div>
+
+
+    <!-- DIGITAL -->
+
+    <div
+      id="digital-textbook-upload"
+      class="textbook-option"
+    >
+
+      <div class="option-title">
+
+        <strong>
+          Upload your textbook
+        </strong>
+
+        <span>
+          PDF recommended
+        </span>
+
+      </div>
+
+
+      <label
+        for="textbook-file"
+        class="upload-box"
+      >
+
+        <div class="upload-symbol">
+          ↑
+        </div>
+
+        <strong>
+          Choose textbook file
+        </strong>
+
+        <span>
+  PDF or DOCX only
+</span>
+
+        <small id="textbook-file-name">
+          No file selected
+        </small>
+
+      </label>
+
+
+      <input
+        type="file"
+        id="textbook-file"
+        accept=".pdf,.docx"
+        hidden
+      >
+
+
+      <button
+        type="button"
+        id="remove-textbook-file"
+        class="remove-file hidden"
+      >
+        Remove selected file
+      </button>
+
+    </div>
+
+
+    <!-- PHYSICAL -->
+
+    <div
+      id="physical-textbook-info"
+      class="textbook-option hidden"
+    >
+
+      <div class="option-title">
+
+        <strong>
+          Book condition
+        </strong>
+
+        <span>
+          Tell buyers what condition it's in.
+        </span>
+
+      </div>
+
+
+      <div class="condition-grid">
+
+        <button
+          type="button"
+          class="condition-card"
+          data-condition="new"
+        >
+
+          <span class="condition-icon">
+            ✨
+          </span>
+
+          <span>
+
+            <strong>
+              New
+            </strong>
+
+            <small>
+              Unused textbook
+            </small>
+
+          </span>
+
+          <span class="condition-check">
+            ✓
+          </span>
+
+        </button>
+
+
+        <button
+          type="button"
+          class="condition-card"
+          data-condition="used"
+        >
+
+          <span class="condition-icon">
+            📘
+          </span>
+
+          <span>
+
+            <strong>
+              Used
+            </strong>
+
+            <small>
+              Previously owned
+            </small>
+
+          </span>
+
+          <span class="condition-check">
+            ✓
+          </span>
+
+        </button>
+
+      </div>
+
+    </div>
+
   </div>
 
 </section>
 
 
-    <!-- =========================
-         SELL FORM
-    ========================== -->
-
-    <section class="form-card">
-
-      <div class="section-title">
-
-        <h2>
-          Your item
-        </h2>
-
-        <p>
-          Add the details students will see.
-        </p>
-
-      </div>
-
-
-      <!-- TITLE -->
-
-      <div class="form-group">
-
-        <label for="title">
-          Material title
-        </label>
-
-        <input
-          type="text"
-          id="title"
-          placeholder="Example: BIO 102 Complete Notes"
-          maxlength="120"
-        >
-
-      </div>
-
-
-      <!-- CATEGORY -->
-
-      <div class="form-group">
-
-        <label for="category">
-          Category
-        </label>
-
-        <select id="category">
-
-          <option value="">
-            Select category
-          </option>
-
-          <option value="notes">
-            Notes
-          </option>
-
-          <option value="past_questions">
-            Past Questions
-          </option>
-
-          <option value="textbook">
-            Textbook
-          </option>
-
-          <option value="handout">
-            Handout
-          </option>
-
-          <option value="study_guide">
-            Study Guide
-          </option>
-
-          <option value="other">
-            Other
-          </option>
-
-        </select>
-
-      </div>
-
 <!-- =========================
-     TEXTBOOK OPTIONS
-========================= -->
+     LISTING FORM
+========================== -->
 
-<div
-  id="textbook-section"
-  class="textbook-section hidden"
->
+<section class="listing-card">
 
-  <div class="textbook-heading">
+  <div class="form-heading">
 
-    <h3>
-      Textbook Type
-    </h3>
+    <span class="eyebrow">
+      LISTING
+    </span>
+
+    <h2>
+      Tell students about it
+    </h2>
 
     <p>
-      Choose whether you are selling a digital or physical textbook.
+      These details help buyers know exactly what they're getting.
     </p>
 
   </div>
 
 
-  <!-- TYPE -->
+  <!-- TITLE -->
 
-  <div class="textbook-type">
+  <div class="field">
 
-    <button
-      type="button"
-      id="digital-textbook-btn"
-      class="textbook-type-btn active"
+    <label for="title">
+      Material title
+    </label>
+
+    <input
+      type="text"
+      id="title"
+      maxlength="120"
+      placeholder="e.g. BIO 102 Complete Notes"
     >
-      <span class="textbook-type-icon">
-        📱
-      </span>
-
-      <span>
-        <strong>
-          Digital
-        </strong>
-
-        <small>
-          Students receive the textbook online.
-        </small>
-      </span>
-
-    </button>
-
-
-    <button
-      type="button"
-      id="physical-textbook-btn"
-      class="textbook-type-btn"
-    >
-      <span class="textbook-type-icon">
-        📚
-      </span>
-
-      <span>
-        <strong>
-          Physical
-        </strong>
-
-        <small>
-          Students receive the actual book.
-        </small>
-      </span>
-
-    </button>
 
   </div>
 
 
-  <!-- DIGITAL FILE -->
+<!-- CATEGORY -->
 
-  <div
-    id="digital-textbook-upload"
-    class="textbook-upload"
-  >
+<div class="field">
 
-    <label
-      for="textbook-file"
-      class="textbook-file-picker"
-    >
+  <label for="category">
+    Category
+  </label>
 
-      <div class="textbook-file-icon">
-        📄
-      </div>
+  <select id="category">
 
-      <strong>
-        Upload textbook file
-      </strong>
+    <option value="">
+      Select category
+    </option>
+
+    <option value="notes">
+      Notes
+    </option>
+
+    <option value="past_questions">
+      Past Questions
+    </option>
+
+    <option value="textbook">
+      Textbook
+    </option>
+
+    <option value="handout">
+      Handout
+    </option>
+
+    <option value="study_guide">
+      Study Guide
+    </option>
+
+    <option value="other">
+      Other
+    </option>
+
+  </select>
+
+</div>
+
+
+  <!-- DESCRIPTION -->
+
+  <div class="field">
+
+    <div class="label-row">
+
+      <label for="description">
+        Description
+      </label>
+
+      <span>
+        <b id="description-count">0</b>/1000
+      </span>
+
+    </div>
+
+    <textarea
+      id="description"
+      maxlength="1000"
+      rows="5"
+      placeholder="What does this material contain? Who is it useful for?"
+    ></textarea>
+
+  </div>
+
+
+  <!-- ACADEMIC DETAILS -->
+
+  <div class="subsection">
+
+    <div class="subsection-heading">
+
+      <span>
+        ACADEMIC DETAILS
+      </span>
 
       <small>
-        PDF recommended
+        Help students find it
       </small>
 
-      <span
-        id="textbook-file-name"
-        class="textbook-file-name"
+    </div>
+
+
+    <div class="field">
+
+      <label for="university">
+        University
+      </label>
+
+      <input
+        type="text"
+        id="university"
+        placeholder="e.g. EBSU"
       >
-        No file selected
+
+    </div>
+
+
+    <div class="field">
+
+      <label for="course">
+        Course
+      </label>
+
+      <input
+        type="text"
+        id="course"
+        placeholder="e.g. BIO 102"
+      >
+
+    </div>
+
+
+    <div class="field">
+
+      <label for="department">
+        Department
+        <span class="optional">
+          Optional
+        </span>
+      </label>
+
+      <input
+        type="text"
+        id="department"
+        placeholder="e.g. Computer Science"
+      >
+
+    </div>
+
+  </div>
+
+
+  <!-- LOCATION -->
+
+  <div class="field">
+
+    <label for="location">
+      Location
+    </label>
+
+    <input
+      type="text"
+      id="location"
+      placeholder="e.g. EBSU Perm Site"
+    >
+
+    <small class="field-help">
+      Useful for physical textbooks and local pickup.
+    </small>
+
+  </div>
+
+
+  <!-- PRICE -->
+
+  <div class="price-section">
+
+    <div class="section-mini-heading">
+
+      <div>
+
+        <span class="eyebrow">
+          PRICE
+        </span>
+
+        <strong>
+          What should students pay?
+        </strong>
+
+      </div>
+
+      <span class="price-currency">
+        FCoins
+      </span>
+
+    </div>
+
+
+    <div class="price-input">
+
+      <span>
+        ₣
+      </span>
+
+      <input
+        type="number"
+        id="price"
+        min="0"
+        step="1"
+        placeholder="500"
+      >
+
+      <small>
+        FCoins
+      </small>
+
+    </div>
+
+
+    <label class="free-toggle">
+
+      <input
+        type="checkbox"
+        id="free-item"
+      >
+
+      <span class="toggle-box">
+        ✓
+      </span>
+
+      <span>
+
+        <strong>
+          Give it away for free
+        </strong>
+
+        <small>
+          The listing price will become 0 FCoins.
+        </small>
+
       </span>
 
     </label>
 
+  </div>
+
+
+  <!-- IMAGE -->
+
+  <div class="field">
+
+    <div class="label-row">
+
+      <label>
+        Product image
+      </label>
+
+      <span>
+        Optional
+      </span>
+
+    </div>
+
+
+    <label
+      for="product-image"
+      class="image-upload"
+      id="image-picker"
+    >
+
+      <div
+        id="image-placeholder"
+        class="image-placeholder"
+      >
+
+        <div class="image-upload-icon">
+          +
+        </div>
+
+        <strong>
+          Add a cover image
+        </strong>
+
+        <span>
+          JPG, PNG or WEBP
+        </span>
+
+      </div>
+
+
+      <img
+        id="image-preview"
+        class="image-preview hidden"
+        alt="Product preview"
+      >
+
+    </label>
+
+
     <input
       type="file"
-      id="textbook-file"
-      accept=".pdf,.epub,.doc,.docx"
+      id="product-image"
+      accept="image/png,image/jpeg,image/webp"
       hidden
     >
 
+
     <button
       type="button"
-      id="remove-textbook-file"
-      class="remove-textbook-file hidden"
+      id="remove-image"
+      class="remove-image hidden"
     >
-      Remove file
+      Remove image
     </button>
 
   </div>
 
 
-  <!-- PHYSICAL INFO -->
+  <!-- STATUS -->
 
   <div
-    id="physical-textbook-info"
-    class="physical-textbook-info hidden"
+    id="status"
+    class="status hidden"
+  ></div>
+
+
+  <!-- SUBMIT -->
+
+  <button
+    type="button"
+    id="list-item-btn"
+    class="submit-btn"
   >
 
-    <div class="physical-info-icon">
-      📦
-    </div>
+    <span>
+      List on FMarket
+    </span>
 
-    <div>
+    <span>
+      →
+    </span>
 
-      <strong>
-        Physical textbook
-      </strong>
+  </button>
 
-      <p>
-        Buyers will contact you for pickup or delivery after purchasing.
-      </p>
 
-    </div>
+  <p class="submit-note">
+    You'll receive FCoins when another student successfully purchases
+    your item.
+  </p>
 
-  </div>
+</section>
 
-</div>
-
-      <!-- DESCRIPTION -->
-
-      <div class="form-group">
-
-        <label for="description">
-          Description
-        </label>
-
-        <textarea
-          id="description"
-          rows="5"
-          maxlength="1000"
-          placeholder="Explain what is included in this material..."
-        ></textarea>
-
-        <div class="character-count">
-          <span id="description-count">
-            0
-          </span>
-          / 1000
-        </div>
-
-      </div>
-
-
-      <!-- UNIVERSITY -->
-
-      <div class="form-group">
-
-        <label for="university">
-          University
-        </label>
-
-        <input
-          type="text"
-          id="university"
-          placeholder="Your university"
-        >
-
-      </div>
-
-
-      <!-- COURSE -->
-
-      <div class="form-group">
-
-        <label for="course">
-          Course
-        </label>
-
-        <input
-          type="text"
-          id="course"
-          placeholder="Example: BIO 102"
-        >
-
-      </div>
-
-
-      <!-- DEPARTMENT -->
-
-      <div class="form-group">
-
-        <label for="department">
-          Department
-          <span>
-            Optional
-          </span>
-        </label>
-
-        <input
-          type="text"
-          id="department"
-          placeholder="Example: Computer Science"
-        >
-
-      </div>
-
-
-      <!-- LOCATION -->
-
-      <div class="form-group">
-
-        <label for="location">
-          Location
-        </label>
-
-        <input
-          type="text"
-          id="location"
-          placeholder="Example: EBSU Perm Site"
-        >
-
-      </div>
-
-
-      <!-- CONDITION -->
-
-      <div class="form-group">
-
-        <label for="condition">
-          Condition
-        </label>
-
-        <select id="condition">
-
-          <option value="">
-            Select condition
-          </option>
-
-          <option value="new">
-            New
-          </option>
-
-          <option value="used">
-            Used
-          </option>
-
-          <option value="digital">
-            Digital
-          </option>
-
-          <option value="na">
-            N/A
-          </option>
-
-        </select>
-
-      </div>
-
-
-      <!-- PRICE -->
-
-      <div class="form-group">
-
-        <label>
-          Price
-        </label>
-
-        <div class="price-row">
-
-          <div class="price-input-wrap">
-
-            <input
-              type="number"
-              id="price"
-              min="0"
-              step="1"
-              placeholder="500"
-            >
-
-            <span>
-              FCoins
-            </span>
-
-          </div>
-
-        </div>
-
-
-        <label class="free-option">
-
-          <input
-            type="checkbox"
-            id="free-item"
-          >
-
-          <span>
-            Give this material away for free
-          </span>
-
-        </label>
-
-        <p class="price-help">
-          Free materials will have a price of 0 FCoins.
-        </p>
-
-      </div>
-
-
-      <!-- IMAGE -->
-
-      <div class="form-group">
-
-        <label>
-          Product image
-          <span>
-            Optional
-          </span>
-        </label>
-
-        <label
-          for="product-image"
-          class="image-picker"
-          id="image-picker"
-        >
-
-          <div
-            id="image-placeholder"
-            class="image-placeholder"
-          >
-
-            <div class="image-icon">
-              +
-            </div>
-
-            <strong>
-              Add an image
-            </strong>
-
-            <small>
-              JPG, PNG or WEBP
-            </small>
-
-          </div>
-
-          <img
-            id="image-preview"
-            class="image-preview hidden"
-            alt="Product preview"
-          >
-
-        </label>
-
-        <input
-          type="file"
-          id="product-image"
-          accept="image/png,image/jpeg,image/webp"
-          hidden
-        >
-
-        <button
-          type="button"
-          id="remove-image"
-          class="remove-image hidden"
-        >
-          Remove image
-        </button>
-
-      </div>
-
-
-      <!-- STATUS -->
-
-      <div
-        id="status"
-        class="status hidden"
-      ></div>
-
-
-      <!-- SUBMIT -->
-
-      <button
-        type="button"
-        id="list-item-btn"
-        class="list-item-btn"
-      >
-        List Item
-      </button>
-
-      <p class="listing-note">
-        You'll receive FCoins when another student successfully purchases your item.
-      </p>
-
-    </section>
-
-  </div>
-
-
-  <script src="config.js"></script>
-  <script src="fmarket-sell.js"></script>
-
-</body>
-</html>
+  </main>  <script src="config.js"></script>  <script src="fmarket-sell.js"></script></body></html>
