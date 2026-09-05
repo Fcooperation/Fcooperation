@@ -585,6 +585,10 @@ function showNotesTab() {
   categoryInput.value =
     "notes";
 
+
+  conditionInput.value =
+    "digital";
+
 }
 
 
@@ -624,6 +628,10 @@ function showPastQuestionsTab() {
 
   categoryInput.value =
     "past_questions";
+
+
+  conditionInput.value =
+    "digital";
 
 
   if (
@@ -2385,6 +2393,52 @@ formData.append(
 formData.append(
   "condition",
   conditionInput.value
+);
+
+/* =========================
+   PHYSICAL CONDITIONS
+========================= */
+
+const conditionCards =
+  document.querySelectorAll(
+    ".condition-card"
+  );
+
+
+conditionCards.forEach(
+  (card) => {
+
+    card.addEventListener(
+      "click",
+      () => {
+
+        const condition =
+          card.dataset.condition;
+
+
+        conditionInput.value =
+          condition;
+
+
+        conditionCards.forEach(
+          (item) => {
+
+            item.classList.remove(
+              "active"
+            );
+
+          }
+        );
+
+
+        card.classList.add(
+          "active"
+        );
+
+      }
+    );
+
+  }
 );
 
 /* =========================
