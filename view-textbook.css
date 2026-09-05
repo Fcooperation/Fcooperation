@@ -1049,21 +1049,80 @@ body {
   touch-action: none;
 }
 
-#docx-container {
-  width: 100%;
-  box-sizing: border-box;
-  overflow-x: hidden;
-}
-
-#docx-container .docx {
-  margin-left: auto;
-  margin-right: auto;
-  transform-origin: top center;
-  box-sizing: border-box;
-}
 #docx-reader {
   width: 100%;
   max-width: 100%;
+  height: 100%;
   box-sizing: border-box;
+
   overflow-x: hidden;
+  overflow-y: auto;
+
+  display: block;
+
+  background: #252525;
+
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+
+#docx-container {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100%;
+
+  box-sizing: border-box;
+
+  overflow-x: hidden;
+  overflow-y: visible;
+
+  padding: 16px 0 30px;
+}
+
+
+/*
+  Wrapper created by JavaScript
+  around every DOCX page.
+*/
+#docx-container .docx-page-wrapper {
+  position: relative;
+
+  display: block;
+
+  box-sizing: border-box;
+
+  margin-left: auto;
+  margin-right: auto;
+
+  overflow: visible;
+}
+
+
+/*
+  Actual DOCX page.
+*/
+#docx-container
+.docx-page-wrapper
+.docx {
+
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  margin: 0 !important;
+
+  box-sizing: border-box;
+
+  max-width: none !important;
+
+  min-width: 0;
+
+  transform-origin:
+    top left;
+
+  background: #fff;
+
+  overflow: visible;
 }

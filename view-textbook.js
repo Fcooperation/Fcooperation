@@ -3440,7 +3440,6 @@ async function loadDOCX() {
     blob,
     docxContainer,
     null,
-    null,
     {
       className:
         "docx",
@@ -3452,11 +3451,8 @@ async function loadDOCX() {
         true,
 
       /*
-        Keep the real Word page
-        dimensions while rendering.
-
-        We will scale the rendered
-        pages to fit the phone below.
+        Keep the Word page dimensions
+        while rendering.
       */
       ignoreWidth:
         false,
@@ -3482,20 +3478,9 @@ async function loadDOCX() {
   );
 
 
-  /*
-    =========================
-    FIT DOCX TO READER WIDTH
-    =========================
-
-    docx-preview preserves the
-    original Word page width.
-
-    On a phone that can make the
-    page appear zoomed in.
-
-    Calculate a scale based on the
-    available reader width.
-  */
+  /* =========================
+     GET PAGES
+  ========================= */
 
   const pages =
     docxContainer.querySelectorAll(
@@ -3518,19 +3503,11 @@ async function loadDOCX() {
     pages.length;
 
 
-  /*
-    Use the first page to determine
-    the original rendered width.
-  */
+  /* =========================
+     FIT DOCX WIDTH
+  ========================= */
 
-  const firstPage =
-    pages[0];
-
-
-  const pageWidth =
-    firstPage.getBoundingClientRect()
-      .width;
-
+  function fitDOCXPages() {
 
   const availableWidth =
     docxReader.clientWidth ||
@@ -3540,11 +3517,10 @@ async function loadDOCX() {
 
   /*
     Leave a small amount of space
-    around the document.
+    on both sides of the page.
   */
 
-  const horizontalPadding =
-    20;
+  const horizontalPadding = 20;
 
 
   const targetWidth =
@@ -3555,53 +3531,193 @@ async function loadDOCX() {
     );
 
 
-  let docxScale =
-    targetWidth /
-    pageWidth;
-
-
-  /*
-    Never enlarge a DOCX page
-    automatically.
-
-    If the page already fits,
-    keep it at 100%.
-  */
-
-  docxScale =
-    Math.min(
-      docxScale,
-      1
-    );
-
-
-  /*
-    Apply the same scale to every
-    rendered DOCX page.
-  */
-
   pages.forEach(
     page => {
 
-      page.style.transformOrigin =
-        "top center";
+      /*
+        Remove any previous scaling.
+      */
 
       page.style.transform =
-        `scale(${docxScale})`;
+        "none";
 
-      page.style.marginBottom =
-        `${(
-          page.offsetHeight *
-          (1 - docxScale)
-        )}px`;
+      page.style.transformOrigin =
+        "top left";
+
+
+      /*
+        IMPORTANT:
+        Reset dimensions before measuring.
+
+        This makes orientation changes
+        work correctly.
+      */
+
+      page.style.width =
+        "";
+
+      page.style.minWidth =
+        "";
+
+      page.style.maxWidth =
+        "";
+
+
+      /*
+        Find the original DOCX page width.
+      */
+
+      const pageWidth =
+        page.offsetWidth;
+
+
+      const pageHeight =
+        page.offsetHeight;
+
+
+      if (
+        !pageWidth ||
+        !pageHeight
+      ) {
+
+        return;
+
+      }
+
+
+      /*
+        Calculate the scale needed
+        to fit the device width.
+      */
+
+      const scaleFactor =
+        Math.min(
+          targetWidth /
+            pageWidth,
+          1
+        );
+
+
+      /*
+        Create a wrapper for this page.
+      */
+
+      let wrapper =
+        page.parentElement;
+
+
+      /*
+        If the page has not already
+        been wrapped, create one.
+      */
+
+      if (
+        !wrapper.classList.contains(
+          "docx-page-wrapper"
+        )
+      ) {
+
+        wrapper =
+          document.createElement(
+            "div"
+          );
+
+        wrapper.className =
+          "docx-page-wrapper";
+
+
+        page.parentNode.insertBefore(
+          wrapper,
+          page
+        );
+
+
+        wrapper.appendChild(
+          page
+        );
+
+      }
+
+
+      /*
+        Calculate the displayed
+        dimensions after scaling.
+      */
+
+      const scaledWidth =
+        pageWidth *
+        scaleFactor;
+
+
+      const scaledHeight =
+        pageHeight *
+        scaleFactor;
+
+
+      /*
+        Make the wrapper occupy
+        exactly the scaled size.
+      */
+
+      wrapper.style.width =
+        `${scaledWidth}px`;
+
+      wrapper.style.height =
+        `${scaledHeight}px`;
+
+
+      /*
+        Scale the actual DOCX page
+        visually.
+      */
+
+      page.style.transform =
+        `scale(${scaleFactor})`;
+
+
+      page.style.transformOrigin =
+        "top left";
+
+
+      /*
+        Center the page.
+      */
+
+      wrapper.style.marginLeft =
+        "auto";
+
+      wrapper.style.marginRight =
+        "auto";
 
     }
   );
 
+}
+
 
   /*
-    Reset to the first page.
+    Wait until the browser has
+    completed layout before fitting.
   */
+
+  requestAnimationFrame(
+  () => {
+
+    requestAnimationFrame(
+      () => {
+
+        fitDOCXPages();
+
+      }
+    );
+
+  }
+);
+
+
+  /* =========================
+     INITIAL PAGE
+  ========================= */
 
   currentPage =
     1;
@@ -3800,36 +3916,184 @@ async function loadTextbook() {
 
 
     window.addEventListener(
-      "resize",
-      () => {
+  "resize",
+  () => {
 
-        clearTimeout(
-          resizeTimer
-        );
-
-        resizeTimer =
-          setTimeout(
-            () => {
-
-              if (
-  pdf
-) {
-
-  baseScale =
-    0;
-
-  renderPage(
-    currentPage
-  );
-
-}
-
-            },
-            250
-          );
-
-      }
+    clearTimeout(
+      resizeTimer
     );
+
+    resizeTimer =
+      setTimeout(
+        () => {
+
+          /*
+            PDF
+          */
+
+          if (
+            pdf
+          ) {
+
+            baseScale =
+              0;
+
+            renderPage(
+              currentPage
+            );
+
+          }
+
+
+          /*
+            DOCX
+          */
+
+          if (
+            readerType ===
+            "docx"
+          ) {
+
+            const pages =
+              docxContainer.querySelectorAll(
+                ".docx"
+              );
+
+
+            if (
+              pages.length
+            ) {
+
+              pages.forEach(
+                page => {
+
+                  const wrapper =
+                    page.parentElement;
+
+
+                  if (
+                    wrapper &&
+                    wrapper.classList.contains(
+                      "docx-page-wrapper"
+                    )
+                  ) {
+
+                    /*
+                      Temporarily remove
+                      the old visual scaling
+                      so the natural dimensions
+                      can be measured again.
+                    */
+
+                    page.style.transform =
+                      "none";
+
+                    page.style.width =
+                      "";
+
+                    page.style.minWidth =
+                      "";
+
+                    page.style.maxWidth =
+                      "";
+
+                  }
+
+                }
+              );
+
+
+              /*
+                Recalculate DOCX size.
+              */
+
+              const availableWidth =
+                docxReader.clientWidth ||
+                reader.clientWidth ||
+                window.innerWidth;
+
+
+              const targetWidth =
+                Math.max(
+                  1,
+                  availableWidth - 20
+                );
+
+
+              pages.forEach(
+                page => {
+
+                  const wrapper =
+                    page.parentElement;
+
+
+                  if (
+                    !wrapper ||
+                    !wrapper.classList.contains(
+                      "docx-page-wrapper"
+                    )
+                  ) {
+
+                    return;
+
+                  }
+
+
+                  const pageWidth =
+                    page.offsetWidth;
+
+                  const pageHeight =
+                    page.offsetHeight;
+
+
+                  if (
+                    !pageWidth ||
+                    !pageHeight
+                  ) {
+
+                    return;
+
+                  }
+
+
+                  const scaleFactor =
+                    Math.min(
+                      targetWidth /
+                        pageWidth,
+                      1
+                    );
+
+
+                  wrapper.style.width =
+                    `${
+                      pageWidth *
+                      scaleFactor
+                    }px`;
+
+
+                  wrapper.style.height =
+                    `${
+                      pageHeight *
+                      scaleFactor
+                    }px`;
+
+
+                  page.style.transform =
+                    `scale(${scaleFactor})`;
+
+                }
+              );
+
+            }
+
+          }
+
+        },
+        250
+      );
+
+  }
+);
 
 
     /* =========================
