@@ -301,27 +301,26 @@ async function loadMaterial() {
        FORMAT CATEGORY
     ========================= */
 
-    function formatCategory(
-  category
-) {
+    function formatCategory(category) {
 
-  switch (
-    category
-  ) {
+  switch (category) {
 
     case "past-questions":
     case "past_questions":
       return "Past Questions";
 
     case "textbooks":
-case "textbook":
-  return "Textbook";
+    case "textbook":
+      return "Textbook";
 
     case "notes":
       return "Notes";
 
     case "handouts":
       return "Handout";
+
+    case "other":
+      return "Other";
 
     default:
       return "Material";
@@ -892,13 +891,9 @@ setRow(
        CATEGORY ICON
     ========================= */
 
-    function getCategoryIcon(
-  category
-) {
+    function getCategoryIcon(category) {
 
-  switch (
-    category
-  ) {
+  switch (category) {
 
     case "notes":
       return "📝";
@@ -908,11 +903,14 @@ setRow(
       return "📄";
 
     case "textbooks":
-case "textbook":
-  return "📚";
+    case "textbook":
+      return "📚";
 
     case "handouts":
       return "📑";
+
+    case "other":
+      return "📦";
 
     default:
       return "🛍️";
@@ -1481,14 +1479,20 @@ function savePurchasedMaterial(
   }
 
 
-  /* =========================
-     OTHER MATERIAL
-  ========================= */
+/* =========================
+   OTHER MATERIAL
+========================= */
+
+if (
+  category === "other"
+) {
 
   return {
     type: "other",
     data: purchasedMaterial
   };
+
+}
 
 }
 
@@ -1837,6 +1841,291 @@ if (
   }
 
 }
+
+}
+
+/* =========================
+   OWNED OTHER MATERIAL
+========================= */
+
+if (
+  category === "other"
+) {
+
+  showStatus(
+    "You already own this material.",
+    "success"
+  );
+
+  return;
+
+}
+
+/* =========================
+   OTHER MATERIAL
+========================= */
+
+const materialCategory =
+  String(
+    material.category ||
+    ""
+  )
+    .toLowerCase()
+    .trim()
+    .replace(
+      /[\s-]+/g,
+      "_"
+    );
+
+
+if (
+  materialCategory === "other"
+) {
+
+  const price =
+    Number(
+      material.price
+    ) || 0;
+
+
+  /* =========================
+     FREE OTHER MATERIAL
+  ========================= */
+
+  if (
+    price === 0
+  ) {
+
+    showStatus(
+      "This material is free.",
+      "success"
+    );
+
+    setTimeout(
+      () => {
+
+        window.location.href =
+          "/fmarket";
+
+      },
+      500
+    );
+
+    return;
+
+  }
+
+
+  /* =========================
+     LOGIN REQUIRED
+  ========================= */
+
+  if (
+    !account.id
+  ) {
+
+    showStatus(
+      "",
+      "error"
+    );
+
+
+    status.innerHTML =
+      'Please <a href="/login" class="fmarket-login-link">log in</a> before buying a material.';
+
+    return;
+
+  }
+
+
+  /* =========================
+     PURCHASE OTHER MATERIAL
+  ========================= */
+
+  buyBtn.disabled =
+    true;
+
+
+  showStatus(
+    "Processing purchase...",
+    "info"
+  );
+
+
+  try {
+
+    const response =
+      await fetch(
+        API_URL,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify({
+
+              userId:
+                account.id,
+
+              materialId:
+                material.id
+
+            })
+
+        }
+      );
+
+
+    const data =
+      await response.json();
+
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+
+      throw new Error(
+        data.error ||
+        "Purchase failed."
+      );
+
+    }
+
+
+    /* =========================
+       GET PURCHASED MATERIAL
+    ========================= */
+
+    const purchasedMaterial =
+      data.material;
+
+
+    if (
+      !purchasedMaterial
+    ) {
+
+      throw new Error(
+        "Purchase succeeded, but the material data was not returned."
+      );
+
+    }
+
+
+    /* =========================
+       UPDATE FCOINS
+    ========================= */
+
+    if (
+      data.fcoins !==
+      undefined
+    ) {
+
+      account.fcoins =
+        Number(
+          data.fcoins
+        ) || 0;
+
+      localStorage.setItem(
+        "faccount",
+        JSON.stringify(
+          account
+        )
+      );
+
+    }
+
+
+    /* =========================
+       SAVE PURCHASED OTHER
+    ========================= */
+
+    localStorage.setItem(
+      "fmarket_owned_material",
+      JSON.stringify(
+        purchasedMaterial
+      )
+    );
+
+
+    localStorage.setItem(
+      "fmarket_current_order",
+      JSON.stringify({
+
+        order_id:
+          data.order_id ||
+          null,
+
+        material:
+          purchasedMaterial
+
+      })
+    );
+
+
+    /* =========================
+       UPDATE CURRENT MATERIAL
+    ========================= */
+
+    material =
+      {
+        ...purchasedMaterial,
+        owned: true
+      };
+
+
+    /* =========================
+       UPDATE UI
+    ========================= */
+
+    updateOwnershipUI();
+
+
+    showStatus(
+      "Purchase successful!",
+      "success"
+    );
+
+
+    /*
+      Other materials do not have
+      a special viewer like notes,
+      past questions, or textbooks.
+
+      So keep the user on the material
+      page after purchase.
+    */
+
+    setTimeout(
+      () => {
+
+        hideStatus();
+
+      },
+      1200
+    );
+
+
+  } catch (error) {
+
+    showStatus(
+      error.message ||
+      "Unable to complete purchase.",
+      "error"
+    );
+
+
+    buyBtn.disabled =
+      false;
+
+  }
+
+
+  return;
 
 }
 
