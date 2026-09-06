@@ -1844,80 +1844,6 @@ if (
 
 
 /* =========================
-   OWNED OTHER MATERIAL
-========================= */
-
-if (
-  category === "other"
-) {
-
-  showStatus(
-    "You already own this material.",
-    "success"
-  );
-
-  return;
-
-}
-
-}
-
-/* =========================
-   OTHER MATERIAL
-========================= */
-
-const materialCategory =
-  String(
-    material.category ||
-    ""
-  )
-    .toLowerCase()
-    .trim()
-    .replace(
-      /[\s-]+/g,
-      "_"
-    );
-
-
-if (
-  materialCategory === "other"
-) {
-
-  const price =
-    Number(
-      material.price
-    ) || 0;
-
-
-  /* =========================
-     FREE OTHER MATERIAL
-  ========================= */
-
-  if (
-    price === 0
-  ) {
-
-    showStatus(
-      "This material is free.",
-      "success"
-    );
-
-    setTimeout(
-      () => {
-
-        window.location.href =
-          "/fmarket";
-
-      },
-      500
-    );
-
-    return;
-
-  }
-
-
-  /* =========================
      LOGIN REQUIRED
   ========================= */
 
@@ -2542,40 +2468,90 @@ if (
       "";
 
 
-    /* =========================
-       PHYSICAL TEXTBOOK
-    ========================= */
+/* =========================
+   PHYSICAL TEXTBOOK
+========================= */
 
-    if (
-      purchaseType ===
-      "physical_textbook"
-    ) {
+if (
+  purchaseType ===
+  "physical_textbook"
+) {
 
-      account.fcoins =
-        Number(
-          data.fcoins
-        ) || 0;
+  /* =========================
+     UPDATE FCOINS
+  ========================= */
 
-      localStorage.setItem(
-        "faccount",
-        JSON.stringify(
-          account
-        )
-      );
+  account.fcoins =
+    Number(
+      data.fcoins
+    ) || 0;
+
+  localStorage.setItem(
+    "faccount",
+    JSON.stringify(
+      account
+    )
+  );
 
 
-      localStorage.setItem(
-        "fmarket_current_order",
-        JSON.stringify({
-          order_id:
-            data.order_id,
+  /* =========================
+     SAVE CURRENT ORDER
+  ========================= */
 
-          material:
-            purchasedMaterial
-        })
-      );
+  localStorage.setItem(
+    "fmarket_current_order",
+    JSON.stringify({
 
-    }
+      order_id:
+        data.order_id,
+
+      material:
+        purchasedMaterial
+
+    })
+  );
+
+
+  /* =========================
+     DO NOT MARK AS OWNED
+  ========================= */
+
+  material = {
+    ...purchasedMaterial,
+    owned: false
+  };
+
+
+  /* =========================
+     HIDE OWNED BAR
+  ========================= */
+
+  if (
+    ownedBar
+  ) {
+
+    ownedBar.classList.add(
+      "hidden"
+    );
+
+  }
+
+
+  /* =========================
+     KEEP BUY BAR FROM
+     SHOWING "OPEN"
+  ========================= */
+
+  if (
+    buyBtn
+  ) {
+
+    buyBtn.textContent =
+      "Order Created";
+
+  }
+
+}
 
 
     /* =========================
@@ -2660,22 +2636,24 @@ else {
 
 
     if (
-      data.type ===
-      "physical_textbook"
-    ) {
+  data.type === "physical_textbook" ||
+  data.type === "other"
+) {
 
-      savedMaterial = {
-        type:
-          "physical_textbook",
+  savedMaterial = {
 
-        orderId:
-          data.order_id,
+    type:
+      data.type,
 
-        data:
-          purchasedMaterial
-      };
+    orderId:
+      data.order_id,
 
-    }
+    data:
+      purchasedMaterial
+
+  };
+
+}
 
 
     else if (
@@ -2746,16 +2724,16 @@ else {
       () => {
 
         if (
-          savedMaterial.type ===
-          "physical_textbook"
-        ) {
+  savedMaterial.type === "physical_textbook" ||
+  savedMaterial.type === "other"
+) {
 
-          window.location.href =
-            "/fmarket-orders";
+  window.location.href =
+    "/fmarket-orders";
 
-          return;
+  return;
 
-        }
+}
 
 
         if (
