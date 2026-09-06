@@ -225,6 +225,16 @@ const removeTextbookFile =
   document.getElementById(
     "remove-textbook-file"
   );
+  
+  const pickupLocationSection =
+  document.getElementById(
+    "pickup-location-section"
+  );
+
+const pickupLocationInput =
+  document.getElementById(
+    "pickup-location"
+  );
 
 let textbookType =
   "digital";
@@ -2146,6 +2156,37 @@ if (
 
 }
 
+/* =========================
+   PICKUP LOCATION VALIDATION
+========================= */
+
+const requiresPickupLocation =
+  (
+    categoryInput.value === "textbook" &&
+    textbookType === "physical"
+  ) ||
+  categoryInput.value === "other";
+
+
+if (requiresPickupLocation) {
+
+  if (
+    !pickupLocationInput.value.trim()
+  ) {
+
+    showStatus(
+      "Enter a pickup location for this material.",
+      "error"
+    );
+
+    pickupLocationInput.focus();
+
+    return false;
+
+  }
+
+}
+
       return true;
 
     }
@@ -2294,10 +2335,108 @@ async function getImageFromDB(
 }
 
 /* =========================
+   PICKUP LOCATION
+========================= */
+
+function updatePickupLocation() {
+
+  const category =
+    categoryInput.value;
+
+  const showPickupLocation =
+    (
+      category === "textbook" &&
+      textbookType === "physical"
+    ) ||
+    category === "other";
+
+
+  if (showPickupLocation) {
+
+    pickupLocationSection.classList.remove(
+      "hidden"
+    );
+
+    /*
+     * Change the label/help text
+     * depending on the material type.
+     */
+
+    const label =
+      pickupLocationSection.querySelector(
+        "label"
+      );
+
+    const requirement =
+      pickupLocationSection.querySelector(
+        ".label-row span"
+      );
+
+    const help =
+      pickupLocationSection.querySelector(
+        ".field-help"
+      );
+
+
+    if (
+      category === "other"
+    ) {
+
+      label.textContent =
+        "Pickup location";
+
+      requirement.textContent =
+        "Required for this material";
+
+      pickupLocationInput.placeholder =
+        "e.g. EBSU Gate, Abakaliki";
+
+      help.textContent =
+        "Where buyers can pick up the item from you.";
+
+    } else {
+
+      label.textContent =
+        "Pickup location";
+
+      requirement.textContent =
+        "Required for physical items";
+
+      pickupLocationInput.placeholder =
+        "e.g. EBSU Gate, Abakaliki";
+
+      help.textContent =
+        "Where buyers can pick up the item from you.";
+
+    }
+
+  } else {
+
+    pickupLocationSection.classList.add(
+      "hidden"
+    );
+
+    /*
+     * Clear it when the material
+     * doesn't need a pickup location.
+     */
+
+    pickupLocationInput.value =
+      "";
+
+  }
+
+}
+
+/* =========================
    TEXTBOOK TYPE
 ========================= */
 
 function updateTextbookSection() {
+
+  /*
+   * Not a textbook
+   */
 
   if (
     categoryInput.value !==
@@ -2314,10 +2453,21 @@ function updateTextbookSection() {
     textbookFile.value =
       "";
 
+    /*
+     * Still update pickup location
+     * because "Other" can require it.
+     */
+
+    updatePickupLocation();
+
     return;
 
   }
 
+
+  /*
+   * Textbook selected
+   */
 
   textbookSection.classList.remove(
     "hidden"
@@ -2372,6 +2522,7 @@ function updateTextbookSection() {
      * Physical books use
      * the normal condition field.
      */
+
     if (
       conditionInput.value ===
       "digital"
@@ -2383,6 +2534,14 @@ function updateTextbookSection() {
     }
 
   }
+
+
+  /*
+   * Update pickup location
+   * after determining textbook type.
+   */
+
+  updatePickupLocation();
 
 }
 
@@ -2671,31 +2830,27 @@ if (otherMaterialTab) {
       conditionInput.value =
         "";
 
+
       /* =========================
          ACTIVE CARD
       ========================= */
 
       notesTab.classList.remove(
-  "active"
-);
+        "active"
+      );
 
-pastQuestionsTab.classList.remove(
-  "active"
-);
+      pastQuestionsTab.classList.remove(
+        "active"
+      );
 
-if (otherMaterialTab) {
-  otherMaterialTab.classList.remove(
-    "active"
-  );
-}
-
-textbookTab.classList.add(
-  "active"
-);
+      textbookTab.classList.remove(
+        "active"
+      );
 
       otherMaterialTab.classList.add(
         "active"
       );
+
 
       /* =========================
          HIDE SAVED MATERIALS
@@ -2717,6 +2872,7 @@ textbookTab.classList.add(
         "hidden"
       );
 
+
       /* =========================
          HIDE TEXTBOOK SETUP
       ========================= */
@@ -2725,14 +2881,16 @@ textbookTab.classList.add(
         "hidden"
       );
 
+
       /* =========================
          HIDE ACADEMIC DETAILS
       ========================= */
 
       updateAcademicDetails();
 
+
       /* =========================
-         GENERIC LOCATION
+         GENERAL LOCATION
       ========================= */
 
       locationInput.placeholder =
@@ -2748,8 +2906,16 @@ textbookTab.classList.add(
           )
         );
 
+
       /* =========================
-         SCROLL TO LISTING FORM
+         PICKUP LOCATION
+      ========================= */
+
+      updatePickupLocation();
+
+
+      /* =========================
+         SCROLL TO FORM
       ========================= */
 
       document
@@ -2954,6 +3120,25 @@ formData.append(
 formData.append(
   "location",
   locationInput.value.trim()
+);
+
+/* =========================
+   PICKUP LOCATION
+========================= */
+
+const requiresPickupLocation =
+  (
+    categoryInput.value === "textbook" &&
+    textbookType === "physical"
+  ) ||
+  categoryInput.value === "other";
+
+
+formData.append(
+  "pickup_location",
+  requiresPickupLocation
+    ? pickupLocationInput.value.trim()
+    : ""
 );
 
 formData.append(
