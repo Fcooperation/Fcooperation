@@ -830,6 +830,12 @@ updateOwnershipUI();
         "material-location",
         material.location
       );
+      
+      setRow(
+  "pickup-location-row",
+  "material-pickup-location",
+  material.pickup_location
+);
 
 
       setRow(
