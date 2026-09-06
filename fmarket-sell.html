@@ -29,11 +29,11 @@ content="width=device-width, initial-scale=1.0"
       FMARKET
     </div>
 
-    <h1>List something students need.</h1>
+    <h1>List something people need.</h1>
 
     <p>
       Turn your notes, past questions, textbooks and study materials
-      into something useful for other students.
+      into something useful for other students or peoples.
     </p>
 
   </div>
@@ -199,6 +199,35 @@ content="width=device-width, initial-scale=1.0"
       </span>
 
     </button>
+    
+<!-- OTHER -->
+<button
+  type="button"
+  id="other-material-tab"
+  class="material-card"
+>
+
+  <div class="material-icon">
+    📦
+  </div>
+
+  <div class="material-card-body">
+
+    <strong>
+      Other
+    </strong>
+
+    <span>
+      Other useful materials
+    </span>
+
+  </div>
+
+  <span class="material-arrow">
+    →
+  </span>
+
+</button>
 
   </div>
 
@@ -523,7 +552,7 @@ content="width=device-width, initial-scale=1.0"
     </span>
 
     <h2>
-      Tell students about it
+      Tell People about it
     </h2>
 
     <p>
@@ -627,7 +656,10 @@ content="width=device-width, initial-scale=1.0"
 
   <!-- ACADEMIC DETAILS -->
 
-  <div class="subsection">
+  <div
+  class="subsection"
+  id="academic-details"
+>
 
     <div class="subsection-heading">
 
@@ -701,14 +733,14 @@ content="width=device-width, initial-scale=1.0"
     </label>
 
     <input
-      type="text"
-      id="location"
-      placeholder="e.g. EBSU Perm Site"
-    >
+  type="text"
+  id="location"
+  placeholder="e.g. Abakaliki"
+>
 
-    <small class="field-help">
-      Useful for physical textbooks and local pickup.
-    </small>
+    <small class="field-help" id="location-help">
+  Useful for physical items and local pickup.
+</small>
 
   </div>
 
@@ -717,74 +749,115 @@ content="width=device-width, initial-scale=1.0"
 
   <div class="price-section">
 
-    <div class="section-mini-heading">
+  <div class="section-mini-heading">
 
-      <div>
+    <div>
 
-        <span class="eyebrow">
-          PRICE
-        </span>
-
-        <strong>
-          What should students pay?
-        </strong>
-
-      </div>
-
-      <span class="price-currency">
-        FCoins
+      <span class="eyebrow">
+        PRICE
       </span>
+
+      <strong>
+        What should buyer pay?
+      </strong>
 
     </div>
-
-
-    <div class="price-input">
-
-      <span>
-        ₣
-      </span>
-
-      <input
-        type="number"
-        id="price"
-        min="0"
-        step="1"
-        placeholder="500"
-      >
-
-      <small>
-        FCoins
-      </small>
-
-    </div>
-
-
-    <label class="free-toggle">
-
-      <input
-        type="checkbox"
-        id="free-item"
-      >
-
-      <span class="toggle-box">
-        ✓
-      </span>
-
-      <span>
-
-        <strong>
-          Give it away for free
-        </strong>
-
-        <small>
-          The listing price will become 0 FCoins.
-        </small>
-
-      </span>
-
-    </label>
 
   </div>
+
+
+  <!-- CURRENCY SWITCH -->
+
+  <div class="price-mode">
+
+    <button
+      type="button"
+      id="fcoin-mode-btn"
+      class="price-mode-btn active"
+    >
+      FCoins
+    </button>
+
+    <button
+      type="button"
+      id="naira-mode-btn"
+      class="price-mode-btn"
+    >
+      Naira
+    </button>
+
+  </div>
+
+
+  <!-- AMOUNT INPUT -->
+
+  <div class="price-input">
+
+    <span id="price-symbol">
+      ₣
+    </span>
+
+    <input
+      type="number"
+      id="price"
+      min="0"
+      step="1"
+      placeholder="500"
+    >
+
+    <small id="price-unit">
+      FCoins
+    </small>
+
+  </div>
+
+
+  <!-- CONVERSION -->
+
+  <div
+    id="price-conversion"
+    class="price-conversion"
+  >
+
+    <span>
+      Equivalent amount
+    </span>
+
+    <strong id="converted-price">
+      ₦0
+    </strong>
+
+  </div>
+
+
+  <!-- FREE -->
+
+  <label class="free-toggle">
+
+    <input
+      type="checkbox"
+      id="free-item"
+    >
+
+    <span class="toggle-box">
+      ✓
+    </span>
+
+    <span>
+
+      <strong>
+        Give it away for free
+      </strong>
+
+      <small>
+        The listing price will become 0 FCoins.
+      </small>
+
+    </span>
+
+  </label>
+
+</div>
 
 
   <!-- IMAGE -->
@@ -886,7 +959,7 @@ content="width=device-width, initial-scale=1.0"
 
 
   <p class="submit-note">
-    You'll receive FCoins when another student successfully purchases
+    You'll receive FCoins when a buyer successfully purchases
     your item.
   </p>
 

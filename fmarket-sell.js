@@ -105,6 +105,32 @@ const noPastQuestions =
       document.getElementById(
         "price"
       );
+      
+      const priceSymbol =
+  document.getElementById(
+    "price-symbol"
+  );
+
+const priceUnit =
+  document.getElementById(
+    "price-unit"
+  );
+
+const convertedPrice =
+  document.getElementById(
+    "converted-price"
+  );
+
+const fcoinModeBtn =
+  document.getElementById(
+    "fcoin-mode-btn"
+  );
+
+const nairaModeBtn =
+  document.getElementById(
+    "naira-mode-btn"
+  );
+
 
     const freeItem =
       document.getElementById(
@@ -148,6 +174,16 @@ const noPastQuestions =
 const textbookTab =
   document.getElementById(
     "textbook-tab"
+  );
+  
+  const otherMaterialTab =
+  document.getElementById(
+    "other-material-tab"
+  );
+
+const academicDetails =
+  document.getElementById(
+    "academic-details"
   );
 
 const textbookSection =
@@ -195,6 +231,15 @@ let textbookType =
 
 let selectedTextbookFile =
   null;
+  
+  
+const FCOIN_TO_NAIRA =
+  1.5;
+
+let priceMode =
+  "fcoin";
+
+    
 
 /* =========================
        ACCOUNT
@@ -558,6 +603,12 @@ function showNotesTab() {
     "active"
   );
 
+  if (otherMaterialTab) {
+    otherMaterialTab.classList.remove(
+      "active"
+    );
+  }
+
 
   myNotesList.classList.remove(
     "hidden"
@@ -588,6 +639,8 @@ function showNotesTab() {
 
   conditionInput.value =
     "digital";
+    
+    updateAcademicDetails();
 
 }
 
@@ -651,6 +704,60 @@ function showPastQuestionsTab() {
   }
 
 }
+
+/* =========================
+   CATEGORY UI
+========================= */
+
+function updateAcademicDetails() {
+
+  const category =
+    categoryInput.value;
+
+  const hideAcademic =
+    category === "other";
+
+  if (hideAcademic) {
+
+    academicDetails.classList.add(
+      "hidden"
+    );
+
+    /*
+     * Clear academic information
+     * so old school information
+     * cannot accidentally be submitted.
+     */
+
+    universityInput.value = "";
+    courseInput.value = "";
+    departmentInput.value = "";
+
+  } else {
+
+    academicDetails.classList.remove(
+      "hidden"
+    );
+
+  }
+
+}
+
+
+/* =========================
+   CATEGORY SELECT
+========================= */
+
+categoryInput.addEventListener(
+  "change",
+  () => {
+
+    updateAcademicDetails();
+
+    updateTextbookSection();
+
+  }
+);
 
 
 notesTab.addEventListener(
@@ -1124,6 +1231,7 @@ function selectPastQuestions(
 
 
     loadMyNotes();
+    showNotesTab();
 
 
     /* =========================
@@ -1149,31 +1257,38 @@ function selectPastQuestions(
     ========================= */
 
     freeItem.addEventListener(
-      "change",
-      () => {
+  "change",
+  () => {
 
-        if (
-          freeItem.checked
-        ) {
+    if (
+      freeItem.checked
+    ) {
 
-          priceInput.value =
-            "0";
+      priceInput.value =
+        "0";
 
-          priceInput.disabled =
-            true;
+      priceInput.disabled =
+        true;
 
-        } else {
+      convertedPrice.textContent =
+        priceMode === "fcoin"
+          ? "₦0"
+          : "0 FCoins";
 
-          priceInput.disabled =
-            false;
+    } else {
 
-          priceInput.value =
-            "";
+      priceInput.disabled =
+        false;
 
-        }
+      priceInput.value =
+        "";
 
-      }
-    );
+      updatePriceConversion();
+
+    }
+
+  }
+);
 
 /* =========================
    COMPRESS IMAGE BEFORE UPLOAD
@@ -1594,6 +1709,202 @@ productImage.addEventListener(
 
     }
 
+/* =========================
+   PRICE CONVERSION
+========================= */
+
+function updatePriceConversion() {
+
+  const amount =
+    Number(
+      priceInput.value
+    ) || 0;
+
+  if (
+    priceMode === "fcoin"
+  ) {
+
+    const naira =
+      amount *
+      FCOIN_TO_NAIRA;
+
+    convertedPrice.textContent =
+      `₦${naira.toLocaleString(
+        "en-NG",
+        {
+          maximumFractionDigits: 2
+        }
+      )}`;
+
+  } else {
+
+    const fcoins =
+      amount /
+      FCOIN_TO_NAIRA;
+
+    convertedPrice.textContent =
+      `${fcoins.toLocaleString(
+        "en-NG",
+        {
+          maximumFractionDigits: 2
+        }
+      )} FCoins`;
+
+  }
+
+}
+
+
+/* =========================
+   FCOINS MODE
+========================= */
+
+fcoinModeBtn.addEventListener(
+  "click",
+  () => {
+
+    if (
+      priceMode === "fcoin"
+    ) {
+      return;
+    }
+
+    const currentNaira =
+      Number(
+        priceInput.value
+      ) || 0;
+
+    /*
+     * Convert the currently
+     * entered Naira value to FCoins.
+     */
+
+    const fcoins =
+      currentNaira /
+      FCOIN_TO_NAIRA;
+
+    priceMode =
+      "fcoin";
+
+    priceSymbol.textContent =
+      "₣";
+
+    priceUnit.textContent =
+      "FCoins";
+
+    priceInput.step =
+      "1";
+
+    priceInput.placeholder =
+      "1000";
+
+    priceInput.value =
+      fcoins
+        ? Number(
+            fcoins.toFixed(2)
+          )
+        : "";
+
+    fcoinModeBtn.classList.add(
+      "active"
+    );
+
+    nairaModeBtn.classList.remove(
+      "active"
+    );
+
+    updatePriceConversion();
+
+  }
+);
+
+
+/* =========================
+   NAIRA MODE
+========================= */
+
+nairaModeBtn.addEventListener(
+  "click",
+  () => {
+
+    if (
+      priceMode === "naira"
+    ) {
+      return;
+    }
+
+    const currentFcoins =
+      Number(
+        priceInput.value
+      ) || 0;
+
+    /*
+     * Convert the current
+     * FCoin value to Naira.
+     */
+
+    const naira =
+      currentFcoins *
+      FCOIN_TO_NAIRA;
+
+    priceMode =
+      "naira";
+
+    priceSymbol.textContent =
+      "₦";
+
+    priceUnit.textContent =
+      "Naira";
+
+    /*
+     * Naira can use ₦1.50
+     * increments so that the
+     * conversion back to FCoins
+     * remains exact.
+     */
+
+    priceInput.step =
+      "1.5";
+
+    priceInput.placeholder =
+      "1500";
+
+    priceInput.value =
+      naira
+        ? Number(
+            naira.toFixed(2)
+          )
+        : "";
+
+    nairaModeBtn.classList.add(
+      "active"
+    );
+
+    fcoinModeBtn.classList.remove(
+      "active"
+    );
+
+    updatePriceConversion();
+
+  }
+);
+
+
+/* =========================
+   LIVE PRICE UPDATE
+========================= */
+
+priceInput.addEventListener(
+  "input",
+  updatePriceConversion
+);
+
+
+/* =========================
+   INITIAL PRICE
+========================= */
+
+updatePriceConversion();
 
     /* =========================
        VALIDATION
@@ -1661,36 +1972,47 @@ productImage.addEventListener(
       }
 
 
-      if (
-        !universityInput.value.trim()
-      ) {
+      /* =========================
+   ACADEMIC VALIDATION
+========================= */
 
-        showStatus(
-          "Enter the university.",
-          "error"
-        );
+if (
+  categoryInput.value !==
+  "other"
+) {
 
-        universityInput.focus();
+  if (
+    !universityInput.value.trim()
+  ) {
 
-        return false;
+    showStatus(
+      "Enter the university.",
+      "error"
+    );
 
-      }
+    universityInput.focus();
+
+    return false;
+
+  }
 
 
-      if (
-        !courseInput.value.trim()
-      ) {
+  if (
+    !courseInput.value.trim()
+  ) {
 
-        showStatus(
-          "Enter the course.",
-          "error"
-        );
+    showStatus(
+      "Enter the course.",
+      "error"
+    );
 
-        courseInput.focus();
+    courseInput.focus();
 
-        return false;
+    return false;
 
-      }
+  }
+
+}
 
 
       if (
@@ -1709,46 +2031,76 @@ productImage.addEventListener(
       }
 
 
-      if (
-        !conditionInput.value
-      ) {
+      /* =========================
+   PRICE VALIDATION
+========================= */
 
-        showStatus(
-          "Select the condition.",
-          "error"
-        );
+const enteredPrice =
+  Number(
+    priceInput.value
+  );
 
-        conditionInput.focus();
+if (
+  !freeItem.checked
+) {
 
-        return false;
+  if (
+    !Number.isFinite(
+      enteredPrice
+    ) ||
+    enteredPrice <= 0
+  ) {
 
-      }
+    showStatus(
+      `Enter a valid ${
+        priceMode === "fcoin"
+          ? "FCoins"
+          : "Naira"
+      } price or choose Free.`,
+      "error"
+    );
+
+    priceInput.focus();
+
+    return false;
+
+  }
 
 
-      const price =
-        Number(
-          priceInput.value
-        );
+  /*
+   * Naira must be a multiple
+   * of ₦1.50 so that it converts
+   * exactly to whole FCoins.
+   */
 
+  if (
+    priceMode === "naira"
+  ) {
 
-      if (
-        !freeItem.checked &&
-        (
-          !Number.isFinite(price) ||
-          price < 0
-        )
-      ) {
+    const fcoins =
+      enteredPrice /
+      FCOIN_TO_NAIRA;
 
-        showStatus(
-          "Enter a valid FCoins price or choose Free.",
-          "error"
-        );
+    if (
+      !Number.isInteger(
+        fcoins
+      )
+    ) {
 
-        priceInput.focus();
+      showStatus(
+        "Naira price must be a multiple of ₦1.50.",
+        "error"
+      );
 
-        return false;
+      priceInput.focus();
 
-      }
+      return false;
+
+    }
+
+  }
+
+}
 
 /* =========================
    TEXTBOOK VALIDATION
@@ -2048,6 +2400,8 @@ textbookTab.addEventListener(
 
     categoryInput.value =
       "textbook";
+      
+      updateAcademicDetails();
 
 
     /* =========================
@@ -2297,103 +2651,120 @@ removeTextbookFile.addEventListener(
   }
 );
 
-    /* =========================
-       LIST ITEM
-    ========================= */
+/* =========================
+   OTHER MATERIAL TAB
+========================= */
 
-    listItemBtn.addEventListener(
-      "click",
-      async () => {
+if (otherMaterialTab) {
 
-        if (
-          !validateForm()
-        ) {
-          return;
-        }
+  otherMaterialTab.addEventListener(
+    "click",
+    () => {
 
+      /* =========================
+         SELECT OTHER
+      ========================= */
 
-        const price =
-          freeItem.checked
-            ? 0
-            : Math.floor(
-                Number(
-                  priceInput.value
-                )
-              );
+      categoryInput.value =
+        "other";
 
+      conditionInput.value =
+        "";
 
-        listItemBtn.disabled =
-          true;
+      /* =========================
+         ACTIVE CARD
+      ========================= */
 
-        listItemBtn.textContent =
-          "Listing Item...";
+      notesTab.classList.remove(
+  "active"
+);
 
+pastQuestionsTab.classList.remove(
+  "active"
+);
 
-        showStatus(
-          "Sending your material to FMarket...",
-          "info"
+if (otherMaterialTab) {
+  otherMaterialTab.classList.remove(
+    "active"
+  );
+}
+
+textbookTab.classList.add(
+  "active"
+);
+
+      otherMaterialTab.classList.add(
+        "active"
+      );
+
+      /* =========================
+         HIDE SAVED MATERIALS
+      ========================= */
+
+      myNotesList.classList.add(
+        "hidden"
+      );
+
+      noNotes.classList.add(
+        "hidden"
+      );
+
+      myPastQuestionsList.classList.add(
+        "hidden"
+      );
+
+      noPastQuestions.classList.add(
+        "hidden"
+      );
+
+      /* =========================
+         HIDE TEXTBOOK SETUP
+      ========================= */
+
+      textbookSection.classList.add(
+        "hidden"
+      );
+
+      /* =========================
+         HIDE ACADEMIC DETAILS
+      ========================= */
+
+      updateAcademicDetails();
+
+      /* =========================
+         GENERIC LOCATION
+      ========================= */
+
+      locationInput.placeholder =
+        "e.g. Abakaliki";
+
+      document
+        .getElementById(
+          "location-help"
+        )
+        ?.replaceChildren(
+          document.createTextNode(
+            "Useful for physical items and local pickup."
+          )
         );
 
+      /* =========================
+         SCROLL TO LISTING FORM
+      ========================= */
 
-        try {
+      document
+        .querySelector(
+          ".listing-card"
+        )
+        ?.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
 
-          /*
-           * Build request
-           */
+    }
+  );
 
-          const formData =
-  new FormData();
-
-
-formData.append(
-  "userId",
-  userId
-);
-
-formData.append(
-  "title",
-  titleInput.value.trim()
-);
-
-formData.append(
-  "description",
-  descriptionInput.value.trim()
-);
-
-formData.append(
-  "category",
-  categoryInput.value
-);
-
-formData.append(
-  "course",
-  courseInput.value.trim()
-);
-
-formData.append(
-  "university",
-  universityInput.value.trim()
-);
-
-formData.append(
-  "department",
-  departmentInput.value.trim()
-);
-
-formData.append(
-  "price",
-  String(price)
-);
-
-formData.append(
-  "location",
-  locationInput.value.trim()
-);
-
-formData.append(
-  "condition",
-  conditionInput.value
-);
+}
 
 /* =========================
    PHYSICAL CONDITIONS
@@ -2439,6 +2810,155 @@ conditionCards.forEach(
     );
 
   }
+);
+
+    /* =========================
+       LIST ITEM
+    ========================= */
+
+    listItemBtn.addEventListener(
+      "click",
+      async () => {
+
+        if (
+          !validateForm()
+        ) {
+          return;
+        }
+
+
+        let price = 0;
+
+if (
+  !freeItem.checked
+) {
+
+  const enteredPrice =
+    Number(
+      priceInput.value
+    );
+
+  if (
+    priceMode === "fcoin"
+  ) {
+
+    price =
+      Math.round(
+        enteredPrice
+      );
+
+  } else {
+
+    price =
+      Math.round(
+        enteredPrice /
+        FCOIN_TO_NAIRA
+      );
+
+  }
+
+}
+
+
+        listItemBtn.disabled =
+          true;
+
+        listItemBtn.textContent =
+          "Listing Item...";
+
+
+        showStatus(
+          "Sending your material to FMarket...",
+          "info"
+        );
+
+
+        try {
+
+          /*
+           * Build request
+           */
+
+          const formData =
+  new FormData();
+
+
+formData.append(
+  "userId",
+  userId
+);
+
+formData.append(
+  "title",
+  titleInput.value.trim()
+);
+
+formData.append(
+  "description",
+  descriptionInput.value.trim()
+);
+
+formData.append(
+  "category",
+  categoryInput.value
+);
+
+/* =========================
+   ACADEMIC DATA
+========================= */
+
+if (
+  categoryInput.value ===
+  "other"
+) {
+
+  formData.append(
+    "course",
+    ""
+  );
+
+  formData.append(
+    "university",
+    ""
+  );
+
+  formData.append(
+    "department",
+    ""
+  );
+
+} else {
+
+  formData.append(
+    "course",
+    courseInput.value.trim()
+  );
+
+  formData.append(
+    "university",
+    universityInput.value.trim()
+  );
+
+  formData.append(
+    "department",
+    departmentInput.value.trim()
+  );
+
+}
+
+formData.append(
+  "price",
+  String(price)
+);
+
+formData.append(
+  "location",
+  locationInput.value.trim()
+);
+
+formData.append(
+  "condition",
+  conditionInput.value
 );
 
 /* =========================
@@ -2726,6 +3246,13 @@ const response =
 
       }
     );
+
+/* =========================
+   INITIAL UI STATE
+========================= */
+
+updateAcademicDetails();
+updateTextbookSection();
 
   }
 );
