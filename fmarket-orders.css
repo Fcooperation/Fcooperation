@@ -867,3 +867,208 @@ button {
 
   font-weight: 800;
 }
+
+/* =========================
+   ORDER WAITING / INFO TEXT
+========================= */
+
+.order-waiting {
+  width: 100%;
+
+  margin-top: 12px;
+
+  padding: 11px 13px;
+
+  background: #f8fafc;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 10px;
+
+  color: #64748b;
+
+  font-size: 12px;
+
+  line-height: 1.5;
+
+  text-align: center;
+}
+
+
+/* =========================
+   DELIVERY FEE CURRENCY
+========================= */
+
+.delivery-fee-currency {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 10px;
+
+  margin-bottom: 12px;
+}
+
+
+.delivery-fee-currency-label {
+  font-size: 12px;
+
+  font-weight: 700;
+
+  color: #64748b;
+}
+
+
+.delivery-fee-currency-switch {
+  display: flex;
+
+  gap: 4px;
+
+  padding: 3px;
+
+  background: #e2e8f0;
+
+  border-radius: 9px;
+}
+
+
+.delivery-fee-currency-btn {
+  border: none;
+
+  background: transparent;
+
+  color: #64748b;
+
+  padding: 7px 10px;
+
+  border-radius: 7px;
+
+  font-size: 11px;
+
+  font-weight: 700;
+}
+
+
+.delivery-fee-currency-btn.active {
+  background: white;
+
+  color: #111827;
+
+  box-shadow:
+    0 1px 3px
+    rgba(0, 0, 0, 0.08);
+}
+
+
+/* =========================
+   DELIVERY FEE INPUT
+========================= */
+
+.delivery-fee-input-row {
+  display: flex;
+
+  align-items: center;
+
+  border: 1px solid #cbd5e1;
+
+  background: white;
+
+  border-radius: 10px;
+
+  overflow: hidden;
+
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+
+.delivery-fee-input-row:focus-within {
+  border-color: #111827;
+
+  box-shadow:
+    0 0 0 2px
+    rgba(17, 24, 39, 0.06);
+}
+
+
+.fcoin-symbol {
+  min-width: 45px;
+
+  padding-left: 12px;
+
+  font-weight: 800;
+
+  color: #64748b;
+}
+
+
+/* =========================
+   FEE PREVIEW
+========================= */
+
+.delivery-fee-preview {
+  margin-top: 9px;
+
+  padding: 9px 11px;
+
+  background: #ffffff;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 9px;
+
+  color: #64748b;
+
+  font-size: 12px;
+
+  line-height: 1.5;
+}
+
+
+.delivery-fee-preview strong {
+  color: #111827;
+
+  font-size: 13px;
+}
+
+
+.delivery-fee-preview.empty {
+  color: #94a3b8;
+}
+
+
+/* =========================
+   DELIVERY LOCATION TEXT
+========================= */
+
+.delivery-fee-location {
+  font-size: 12px;
+
+  color: #64748b;
+
+  line-height: 1.5;
+
+  margin-bottom: 12px;
+
+  padding: 8px 10px;
+
+  background: #ffffff;
+
+  border-radius: 9px;
+
+  border: 1px solid #e2e8f0;
+}
+
+
+.delivery-fee-location strong {
+  color: #111827;
+
+  display: block;
+
+  margin-top: 2px;
+
+  word-break: break-word;
+}

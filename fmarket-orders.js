@@ -884,15 +884,18 @@ function renderActions(
   feeBox.className =
     "delivery-fee-box";
 
-
   feeBox.innerHTML = `
 
     <div class="delivery-fee-title">
       Set Delivery Fee
     </div>
 
+
     <div class="delivery-fee-location">
-      Deliver to:
+      <span>
+        Deliver to
+      </span>
+
       <strong>
         ${escapeHtml(
           order.delivery_location ||
@@ -900,6 +903,36 @@ function renderActions(
         )}
       </strong>
     </div>
+
+
+    <div class="delivery-fee-currency">
+
+      <span class="delivery-fee-currency-label">
+        Enter fee in
+      </span>
+
+      <div class="delivery-fee-currency-switch">
+
+        <button
+          type="button"
+          class="delivery-fee-currency-btn active"
+          data-currency="fcoin"
+        >
+          ₣ FCoins
+        </button>
+
+        <button
+          type="button"
+          class="delivery-fee-currency-btn"
+          data-currency="naira"
+        >
+          ₦ Naira
+        </button>
+
+      </div>
+
+    </div>
+
 
     <div class="delivery-fee-input-row">
 
@@ -917,6 +950,14 @@ function renderActions(
       >
 
     </div>
+
+
+    <div
+      class="delivery-fee-preview empty"
+    >
+      Enter a delivery fee to see the conversion.
+    </div>
+
 
     <button
       type="button"
@@ -940,14 +981,355 @@ function renderActions(
     );
 
 
+  const preview =
+    feeBox.querySelector(
+      ".delivery-fee-preview"
+    );
+
+
+  const symbol =
+    feeBox.querySelector(
+      ".fcoin-symbol"
+    );
+
+
+  const currencyButtons =
+    feeBox.querySelectorAll(
+      ".delivery-fee-currency-btn"
+    );
+
+
+  let feeCurrency =
+    "fcoin";
+
+
+  /* =========================
+     CURRENCY SWITCH
+  ========================= */
+
+  currencyButtons.forEach(
+    button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          const newCurrency =
+            button.dataset.currency;
+
+
+          if (
+            newCurrency ===
+            feeCurrency
+          ) {
+
+            return;
+
+          }
+
+
+          /*
+             Convert the existing
+             input value when switching.
+          */
+
+          const currentValue =
+            Number(
+              feeInput.value
+            );
+
+
+          if (
+            Number.isFinite(
+              currentValue
+            ) &&
+            currentValue > 0
+          ) {
+
+            if (
+              feeCurrency ===
+              "fcoin" &&
+              newCurrency ===
+              "naira"
+            ) {
+
+              feeInput.value =
+                (
+                  currentValue *
+                  1.5
+                ).toFixed(2);
+
+            }
+
+
+            else if (
+              feeCurrency ===
+              "naira" &&
+              newCurrency ===
+              "fcoin"
+            ) {
+
+              const converted =
+  Math.floor(
+    currentValue / 1.5
+  );
+
+
+if (
+  converted > 0
+) {
+
+  feeInput.value =
+    converted;
+
+} else {
+
+  feeInput.value =
+    "";
+
+}
+
+            }
+
+          }
+
+
+          feeCurrency =
+            newCurrency;
+
+
+          currencyButtons.forEach(
+            item => {
+
+              item.classList.toggle(
+                "active",
+                item.dataset.currency ===
+                  feeCurrency
+              );
+
+            }
+          );
+
+
+          if (
+            feeCurrency ===
+            "naira"
+          ) {
+
+            symbol.textContent =
+              "₦";
+
+            feeInput.placeholder =
+              "Enter fee in Naira";
+
+            feeInput.step =
+              "0.01";
+
+            feeInput.max =
+              "1500000";
+
+          } else {
+
+            symbol.textContent =
+              "₣";
+
+            feeInput.placeholder =
+              "Enter fee in FCoins";
+
+            feeInput.step =
+              "1";
+
+            feeInput.max =
+              "1000000";
+
+          }
+
+
+          updateDeliveryFeePreview();
+
+        }
+      );
+
+    }
+  );
+
+
+  /* =========================
+     PREVIEW
+  ========================= */
+
+  function updateDeliveryFeePreview() {
+
+    const value =
+      Number(
+        feeInput.value
+      );
+
+
+    if (
+      !Number.isFinite(value) ||
+      value <= 0
+    ) {
+
+      preview.classList.add(
+        "empty"
+      );
+
+      preview.textContent =
+        "Enter a delivery fee to see the conversion.";
+
+      return;
+
+    }
+
+
+    preview.classList.remove(
+      "empty"
+    );
+
+
+    if (
+      feeCurrency ===
+      "fcoin"
+    ) {
+
+      const naira =
+        value * 1.5;
+
+
+      preview.innerHTML = `
+        <strong>
+          ₣${value.toLocaleString()}
+        </strong>
+        &nbsp;≈&nbsp;
+        ₦${naira.toLocaleString(
+          undefined,
+          {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          }
+        )}
+      `;
+
+    } else {
+
+      const fcoins =
+  Math.floor(
+    value / 1.5
+  );
+
+
+if (
+  fcoins <= 0
+) {
+
+  preview.innerHTML =
+    "Enter a higher amount.";
+
+  return;
+
+}
+
+
+      preview.innerHTML = `
+        <strong>
+          ₦${value.toLocaleString(
+            undefined,
+            {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            }
+          )}
+        </strong>
+
+        &nbsp;≈&nbsp;
+
+        ₣${fcoins.toLocaleString()}
+      `;
+
+    }
+
+  }
+
+
+  feeInput.addEventListener(
+    "input",
+    updateDeliveryFeePreview
+  );
+
+
+  /* =========================
+     SUBMIT
+  ========================= */
+
   submitButton.addEventListener(
     "click",
     () => {
 
+      let fee =
+        Number(
+          feeInput.value
+        );
+
+
+      if (
+        !Number.isFinite(fee) ||
+        fee <= 0
+      ) {
+
+        showStatus(
+          "Enter a valid delivery fee."
+        );
+
+        feeInput.focus();
+
+        return;
+
+      }
+
+
+      /*
+         Backend stores delivery fees
+         as whole FCoins.
+      */
+
+      if (
+        feeCurrency ===
+        "naira"
+      ) {
+
+        const converted =
+          fee / 1.5;
+
+
+        if (
+          !Number.isInteger(
+            converted
+          )
+        ) {
+
+          showStatus(
+            "The Naira amount must be divisible by ₦1.50."
+          );
+
+          feeInput.focus();
+
+          return;
+
+        }
+
+
+        fee =
+          converted;
+
+      }
+
+
       proposeDeliveryFee(
         order.id,
         feeInput,
-        submitButton
+        submitButton,
+        fee
       );
 
     }
@@ -1707,13 +2089,14 @@ async function saveDeliveryDetails() {
 async function proposeDeliveryFee(
   orderId,
   input,
-  button
+  button,
+  convertedFee = null
 ) {
 
   const fee =
-    Number(
-      input.value
-    );
+  convertedFee !== null
+    ? Number(convertedFee)
+    : Number(input.value);
 
 
   if (
