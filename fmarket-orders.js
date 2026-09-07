@@ -949,7 +949,7 @@ function renderActions(
       <input
         type="number"
         class="delivery-fee-input"
-        min="1"
+        min="0"
         max="1000000"
         step="1"
         placeholder="Enter fee"
@@ -1091,24 +1091,12 @@ feeInput.addEventListener(
             ) {
 
               const converted =
-  Math.floor(
+  Math.ceil(
     currentValue / 1.5
   );
 
-
-if (
-  converted > 0
-) {
-
-  feeInput.value =
-    converted;
-
-} else {
-
-  feeInput.value =
-    "";
-
-}
+feeInput.value =
+  converted;
 
             }
 
@@ -1189,7 +1177,7 @@ if (
 
     if (
       !Number.isFinite(value) ||
-      value <= 0
+      value < 0
     ) {
 
       preview.classList.add(
@@ -1235,38 +1223,25 @@ if (
     } else {
 
       const fcoins =
-  Math.floor(
+  Math.ceil(
     value / 1.5
   );
 
+preview.innerHTML = `
+  <strong>
+    ₦${value.toLocaleString(
+      undefined,
+      {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }
+    )}
+  </strong>
 
-if (
-  fcoins <= 0
-) {
+  &nbsp;≈&nbsp;
 
-  preview.innerHTML =
-    "Enter a higher amount.";
-
-  return;
-
-}
-
-
-      preview.innerHTML = `
-        <strong>
-          ₦${value.toLocaleString(
-            undefined,
-            {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2
-            }
-          )}
-        </strong>
-
-        &nbsp;≈&nbsp;
-
-        ₣${fcoins.toLocaleString()}
-      `;
+  ₣${fcoins.toLocaleString()}
+`;
 
     }
 
@@ -1294,9 +1269,9 @@ if (
 
 
       if (
-        !Number.isFinite(fee) ||
-        fee <= 0
-      ) {
+  !Number.isFinite(fee) ||
+  fee < 0
+) {
 
         showStatus(
           "Enter a valid delivery fee."
@@ -1315,35 +1290,16 @@ if (
       */
 
       if (
-        feeCurrency ===
-        "naira"
-      ) {
+  feeCurrency ===
+  "naira"
+) {
 
-        const converted =
-          fee / 1.5;
+  fee =
+    Math.ceil(
+      fee / 1.5
+    );
 
-
-        if (
-          !Number.isInteger(
-            converted
-          )
-        ) {
-
-          showStatus(
-            "The Naira amount must be divisible by ₦1.50."
-          );
-
-          feeInput.focus();
-
-          return;
-
-        }
-
-
-        fee =
-          converted;
-
-      }
+}
 
 
       proposeDeliveryFee(
@@ -2121,19 +2077,19 @@ async function proposeDeliveryFee(
 
 
   if (
-    !Number.isInteger(fee) ||
-    fee <= 0
-  ) {
+  !Number.isInteger(fee) ||
+  fee < 0
+) {
 
-    showStatus(
-      "Enter a valid delivery fee."
-    );
+  showStatus(
+    "Enter a valid delivery fee."
+  );
 
-    input.focus();
+  input.focus();
 
-    return;
+  return;
 
-  }
+}
 
 
   if (
