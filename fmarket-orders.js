@@ -123,6 +123,8 @@ const saveDeliveryBtn =
 
 let selectedDeliveryMethod =
   "pickup";
+  
+  let isEditingDeliveryFee = false;
 
 
     /* =========================
@@ -321,6 +323,10 @@ let selectedDeliveryMethod =
 ========================= */
 
 async function refreshOrdersSilently() {
+
+  if (isEditingDeliveryFee) {
+    return;
+  }
 
   try {
 
@@ -974,6 +980,19 @@ function renderActions(
       ".delivery-fee-input"
     );
 
+feeInput.addEventListener(
+  "focus",
+  () => {
+    isEditingDeliveryFee = true;
+  }
+);
+
+feeInput.addEventListener(
+  "blur",
+  () => {
+    isEditingDeliveryFee = false;
+  }
+);
 
   const submitButton =
     feeBox.querySelector(
@@ -1013,6 +1032,8 @@ function renderActions(
       button.addEventListener(
         "click",
         () => {
+          
+          isEditingDeliveryFee = true;
 
           const newCurrency =
             button.dataset.currency;
