@@ -592,8 +592,10 @@ const deliveryLocation =
 
 ${
   role === "buyer" &&
-  (
-    order.status === "pending"
+  !(
+    order.delivery_method &&
+    order.delivery_location &&
+    order.status === "ready"
   )
     ? `
       <button
@@ -654,123 +656,206 @@ if (deliveryButton) {
     }
 
 
-    /* =========================
-       ACTIONS
-    ========================= */
+/* =========================
+   ACTIONS
+========================= */
 
-    function renderActions(
-      container,
-      order,
-      role
+function renderActions(
+  container,
+  order,
+  role
+) {
+
+  const status =
+    order.status;
+
+
+  /* =========================
+     DELIVERY STATUS
+  ========================= */
+
+  const deliveryDetailsSet =
+    Boolean(
+      order.delivery_method &&
+      order.delivery_location
+    );
+
+
+  /* =========================
+     SELLER ACTIONS
+  ========================= */
+
+  if (
+    role === "seller"
+  ) {
+
+    /* -------------------------
+       ACCEPT
+    ------------------------- */
+
+    if (
+      status === "pending"
     ) {
 
-      const status =
-        order.status;
+      addAction(
+        container,
+        "Accept Order",
+        "primary-action",
+        () =>
+          updateOrder(
+            order.id,
+            "accept"
+          )
+      );
+
+    }
 
 
-      if (
-        role === "seller"
-      ) {
+    /* -------------------------
+       READY
+    ------------------------- */
 
-        if (
-          status === "pending"
-        ) {
-
-          addAction(
-            container,
-            "Accept Order",
-            "primary-action",
-            () =>
-              updateOrder(
-                order.id,
-                "accept"
-              )
-          );
-
-        }
-
-
-        if (
-          status === "accepted"
-        ) {
-
-          addAction(
-            container,
-            "Mark Ready",
-            "primary-action",
-            () =>
-              updateOrder(
-                order.id,
-                "ready"
-              )
-          );
-
-        }
-
-
-        if (
-          status === "ready"
-        ) {
-
-          addAction(
-            container,
-            "Mark Handed Over",
-            "primary-action",
-            () =>
-              updateOrder(
-                order.id,
-                "handed_over"
-              )
-          );
-
-        }
-
-      }
-
+    if (
+      status === "accepted"
+    ) {
 
       if (
-        role === "buyer"
-      ) {
-
-        if (
-          status === "handed_over"
-        ) {
-
-          addAction(
-            container,
-            "Confirm Received",
-            "primary-action",
-            () =>
-              updateOrder(
-                order.id,
-                "received"
-              )
-          );
-
-        }
-
-      }
-
-
-      if (
-        status === "pending" ||
-        status === "accepted"
+        deliveryDetailsSet
       ) {
 
         addAction(
           container,
-          "Cancel",
-          "danger-action",
+          "Mark Ready",
+          "primary-action",
           () =>
             updateOrder(
               order.id,
-              "cancel"
+              "ready"
             )
+        );
+
+      } else {
+
+        const waiting =
+          document.createElement(
+            "div"
+          );
+
+        waiting.className =
+          "order-waiting";
+
+        waiting.textContent =
+          "Waiting for buyer to set or accept a pickup location.";
+
+        container.appendChild(
+          waiting
         );
 
       }
 
     }
+
+
+    /* -------------------------
+       HANDED OVER
+    ------------------------- */
+
+    if (
+      status === "ready"
+    ) {
+
+      addAction(
+        container,
+        "Mark Handed Over",
+        "primary-action",
+        () =>
+          updateOrder(
+            order.id,
+            "handed_over"
+          )
+      );
+
+    }
+
+  }
+
+
+  /* =========================
+     BUYER ACTIONS
+  ========================= */
+
+  if (
+    role === "buyer"
+  ) {
+
+    if (
+      status === "handed_over"
+    ) {
+
+      addAction(
+        container,
+        "Confirm Received",
+        "primary-action",
+        () =>
+          updateOrder(
+            order.id,
+            "received"
+          )
+      );
+
+    }
+
+  }
+
+
+  /* =========================
+     CANCEL
+  ========================= */
+
+  const sellerReady =
+    status === "ready";
+
+
+  const cancelLocked =
+    deliveryDetailsSet &&
+    sellerReady;
+
+
+  /*
+     IMPORTANT:
+
+     Seller can still cancel if:
+     - buyer has not chosen a location
+     - buyer chose a location
+     - buyer chose pickup
+     - buyer chose delivery
+     - order is pending
+     - order is accepted
+
+     Cancellation becomes locked only when:
+     delivery details exist
+     AND
+     seller has marked the order ready.
+  */
+
+  if (
+    !cancelLocked
+  ) {
+
+    addAction(
+      container,
+      "Cancel",
+      "danger-action",
+      () =>
+        updateOrder(
+          order.id,
+          "cancel"
+        )
+    );
+
+  }
+
+}
 
 
     function addAction(
