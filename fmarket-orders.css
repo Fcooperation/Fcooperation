@@ -653,3 +653,217 @@ button {
 
   font-weight: 600;
 }
+
+/* =========================
+   DELIVERY FEE
+========================= */
+
+.delivery-fee-box {
+  width: 100%;
+
+  margin-top: 12px;
+
+  padding: 14px;
+
+  background: #f8fafc;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 12px;
+}
+
+
+.delivery-fee-title {
+  font-size: 14px;
+
+  font-weight: 800;
+
+  margin-bottom: 8px;
+}
+
+
+.delivery-fee-location {
+  font-size: 12px;
+
+  color: #64748b;
+
+  line-height: 1.5;
+
+  margin-bottom: 12px;
+}
+
+
+.delivery-fee-location strong {
+  color: #111827;
+}
+
+
+.delivery-fee-input-row {
+  display: flex;
+
+  align-items: center;
+
+  border: 1px solid #cbd5e1;
+
+  background: white;
+
+  border-radius: 10px;
+
+  overflow: hidden;
+}
+
+
+.fcoin-symbol {
+  padding-left: 12px;
+
+  font-weight: 800;
+
+  color: #64748b;
+}
+
+
+.delivery-fee-input {
+  width: 100%;
+
+  border: none;
+
+  outline: none;
+
+  padding: 12px 10px;
+
+  font: inherit;
+
+  font-size: 14px;
+
+  background: transparent;
+}
+
+
+.delivery-fee-submit {
+  width: 100%;
+
+  margin-top: 10px;
+}
+
+
+/* =========================
+   BUYER PROPOSAL
+========================= */
+
+.buyer-fee-box {
+  background: #f8fafc;
+}
+
+
+.delivery-fee-proposed,
+.delivery-fee-total {
+  display: flex;
+
+  justify-content: space-between;
+
+  gap: 15px;
+
+  padding: 9px 0;
+
+  font-size: 13px;
+}
+
+
+.delivery-fee-proposed {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+
+.delivery-fee-proposed span,
+.delivery-fee-total span {
+  color: #64748b;
+}
+
+
+.delivery-fee-proposed strong {
+  font-size: 16px;
+
+  color: #111827;
+}
+
+
+.delivery-fee-total {
+  margin-top: 2px;
+
+  font-weight: 700;
+}
+
+
+.delivery-fee-total strong {
+  font-size: 16px;
+}
+
+
+.delivery-fee-actions {
+  display: flex;
+
+  gap: 8px;
+
+  margin-top: 10px;
+}
+
+
+.delivery-fee-actions .order-action {
+  flex: 1;
+}
+
+
+/* =========================
+   PRICE BREAKDOWN
+========================= */
+
+.order-price {
+  margin-top: 12px;
+}
+
+
+.price-row {
+  display: flex;
+
+  justify-content: space-between;
+
+  gap: 15px;
+
+  font-size: 13px;
+
+  padding: 3px 0;
+}
+
+
+.price-row span {
+  color: #64748b;
+}
+
+
+.price-row strong {
+  color: #111827;
+}
+
+
+.delivery-price-row strong {
+  color: #475569;
+}
+
+
+.price-total-row {
+  display: flex;
+
+  justify-content: space-between;
+
+  gap: 15px;
+
+  margin-top: 7px;
+
+  padding-top: 8px;
+
+  border-top: 1px solid #e2e8f0;
+
+  font-size: 16px;
+
+  font-weight: 800;
+}

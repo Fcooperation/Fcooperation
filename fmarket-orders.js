@@ -480,8 +480,41 @@ const deliveryLocation =
 
 
         <div class="order-price">
-          ₣${price.toLocaleString()}
+
+  <div class="price-row">
+    <span>Item</span>
+    <strong>
+      ₣${price.toLocaleString()}
+    </strong>
+  </div>
+
+  ${
+    order.delivery_method === "delivery" &&
+    Number(order.delivery_fee) > 0
+      ? `
+        <div class="price-row delivery-price-row">
+          <span>Delivery</span>
+          <strong>
+            ₣${Number(
+              order.delivery_fee
+            ).toLocaleString()}
+          </strong>
         </div>
+
+        <div class="price-total-row">
+          <span>Total</span>
+          <strong>
+            ₣${(
+              price +
+              Number(order.delivery_fee)
+            ).toLocaleString()}
+          </strong>
+        </div>
+      `
+      : ""
+  }
+
+</div>
 
 
         <div class="order-details">
@@ -769,50 +802,123 @@ function renderActions(
         method === "delivery"
       ) {
 
-        if (
-          deliveryFeeStatus ===
-          "pending"
-        ) {
+       if (
+  deliveryFeeStatus ===
+  "pending"
+) {
 
-          const waiting =
-            document.createElement(
-              "div"
-            );
+  const feeBox =
+    document.createElement(
+      "div"
+    );
 
-          waiting.className =
-            "order-waiting";
+  feeBox.className =
+    "delivery-fee-box";
 
-          waiting.textContent =
-            "Set the delivery fee for this order.";
 
-          container.appendChild(
-            waiting
-          );
+  feeBox.innerHTML = `
 
-        }
+    <div class="delivery-fee-title">
+      Set Delivery Fee
+    </div>
+
+    <div class="delivery-fee-location">
+      Deliver to:
+      <strong>
+        ${escapeHtml(
+          order.delivery_location ||
+          "Buyer location"
+        )}
+      </strong>
+    </div>
+
+    <div class="delivery-fee-input-row">
+
+      <span class="fcoin-symbol">
+        ₣
+      </span>
+
+      <input
+        type="number"
+        class="delivery-fee-input"
+        min="1"
+        max="1000000"
+        step="1"
+        placeholder="Enter fee"
+      >
+
+    </div>
+
+    <button
+      type="button"
+      class="order-action primary-action delivery-fee-submit"
+    >
+      Propose Fee
+    </button>
+
+  `;
+
+
+  const feeInput =
+    feeBox.querySelector(
+      ".delivery-fee-input"
+    );
+
+
+  const submitButton =
+    feeBox.querySelector(
+      ".delivery-fee-submit"
+    );
+
+
+  submitButton.addEventListener(
+    "click",
+    () => {
+
+      proposeDeliveryFee(
+        order.id,
+        feeInput,
+        submitButton
+      );
+
+    }
+  );
+
+
+  container.appendChild(
+    feeBox
+  );
+
+}
 
 
         else if (
-          deliveryFeeStatus ===
-          "proposed"
-        ) {
+  deliveryFeeStatus ===
+  "proposed"
+) {
 
-          const waiting =
-            document.createElement(
-              "div"
-            );
+  if (
+    role === "seller"
+  ) {
 
-          waiting.className =
-            "order-waiting";
+    const waiting =
+      document.createElement(
+        "div"
+      );
 
-          waiting.textContent =
-            "Waiting for the buyer to accept the delivery fee.";
+    waiting.className =
+      "order-waiting";
 
-          container.appendChild(
-            waiting
-          );
+    waiting.textContent =
+      "Waiting for the buyer to accept the delivery fee.";
 
-        }
+    container.appendChild(
+      waiting
+    );
+
+  }
+
+}
 
 
         else if (
@@ -932,6 +1038,129 @@ function renderActions(
   if (
     role === "buyer"
   ) {
+    
+    /* =========================
+   DELIVERY FEE PROPOSAL
+========================= */
+
+if (
+  status === "accepted" &&
+  order.delivery_method === "delivery" &&
+  order.delivery_fee_status === "proposed"
+) {
+
+  const fee =
+    Number(
+      order.delivery_fee
+    ) || 0;
+
+
+  const feeBox =
+    document.createElement(
+      "div"
+    );
+
+  feeBox.className =
+    "delivery-fee-box buyer-fee-box";
+
+
+  feeBox.innerHTML = `
+
+    <div class="delivery-fee-title">
+      Delivery Fee Proposal
+    </div>
+
+    <div class="delivery-fee-proposed">
+
+      <span>
+        Delivery fee
+      </span>
+
+      <strong>
+        ₣${fee.toLocaleString()}
+      </strong>
+
+    </div>
+
+    <div class="delivery-fee-total">
+
+      <span>
+        Item + delivery
+      </span>
+
+      <strong>
+        ₣${(
+          Number(order.price || 0) +
+          fee
+        ).toLocaleString()}
+      </strong>
+
+    </div>
+
+    <div class="delivery-fee-actions">
+
+      <button
+        type="button"
+        class="order-action primary-action"
+        data-fee-accept
+      >
+        Accept Fee
+      </button>
+
+      <button
+        type="button"
+        class="order-action danger-action"
+        data-fee-reject
+      >
+        Reject Fee
+      </button>
+
+    </div>
+
+  `;
+
+
+  const acceptButton =
+    feeBox.querySelector(
+      "[data-fee-accept]"
+    );
+
+
+  const rejectButton =
+    feeBox.querySelector(
+      "[data-fee-reject]"
+    );
+
+
+  acceptButton.addEventListener(
+    "click",
+    () =>
+      respondToDeliveryFee(
+        order.id,
+        "accept_delivery_fee",
+        acceptButton,
+        rejectButton
+      )
+  );
+
+
+  rejectButton.addEventListener(
+    "click",
+    () =>
+      respondToDeliveryFee(
+        order.id,
+        "reject_delivery_fee",
+        acceptButton,
+        rejectButton
+      )
+  );
+
+
+  container.appendChild(
+    feeBox
+  );
+
+}
 
     if (
       status === "handed_over"
@@ -1397,6 +1626,238 @@ async function saveDeliveryDetails() {
 
     saveDeliveryBtn.textContent =
       "Save Delivery Details";
+
+  }
+
+}
+
+/* =========================
+   PROPOSE DELIVERY FEE
+========================= */
+
+async function proposeDeliveryFee(
+  orderId,
+  input,
+  button
+) {
+
+  const fee =
+    Number(
+      input.value
+    );
+
+
+  if (
+    !Number.isInteger(fee) ||
+    fee <= 0
+  ) {
+
+    showStatus(
+      "Enter a valid delivery fee."
+    );
+
+    input.focus();
+
+    return;
+
+  }
+
+
+  if (
+    fee > 1000000
+  ) {
+
+    showStatus(
+      "Delivery fee is too high."
+    );
+
+    input.focus();
+
+    return;
+
+  }
+
+
+  button.disabled =
+    true;
+
+  button.textContent =
+    "Proposing...";
+
+
+  try {
+
+    const response =
+      await fetch(
+        API_URL,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+
+            action:
+              "propose_delivery_fee",
+
+            userId:
+              account.id,
+
+            orderId,
+
+            deliveryFee:
+              fee
+
+          })
+
+        }
+      );
+
+
+    const data =
+      await response.json();
+
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+
+      throw new Error(
+        data.error ||
+        "Unable to propose delivery fee."
+      );
+
+    }
+
+
+    showStatus(
+      data.message ||
+      "Delivery fee proposed."
+    );
+
+
+    await loadOrders();
+
+
+  } catch (error) {
+
+    showStatus(
+      error.message ||
+      "Unable to propose delivery fee."
+    );
+
+  } finally {
+
+    button.disabled =
+      false;
+
+    button.textContent =
+      "Propose Fee";
+
+  }
+
+}
+
+/* =========================
+   DELIVERY FEE RESPONSE
+========================= */
+
+async function respondToDeliveryFee(
+  orderId,
+  action,
+  acceptButton,
+  rejectButton
+) {
+
+  acceptButton.disabled =
+    true;
+
+  rejectButton.disabled =
+    true;
+
+
+  acceptButton.textContent =
+    action === "accept_delivery_fee"
+      ? "Accepting..."
+      : "Accept Fee";
+
+  rejectButton.textContent =
+    action === "reject_delivery_fee"
+      ? "Rejecting..."
+      : "Reject Fee";
+
+
+  try {
+
+    const response =
+      await fetch(
+        API_URL,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+
+            action,
+
+            userId:
+              account.id,
+
+            orderId
+
+          })
+
+        }
+      );
+
+
+    const data =
+      await response.json();
+
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+
+      throw new Error(
+        data.error ||
+        "Unable to update delivery fee."
+      );
+
+    }
+
+
+    showStatus(
+      data.message ||
+      "Delivery fee updated."
+    );
+
+
+    await loadOrders();
+
+
+  } catch (error) {
+
+    showStatus(
+      error.message ||
+      "Unable to update delivery fee."
+    );
+
+
+    acceptButton.disabled =
+      false;
+
+    rejectButton.disabled =
+      false;
 
   }
 
