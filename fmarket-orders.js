@@ -435,9 +435,13 @@ let selectedDeliveryMethod =
         "Not selected";
 
 
-      const location =
-        order.delivery_location ||
-        "Not provided";
+      const pickupLocation =
+  order.material?.pickup_location ||
+  "Not provided";
+
+const deliveryLocation =
+  order.delivery_location ||
+  "Not provided";
 
 
       const date =
@@ -513,15 +517,28 @@ let selectedDeliveryMethod =
 
           <div class="detail-row">
 
-            <span>
-              Location
-            </span>
+  <span>
+    Pickup Location
+  </span>
 
-            <strong>
-              ${escapeHtml(location)}
-            </strong>
+  <strong>
+    ${escapeHtml(pickupLocation)}
+  </strong>
 
-          </div>
+</div>
+
+
+<div class="detail-row">
+
+  <span>
+    My Location
+  </span>
+
+  <strong>
+    ${escapeHtml(deliveryLocation)}
+  </strong>
+
+</div>
 
 
           <div class="detail-row">
@@ -797,19 +814,27 @@ function openDeliveryModal(order) {
   currentDeliveryOrder =
     order;
 
-
   selectedDeliveryMethod =
     order.delivery_method ||
     "pickup";
 
+  if (
+    selectedDeliveryMethod === "pickup"
+  ) {
 
-  deliveryLocationInput.value =
-    order.delivery_location ||
-    "";
+    deliveryLocationInput.value =
+      order.material?.pickup_location ||
+      "";
 
+  } else {
+
+    deliveryLocationInput.value =
+      order.delivery_location ||
+      "";
+
+  }
 
   updateDeliveryMethodUI();
-
 
   deliveryModal.classList.remove(
     "hidden"
@@ -855,6 +880,18 @@ pickupOption.addEventListener(
     selectedDeliveryMethod =
       "pickup";
 
+    if (
+      currentDeliveryOrder
+    ) {
+
+      deliveryLocationInput.value =
+        currentDeliveryOrder
+          .material
+          ?.pickup_location ||
+        "";
+
+    }
+
     updateDeliveryMethodUI();
 
   }
@@ -867,6 +904,11 @@ deliveryOption.addEventListener(
 
     selectedDeliveryMethod =
       "delivery";
+
+    deliveryLocationInput.value =
+      currentDeliveryOrder
+        ?.delivery_location ||
+      "";
 
     updateDeliveryMethodUI();
 
