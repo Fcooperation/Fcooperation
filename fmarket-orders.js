@@ -595,11 +595,10 @@ const deliveryLocation =
 
 ${
   role === "buyer" &&
-  !(
-    order.delivery_method &&
-    order.delivery_location &&
-    order.status === "ready"
-  )
+  [
+    "pending",
+    "accepted"
+  ].includes(order.status)
     ? `
       <button
         class="delivery-edit-btn"
@@ -673,15 +672,23 @@ function renderActions(
     order.status;
 
 
-  /* =========================
-     DELIVERY STATUS
-  ========================= */
+  const method =
+    order.delivery_method;
+
 
   const deliveryDetailsSet =
     Boolean(
-      order.delivery_method &&
-      order.delivery_location
+      method &&
+      (
+        method === "pickup" ||
+        order.delivery_location
+      )
     );
+
+
+  const deliveryFeeStatus =
+    order.delivery_fee_status ||
+    "not_required";
 
 
   /* =========================
@@ -693,7 +700,7 @@ function renderActions(
   ) {
 
     /* -------------------------
-       ACCEPT
+       ACCEPT ORDER
     ------------------------- */
 
     if (
@@ -715,15 +722,22 @@ function renderActions(
 
 
     /* -------------------------
-       READY
+       ACCEPTED
     ------------------------- */
 
     if (
       status === "accepted"
     ) {
 
+      /*
+         PICKUP
+
+         No delivery fee is needed.
+         Buyer only needs to choose pickup.
+      */
+
       if (
-        deliveryDetailsSet
+        method === "pickup"
       ) {
 
         addAction(
@@ -737,7 +751,92 @@ function renderActions(
             )
         );
 
-      } else {
+      }
+
+
+      /*
+         DELIVERY
+
+         Buyer has selected delivery,
+         but seller still needs to
+         propose a delivery fee.
+
+         The fee UI will be added
+         in the next step.
+      */
+
+      else if (
+        method === "delivery"
+      ) {
+
+        if (
+          deliveryFeeStatus ===
+          "pending"
+        ) {
+
+          const waiting =
+            document.createElement(
+              "div"
+            );
+
+          waiting.className =
+            "order-waiting";
+
+          waiting.textContent =
+            "Set the delivery fee for this order.";
+
+          container.appendChild(
+            waiting
+          );
+
+        }
+
+
+        else if (
+          deliveryFeeStatus ===
+          "proposed"
+        ) {
+
+          const waiting =
+            document.createElement(
+              "div"
+            );
+
+          waiting.className =
+            "order-waiting";
+
+          waiting.textContent =
+            "Waiting for the buyer to accept the delivery fee.";
+
+          container.appendChild(
+            waiting
+          );
+
+        }
+
+
+        else if (
+          deliveryFeeStatus ===
+          "accepted"
+        ) {
+
+          addAction(
+            container,
+            "Mark Ready",
+            "primary-action",
+            () =>
+              updateOrder(
+                order.id,
+                "ready"
+              )
+          );
+
+        }
+
+      }
+
+
+      else {
 
         const waiting =
           document.createElement(
@@ -748,7 +847,7 @@ function renderActions(
           "order-waiting";
 
         waiting.textContent =
-          "Waiting for buyer to set or accept a pickup location.";
+          "Waiting for the buyer to choose pickup or delivery.";
 
         container.appendChild(
           waiting
@@ -760,11 +859,54 @@ function renderActions(
 
 
     /* -------------------------
-       HANDED OVER
+       READY
     ------------------------- */
 
     if (
       status === "ready"
+    ) {
+
+      if (
+        method === "delivery"
+      ) {
+
+        addAction(
+          container,
+          "Start Delivery",
+          "primary-action",
+          () =>
+            updateOrder(
+              order.id,
+              "out_for_delivery"
+            )
+        );
+
+      }
+
+      else {
+
+        addAction(
+          container,
+          "Mark Handed Over",
+          "primary-action",
+          () =>
+            updateOrder(
+              order.id,
+              "handed_over"
+            )
+        );
+
+      }
+
+    }
+
+
+    /* -------------------------
+       OUT FOR DELIVERY
+    ------------------------- */
+
+    if (
+      status === "out_for_delivery"
     ) {
 
       addAction(
@@ -812,34 +954,38 @@ function renderActions(
 
 
   /* =========================
-     CANCEL
+     CANCELLATION
   ========================= */
 
-  const sellerReady =
-    status === "ready";
+  /*
+     Once the seller has marked the
+     order ready, fulfillment has begun.
+
+     For delivery orders, accepting
+     the delivery fee will also lock
+     the agreement. The backend will
+     enforce this too.
+  */
+
+  const fulfillmentStarted =
+    [
+      "ready",
+      "out_for_delivery",
+      "handed_over",
+      "received",
+      "completed"
+    ].includes(status);
+
+
+  const deliveryAgreementLocked =
+    method === "delivery" &&
+    deliveryFeeStatus === "accepted";
 
 
   const cancelLocked =
-    deliveryDetailsSet &&
-    sellerReady;
+    fulfillmentStarted ||
+    deliveryAgreementLocked;
 
-
-  /*
-     IMPORTANT:
-
-     Seller can still cancel if:
-     - buyer has not chosen a location
-     - buyer chose a location
-     - buyer chose pickup
-     - buyer chose delivery
-     - order is pending
-     - order is accepted
-
-     Cancellation becomes locked only when:
-     delivery details exist
-     AND
-     seller has marked the order ready.
-  */
 
   if (
     !cancelLocked
@@ -1346,10 +1492,13 @@ async function saveDeliveryDetails() {
           "Accepted",
 
         ready:
-          "Ready",
+  "Ready",
 
-        handed_over:
-          "Handed Over",
+out_for_delivery:
+  "Out for Delivery",
+
+handed_over:
+  "Handed Over",
 
         received:
           "Received",
