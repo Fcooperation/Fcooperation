@@ -440,9 +440,12 @@ let selectedDeliveryMethod =
   "Not provided";
 
 const deliveryLocation =
-  order.delivery_location ||
-  "Not provided";
-
+  order.delivery_method === "delivery"
+    ? (
+        order.delivery_location ||
+        "Not provided"
+      )
+    : "Not required for pickup";
 
       const date =
         formatDate(
@@ -531,7 +534,7 @@ const deliveryLocation =
 <div class="detail-row">
 
   <span>
-    My Location
+    Delivery Location
   </span>
 
   <strong>
@@ -903,30 +906,31 @@ function openDeliveryModal(order) {
     order.delivery_method ||
     "pickup";
 
+
   if (
-    selectedDeliveryMethod === "pickup"
+    selectedDeliveryMethod === "delivery"
   ) {
-
-    deliveryLocationInput.value =
-      order.material?.pickup_location ||
-      "";
-
-  } else {
 
     deliveryLocationInput.value =
       order.delivery_location ||
       "";
 
+  } else {
+
+    deliveryLocationInput.value =
+      "";
+
   }
 
+
   updateDeliveryMethodUI();
+
 
   deliveryModal.classList.remove(
     "hidden"
   );
 
 }
-
 
 function closeDeliveryModalWindow() {
 
@@ -944,16 +948,67 @@ function updateDeliveryMethodUI() {
 
   pickupOption.classList.toggle(
     "active",
-    selectedDeliveryMethod ===
-      "pickup"
+    selectedDeliveryMethod === "pickup"
   );
-
 
   deliveryOption.classList.toggle(
     "active",
-    selectedDeliveryMethod ===
-      "delivery"
+    selectedDeliveryMethod === "delivery"
   );
+
+
+  if (
+    selectedDeliveryMethod === "pickup"
+  ) {
+
+    deliveryLocationInput.value = "";
+
+    deliveryLocationInput.classList.add(
+      "hidden"
+    );
+
+    document
+      .getElementById(
+        "delivery-location-label"
+      )
+      .classList.add(
+        "hidden"
+      );
+
+    document
+      .getElementById(
+        "delivery-location-hint"
+      )
+      .classList.add(
+        "hidden"
+      );
+
+  } else {
+
+    deliveryLocationInput.classList.remove(
+      "hidden"
+    );
+
+    document
+      .getElementById(
+        "delivery-location-label"
+      )
+      .classList.remove(
+        "hidden"
+      );
+
+    document
+      .getElementById(
+        "delivery-location-hint"
+      )
+      .classList.remove(
+        "hidden"
+      );
+
+    deliveryLocationInput.placeholder =
+      "Enter the location where you want the textbook delivered...";
+
+  }
 
 }
 
@@ -965,17 +1020,8 @@ pickupOption.addEventListener(
     selectedDeliveryMethod =
       "pickup";
 
-    if (
-      currentDeliveryOrder
-    ) {
-
-      deliveryLocationInput.value =
-        currentDeliveryOrder
-          .material
-          ?.pickup_location ||
-        "";
-
-    }
+    deliveryLocationInput.value =
+      "";
 
     updateDeliveryMethodUI();
 
@@ -990,10 +1036,16 @@ deliveryOption.addEventListener(
     selectedDeliveryMethod =
       "delivery";
 
-    deliveryLocationInput.value =
+    if (
       currentDeliveryOrder
-        ?.delivery_location ||
-      "";
+    ) {
+
+      deliveryLocationInput.value =
+        currentDeliveryOrder
+          .delivery_location ||
+        "";
+
+    }
 
     updateDeliveryMethodUI();
 
@@ -1042,30 +1094,70 @@ async function saveDeliveryDetails() {
 
 
   const location =
-    deliveryLocationInput.value
-      .trim();
+    deliveryLocationInput.value.trim();
 
 
-  if (!location) {
+  /* =========================
+     PICKUP
+  ========================= */
 
-    showStatus(
-      "Please enter a pickup or delivery location."
-    );
+  if (
+    selectedDeliveryMethod ===
+    "pickup"
+  ) {
 
-    return;
+    const pickupLocation =
+      currentDeliveryOrder
+        .material
+        ?.pickup_location;
+
+
+    if (
+      !pickupLocation
+    ) {
+
+      showStatus(
+        "The seller has not provided a pickup location."
+      );
+
+      return;
+
+    }
 
   }
 
 
+  /* =========================
+     DELIVERY
+  ========================= */
+
   if (
-    location.length < 3
+    selectedDeliveryMethod ===
+    "delivery"
   ) {
 
-    showStatus(
-      "Please enter a valid location."
-    );
+    if (!location) {
 
-    return;
+      showStatus(
+        "Please enter your delivery location."
+      );
+
+      return;
+
+    }
+
+
+    if (
+      location.length < 3
+    ) {
+
+      showStatus(
+        "Please enter a valid delivery location."
+      );
+
+      return;
+
+    }
 
   }
 
@@ -1105,7 +1197,10 @@ async function saveDeliveryDetails() {
               selectedDeliveryMethod,
 
             deliveryLocation:
-              location
+              selectedDeliveryMethod ===
+              "delivery"
+                ? location
+                : ""
 
           })
 
