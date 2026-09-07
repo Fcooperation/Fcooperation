@@ -315,6 +315,75 @@ let selectedDeliveryMethod =
       }
 
     }
+    
+    /* =========================
+   SILENT ORDER REFRESH
+========================= */
+
+async function refreshOrdersSilently() {
+
+  try {
+
+    const response =
+      await fetch(
+        API_URL,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+            action: "get_orders",
+            userId: account.id
+          })
+        }
+      );
+
+
+    const data =
+      await response.json();
+
+
+    /*
+      Silent refresh:
+      Do not show loading.
+      Do not hide the orders page.
+      Do not show an error screen.
+    */
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+
+      return;
+
+    }
+
+
+    renderOrders(
+      data.buying || [],
+      data.selling || []
+    );
+
+  } catch (error) {
+
+    /*
+      Ignore temporary network
+      failures during polling.
+
+      The normal loadOrders()
+      still handles real errors.
+    */
+
+    return;
+
+  }
+
+}
 
 
     /* =========================
@@ -2107,11 +2176,23 @@ handed_over:
     }
 
 
-    /* =========================
-       START
-    ========================= */
+/* =========================
+   START
+========================= */
 
-    loadOrders();
+loadOrders();
+
+
+/* =========================
+   AUTO REFRESH
+========================= */
+
+setInterval(
+  () => {
+    refreshOrdersSilently();
+  },
+  2000
+);
 
   }
 );
