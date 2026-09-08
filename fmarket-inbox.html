@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>FMarket Inbox</title>
+
+  <link
+    rel="stylesheet"
+    href="/fmarket-inbox.css"
+  >
+
+</head>
+
+<body>
+
+
+  <header class="topbar">
+
+    <button
+      id="back-btn"
+      class="back-btn"
+      type="button"
+    >
+      ←
+    </button>
+
+    <div class="topbar-title">
+
+      <strong>
+        FMarket Inbox
+      </strong>
+
+      <span>
+        Marketplace updates
+      </span>
+
+    </div>
+
+  </header>
+
+
+  <main class="page">
+
+
+    <section
+      id="loading"
+      class="state-box"
+    >
+
+      <div class="spinner"></div>
+
+      <span>
+        Loading inbox...
+      </span>
+
+    </section>
+
+
+    <section
+      id="error"
+      class="state-box error hidden"
+    >
+
+      <strong>
+        Something went wrong
+      </strong>
+
+      <span id="error-message">
+        Unable to load inbox.
+      </span>
+
+      <button
+        id="retry-btn"
+        type="button"
+      >
+        Try again
+      </button>
+
+    </section>
+
+
+    <section
+      id="empty"
+      class="empty-state hidden"
+    >
+
+      <div class="empty-icon">
+        📨
+      </div>
+
+      <h2>
+        You're all caught up
+      </h2>
+
+      <p>
+        FMarket updates will appear here.
+      </p>
+
+    </section>
+
+
+    <section
+      id="inbox"
+      class="inbox hidden"
+    >
+
+      <div class="inbox-actions">
+
+        <span id="unread-label">
+          New update
+        </span>
+
+        <button
+          id="mark-read-btn"
+          type="button"
+          class="text-btn"
+        >
+          Mark as read
+        </button>
+
+      </div>
+
+
+      <article
+        id="notification-card"
+        class="notification-card"
+      >
+
+        <div
+          id="notification-icon"
+          class="notification-icon"
+        >
+          📦
+        </div>
+
+
+        <div class="notification-content">
+
+          <div class="notification-heading">
+
+            <h2 id="notification-title">
+              FMarket update
+            </h2>
+
+            <span
+              id="unread-dot"
+              class="unread-dot"
+            ></span>
+
+          </div>
+
+
+          <p id="notification-message">
+            Something happened to your order.
+          </p>
+
+
+          <div class="notification-footer">
+
+            <span id="notification-time">
+              Just now
+            </span>
+
+            <button
+              id="view-order-btn"
+              type="button"
+              class="view-order-btn hidden"
+            >
+              View order
+            </button>
+
+          </div>
+
+        </div>
+
+      </article>
+
+    </section>
+
+  </main>
+
+
+  <script src="/fmarket-inbox.js"></script>
+
+</body>
+
+</html>
