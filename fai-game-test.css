@@ -1,0 +1,269 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+
+  margin: 0;
+
+  min-height: 100vh;
+
+  font-family:
+    Arial,
+    sans-serif;
+
+  background:
+    #111;
+
+  color:
+    #fff;
+}
+
+
+.app {
+
+  width: 100%;
+
+  max-width: 700px;
+
+  margin: auto;
+
+  min-height: 100vh;
+
+  display: flex;
+
+  flex-direction: column;
+
+  background:
+    #181818;
+}
+
+
+.header {
+
+  padding: 18px;
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  border-bottom:
+    1px solid #333;
+}
+
+
+.header h1 {
+
+  margin: 0;
+
+  font-size: 21px;
+}
+
+
+.header p {
+
+  margin: 5px 0 0;
+
+  color: #999;
+
+  font-size: 13px;
+}
+
+
+.status {
+
+  font-size: 12px;
+
+  padding:
+    6px 10px;
+
+  border-radius:
+    20px;
+
+  background:
+    #233;
+}
+
+
+.conversation {
+
+  flex: 1;
+
+  padding: 20px;
+
+  overflow-y: auto;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 14px;
+}
+
+
+.system-message {
+
+  align-self: center;
+
+  max-width: 90%;
+
+  padding: 10px 14px;
+
+  border-radius: 10px;
+
+  background: #252525;
+
+  color: #999;
+
+  font-size: 13px;
+
+  text-align: center;
+}
+
+
+.message {
+
+  max-width: 82%;
+
+  padding: 12px 15px;
+
+  border-radius: 14px;
+
+  line-height: 1.4;
+
+  font-size: 15px;
+}
+
+
+.player {
+
+  align-self: flex-end;
+
+  background:
+    #245;
+
+  border-bottom-right-radius:
+    4px;
+}
+
+
+.npc {
+
+  align-self: flex-start;
+
+  background:
+    #292929;
+
+  border-bottom-left-radius:
+    4px;
+}
+
+
+.action {
+
+  align-self: center;
+
+  max-width: 90%;
+
+  padding: 8px 12px;
+
+  border-left:
+    3px solid #777;
+
+  color: #999;
+
+  font-size: 13px;
+
+  font-style: italic;
+}
+
+
+.input-area {
+
+  display: flex;
+
+  gap: 8px;
+
+  padding: 12px;
+
+  border-top:
+    1px solid #333;
+
+  background:
+    #151515;
+}
+
+
+.input-area input {
+
+  flex: 1;
+
+  min-width: 0;
+
+  padding: 13px;
+
+  border:
+    1px solid #333;
+
+  border-radius: 10px;
+
+  outline: none;
+
+  background:
+    #222;
+
+  color:
+    #fff;
+
+  font-size:
+    15px;
+}
+
+
+.input-area button {
+
+  padding:
+    0 18px;
+
+  border: none;
+
+  border-radius:
+    10px;
+
+  background:
+    #fff;
+
+  color:
+    #111;
+
+  font-weight:
+    bold;
+
+  cursor:
+    pointer;
+}
+
+
+.input-area button:disabled {
+
+  opacity:
+    0.5;
+
+  cursor:
+    not-allowed;
+}
+
+
+.typing {
+
+  color:
+    #777;
+
+  font-size:
+    13px;
+
+  font-style:
+    italic;
+}

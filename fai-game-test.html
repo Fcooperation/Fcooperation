@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>FAI NPC Test</title>
+
+  <link
+    rel="stylesheet"
+    href="fai-game-test.css"
+  >
+
+</head>
+
+<body>
+
+  <main class="app">
+
+    <header class="header">
+
+      <div>
+
+        <h1>FAI NPC Test</h1>
+
+        <p>
+          Conversational NPC simulation
+        </p>
+
+      </div>
+
+      <div
+        id="status"
+        class="status"
+      >
+        Online
+      </div>
+
+    </header>
+
+
+    <section
+      id="conversation"
+      class="conversation"
+    >
+
+      <div class="system-message">
+
+        You are talking to Marcus,
+        a 34-year-old taxi driver.
+
+      </div>
+
+    </section>
+
+
+    <form
+      id="chatForm"
+      class="input-area"
+    >
+
+      <input
+        id="messageInput"
+        type="text"
+        placeholder="Say something to Marcus..."
+        autocomplete="off"
+      >
+
+      <button
+        type="submit"
+        id="sendButton"
+      >
+        Send
+      </button>
+
+    </form>
+
+  </main>
+
+
+  <script src="fai-game-test.js"></script>
+
+</body>
+
+</html>
