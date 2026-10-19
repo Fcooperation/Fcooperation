@@ -1,178 +1,584 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+  <meta charset="UTF-8">
 
   <meta
-  name="viewport"
-  content="width=device-width, initial-scale=1.0"
-/>
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-  <title>Dashboard</title>
+  <meta
+    name="theme-color"
+    content="#ffffff"
+  >
+
+  <title>Dashboard | FCOOPERATION</title>
 
   <link
     rel="stylesheet"
     href="dashboard.css"
   >
-
 </head>
 
 <body>
 
-  <!-- HEADER -->
+  <main class="dashboard-container">
 
-  <div class="dashboard-container">
+    <!-- HEADER -->
 
-    <h2
-      id="greeting"
-      class="greeting"
-    >
-      Good afternoon 👋
-    </h2>
+    <header class="dashboard-header">
+
+      <div class="brand">
+        <div class="brand-logo">F</div>
+
+        <div class="brand-info">
+          <h1>FCOOPERATION</h1>
+          <p>Africa's Digital Foundation</p>
+        </div>
+      </div>
+
+      <div class="header-label">
+        MY DASHBOARD
+      </div>
+
+    </header>
+
+
+    <!-- GREETING -->
+
+    <section class="welcome-section">
+
+      <div>
+        <p class="welcome-label">
+          YOUR PERSONAL SPACE
+        </p>
+
+        <h2
+          id="greeting"
+          class="greeting"
+        >
+          Good afternoon 👋
+        </h2>
+
+        <p class="welcome-description">
+          Everything you need, all in one place.
+        </p>
+      </div>
+
+      <div class="welcome-symbol">
+        F
+      </div>
+
+    </section>
+
 
     <!-- PROFILE -->
 
-    <div class="profile-section">
+    <section class="profile-section">
 
-      <img
-        id="profilePic"
-        class="profile-pic"
-        src="default.png"
-      >
+      <div class="profile-top">
+
+        <div class="profile-image-wrapper">
+
+          <img
+            id="profilePic"
+            class="profile-pic"
+            src="default.png"
+            alt="Profile picture"
+          >
+
+        </div>
+
+        <div class="profile-details">
+
+          <p class="section-eyebrow">
+            YOUR ACCOUNT
+          </p>
+
+          <h2 id="username">
+            Loading...
+          </h2>
+
+          <p
+            id="createdAt"
+            class="created-at"
+          ></p>
+
+          <span
+            id="status"
+            class="status"
+          ></span>
+
+        </div>
+
+      </div>
+
+
       <input
-  type="file"
-  id="profileInput"
-  accept="image/*"
-  hidden
->
-      <h2
-        id="username"
+        type="file"
+        id="profileInput"
+        accept="image/*"
+        hidden
       >
-        Loading...
-      </h2>
 
-      <p
-        id="createdAt"
-        class="created-at"
+      <button
+        id="profileBtn"
+        class="btn btn-secondary"
+        type="button"
       >
-      </p>
-
-      <button id="profileBtn">
-  Upload Photo
+        <span>＋</span>
+        Upload Profile Photo
       </button>
 
-      <span
-        id="status"
-        class="status"
-      >
-      </span>
 
-      <p id="emailText"></p>
-<p id="providerText"></p>
-    </div>
+      <div class="profile-extra">
 
-    <!-- VERIFY BAR -->
+        <p id="emailText"></p>
 
-    <div
+        <p id="providerText"></p>
+
+      </div>
+
+    </section>
+
+
+    <!-- EMAIL VERIFICATION -->
+
+    <section
       id="verifyBar"
       class="verify-bar"
     >
 
-      <span>
-        Account not verified
-      </span>
+      <div class="verify-content">
+
+        <div class="verify-icon">
+          !
+        </div>
+
+        <div class="verify-text">
+
+          <h3>Verify your account</h3>
+
+          <p>
+            Confirm your email address to secure your account.
+          </p>
+
+        </div>
+
+      </div>
 
       <button
         id="resendBtn"
+        type="button"
       >
         Resend Verification Email
       </button>
 
-    </div>
+    </section>
+
 
     <!-- SERVICES -->
 
-    <h3
-      class="service-title"
-    >
-      Your Services
-    </h3>
+    <section class="services-section">
 
-    <div class="services">
+      <div class="section-heading">
 
-      <a
-        href="/study"
-        class="service-card"
+        <div>
+          <p class="section-eyebrow">
+            EXPLORE FCOOPERATION
+          </p>
+
+          <h2>Your Services</h2>
+
+          <p class="section-description">
+            Learn, discover, create, and connect.
+          </p>
+        </div>
+
+        <span class="services-count">
+          06 SERVICES
+        </span>
+
+      </div>
+
+
+      <div class="services">
+
+
+        <!-- STUDY -->
+
+        <a
+          href="/study"
+          class="service-card"
+        >
+
+          <div class="service-card-top">
+
+            <div class="service-icon">
+              📚
+            </div>
+
+            <span class="service-arrow">↗</span>
+
+          </div>
+
+          <h3>Study</h3>
+
+          <p>
+            Learn smarter with educational resources, notes,
+            and study tools.
+          </p>
+
+          <span class="service-link">
+            Start learning
+          </span>
+
+        </a>
+
+
+        <!-- FVIDS -->
+
+        <a
+          href="/fvids"
+          class="service-card"
+        >
+
+          <div class="service-card-top">
+
+            <div class="service-icon">
+              🎬
+            </div>
+
+            <span class="service-arrow">↗</span>
+
+          </div>
+
+          <h3>Fvids</h3>
+
+          <p>
+            Discover videos and explore engaging visual content.
+          </p>
+
+          <span class="service-link">
+            Explore videos
+          </span>
+
+        </a>
+
+
+        <!-- FWEB -->
+
+        <a
+          href="/fweb"
+          class="service-card"
+        >
+
+          <div class="service-card-top">
+
+            <div class="service-icon">
+              🔍
+            </div>
+
+            <span class="service-arrow">↗</span>
+
+          </div>
+
+          <h3>Fweb</h3>
+
+          <p>
+            Discover websites and explore useful resources across
+            the internet.
+          </p>
+
+          <span class="service-link">
+            Discover websites
+          </span>
+
+        </a>
+
+
+        <!-- FCHAT -->
+
+        <a
+          href="/fchat"
+          class="service-card"
+        >
+
+          <div class="service-card-top">
+
+            <div class="service-icon">
+              💬
+            </div>
+
+            <span class="service-arrow">↗</span>
+
+          </div>
+
+          <h3>Fchat</h3>
+
+          <p>
+            Connect with others and communicate through FCOOPERATION.
+          </p>
+
+          <span class="service-link">
+            Open conversations
+          </span>
+
+        </a>
+
+
+        <!-- FMARKET -->
+
+        <a
+          href="/fmarket"
+          class="service-card"
+        >
+
+          <div class="service-card-top">
+
+            <div class="service-icon">
+              🛍️
+            </div>
+
+            <span class="service-arrow">↗</span>
+
+          </div>
+
+          <h3>Fmarket</h3>
+
+          <p>
+            Explore a marketplace for discovering products,
+            services, and opportunities.
+          </p>
+
+          <span class="service-link">
+            Explore marketplace
+          </span>
+
+        </a>
+
+
+        <!-- FAI -->
+
+        <a
+          href="/fai"
+          class="service-card"
+        >
+
+          <div class="service-card-top">
+
+            <div class="service-icon">
+              ✦
+            </div>
+
+            <span class="service-arrow">↗</span>
+
+          </div>
+
+          <h3>FAI</h3>
+
+          <p>
+            Explore your AI assistant for answers, ideas,
+            and everyday tasks.
+          </p>
+
+          <span class="service-link">
+            Meet your AI
+          </span>
+
+        </a>
+
+
+      </div>
+
+    </section>
+
+
+    <!-- SETTINGS -->
+
+    <section class="settings-box">
+
+      <div class="section-heading settings-heading">
+
+        <div>
+          <p class="section-eyebrow">
+            PERSONALISE
+          </p>
+
+          <h2>Account Settings</h2>
+
+          <p class="section-description">
+            Manage your personal information.
+          </p>
+        </div>
+
+        <div class="settings-icon">
+          ⚙
+        </div>
+
+      </div>
+
+
+      <form id="settingsForm">
+
+        <div class="settings-fields">
+
+          <div class="input-group">
+
+            <label for="fullNameInput">
+              Full Name
+            </label>
+
+            <input
+              id="fullNameInput"
+              type="text"
+              placeholder="Enter your full name"
+              autocomplete="name"
+            >
+
+          </div>
+
+
+          <div class="input-group">
+
+            <label for="usernameInput">
+              Username
+            </label>
+
+            <input
+              id="usernameInput"
+              type="text"
+              placeholder="Choose a username"
+              autocomplete="username"
+            >
+
+          </div>
+
+
+          <div class="input-group">
+
+            <label for="passwordInput">
+              New Password
+            </label>
+
+            <input
+              id="passwordInput"
+              type="password"
+              placeholder="Leave blank to keep current password"
+              autocomplete="new-password"
+            >
+
+          </div>
+
+        </div>
+
+
+        <button
+          id="saveBtn"
+          class="btn btn-primary"
+          type="button"
+        >
+          Save Changes
+        </button>
+
+        <div
+          id="saveMessage"
+          role="status"
+          aria-live="polite"
+        ></div>
+
+      </form>
+
+    </section>
+
+
+    <!-- ACCOUNT ACTIONS -->
+
+    <section class="account-actions">
+
+      <div class="section-heading">
+
+        <div>
+          <p class="section-eyebrow">
+            ACCOUNT MANAGEMENT
+          </p>
+
+          <h2>Account Actions</h2>
+
+        </div>
+
+      </div>
+
+
+      <button
+        id="logoutBtn"
+        class="btn btn-secondary action-btn"
+        type="button"
       >
-        📚
-        <span>Study</span>
-      </a>
 
-      <a
-        href="/fvids"
-        class="service-card"
+        <span>↪</span>
+
+        <span class="action-text">
+          <strong>Log Out</strong>
+
+          <small>
+            Sign out of your account on this device.
+          </small>
+        </span>
+
+        <span class="action-arrow">→</span>
+
+      </button>
+
+
+      <button
+        id="deleteBtn"
+        class="btn btn-danger action-btn"
+        type="button"
       >
-        🎬
-        <span>Fvids</span>
-      </a>
 
-      <a
-        href="/fweb"
-        class="service-card"
-      >
-        🔍
-        <span>Fweb</span>
-      </a>
+        <span>⌫</span>
 
-      <a
-        href="/fchat"
-        class="service-card"
-      >
-        💬
-        <span>Fchat</span>
-      </a>
+        <span class="action-text">
+          <strong>Delete Account</strong>
 
-    </div>
+          <small>
+            Permanently remove your account.
+          </small>
+        </span>
 
-  </div>
+        <span class="action-arrow">→</span>
 
-  <div class="settings-box">
+      </button>
 
-  <h3>Settings</h3>
+    </section>
 
-  <input
-    id="fullNameInput"
-    type="text"
-    placeholder="Full Name"
-  >
 
-  <input
-    id="usernameInput"
-    type="text"
-    placeholder="Username"
-  >
+    <!-- FOOTER -->
 
-  <input
-    id="passwordInput"
-    type="password"
-    placeholder="New Password"
-  >
+    <footer class="dashboard-footer">
 
-  <button id="saveBtn">
-    Save Changes
-  </button>
+      <div class="footer-brand">
+        <span class="footer-logo">F</span>
+        <span>FCOOPERATION</span>
+      </div>
 
-  <div id="saveMessage"></div>
+      <p>
+        We build, God perfects.
+      </p>
 
-</div>
+      <p class="footer-copyright">
+        © <span id="currentYear">2026</span>
+        FCOOPERATION. All rights reserved.
+      </p>
 
-  <button id="logoutBtn">
-  Logout
-</button>
+    </footer>
 
-<button id="deleteBtn">
-  Delete Account
-</button>
+
+  </main>
+
 
   <script
     type="module"
