@@ -461,9 +461,12 @@ function renderUniversities(list) {
 
 function selectUniversity(university) {
   try {
+    const universityCode =
+      university.acronym || university.name;
+
     localStorage.setItem(
       "studying_uni",
-      university.name
+      universityCode
     );
 
     localStorage.setItem(
