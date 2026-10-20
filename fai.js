@@ -858,12 +858,10 @@ function showTyping() {
   "typing-indicator";
 
   typing.innerHTML = `
-    <div class="typing">
-      <span></span>
-      <span></span>
-      <span></span>
-    </div>
-  `;
+  <div class="typing">
+    <span></span>
+  </div>
+`;
 
   chatBox.appendChild(typing);
 

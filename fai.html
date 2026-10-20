@@ -1,110 +1,247 @@
-<!DOCTYPE html><html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Study FAI</title>
-<link rel="stylesheet" href="fai.css">
-<link rel="icon" type="image/png" href="/favicon.png">
-</head><body><div id="top-bar">  <h2>Study FAI</h2>  <div><button id="new-chat-btn">+</button>
+  <meta charset="UTF-8">
 
-<div id="fai-notice" class="fai-notice hidden">
-  ⚠️ Full FAI access is only available after signing in.  
-  <a href="login.html">Sign in</a> to continue.
-</div>
-
-<button id="clear-btn">
-  Delete
-</button>
-
-  </div></div><div id="chat-box"></div>
-  <div id="input-area">
-
-  <input
-    type="file"
-    id="photos-input"
-    accept="image/*"
-    hidden
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
   >
 
-  <input
-    type="file"
-    id="files-input"
-    hidden
+  <meta
+    name="theme-color"
+    content="#ffffff"
   >
 
-  <button id="plus-btn" type="button">+</button>
+  <meta
+    name="description"
+    content="FAI — your study assistant for questions, explanations, files, and image generation."
+  >
 
-  <div id="upload-menu">
+  <title>Study FAI | FCOOPERATION</title>
 
-    <button id="photos-btn" type="button">
-      <span>▧</span>
-      Photos
-    </button>
+  <link rel="stylesheet" href="fai.css">
 
-    <button id="files-btn" type="button">
-      <span>□</span>
-      Files
-    </button>
+  <link
+    rel="icon"
+    type="image/png"
+    href="/favicon.png"
+  >
+</head>
 
-    <button id="generate-image-btn" type="button">
-      <span>✦</span>
-      Generate image
-    </button>
+<body>
 
+  <!-- TOP BAR -->
+
+  <header id="top-bar">
+
+    <h2>Study FAI</h2>
+
+    <div>
+
+      <button
+        id="new-chat-btn"
+        type="button"
+        aria-label="Start a new chat"
+        title="New chat"
+      >
+        +
+      </button>
+
+      <button
+        id="clear-btn"
+        type="button"
+      >
+        Delete
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <!-- SIGN-IN NOTICE -->
+
+  <div
+    id="fai-notice"
+    class="fai-notice hidden"
+    role="status"
+  >
+    Full FAI access is available after signing in.
+
+    <a href="login.html">
+      Sign in
+    </a>
+    to continue.
   </div>
 
-  <div id="image-preview"></div>
 
-  <!-- NORMAL FAI INPUT -->
-  <textarea
-    id="prompt"
-    placeholder="Ask a study question..."
-    rows="1"
-  ></textarea>
+  <!-- CHAT MESSAGES -->
 
-  <!-- IMAGE GENERATION MODE -->
-  <div id="image-generation-mode">
+  <main
+    id="chat-box"
+    aria-label="FAI conversation"
+    aria-live="polite"
+  ></main>
 
-    <div class="image-generation-header">
 
-      <div class="image-generation-title">
-        <span>✦</span>
+  <!-- MESSAGE INPUT -->
+
+  <form
+    id="input-area"
+    onsubmit="return false;"
+  >
+
+    <!-- IMAGE FILE INPUT -->
+
+    <input
+      type="file"
+      id="photos-input"
+      accept="image/*"
+      hidden
+    >
+
+    <!-- GENERAL FILE INPUT -->
+
+    <input
+      type="file"
+      id="files-input"
+      hidden
+    >
+
+
+    <!-- FEATURE MENU BUTTON -->
+
+    <button
+      id="plus-btn"
+      type="button"
+      aria-label="Open attachments and features"
+      aria-controls="upload-menu"
+      title="Attachments and features"
+    >
+      +
+    </button>
+
+
+    <!-- FEATURE MENU -->
+
+    <div
+      id="upload-menu"
+      role="menu"
+    >
+
+      <button
+        id="photos-btn"
+        type="button"
+        role="menuitem"
+      >
+        <span aria-hidden="true">▧</span>
+        Photos
+      </button>
+
+      <button
+        id="files-btn"
+        type="button"
+        role="menuitem"
+      >
+        <span aria-hidden="true">□</span>
+        Files
+      </button>
+
+      <button
+        id="generate-image-btn"
+        type="button"
+        role="menuitem"
+      >
+        <span aria-hidden="true">✦</span>
         Generate image
+      </button>
+
+    </div>
+
+
+    <!-- ATTACHMENT PREVIEW -->
+
+    <div
+      id="image-preview"
+      aria-label="Attachment preview"
+    ></div>
+
+
+    <!-- NORMAL FAI INPUT -->
+
+    <textarea
+      id="prompt"
+      placeholder="Ask a study question..."
+      rows="1"
+      aria-label="Ask FAI a question"
+    ></textarea>
+
+
+    <!-- IMAGE GENERATION MODE -->
+
+    <section
+      id="image-generation-mode"
+      aria-label="Image generation"
+    >
+
+      <div class="image-generation-header">
+
+        <div class="image-generation-title">
+          <span aria-hidden="true">✦</span>
+          Generate image
+        </div>
+
+        <button
+          id="cancel-image-generation"
+          type="button"
+        >
+          Cancel
+        </button>
+
       </div>
 
-      <button
-        id="cancel-image-generation"
-        type="button"
-      >
-        Cancel
-      </button>
 
-    </div>
+      <div class="image-generation-body">
 
-    <div class="image-generation-body">
+        <textarea
+          id="image-generation-prompt"
+          placeholder="Describe your image..."
+          rows="1"
+          aria-label="Describe the image to generate"
+        ></textarea>
 
-      <textarea
-        id="image-generation-prompt"
-        placeholder="Describe your image..."
-        rows="1"
-      ></textarea>
+        <button
+          id="image-edit-upload-btn"
+          type="button"
+        >
+          Add image
+        </button>
 
-      <button
-        id="image-edit-upload-btn"
-        type="button"
-      >
-        Add image
-      </button>
+      </div>
 
-    </div>
+    </section>
 
-  </div>
 
-  <button id="send-btn" type="button">
-    Send
-  </button>
+    <!-- SEND -->
 
-</div>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script src="fai.js"></script></body>
+    <button
+      id="send-btn"
+      type="button"
+    >
+      Send
+    </button>
+
+  </form>
+
+
+  <!-- MARKDOWN SUPPORT -->
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <!-- FAI LOGIC -->
+
+  <script src="fai.js"></script>
+
+</body>
 </html>
