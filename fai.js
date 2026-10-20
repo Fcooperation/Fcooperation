@@ -711,24 +711,15 @@ messageImages.forEach(img => {
 
         if (msg.status === "streaming") {
 
-          const loadingBtn =
-            document.createElement("button");
+  const loading =
+    document.createElement("div");
 
-          loadingBtn.className =
-            "response-loading-btn";
+  loading.className = "typing";
 
-          loadingBtn.innerHTML = `
-            <span></span>
-            <span></span>
-            <span></span>
-          `;
+  loading.innerHTML = `<span></span>`;
 
-          loadingBtn.disabled = true;
-
-          div.appendChild(
-            loadingBtn
-          );
-        }
+  div.appendChild(loading);
+}
 
         /* ------------------------------
            RESPONSE COMPLETE
