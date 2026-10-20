@@ -465,12 +465,17 @@ button {
   }
 }
 
-.uni-card-country {
+.uni-card-acronym {
   display: block;
-  margin-top: 5px;
-  color: var(--grey);
-  font-size: 11px;
-  line-height: 1.5;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.uni-card-country,
+.uni-card-location {
+  display: block;
+  font-size: 0.8rem;
+  opacity: 0.7;
 }
 
 

@@ -1,62 +1,201 @@
-// ===============================
-// ELEMENTS
-// ===============================
+// ========================================
+// FSTUDY: ELEMENTS
+// ========================================
 
 const searchBar = document.getElementById("search-bar");
+const clearSearch = document.getElementById("clear-search");
+
 const uniList = document.getElementById("uni-list");
+const uniLoading = document.getElementById("uni-loading");
+const uniEmpty = document.getElementById("uni-empty");
+const uniError = document.getElementById("uni-error");
 
-const progressCircle = document.querySelector(".progress");
-const loadingText = document.getElementById("loading-text");
+const pickText = document.getElementById("pick-text");
+const resultsCount = document.getElementById("results-count");
 
+const emptyTitle = document.getElementById("empty-title");
+const emptyDescription = document.getElementById("empty-description");
 
-// ===============================
-// LOADING CIRCLE
-// ===============================
-
-let percent = 0;
-
-const radius = 35;
-const circumference = 2 * Math.PI * radius;
-
-progressCircle.style.strokeDasharray = circumference;
-progressCircle.style.strokeDashoffset = circumference;
+const retryButton = document.getElementById("retry-loading");
 
 
-function setProgress(p) {
+// ========================================
+// STATE
+// ========================================
 
-  const offset =
-    circumference - (p / 100) * circumference;
+let universities = [];
+let isLoading = false;
+let hasLoaded = false;
 
-  progressCircle.style.strokeDashoffset = offset;
+let searchTimer = null;
+let searchRequestId = 0;
 
-  loadingText.textContent = `${p}%`;
 
-  if (p === 100) {
-    loadingText.textContent = "READY ✔";
+// ========================================
+// HELPERS
+// ========================================
+
+function showLoading() {
+  isLoading = true;
+
+  uniLoading.hidden = false;
+  uniList.replaceChildren();
+
+  uniEmpty.hidden = true;
+  uniError.hidden = true;
+
+  resultsCount.textContent = "";
+}
+
+function hideLoading() {
+  isLoading = false;
+  uniLoading.hidden = true;
+}
+
+function showError(message) {
+  hideLoading();
+
+  uniList.replaceChildren();
+
+  uniEmpty.hidden = true;
+  uniError.hidden = false;
+
+  const paragraph = uniError.querySelector("p");
+
+  if (paragraph) {
+    paragraph.textContent =
+      message || "Check your connection and try again.";
   }
 
+  resultsCount.textContent = "";
 }
 
 
-// ===============================
-// UNIVERSITIES
-// ===============================
+// ========================================
+// NORMALIZE UNIVERSITY
+// ========================================
 
-let universities = [];
+function normalizeUniversity(item) {
+  if (typeof item === "string") {
+    const name = item.trim();
+
+    if (!name) return null;
+
+    return {
+      id: name,
+      name,
+      acronym: "",
+      country: "",
+      state: "",
+      region: ""
+    };
+  }
+
+  if (!item || typeof item !== "object") {
+    return null;
+  }
+
+  const name =
+    item.name ||
+    item.university_name ||
+    item.university ||
+    item.school ||
+    "";
+
+  if (typeof name !== "string" || !name.trim()) {
+    return null;
+  }
+
+  return {
+    ...item,
+
+    id: item.id ?? item.university_id ?? name.trim(),
+
+    name: name.trim(),
+
+    acronym:
+      typeof item.acronym === "string"
+        ? item.acronym.trim()
+        : "",
+
+    country:
+      typeof item.country === "string"
+        ? item.country.trim()
+        : "",
+
+    state:
+      typeof item.state === "string"
+        ? item.state.trim()
+        : "",
+
+    region:
+      typeof item.region === "string"
+        ? item.region.trim()
+        : ""
+  };
+}
 
 
-// ===============================
-// GET UNIVERSITIES
-// ===============================
+// ========================================
+// SEARCH TEXT
+// ========================================
+
+function getUniversitySearchText(university) {
+  return [
+    university.name,
+    university.acronym,
+    university.country,
+    university.state,
+    university.region
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+}
+
+
+// ========================================
+// REMOVE DUPLICATES
+// ========================================
+
+function removeDuplicateUniversities(list) {
+  const seen = new Set();
+
+  return list.filter(university => {
+    const key = String(
+      university.id ??
+      `${university.name}|${university.country}`
+    ).toLowerCase();
+
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+
+    return true;
+  });
+}
+
+
+// ========================================
+// LOAD UNIVERSITIES
+// ========================================
 
 async function getUniversities() {
+  if (isLoading) return;
 
-  loadingText.textContent = "LOADING...";
+  showLoading();
+
+  pickText.textContent = "Finding universities";
 
   try {
+    if (!window.CONFIG || !window.CONFIG.API_URL) {
+      throw new Error("The API configuration is missing.");
+    }
 
     const response = await fetch(
-      window.CONFIG.API_URL + "/admin",
+      `${window.CONFIG.API_URL}/admin`,
       {
         method: "POST",
 
@@ -71,38 +210,63 @@ async function getUniversities() {
     );
 
     if (!response.ok) {
-      throw new Error("Failed to get universities");
+      throw new Error(
+        `Server returned status ${response.status}.`
+      );
     }
 
     const data = await response.json();
 
     if (!data.success) {
       throw new Error(
-        data.error || "Failed to get universities"
+        data.error || "Failed to load universities."
       );
     }
 
-    universities = data.universities || [];
+    if (!Array.isArray(data.universities)) {
+      throw new Error("Invalid university list received.");
+    }
 
-    renderUniversities(universities);
+    universities = removeDuplicateUniversities(
+      data.universities
+        .map(normalizeUniversity)
+        .filter(Boolean)
+    );
 
-    loadingText.textContent = "READY ✔";
+    hasLoaded = true;
+
+    hideLoading();
+
+    pickText.textContent = "Choose your university";
+
+    // Respect an existing search when reloading.
+    const query = searchBar.value.trim().toLowerCase();
+
+    if (query) {
+      renderUniversities(
+        universities.filter(university =>
+          getUniversitySearchText(university).includes(query)
+        )
+      );
+
+      searchUniversitiesBackend(query, ++searchRequestId);
+    } else {
+      renderUniversities(universities);
+    }
 
   } catch (error) {
+    console.error("FStudy university loading error:", error);
 
-    console.error(error);
+    hasLoaded = false;
 
-    loadingText.textContent = "FAILED";
+    pickText.textContent = "Universities";
 
-    uniList.innerHTML = `
-      <div class="uni-error">
-        Failed to load universities.
-      </div>
-    `;
-
+    showError(
+      "We couldn't retrieve the university list. Please try again."
+    );
   }
-
 }
+
 
 // ========================================
 // BACKEND UNIVERSITY SEARCH
@@ -111,7 +275,7 @@ async function getUniversities() {
 async function searchUniversitiesBackend(query, requestId) {
   try {
     if (!window.CONFIG || !window.CONFIG.API_URL) {
-      throw new Error("API configuration is missing.");
+      throw new Error("The API configuration is missing.");
     }
 
     const response = await fetch(
@@ -144,15 +308,13 @@ async function searchUniversitiesBackend(query, requestId) {
       );
     }
 
-    // Ignore outdated search responses.
+    // Ignore outdated responses.
     if (requestId !== searchRequestId) {
       return;
     }
 
-    // Ignore responses if the user has changed the query.
     if (
-      searchBar.value.trim().toLowerCase() !==
-      query.toLowerCase()
+      searchBar.value.trim().toLowerCase() !== query.toLowerCase()
     ) {
       return;
     }
@@ -161,86 +323,166 @@ async function searchUniversitiesBackend(query, requestId) {
       .map(normalizeUniversity)
       .filter(Boolean);
 
-    // Search the already-loaded universities locally too.
     const localResults = universities.filter(university =>
       getUniversitySearchText(university).includes(
         query.toLowerCase()
       )
     );
 
-    // Combine local and backend results.
-    const combined = [
-      ...localResults,
-      ...backendResults
-    ];
+    // Put backend results first, then add any local matches.
+    const combined = removeDuplicateUniversities([
+      ...backendResults,
+      ...localResults
+    ]);
 
-    // Remove duplicates.
-    const seen = new Set();
-
-    const uniqueResults = combined.filter(university => {
-      const key = (
-        university.name +
-        "|" +
-        university.country
-      ).toLowerCase();
-
-      if (seen.has(key)) {
-        return false;
-      }
-
-      seen.add(key);
-
-      return true;
-    });
-
-    renderUniversities(uniqueResults);
+    renderUniversities(combined);
 
   } catch (error) {
     console.error("Backend university search error:", error);
 
-    // Local results remain available if backend search fails.
-    // Don't replace them with an error screen.
+    // Local results remain visible if the backend search fails.
   }
 }
 
 
-// ===============================
-// CREATE UNIVERSITY CARDS
-// ===============================
+// ========================================
+// RENDER UNIVERSITIES
+// ========================================
 
 function renderUniversities(list) {
+  hideLoading();
 
-  uniList.innerHTML = "";
+  uniError.hidden = true;
+  uniList.replaceChildren();
 
+  const query = searchBar.value.trim();
+
+  clearSearch.hidden = query.length === 0;
+
+  if (!list.length) {
+    uniEmpty.hidden = false;
+
+    resultsCount.textContent = "0 found";
+
+    if (query) {
+      emptyTitle.textContent = "No universities found";
+
+      emptyDescription.textContent =
+        "Try another university name or acronym.";
+    } else {
+      emptyTitle.textContent = "No universities available";
+
+      emptyDescription.textContent =
+        "The university list is currently empty.";
+    }
+
+    return;
+  }
+
+  uniEmpty.hidden = true;
+
+  resultsCount.textContent =
+    `${list.length} ${list.length === 1 ? "result" : "results"}`;
+
+  const fragment = document.createDocumentFragment();
 
   list.forEach(university => {
+    const card = document.createElement("button");
 
-    const card = document.createElement("div");
-
+    card.type = "button";
     card.className = "uni-card";
 
-    card.textContent = university;
+    // University name
+    const name = document.createElement("span");
 
+    name.className = "uni-card-name";
+    name.textContent = university.name;
+
+    card.appendChild(name);
+
+    // University acronym
+    if (university.acronym) {
+      const acronym = document.createElement("span");
+
+      acronym.className = "uni-card-acronym";
+      acronym.textContent = university.acronym;
+
+      card.appendChild(acronym);
+    }
+
+    // Country
+    if (university.country) {
+      const country = document.createElement("span");
+
+      country.className = "uni-card-country";
+      country.textContent = university.country;
+
+      card.appendChild(country);
+    }
+
+    // State and region
+    const locationParts = [
+      university.state,
+      university.region
+    ].filter(Boolean);
+
+    if (locationParts.length) {
+      const location = document.createElement("span");
+
+      location.className = "uni-card-location";
+      location.textContent = locationParts.join(" · ");
+
+      card.appendChild(location);
+    }
+
+    // Arrow
+    const arrow = document.createElement("span");
+
+    arrow.className = "uni-card-arrow";
+    arrow.setAttribute("aria-hidden", "true");
+    arrow.textContent = "→";
+
+    card.appendChild(arrow);
 
     card.addEventListener("click", () => {
-
-      // Save selected university
-      localStorage.setItem(
-  "studying_uni",
-  university
-);
-
-
-      // Go to the universal school page
-      location.href = "schoolstudy.html";
-
+      selectUniversity(university);
     });
 
-
-    uniList.appendChild(card);
-
+    fragment.appendChild(card);
   });
 
+  uniList.appendChild(fragment);
+}
+
+
+// ========================================
+// SELECT UNIVERSITY
+// ========================================
+
+function selectUniversity(university) {
+  try {
+    localStorage.setItem(
+      "studying_uni",
+      university.name
+    );
+
+    localStorage.setItem(
+      "studying_uni_data",
+      JSON.stringify(university)
+    );
+
+    location.href = "schoolstudy.html";
+
+  } catch (error) {
+    console.error(
+      "Could not save selected university:",
+      error
+    );
+
+    alert(
+      "We couldn't save your university selection. Please try again."
+    );
+  }
 }
 
 
@@ -258,10 +500,8 @@ searchBar.addEventListener("input", function () {
 
   const currentRequestId = searchRequestId;
 
-  // Cancel a backend search that hasn't started yet.
   clearTimeout(searchTimer);
 
-  // Empty query: display all locally loaded universities.
   if (!query) {
     if (hasLoaded) {
       renderUniversities(universities);
@@ -270,51 +510,54 @@ searchBar.addEventListener("input", function () {
     return;
   }
 
-  // Search the existing list immediately.
-  const localResults = universities.filter(university =>
-    getUniversitySearchText(university).includes(query)
-  );
-
+  // Search loaded universities immediately.
   if (hasLoaded) {
+    const localResults = universities.filter(university =>
+      getUniversitySearchText(university).includes(query)
+    );
+
     renderUniversities(localResults);
   }
 
-  // Wait briefly before sending the request.
-  // This avoids making a request for every keystroke.
+  // Send the query to the backend after typing pauses.
   searchTimer = setTimeout(() => {
-    searchUniversitiesBackend(
-      query,
-      currentRequestId
-    );
+    searchUniversitiesBackend(query, currentRequestId);
   }, 350);
 });
 
-// ===============================
+
+// ========================================
+// CLEAR SEARCH
+// ========================================
+
+clearSearch.addEventListener("click", () => {
+  searchRequestId++;
+
+  clearTimeout(searchTimer);
+
+  searchBar.value = "";
+
+  clearSearch.hidden = true;
+
+  searchBar.focus();
+
+  if (hasLoaded) {
+    renderUniversities(universities);
+  }
+});
+
+
+// ========================================
+// RETRY
+// ========================================
+
+retryButton.addEventListener("click", () => {
+  getUniversities();
+});
+
+
+// ========================================
 // START
-// ===============================
+// ========================================
 
 getUniversities();
-
-
-// ===============================
-// LOADING ANIMATION
-// ===============================
-
-const loader = setInterval(() => {
-
-  percent += 2;
-
-
-  if (percent > 100) {
-    percent = 100;
-  }
-
-
-  setProgress(percent);
-
-
-  if (percent === 100) {
-    clearInterval(loader);
-  }
-
-}, 50);
