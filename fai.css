@@ -1386,3 +1386,8 @@ textarea:focus-visible {
     transition-duration: 0.01ms !important;
   }
 }
+.message.user {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}

@@ -617,19 +617,30 @@ function renderMessages() {
     }
 
     /* ------------------------------
-       NORMAL MESSAGE
-    ------------------------------ */
+   NORMAL MESSAGE
+------------------------------ */
 
-    else {
+else {
 
-      div.innerHTML =
-  marked.parse(
-    msg.text || "",
-    {
-      html: false,
-      renderer
-    }
-  );
+  if (msg.role === "user") {
+
+    // Display user messages as plain text.
+    // Never interpret their content as HTML or Markdown.
+    div.textContent = msg.text || "";
+
+  } else {
+
+    // Render FAI responses as Markdown.
+    div.innerHTML =
+      marked.parse(
+        msg.text || "",
+        {
+          html: false,
+          renderer
+        }
+      );
+
+  }
 
 /* --------------------------------
    WRAP INLINE IMAGES
