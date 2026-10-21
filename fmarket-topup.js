@@ -242,8 +242,9 @@ document.addEventListener(
   ========================= */
 
   continueBtn.disabled =
-    grossNaira < MIN_NAIRA ||
-    grossNaira > MAX_NAIRA;
+  !Number.isFinite(grossNaira) ||
+  grossNaira < MIN_NAIRA ||
+  grossNaira > MAX_NAIRA;
 
 }
 
@@ -389,6 +390,8 @@ continueBtn.addEventListener(
   "click",
   async () => {
 
+    alert("Top-up button clicked!");
+
     const naira =
       Math.floor(
         Number(
@@ -533,18 +536,17 @@ continueBtn.addEventListener(
 
 
       /* =========================
-         MONNIFY CHECKOUT
-      ========================= */
+   PAYSTACK CHECKOUT
+========================= */
 
-      if (
-        !data.checkout_url
-      ) {
+if (!data.checkout_url) {
+  throw new Error(
+    "Paystack did not return a payment URL."
+  );
+}
 
-        throw new Error(
-          "Monnify did not return a payment URL."
-        );
-
-      }
+window.location.href = data.checkout_url;
+    
 
 
       /*
