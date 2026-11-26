@@ -1,6 +1,10 @@
 
 document.addEventListener("DOMContentLoaded", () => {
 
+  /* =========================
+     ELEMENTS
+  ========================= */
+
   const topic = document.getElementById("topic");
   const noteContent = document.getElementById("note-content");
 
@@ -20,12 +24,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let selectedFiles = [];
 
+  /* =========================
+     INDEXEDDB SETTINGS
+  ========================= */
+
   const FSTUDY_DB_NAME = "fstudy_files";
-  const FSTUDY_DB_VERSION = 1;
+  const FSTUDY_DB_VERSION = 2;
   const FSTUDY_STORE = "images";
 
+
   /* =========================
-     FILE HANDLING
+     FILE INPUT
   ========================= */
 
   fileInput.addEventListener("change", () => {
@@ -33,20 +42,28 @@ document.addEventListener("DOMContentLoaded", () => {
     fileInput.value = "";
   });
 
-  uploadArea.addEventListener("dragover", (e) => {
-    e.preventDefault();
+
+  uploadArea.addEventListener("dragover", (event) => {
+    event.preventDefault();
     uploadArea.classList.add("dragging");
   });
+
 
   uploadArea.addEventListener("dragleave", () => {
     uploadArea.classList.remove("dragging");
   });
 
-  uploadArea.addEventListener("drop", (e) => {
-    e.preventDefault();
+
+  uploadArea.addEventListener("drop", (event) => {
+    event.preventDefault();
     uploadArea.classList.remove("dragging");
-    addFiles(e.dataTransfer.files);
+    addFiles(event.dataTransfer.files);
   });
+
+
+  /* =========================
+     ADD FILES
+  ========================= */
 
   function addFiles(files) {
 
@@ -76,6 +93,14 @@ document.addEventListener("DOMContentLoaded", () => {
         continue;
       }
 
+      if (selectedFiles.length >= 20) {
+        showStatus(
+          "You can upload a maximum of 20 files.",
+          "error"
+        );
+        break;
+      }
+
       const duplicate = selectedFiles.some(
         existing =>
           existing.name === file.name &&
@@ -89,6 +114,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     renderFiles();
   }
+
+
+  /* =========================
+     RENDER FILES
+  ========================= */
 
   function renderFiles() {
 
@@ -105,7 +135,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const remove = document.createElement("button");
       remove.type = "button";
       remove.textContent = "×";
-      remove.setAttribute("aria-label", "Remove " + file.name);
+      remove.setAttribute(
+        "aria-label",
+        "Remove " + file.name
+      );
 
       remove.addEventListener("click", () => {
         selectedFiles.splice(index, 1);
@@ -114,12 +147,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
       item.append(name, remove);
       fileList.appendChild(item);
+
     });
 
     fileCount.textContent = selectedFiles.length
       ? `${selectedFiles.length} file(s) selected`
       : "No files selected";
   }
+
 
   /* =========================
      IMAGE COMPRESSION
@@ -154,8 +189,8 @@ document.addEventListener("DOMContentLoaded", () => {
           maxSize / height
         );
 
-        width *= ratio;
-        height *= ratio;
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
       }
 
       const canvas = document.createElement("canvas");
@@ -165,18 +200,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const context = canvas.getContext("2d");
 
-      context.drawImage(image, 0, 0, width, height);
+      context.drawImage(
+        image,
+        0,
+        0,
+        width,
+        height
+      );
 
       const blob = await new Promise(resolve => {
-        canvas.toBlob(resolve, "image/jpeg", 0.82);
+        canvas.toBlob(
+          resolve,
+          "image/jpeg",
+          0.82
+        );
       });
 
-      if (!blob) return file;
+      if (!blob) {
+        return file;
+      }
 
       return new File(
         [blob],
         file.name.replace(/\.[^.]+$/, ".jpg"),
-        { type: "image/jpeg" }
+        {
+          type: "image/jpeg",
+          lastModified: Date.now()
+        }
       );
 
     } finally {
@@ -184,8 +234,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+
   /* =========================
-     INDEXED DB
+     OPEN / UPGRADE INDEXEDDB
   ========================= */
 
   function openFstudyDB() {
@@ -197,62 +248,257 @@ document.addEventListener("DOMContentLoaded", () => {
         FSTUDY_DB_VERSION
       );
 
-      request.onupgradeneeded = () => {
+
+      request.onupgradeneeded = (event) => {
+
+        const db = event.target.result;
+        const transaction = event.target.transaction;
+
+        /* Create the correct store if missing */
+
+        if (!db.objectStoreNames.contains(FSTUDY_STORE)) {
+
+          db.createObjectStore(FSTUDY_STORE, {
+            keyPath: "id"
+          });
+
+          return;
+        }
+
+
+        /*
+         * Migrate the old student store if it
+         * was created without keyPath: "id".
+         */
+
+        const oldStore = transaction.objectStore(
+          FSTUDY_STORE
+        );
+
+        if (oldStore.keyPath !== "id") {
+
+          const records = [];
+
+          const cursorRequest = oldStore.openCursor();
+
+          cursorRequest.onsuccess = () => {
+
+            const cursor = cursorRequest.result;
+
+            if (cursor) {
+
+              const oldValue = cursor.value;
+              const oldId = cursor.primaryKey;
+
+              let record;
+
+              if (oldValue instanceof Blob) {
+
+                record = {
+                  id: oldId,
+                  name: oldValue.name || "",
+                  type: oldValue.type || "",
+                  size: oldValue.size,
+                  file: oldValue,
+                  createdAt: Date.now()
+                };
+
+              } else {
+
+                record = {
+                  id: oldValue.id || oldId,
+                  name: oldValue.name || "",
+                  type: oldValue.type || "",
+                  size: oldValue.size || (
+                    oldValue.file
+                      ? oldValue.file.size
+                      : 0
+                  ),
+                  file: oldValue.file || oldValue,
+                  createdAt: oldValue.createdAt || Date.now()
+                };
+
+              }
+
+              records.push(record);
+
+              cursor.continue();
+
+            } else {
+
+              /*
+               * Cursor finished.
+               * Recreate the store with keyPath "id".
+               */
+
+              db.deleteObjectStore(FSTUDY_STORE);
+
+              const newStore = db.createObjectStore(
+                FSTUDY_STORE,
+                {
+                  keyPath: "id"
+                }
+              );
+
+              records.forEach(record => {
+                newStore.put(record);
+              });
+
+            }
+
+          };
+
+        }
+
+      };
+
+
+      request.onsuccess = () => {
 
         const db = request.result;
 
-        if (!db.objectStoreNames.contains(FSTUDY_STORE)) {
-          db.createObjectStore(FSTUDY_STORE);
-        }
+        /*
+         * Close this connection if another page
+         * requests a database version upgrade.
+         */
+
+        db.onversionchange = () => {
+          db.close();
+        };
+
+        resolve(db);
       };
 
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
+
+      request.onerror = () => {
+        reject(
+          request.error ||
+          new Error("Could not open FStudy image database.")
+        );
+      };
+
+
+      request.onblocked = () => {
+        console.warn(
+          "FStudy database upgrade is blocked. Close other FStudy tabs and reload."
+        );
+      };
 
     });
   }
+
+
+  /* =========================
+     SAVE IMAGE TO INDEXEDDB
+  ========================= */
 
   async function saveImageToDB(file) {
-  const db = await openFstudyDB();
 
-  const imageId =
-    "IMG-" +
-    Date.now() +
-    "-" +
-    Math.random().toString(36).slice(2, 8);
+    const db = await openFstudyDB();
 
-  const compressed = await compressImage(file);
+    const compressed = await compressImage(file);
 
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(
-      FSTUDY_STORE,
-      "readwrite"
-    );
+    const imageId =
+      "IMG-" +
+      Date.now() +
+      "-" +
+      Math.random().toString(36).slice(2, 8);
 
-    const store = transaction.objectStore(FSTUDY_STORE);
 
-    store.put({
-      id: imageId,
-      name: file.name,
-      type: compressed.type || file.type,
-      size: compressed.size,
-      file: compressed,
-      createdAt: Date.now()
+    return new Promise((resolve, reject) => {
+
+      const transaction = db.transaction(
+        FSTUDY_STORE,
+        "readwrite"
+      );
+
+      const store = transaction.objectStore(
+        FSTUDY_STORE
+      );
+
+
+      /*
+       * SAME RECORD STRUCTURE AS ADMIN
+       */
+
+      store.put({
+
+        id: imageId,
+
+        name: file.name,
+
+        type: compressed.type || file.type,
+
+        size: compressed.size,
+
+        file: compressed,
+
+        createdAt: Date.now()
+
+      });
+
+
+      transaction.oncomplete = () => {
+        resolve(imageId);
+      };
+
+
+      transaction.onerror = () => {
+        reject(
+          transaction.error ||
+          new Error(`Failed to save ${file.name}`)
+        );
+      };
+
+
+      transaction.onabort = () => {
+        reject(
+          transaction.error ||
+          new Error(`Saving ${file.name} was interrupted.`)
+        );
+      };
+
     });
-
-    transaction.oncomplete = () => {
-      resolve(imageId);
-    };
-
-    transaction.onerror = () => {
-      reject(transaction.error);
-    };
-
-    transaction.onabort = () => {
-      reject(transaction.error);
-    };
-  });
   }
+
+
+  /* =========================
+     GET IMAGE FROM INDEXEDDB
+  ========================= */
+
+  async function getImageFromDB(id) {
+
+    const db = await openFstudyDB();
+
+    return new Promise((resolve, reject) => {
+
+      const transaction = db.transaction(
+        FSTUDY_STORE,
+        "readonly"
+      );
+
+      const store = transaction.objectStore(
+        FSTUDY_STORE
+      );
+
+      const request = store.get(id);
+
+
+      request.onsuccess = () => {
+        resolve(request.result || null);
+      };
+
+
+      request.onerror = () => {
+        reject(
+          request.error ||
+          new Error("Failed to retrieve image.")
+        );
+      };
+
+    });
+  }
+
 
   /* =========================
      JSON VALIDATION
@@ -265,7 +511,9 @@ document.addEventListener("DOMContentLoaded", () => {
       typeof note !== "object" ||
       Array.isArray(note)
     ) {
-      throw new Error("FAI returned an invalid note structure.");
+      throw new Error(
+        "FAI returned an invalid note structure."
+      );
     }
 
     if (
@@ -278,7 +526,9 @@ document.addEventListener("DOMContentLoaded", () => {
       !Array.isArray(note.sections) ||
       note.sections.length === 0
     ) {
-      throw new Error("FAI returned an incomplete note structure.");
+      throw new Error(
+        "FAI returned an incomplete note structure."
+      );
     }
 
     for (const section of note.sections) {
@@ -288,21 +538,27 @@ document.addEventListener("DOMContentLoaded", () => {
         typeof section.content !== "string" ||
         !section.content.trim()
       ) {
-        throw new Error("One of the generated sections is invalid.");
+        throw new Error(
+          "One of the generated sections is invalid."
+        );
       }
     }
 
     return true;
   }
 
+
   /* =========================
      STATUS
   ========================= */
 
   function showStatus(message, type = "info") {
+
     status.textContent = message;
     status.className = type;
+
   }
+
 
   /* =========================
      DISPLAY GENERATED NOTE
@@ -332,6 +588,7 @@ document.addEventListener("DOMContentLoaded", () => {
       content.textContent = section.content;
 
       item.append(heading, content);
+
       faiExtra.appendChild(item);
 
     });
@@ -344,6 +601,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+
   /* =========================
      GENERATE NOTE
   ========================= */
@@ -354,19 +612,28 @@ document.addEventListener("DOMContentLoaded", () => {
     const contentValue = noteContent.value.trim();
 
     if (!topicValue) {
-      showStatus("Please enter a topic.", "error");
+
+      showStatus(
+        "Please enter a topic.",
+        "error"
+      );
+
       return;
     }
 
     if (!contentValue && selectedFiles.length === 0) {
+
       showStatus(
         "Please paste your notes or upload a file.",
         "error"
       );
+
       return;
     }
 
+
     generateBtn.disabled = true;
+
     buttonText.textContent = "Sending to FAI...";
 
     showStatus(
@@ -376,12 +643,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     faiResult.hidden = true;
 
+
     try {
 
       const formData = new FormData();
 
       formData.append("topic", topicValue);
+
       formData.append("note_content", contentValue);
+
 
       /* Attach uploaded files */
 
@@ -394,9 +664,14 @@ document.addEventListener("DOMContentLoaded", () => {
           processedFile,
           processedFile.name
         );
+
       }
 
+
       buttonText.textContent = "Generating sections...";
+
+
+      /* Send to dedicated FAI endpoint */
 
       const response = await fetch(
         window.CONFIG.API_URL + "/fai-generate-notes",
@@ -406,16 +681,22 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       );
 
+
       const noteData = await response.json();
 
+
       if (!response.ok) {
+
         throw new Error(
           noteData.error ||
           "FAI could not process your materials."
         );
+
       }
 
+
       validateNote(noteData);
+
 
       buttonText.textContent = "Preparing note...";
 
@@ -423,6 +704,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "Preparing your study note...",
         "info"
       );
+
 
       /* =========================
          SAVE IMAGE REFERENCES
@@ -434,19 +716,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (file.type.startsWith("image/")) {
 
+          showStatus(
+            `Saving ${file.name}...`,
+            "info"
+          );
+
           const imageId = await saveImageToDB(file);
 
           noteFiles.push({
+
             id: imageId,
+
             name: file.name,
-            type: file.type,
+
+            type: "image/jpeg",
+
             size: file.size
+
           });
+
         }
+
       }
 
+
       /* =========================
-         USE FAI'S RETURNED STRUCTURE
+         CREATE COMPLETE NOTE
       ========================= */
 
       const generatedNote = {
@@ -457,47 +752,69 @@ document.addEventListener("DOMContentLoaded", () => {
 
       };
 
+
       /* =========================
-   SAVE GENERATED NOTE
-========================= */
+         SAVE FOR VIEW-NOTE
+      ========================= */
 
-const savedNote = JSON.stringify(generatedNote);
+      const savedNote = JSON.stringify(generatedNote);
 
-localStorage.setItem(
-  "viewing_note",
-  savedNote
-);
+      localStorage.setItem(
+        "viewing_note",
+        savedNote
+      );
 
-let account = {};
 
-try {
-  account = JSON.parse(
-    localStorage.getItem("faccount")
-  ) || {};
-} catch {
-  account = {};
-}
+      /* =========================
+         SAVE TO MY NOTES
+      ========================= */
 
-const notesKey = account.id
-  ? `myfstudynote_${account.id}`
-  : "myfstudynote";
+      let account = {};
 
-let myNotes = [];
+      try {
 
-try {
-  myNotes = JSON.parse(
-    localStorage.getItem(notesKey)
-  ) || [];
-} catch {
-  myNotes = [];
-}
+        account = JSON.parse(
+          localStorage.getItem("faccount")
+        ) || {};
 
-myNotes.push(generatedNote);
+      } catch {
 
-localStorage.setItem(
-  notesKey,
-  JSON.stringify(myNotes)
-);
+        account = {};
+
+      }
+
+
+      const notesKey = account.id
+        ? `myfstudynote_${account.id}`
+        : "myfstudynote";
+
+
+      let myNotes = [];
+
+      try {
+
+        myNotes = JSON.parse(
+          localStorage.getItem(notesKey)
+        ) || [];
+
+        if (!Array.isArray(myNotes)) {
+          myNotes = [];
+        }
+
+      } catch {
+
+        myNotes = [];
+
+      }
+
+
+      myNotes.push(generatedNote);
+
+      localStorage.setItem(
+        notesKey,
+        JSON.stringify(myNotes)
+      );
+
 
       /* =========================
          DISPLAY GENERATED NOTE
@@ -511,6 +828,7 @@ localStorage.setItem(
       );
 
       buttonText.textContent = "Generated successfully";
+
 
     } catch (error) {
 
@@ -526,10 +844,13 @@ localStorage.setItem(
       );
 
       generateBtn.disabled = false;
+
       buttonText.textContent = "Send to FAI";
+
     }
 
   });
+
 
   /* =========================
      CONTINUE TO NOTE
@@ -540,10 +861,12 @@ localStorage.setItem(
     const savedNote = localStorage.getItem("viewing_note");
 
     if (!savedNote) {
+
       showStatus(
         "Your generated note could not be found. Please generate it again.",
         "error"
       );
+
       return;
     }
 
