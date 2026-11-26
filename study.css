@@ -540,3 +540,71 @@ button {
   color: var(--grey);
   font-size: 20px;
 }
+
+/* STUDY NOTES ENTRY */
+
+#notes-entry {
+  width: 100%;
+  margin: 25px 0;
+}
+
+.notes-entry-link {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+
+  padding: 18px;
+
+  border: 1px solid rgba(29, 155, 240, 0.25);
+  border-radius: 16px;
+
+  background: rgba(29, 155, 240, 0.06);
+
+  text-decoration: none;
+  color: inherit;
+
+  transition: 0.25s ease;
+}
+
+.notes-entry-link:hover {
+  transform: translateY(-3px);
+  border-color: #1d9bf0;
+}
+
+.notes-entry-icon {
+  width: 48px;
+  height: 48px;
+
+  display: grid;
+  place-items: center;
+
+  flex-shrink: 0;
+
+  border-radius: 13px;
+
+  background: #1d9bf0;
+  color: white;
+
+  font-size: 25px;
+}
+
+.notes-entry-content {
+  flex: 1;
+}
+
+.notes-entry-content h3 {
+  margin: 0 0 5px;
+  font-size: 16px;
+}
+
+.notes-entry-content p {
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.7;
+  line-height: 1.5;
+}
+
+.notes-entry-arrow {
+  font-size: 23px;
+  color: #1d9bf0;
+}
