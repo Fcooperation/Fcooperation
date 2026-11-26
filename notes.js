@@ -260,23 +260,27 @@ document.addEventListener("DOMContentLoaded", () => {
       throw new Error("FAI returned an invalid note structure.");
     }
 
-    if (note.success !== true) {
-      throw new Error("FAI could not generate the note.");
+    if (
+      note.success !== true ||
+      typeof note.university !== "string" ||
+      typeof note.course !== "string" ||
+      typeof note.topic !== "string" ||
+      typeof note.title !== "string" ||
+      typeof note.uploaded_by !== "string" ||
+      !Array.isArray(note.sections) ||
+      note.sections.length === 0
+    ) {
+      throw new Error("FAI returned an incomplete note structure.");
     }
 
-    if (!Array.isArray(note.sessions) || note.sessions.length === 0) {
-      throw new Error("FAI did not return valid study sessions.");
-    }
-
-    for (const session of note.sessions) {
+    for (const section of note.sections) {
 
       if (
-        typeof session.session_number !== "number" ||
-        typeof session.title !== "string" ||
-        typeof session.content !== "string" ||
-        !session.content.trim()
+        typeof section.title !== "string" ||
+        typeof section.content !== "string" ||
+        !section.content.trim()
       ) {
-        throw new Error("One of the study sessions is invalid.");
+        throw new Error("One of the generated sections is invalid.");
       }
     }
 
@@ -312,6 +316,7 @@ document.addEventListener("DOMContentLoaded", () => {
       item.className = "fai-extra-item";
 
       const heading = document.createElement("strong");
+
       heading.textContent =
         `SECTION ${index + 1}: ${section.title}`;
 
@@ -370,7 +375,8 @@ document.addEventListener("DOMContentLoaded", () => {
       formData.append("topic", topicValue);
       formData.append("note_content", contentValue);
 
-      // Attach uploaded files.
+      /* Attach uploaded files */
+
       for (const file of selectedFiles) {
 
         const processedFile = await compressImage(file);
@@ -382,7 +388,7 @@ document.addEventListener("DOMContentLoaded", () => {
         );
       }
 
-      buttonText.textContent = "Generating sessions...";
+      buttonText.textContent = "Generating sections...";
 
       const response = await fetch(
         window.CONFIG.API_URL + "/fai-generate-notes",
@@ -406,7 +412,7 @@ document.addEventListener("DOMContentLoaded", () => {
       buttonText.textContent = "Preparing note...";
 
       showStatus(
-        "Preparing your study sessions...",
+        "Preparing your study note...",
         "info"
       );
 
@@ -432,40 +438,32 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       /* =========================
-         BUILD ADMIN-COMPATIBLE NOTE
+         USE FAI'S RETURNED STRUCTURE
       ========================= */
 
       const generatedNote = {
 
-        university: "Not specified",
-course: "Not specified",
-
-        topic: topicValue || null,
-
-        title: null,
-
-        uploaded_by: null,
-
-        sections: noteData.sessions.map(session => ({
-
-          title: session.title,
-
-          content: session.content
-
-        })),
+        ...noteData,
 
         files: noteFiles
 
       };
 
       /* =========================
-   SAVE GENERATED NOTE
-========================= */
+         SAVE GENERATED NOTE
+      ========================= */
 
-const savedNote = JSON.stringify(generatedNote);
+      const savedNote = JSON.stringify(generatedNote);
 
-localStorage.setItem("viewing_note", savedNote);
-localStorage.setItem("fStudyGeneratedNote", savedNote);
+      localStorage.setItem(
+        "viewing_note",
+        savedNote
+      );
+
+      localStorage.setItem(
+        "fStudyGeneratedNote",
+        savedNote
+      );
 
       /* =========================
          DISPLAY GENERATED NOTE
@@ -474,7 +472,7 @@ localStorage.setItem("fStudyGeneratedNote", savedNote);
       displayResult(generatedNote);
 
       showStatus(
-        "FAI successfully generated your study sessions.",
+        "FAI successfully generated your study note.",
         "success"
       );
 
@@ -500,23 +498,23 @@ localStorage.setItem("fStudyGeneratedNote", savedNote);
   });
 
   /* =========================
-   CONTINUE TO NOTE
-========================= */
+     CONTINUE TO NOTE
+  ========================= */
 
-continueBtn.addEventListener("click", () => {
+  continueBtn.addEventListener("click", () => {
 
-  const savedNote = localStorage.getItem("viewing_note");
+    const savedNote = localStorage.getItem("viewing_note");
 
-  if (!savedNote) {
-    showStatus(
-      "Your generated note could not be found. Please generate it again.",
-      "error"
-    );
-    return;
-  }
+    if (!savedNote) {
+      showStatus(
+        "Your generated note could not be found. Please generate it again.",
+        "error"
+      );
+      return;
+    }
 
-  location.href = "/view-note";
+    location.href = "/view-note";
 
-});
+  });
 
 });
