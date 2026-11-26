@@ -10,6 +10,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const generateBtn = document.getElementById("send-to-fai");
   const status = document.getElementById("status");
+  const faiResult = document.getElementById("fai-result");
+const faiJson = document.getElementById("fai-json");
+const faiExtra = document.getElementById("fai-extra");
+const continueBtn = document.getElementById("continue-to-note");
 
   let selectedFiles = [];
 
@@ -425,10 +429,43 @@ document.addEventListener("DOMContentLoaded", () => {
         JSON.stringify(generatedNote)
       );
 
-      showStatus("Your study note is ready!", "success");
+      // Display generated JSON
+faiJson.textContent = JSON.stringify(noteData, null, 2);
 
-      location.href = "/view-note";
+// Display additional fields returned by FAI
+faiExtra.innerHTML = "";
 
+for (const [key, value] of Object.entries(noteData)) {
+  if (
+    ["questions", "sections", "content", "topics"].includes(key)
+  ) {
+    continue;
+  }
+
+  const item = document.createElement("div");
+  item.className = "fai-extra-item";
+
+  const heading = document.createElement("strong");
+  heading.textContent = key.replace(/_/g, " ").toUpperCase();
+
+  const content = document.createElement("p");
+  content.textContent =
+    typeof value === "object"
+      ? JSON.stringify(value, null, 2)
+      : String(value ?? "");
+
+  item.append(heading, content);
+  faiExtra.appendChild(item);
+}
+
+faiResult.hidden = false;
+
+showStatus("FAI successfully generated your study note.", "success");
+
+faiResult.scrollIntoView({
+  behavior: "smooth",
+  block: "start"
+});
     } catch (error) {
 
       console.error("FStudy note generation error:", error);
@@ -442,5 +479,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
   });
+
+  continueBtn.addEventListener("click", () => {
+  location.href = "/view-note";
+});
 
 });

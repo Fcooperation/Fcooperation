@@ -99,18 +99,35 @@
       </div>
 
       <button type="button" id="send-to-fai">
-        <span>Send to FAI</span>
-        <span>→</span>
-      </button>
+  <span>Send to FAI</span>
+  <span>→</span>
+</button>
 
-      <p id="status" role="status"></p>
+<p id="status" role="status"></p>
 
-    </section>
+<!-- FAI RESPONSE -->
+<section id="fai-result" hidden>
 
-    <div class="privacy-note">
-      <span>✳</span>
-      Your study materials are prepared for FAI.
+  <div class="result-heading">
+    <div>
+      <p class="eyebrow">FAI RESPONSE</p>
+      <h2>Your generated study note</h2>
     </div>
+
+    <span id="result-status">COMPLETED</span>
+  </div>
+
+  <div id="fai-extra"></div>
+
+  <h3>Generated JSON</h3>
+
+  <pre id="fai-json"></pre>
+
+  <button type="button" id="continue-to-note">
+    Continue to study note →
+  </button>
+
+</section>
 
   </main>
 
