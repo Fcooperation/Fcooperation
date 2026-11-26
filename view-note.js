@@ -318,6 +318,250 @@ function containsEnglish(text) {
 
 }
 
+    
+/* =========================
+   FAI FIRST-TIME TUTORIAL
+========================= */
+
+let firstFaiButton = null;
+let firstFaiMenu = null;
+
+let faiTourActive = false;
+let faiTourOverlay = null;
+let faiTourTooltip = null;
+let currentTourTarget = null;
+
+
+/* =========================
+   GET USER TUTORIAL KEY
+========================= */
+
+function getFaiTutorialKey() {
+
+  let account = {};
+
+  try {
+    account = JSON.parse(
+      localStorage.getItem("faccount")
+    ) || {};
+  } catch {
+    account = {};
+  }
+
+  return account.id
+    ? `fstudy_view_note_tutorial_${account.id}`
+    : "fstudy_view_note_tutorial_guest";
+
+}
+
+
+/* =========================
+   CHECK COMPLETION
+========================= */
+
+function hasCompletedFaiTutorial() {
+
+  return (
+    localStorage.getItem(
+      getFaiTutorialKey()
+    ) === "completed"
+  );
+
+}
+
+
+/* =========================
+   CREATE TOUR OVERLAY
+========================= */
+
+function createFaiTourOverlay() {
+
+  faiTourOverlay =
+    document.createElement("div");
+
+  faiTourOverlay.className =
+    "fai-tour-overlay";
+
+  faiTourTooltip =
+    document.createElement("div");
+
+  faiTourTooltip.className =
+    "fai-tour-tooltip";
+
+  document.body.appendChild(
+    faiTourOverlay
+  );
+
+  document.body.appendChild(
+    faiTourTooltip
+  );
+
+}
+
+
+/* =========================
+   SHOW TOUR STEP
+========================= */
+
+function showFaiTourStep(
+  target,
+  step
+) {
+
+  if (!target) return;
+
+  if (!faiTourOverlay) {
+    createFaiTourOverlay();
+  }
+
+  if (currentTourTarget) {
+    currentTourTarget.classList.remove(
+      "fai-tour-highlight"
+    );
+  }
+
+  currentTourTarget = target;
+
+  target.scrollIntoView({
+    behavior: "smooth",
+    block: "center"
+  });
+
+  setTimeout(() => {
+
+    target.classList.add(
+      "fai-tour-highlight"
+    );
+
+    faiTourTooltip.innerHTML = "";
+
+    const heading =
+      document.createElement("h3");
+
+    const description =
+      document.createElement("p");
+
+    faiTourTooltip.appendChild(
+      heading
+    );
+
+    faiTourTooltip.appendChild(
+      description
+    );
+
+
+    /* =========================
+       STEP 1: ASK FAI BUTTON
+    ========================= */
+
+    if (step === 1) {
+
+      heading.textContent =
+        "Meet Your AI Study Assistant";
+
+      description.textContent =
+        "FAI helps you study smarter. It can summarize your lecture sessions, answer your questions, quiz you on what you've learned, and translate materials into English. Tap the highlighted Ask FAI button to explore these tools.";
+
+    }
+
+
+    /* =========================
+       STEP 2: FAI DASHBOARD
+    ========================= */
+
+    if (step === 2) {
+
+      heading.textContent =
+        "Your Study Tools Are Here!";
+
+      description.textContent =
+        "This is your FAI dashboard. Summarize simplifies the current session, Quiz Me tests your understanding, Ask FAI lets you ask questions about the material, and Translate to English helps you understand content written in another language. Choose the tool you need whenever you're studying.";
+
+      const finishBtn =
+        document.createElement("button");
+
+      finishBtn.type = "button";
+
+      finishBtn.className =
+        "fai-tour-finish";
+
+      finishBtn.textContent =
+        "Finish";
+
+      finishBtn.addEventListener(
+        "click",
+        finishFaiTutorial
+      );
+
+      faiTourTooltip.appendChild(
+        finishBtn
+      );
+
+    }
+
+  }, 450);
+
+}
+
+
+/* =========================
+   START TUTORIAL
+========================= */
+
+function startFaiTutorial() {
+
+  if (
+    hasCompletedFaiTutorial() ||
+    !firstFaiButton ||
+    !firstFaiMenu
+  ) {
+    return;
+  }
+
+  faiTourActive = true;
+
+  showFaiTourStep(
+    firstFaiButton,
+    1
+  );
+
+}
+
+
+/* =========================
+   FINISH TUTORIAL
+========================= */
+
+function finishFaiTutorial() {
+
+  localStorage.setItem(
+    getFaiTutorialKey(),
+    "completed"
+  );
+
+  faiTourActive = false;
+
+  if (currentTourTarget) {
+    currentTourTarget.classList.remove(
+      "fai-tour-highlight"
+    );
+  }
+
+  if (faiTourOverlay) {
+    faiTourOverlay.remove();
+    faiTourOverlay = null;
+  }
+
+  if (faiTourTooltip) {
+    faiTourTooltip.remove();
+    faiTourTooltip = null;
+  }
+
+  currentTourTarget = null;
+
+}
+
+
     /* =========================
        LOAD NOTE
     ========================= */
@@ -948,7 +1192,15 @@ translateBtn.addEventListener(
         );
 
       }
+if (orderedSections.length) {
 
+  setTimeout(() => {
+
+    startFaiTutorial();
+
+  }, 700);
+
+}
     }
 
 /* =========================
