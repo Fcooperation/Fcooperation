@@ -2199,7 +2199,7 @@ const FSTUDY_DB_NAME =
   "fstudy_files";
 
 const FSTUDY_DB_VERSION =
-  1;
+  2;
 
 const FSTUDY_STORE =
   "images";
