@@ -202,9 +202,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const db = request.result;
 
         if (!db.objectStoreNames.contains(FSTUDY_STORE)) {
-          db.createObjectStore(FSTUDY_STORE, {
-  keyPath: "id"
-});
+          db.createObjectStore(FSTUDY_STORE);
         }
       };
 
