@@ -202,7 +202,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const db = request.result;
 
         if (!db.objectStoreNames.contains(FSTUDY_STORE)) {
-          db.createObjectStore(FSTUDY_STORE);
+          db.createObjectStore(FSTUDY_STORE, {
+  keyPath: "id"
+});
         }
       };
 
@@ -213,37 +215,45 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function saveImageToDB(file) {
+  const db = await openFstudyDB();
 
-    const db = await openFstudyDB();
-    const compressed = await compressImage(file);
+  const imageId =
+    "IMG-" +
+    Date.now() +
+    "-" +
+    Math.random().toString(36).slice(2, 8);
 
-    const imageId =
-      "img_" + Date.now() + "_" +
-      Math.floor(Math.random() * 100000);
+  const compressed = await compressImage(file);
 
-    return new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(
+      FSTUDY_STORE,
+      "readwrite"
+    );
 
-      const transaction = db.transaction(
-        FSTUDY_STORE,
-        "readwrite"
-      );
+    const store = transaction.objectStore(FSTUDY_STORE);
 
-      transaction.objectStore(FSTUDY_STORE).put(
-        compressed,
-        imageId
-      );
-
-      transaction.oncomplete = () => {
-        db.close();
-        resolve(imageId);
-      };
-
-      transaction.onerror = () => {
-        db.close();
-        reject(transaction.error);
-      };
-
+    store.put({
+      id: imageId,
+      name: file.name,
+      type: compressed.type || file.type,
+      size: compressed.size,
+      file: compressed,
+      createdAt: Date.now()
     });
+
+    transaction.oncomplete = () => {
+      resolve(imageId);
+    };
+
+    transaction.onerror = () => {
+      reject(transaction.error);
+    };
+
+    transaction.onabort = () => {
+      reject(transaction.error);
+    };
+  });
   }
 
   /* =========================
