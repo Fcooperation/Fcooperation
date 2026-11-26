@@ -879,6 +879,18 @@ return;
           faiMenu.className =
             "fai-menu hidden";
 
+        /* =========================
+   REGISTER FIRST FAI MENU
+========================= */
+
+if (index === 0) {
+
+  firstFaiButton = askFaiBtn;
+
+  firstFaiMenu = faiMenu;
+
+}
+
 /* =========================
    FAI CANCEL BUTTON
 ========================= */
@@ -1038,16 +1050,32 @@ faiMenu.appendChild(
 
     if (isOpening) {
 
+  setTimeout(() => {
+
+    faiMenu.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest"
+    });
+
+    if (
+      faiTourActive &&
+      askFaiBtn === firstFaiButton
+    ) {
+
       setTimeout(() => {
 
-        faiMenu.scrollIntoView({
-          behavior: "smooth",
-          block: "nearest"
-        });
+        showFaiTourStep(
+          firstFaiMenu,
+          2
+        );
 
-      }, 50);
+      }, 500);
 
     }
+
+  }, 50);
+
+}
 
   }
 );
