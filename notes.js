@@ -454,21 +454,48 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
 
-      /* =========================
-         GENERATED NOTE
-      ========================= */
+      
+/* =========================
+   GENERATED NOTE
+========================= */
 
-      const generatedNote = {
-        ...noteData,
-        topic: topicValue,
-        files: noteFiles,
-        created_at: new Date().toISOString()
-      };
+// Convert FAI sessions into the sections
+// format used by the admin notes.
 
-      localStorage.setItem(
-        "fStudyGeneratedNote",
-        JSON.stringify(generatedNote)
-      );
+const generatedNote = {
+
+  university: null,
+
+  course: null,
+
+  topic: topicValue || null,
+
+  title: null,
+
+  uploaded_by: null,
+
+  sections: noteData.sessions.map(session => ({
+
+    title: session.title,
+
+    content: session.content
+
+  })),
+
+  files: noteFiles
+
+};
+
+
+/* =========================
+   SAVE GENERATED NOTE
+========================= */
+
+localStorage.setItem(
+  "fStudyGeneratedNote",
+  JSON.stringify(generatedNote)
+);
+
 
       /* =========================
          DISPLAY RESULT
