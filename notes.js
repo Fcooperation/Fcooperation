@@ -437,9 +437,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const generatedNote = {
 
-        university: null,
-
-        course: null,
+        university: "Not specified",
+course: "Not specified",
 
         topic: topicValue || null,
 
@@ -460,13 +459,13 @@ document.addEventListener("DOMContentLoaded", () => {
       };
 
       /* =========================
-         SAVE GENERATED NOTE
-      ========================= */
+   SAVE GENERATED NOTE
+========================= */
 
-      localStorage.setItem(
-        "fStudyGeneratedNote",
-        JSON.stringify(generatedNote)
-      );
+const savedNote = JSON.stringify(generatedNote);
+
+localStorage.setItem("viewing_note", savedNote);
+localStorage.setItem("fStudyGeneratedNote", savedNote);
 
       /* =========================
          DISPLAY GENERATED NOTE
@@ -501,11 +500,23 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   /* =========================
-     CONTINUE TO NOTE
-  ========================= */
+   CONTINUE TO NOTE
+========================= */
 
-  continueBtn.addEventListener("click", () => {
-    location.href = "/view-note";
-  });
+continueBtn.addEventListener("click", () => {
+
+  const savedNote = localStorage.getItem("viewing_note");
+
+  if (!savedNote) {
+    showStatus(
+      "Your generated note could not be found. Please generate it again.",
+      "error"
+    );
+    return;
+  }
+
+  location.href = "/view-note";
+
+});
 
 });
