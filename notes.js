@@ -450,20 +450,46 @@ document.addEventListener("DOMContentLoaded", () => {
       };
 
       /* =========================
-         SAVE GENERATED NOTE
-      ========================= */
+   SAVE GENERATED NOTE
+========================= */
 
-      const savedNote = JSON.stringify(generatedNote);
+const savedNote = JSON.stringify(generatedNote);
 
-      localStorage.setItem(
-        "viewing_note",
-        savedNote
-      );
+localStorage.setItem(
+  "viewing_note",
+  savedNote
+);
 
-      localStorage.setItem(
-        "fStudyGeneratedNote",
-        savedNote
-      );
+let account = {};
+
+try {
+  account = JSON.parse(
+    localStorage.getItem("faccount")
+  ) || {};
+} catch {
+  account = {};
+}
+
+const notesKey = account.id
+  ? `myfstudynote_${account.id}`
+  : "myfstudynote";
+
+let myNotes = [];
+
+try {
+  myNotes = JSON.parse(
+    localStorage.getItem(notesKey)
+  ) || [];
+} catch {
+  myNotes = [];
+}
+
+myNotes.push(generatedNote);
+
+localStorage.setItem(
+  notesKey,
+  JSON.stringify(myNotes)
+);
 
       /* =========================
          DISPLAY GENERATED NOTE
