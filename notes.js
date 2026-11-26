@@ -49,11 +49,11 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   function addFiles(files) {
+
     const allowedTypes = [
       "image/jpeg",
       "image/png",
       "image/webp",
-      "image/gif",
       "application/pdf",
       "text/plain"
     ];
@@ -61,12 +61,18 @@ document.addEventListener("DOMContentLoaded", () => {
     for (const file of files) {
 
       if (!allowedTypes.includes(file.type)) {
-        showStatus(`${file.name} has an unsupported format.`, "error");
+        showStatus(
+          `${file.name} has an unsupported format.`,
+          "error"
+        );
         continue;
       }
 
       if (file.size > 10 * 1024 * 1024) {
-        showStatus(`${file.name} is larger than 10MB.`, "error");
+        showStatus(
+          `${file.name} is larger than 10MB.`,
+          "error"
+        );
         continue;
       }
 
@@ -85,6 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderFiles() {
+
     fileList.innerHTML = "";
 
     selectedFiles.forEach((file, index) => {
@@ -120,7 +127,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function compressImage(file) {
 
-    if (!file.type.startsWith("image/") || file.type === "image/gif") {
+    if (!file.type.startsWith("image/")) {
       return file;
     }
 
@@ -141,6 +148,7 @@ document.addEventListener("DOMContentLoaded", () => {
       let height = image.height;
 
       if (width > maxSize || height > maxSize) {
+
         const ratio = Math.min(
           maxSize / width,
           maxSize / height
@@ -239,38 +247,41 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* =========================
-     JSON CLEANING
-  ========================= */
-
-  function cleanJson(answer) {
-
-    let cleaned = answer.trim();
-
-    cleaned = cleaned.replace(/^```(?:json)?\s*/i, "");
-    cleaned = cleaned.replace(/\s*```$/, "");
-
-    const firstBrace = cleaned.indexOf("{");
-    const lastBrace = cleaned.lastIndexOf("}");
-
-    if (firstBrace !== -1 && lastBrace !== -1) {
-      cleaned = cleaned.slice(firstBrace, lastBrace + 1);
-    }
-
-    return cleaned;
-  }
-
-  /* =========================
      JSON VALIDATION
   ========================= */
 
   function validateNote(note) {
 
-    if (!note || typeof note !== "object" || Array.isArray(note)) {
+    if (
+      !note ||
+      typeof note !== "object" ||
+      Array.isArray(note)
+    ) {
       throw new Error("FAI returned an invalid note structure.");
     }
 
-    if (!Object.keys(note).length) {
-      throw new Error("The generated note is empty.");
+    if (note.success !== true) {
+      throw new Error("FAI could not generate the note.");
+    }
+
+    if (!Array.isArray(note.sessions)) {
+      throw new Error("FAI did not return valid study sessions.");
+    }
+
+    if (note.sessions.length === 0) {
+      throw new Error("No study sessions were generated.");
+    }
+
+    for (const session of note.sessions) {
+
+      if (
+        typeof session.session_number !== "number" ||
+        typeof session.title !== "string" ||
+        typeof session.content !== "string" ||
+        !session.content.trim()
+      ) {
+        throw new Error("One of the study sessions is invalid.");
+      }
     }
 
     return true;
@@ -295,29 +306,41 @@ document.addEventListener("DOMContentLoaded", () => {
 
     faiExtra.innerHTML = "";
 
-    for (const [key, value] of Object.entries(noteData)) {
-
-      if (
-        ["questions", "sections", "content", "topics"].includes(key)
-      ) {
-        continue;
-      }
+    // Display sessions separately.
+    noteData.sessions.forEach(session => {
 
       const item = document.createElement("div");
       item.className = "fai-extra-item";
 
       const heading = document.createElement("strong");
 
-      heading.textContent = key
-        .replace(/_/g, " ")
-        .toUpperCase();
+      heading.textContent =
+        `SESSION ${session.session_number}: ${session.title}`;
+
+      const content = document.createElement("p");
+
+      content.textContent = session.content;
+
+      item.append(heading, content);
+      faiExtra.appendChild(item);
+    });
+
+    // Display unreadable content if any.
+    if (
+      Array.isArray(noteData.unreadable_content) &&
+      noteData.unreadable_content.length
+    ) {
+
+      const item = document.createElement("div");
+      item.className = "fai-extra-item";
+
+      const heading = document.createElement("strong");
+      heading.textContent = "UNREADABLE CONTENT";
 
       const content = document.createElement("p");
 
       content.textContent =
-        typeof value === "object"
-          ? JSON.stringify(value, null, 2)
-          : String(value ?? "");
+        noteData.unreadable_content.join("\n");
 
       item.append(heading, content);
       faiExtra.appendChild(item);
@@ -346,36 +369,31 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (!contentValue && selectedFiles.length === 0) {
-      showStatus("Please paste your notes or upload a file.", "error");
+      showStatus(
+        "Please paste your notes or upload a file.",
+        "error"
+      );
       return;
     }
 
     generateBtn.disabled = true;
     buttonText.textContent = "Sending to FAI...";
 
-    showStatus("FAI is studying your materials...", "info");
+    showStatus(
+      "FAI is studying your materials...",
+      "info"
+    );
 
     faiResult.hidden = true;
 
     try {
 
-      const university =
-        localStorage.getItem("studying_uni") || "";
-
-      const universityData = JSON.parse(
-        localStorage.getItem("studying_uni_data") || "{}"
-      );
-
       const formData = new FormData();
 
-      formData.append("university", university);
-      formData.append("course", "");
       formData.append("topic", topicValue);
-      formData.append("title", topicValue);
-      formData.append("uploaded_by", "Student");
       formData.append("note_content", contentValue);
-      formData.append("mode", "generate_note");
 
+      // Attach uploaded files.
       for (const file of selectedFiles) {
 
         const processedFile = await compressImage(file);
@@ -387,109 +405,33 @@ document.addEventListener("DOMContentLoaded", () => {
         );
       }
 
+      buttonText.textContent = "Generating sessions...";
+
       const response = await fetch(
-        window.CONFIG.API_URL + "/fai",
+        window.CONFIG.API_URL + "/fai-generate-notes",
         {
           method: "POST",
           body: formData
         }
       );
 
+      const noteData = await response.json();
+
       if (!response.ok) {
-        throw new Error("FAI could not process your materials.");
+        throw new Error(
+          noteData.error ||
+          "FAI could not process your materials."
+        );
       }
 
-      if (!response.body) {
-        throw new Error("FAI returned an unreadable response.");
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-
-      let answer = "";
-      let buffer = "";
-
-      while (true) {
-
-        const { value, done } = await reader.read();
-
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-
-        const lines = buffer.split("\n");
-
-        buffer = lines.pop() || "";
-
-        for (const line of lines) {
-
-          if (!line.startsWith("data:")) continue;
-
-          const rawData = line.slice(5).trim();
-
-          if (!rawData) continue;
-
-          let event;
-
-          try {
-            event = JSON.parse(rawData);
-          } catch {
-            continue;
-          }
-
-          if (event.type === "chunk") {
-            answer += event.text || "";
-          }
-
-          if (event.type === "error") {
-            throw new Error(
-              event.message || "FAI generation failed."
-            );
-          }
-        }
-      }
-
-      // Process any final event left in the buffer
-      if (buffer.trim().startsWith("data:")) {
-
-        const rawData = buffer.trim().slice(5).trim();
-
-        if (rawData) {
-
-          try {
-
-            const event = JSON.parse(rawData);
-
-            if (event.type === "chunk") {
-              answer += event.text || "";
-            }
-
-            if (event.type === "error") {
-              throw new Error(
-                event.message || "FAI generation failed."
-              );
-            }
-
-          } catch (error) {
-
-            if (error.message === "FAI generation failed.") {
-              throw error;
-            }
-          }
-        }
-      }
-
-      if (!answer.trim()) {
-        throw new Error("FAI returned an empty response.");
-      }
+      validateNote(noteData);
 
       buttonText.textContent = "Preparing note...";
 
-      showStatus("Preparing your study note...", "info");
-
-      const noteData = JSON.parse(cleanJson(answer));
-
-      validateNote(noteData);
+      showStatus(
+        "Preparing your study sessions...",
+        "info"
+      );
 
       /* =========================
          SAVE IMAGE REFERENCES
@@ -518,8 +460,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const generatedNote = {
         ...noteData,
-        university: university,
-        university_data: universityData,
         topic: topicValue,
         files: noteFiles,
         created_at: new Date().toISOString()
@@ -537,7 +477,7 @@ document.addEventListener("DOMContentLoaded", () => {
       displayResult(noteData);
 
       showStatus(
-        "FAI successfully generated your study note.",
+        "FAI successfully generated your study sessions.",
         "success"
       );
 
@@ -545,10 +485,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     } catch (error) {
 
-      console.error("FStudy note generation error:", error);
+      console.error(
+        "FStudy note generation error:",
+        error
+      );
 
       showStatus(
-        error.message || "Something went wrong. Please try again.",
+        error.message ||
+        "Something went wrong. Please try again.",
         "error"
       );
 
