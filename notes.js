@@ -264,12 +264,8 @@ document.addEventListener("DOMContentLoaded", () => {
       throw new Error("FAI could not generate the note.");
     }
 
-    if (!Array.isArray(note.sessions)) {
+    if (!Array.isArray(note.sessions) || note.sessions.length === 0) {
       throw new Error("FAI did not return valid study sessions.");
-    }
-
-    if (note.sessions.length === 0) {
-      throw new Error("No study sessions were generated.");
     }
 
     for (const session of note.sessions) {
@@ -297,54 +293,35 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* =========================
-     DISPLAY FAI RESPONSE
+     DISPLAY GENERATED NOTE
   ========================= */
 
-  function displayResult(noteData) {
+  function displayResult(generatedNote) {
 
-    faiJson.textContent = JSON.stringify(noteData, null, 2);
+    faiJson.textContent = JSON.stringify(
+      generatedNote,
+      null,
+      2
+    );
 
     faiExtra.innerHTML = "";
 
-    // Display sessions separately.
-    noteData.sessions.forEach(session => {
+    generatedNote.sections.forEach((section, index) => {
 
       const item = document.createElement("div");
       item.className = "fai-extra-item";
 
       const heading = document.createElement("strong");
-
       heading.textContent =
-        `SESSION ${session.session_number}: ${session.title}`;
+        `SECTION ${index + 1}: ${section.title}`;
 
       const content = document.createElement("p");
-
-      content.textContent = session.content;
+      content.textContent = section.content;
 
       item.append(heading, content);
       faiExtra.appendChild(item);
+
     });
-
-    // Display unreadable content if any.
-    if (
-      Array.isArray(noteData.unreadable_content) &&
-      noteData.unreadable_content.length
-    ) {
-
-      const item = document.createElement("div");
-      item.className = "fai-extra-item";
-
-      const heading = document.createElement("strong");
-      heading.textContent = "UNREADABLE CONTENT";
-
-      const content = document.createElement("p");
-
-      content.textContent =
-        noteData.unreadable_content.join("\n");
-
-      item.append(heading, content);
-      faiExtra.appendChild(item);
-    }
 
     faiResult.hidden = false;
 
@@ -454,54 +431,48 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
 
-      
-/* =========================
-   GENERATED NOTE
-========================= */
-
-// Convert FAI sessions into the sections
-// format used by the admin notes.
-
-const generatedNote = {
-
-  university: null,
-
-  course: null,
-
-  topic: topicValue || null,
-
-  title: null,
-
-  uploaded_by: null,
-
-  sections: noteData.sessions.map(session => ({
-
-    title: session.title,
-
-    content: session.content
-
-  })),
-
-  files: noteFiles
-
-};
-
-
-/* =========================
-   SAVE GENERATED NOTE
-========================= */
-
-localStorage.setItem(
-  "fStudyGeneratedNote",
-  JSON.stringify(generatedNote)
-);
-
-
       /* =========================
-         DISPLAY RESULT
+         BUILD ADMIN-COMPATIBLE NOTE
       ========================= */
 
-      displayResult(noteData);
+      const generatedNote = {
+
+        university: null,
+
+        course: null,
+
+        topic: topicValue || null,
+
+        title: null,
+
+        uploaded_by: null,
+
+        sections: noteData.sessions.map(session => ({
+
+          title: session.title,
+
+          content: session.content
+
+        })),
+
+        files: noteFiles
+
+      };
+
+      /* =========================
+         SAVE GENERATED NOTE
+      ========================= */
+
+      localStorage.setItem(
+        "fStudyGeneratedNote",
+        JSON.stringify(generatedNote)
+      );
+
+      /* =========================
+         DISPLAY GENERATED NOTE
+      ========================= */
+
+      displayResult(generatedNote);
 
       showStatus(
         "FAI successfully generated your study sessions.",
