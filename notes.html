@@ -1,0 +1,120 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta name="description" content="Upload your lecture notes and study smarter with FAI.">
+
+  <title>Study Notes | FStudy</title>
+
+  <link rel="stylesheet" href="notes.css">
+  <link rel="icon" type="image/png" href="/favicon.png">
+</head>
+
+<body>
+
+  <header id="top-bar">
+    <a href="study.html" class="logo">
+      FSTUDY<span>.</span>
+    </a>
+
+    <span class="header-label">STUDY NOTES</span>
+  </header>
+
+  <main class="notes-main">
+
+    <section class="intro">
+      <p class="eyebrow">YOUR PERSONAL STUDY SPACE</p>
+
+      <h1>Let's get <span>studying.</span></h1>
+
+      <p>
+        Add your lecture materials and let FAI
+        help you understand them better.
+      </p>
+    </section>
+
+    <section class="notes-card">
+
+      <div class="section-heading">
+        <div>
+          <h2>Your study material</h2>
+          <p>Start by telling us what you're studying.</p>
+        </div>
+
+        <span class="step-label">01 / INPUT</span>
+      </div>
+
+      <label for="topic">TOPIC</label>
+
+      <input
+        type="text"
+        id="topic"
+        placeholder="e.g. Introduction to Biology"
+        autocomplete="off"
+      >
+
+      <label for="note-content">PASTE YOUR NOTES</label>
+
+      <textarea
+        id="note-content"
+        placeholder="Paste your lecture notes here..."
+      ></textarea>
+
+      <div class="input-divider">
+        <span>OR ADD FILES</span>
+      </div>
+
+      <label for="note-files" class="upload-area" id="upload-area">
+
+        <div class="upload-icon">↑</div>
+
+        <h3>Drop your files here</h3>
+
+        <p>
+          Or <span>browse files</span> from your device
+        </p>
+
+        <small>
+          Images, PDF and text files supported
+        </small>
+
+        <input
+          type="file"
+          id="note-files"
+          accept="image/*,.pdf,.txt"
+          multiple
+          hidden
+        >
+
+      </label>
+
+      <div id="file-list"></div>
+
+      <div class="input-footer">
+        <span id="file-count">No files selected</span>
+        <span>Private study workspace</span>
+      </div>
+
+      <button type="button" id="send-to-fai">
+        <span>Send to FAI</span>
+        <span>→</span>
+      </button>
+
+      <p id="status" role="status"></p>
+
+    </section>
+
+    <div class="privacy-note">
+      <span>✳</span>
+      Your study materials are prepared for FAI.
+    </div>
+
+  </main>
+
+  <script src="notes.js"></script>
+
+</body>
+</html>
