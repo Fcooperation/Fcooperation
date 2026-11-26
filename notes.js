@@ -1,4 +1,3 @@
-
 document.addEventListener("DOMContentLoaded", () => {
 
   const topic = document.getElementById("topic");
@@ -7,30 +6,42 @@ document.addEventListener("DOMContentLoaded", () => {
   const fileInput = document.getElementById("note-files");
   const uploadArea = document.getElementById("upload-area");
   const fileList = document.getElementById("file-list");
-
   const fileCount = document.getElementById("file-count");
-  const sendButton = document.getElementById("send-to-fai");
+
+  const generateBtn = document.getElementById("send-to-fai");
   const status = document.getElementById("status");
 
   let selectedFiles = [];
 
-  const MAX_FILE_SIZE = 10 * 1024 * 1024;
+  const FSTUDY_DB_NAME = "fstudy_files";
+  const FSTUDY_DB_VERSION = 1;
+  const FSTUDY_STORE = "images";
 
-  function showStatus(message, error = false) {
-    status.textContent = message;
-    status.style.display = "block";
-    status.style.color = error ? "#c62828" : "#159bd3";
-  }
+  /* =========================
+     FILE HANDLING
+  ========================= */
 
-  function formatSize(bytes) {
-    if (bytes < 1024 * 1024) {
-      return (bytes / 1024).toFixed(1) + " KB";
-    }
+  fileInput.addEventListener("change", () => {
+    addFiles(fileInput.files);
+    fileInput.value = "";
+  });
 
-    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
-  }
+  uploadArea.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    uploadArea.classList.add("dragging");
+  });
 
-  function isSupported(file) {
+  uploadArea.addEventListener("dragleave", () => {
+    uploadArea.classList.remove("dragging");
+  });
+
+  uploadArea.addEventListener("drop", (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove("dragging");
+    addFiles(e.dataTransfer.files);
+  });
+
+  function addFiles(files) {
     const allowedTypes = [
       "image/jpeg",
       "image/png",
@@ -40,190 +51,394 @@ document.addEventListener("DOMContentLoaded", () => {
       "text/plain"
     ];
 
-    return allowedTypes.includes(file.type);
-  }
+    for (const file of files) {
+      if (!allowedTypes.includes(file.type)) continue;
 
-  function addFiles(files) {
-    [...files].forEach(file => {
-
-      if (!isSupported(file)) {
-        showStatus(`${file.name} is not supported.`, true);
-        return;
+      if (file.size > 10 * 1024 * 1024) {
+        showStatus(`${file.name} is larger than 10MB.`, "error");
+        continue;
       }
 
-      if (file.size > MAX_FILE_SIZE) {
-        showStatus(`${file.name} exceeds 10MB.`, true);
-        return;
-      }
-
-      const duplicate = selectedFiles.some(existing =>
-        existing.name === file.name &&
-        existing.size === file.size &&
-        existing.lastModified === file.lastModified
+      const duplicate = selectedFiles.some(
+        existing =>
+          existing.name === file.name &&
+          existing.size === file.size
       );
 
       if (!duplicate) {
         selectedFiles.push(file);
       }
-
-    });
+    }
 
     renderFiles();
   }
 
   function renderFiles() {
-    fileList.replaceChildren();
-
-    fileCount.textContent =
-      selectedFiles.length === 0
-        ? "No files selected"
-        : `${selectedFiles.length} file(s) selected`;
+    fileList.innerHTML = "";
 
     selectedFiles.forEach((file, index) => {
-
       const item = document.createElement("div");
+
       item.className = "file-item";
 
-      const info = document.createElement("div");
-      info.className = "file-info";
+      item.innerHTML = `
+        <span>${escapeHTML(file.name)}</span>
+        <button type="button" data-index="${index}">×</button>
+      `;
 
-      const name = document.createElement("span");
-      name.className = "file-name";
-      name.textContent = file.name;
-
-      const size = document.createElement("span");
-      size.className = "file-size";
-      size.textContent = formatSize(file.size);
-
-      info.append(name, size);
-
-      const remove = document.createElement("button");
-      remove.type = "button";
-      remove.className = "remove-file";
-      remove.textContent = "×";
-      remove.setAttribute("aria-label", "Remove " + file.name);
-
-      remove.addEventListener("click", () => {
+      item.querySelector("button").addEventListener("click", () => {
         selectedFiles.splice(index, 1);
         renderFiles();
       });
 
-      item.append(info, remove);
       fileList.appendChild(item);
-
     });
+
+    fileCount.textContent = selectedFiles.length;
   }
 
-  fileInput.addEventListener("change", event => {
-    addFiles(event.target.files);
-    fileInput.value = "";
-  });
+  function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;"
+    })[char]);
+  }
 
-  ["dragenter", "dragover"].forEach(eventName => {
-    uploadArea.addEventListener(eventName, event => {
-      event.preventDefault();
-      uploadArea.classList.add("dragover");
-    });
-  });
+  /* =========================
+     IMAGE COMPRESSION
+  ========================= */
 
-  ["dragleave", "drop"].forEach(eventName => {
-    uploadArea.addEventListener(eventName, event => {
-      event.preventDefault();
-      uploadArea.classList.remove("dragover");
-    });
-  });
+  async function compressImage(file) {
+    if (!file.type.startsWith("image/") || file.type === "image/gif") {
+      return file;
+    }
 
-  uploadArea.addEventListener("drop", event => {
-    addFiles(event.dataTransfer.files);
-  });
+    const image = new Image();
 
-  function readFile(file) {
+    const imageURL = URL.createObjectURL(file);
+
+    try {
+      await new Promise((resolve, reject) => {
+        image.onload = resolve;
+        image.onerror = reject;
+        image.src = imageURL;
+      });
+
+      const maxSize = 2000;
+
+      let width = image.width;
+      let height = image.height;
+
+      if (width > maxSize || height > maxSize) {
+        const ratio = Math.min(
+          maxSize / width,
+          maxSize / height
+        );
+
+        width *= ratio;
+        height *= ratio;
+      }
+
+      const canvas = document.createElement("canvas");
+
+      canvas.width = width;
+      canvas.height = height;
+
+      const context = canvas.getContext("2d");
+
+      context.drawImage(image, 0, 0, width, height);
+
+      const blob = await new Promise(resolve => {
+        canvas.toBlob(resolve, "image/jpeg", 0.82);
+      });
+
+      if (!blob) return file;
+
+      return new File(
+        [blob],
+        file.name.replace(/\.[^.]+$/, ".jpg"),
+        { type: "image/jpeg" }
+      );
+
+    } finally {
+      URL.revokeObjectURL(imageURL);
+    }
+  }
+
+  /* =========================
+     INDEXED DB
+  ========================= */
+
+  function openFstudyDB() {
     return new Promise((resolve, reject) => {
+      const request = indexedDB.open(
+        FSTUDY_DB_NAME,
+        FSTUDY_DB_VERSION
+      );
 
-      const reader = new FileReader();
+      request.onupgradeneeded = () => {
+        const db = request.result;
 
-      reader.onload = () => {
-        resolve({
-          name: file.name,
-          type: file.type,
-          size: file.size,
-          data: reader.result
-        });
+        if (!db.objectStoreNames.contains(FSTUDY_STORE)) {
+          db.createObjectStore(FSTUDY_STORE);
+        }
       };
 
-      reader.onerror = () => {
-        reject(new Error("Could not read " + file.name));
-      };
-
-      reader.readAsDataURL(file);
-
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
     });
   }
 
-  sendButton.addEventListener("click", async () => {
+  async function saveImageToDB(file) {
+    const db = await openFstudyDB();
+
+    const compressed = await compressImage(file);
+
+    const imageId =
+      "img_" + Date.now() + "_" +
+      Math.floor(Math.random() * 100000);
+
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(
+        FSTUDY_STORE,
+        "readwrite"
+      );
+
+      transaction.objectStore(FSTUDY_STORE).put(
+        compressed,
+        imageId
+      );
+
+      transaction.oncomplete = () => {
+        db.close();
+        resolve(imageId);
+      };
+
+      transaction.onerror = () => {
+        db.close();
+        reject(transaction.error);
+      };
+    });
+  }
+
+  /* =========================
+     JSON CLEANING
+  ========================= */
+
+  function cleanJson(answer) {
+    let cleaned = answer.trim();
+
+    cleaned = cleaned.replace(/^```(?:json)?\s*/i, "");
+    cleaned = cleaned.replace(/\s*```$/, "");
+
+    const firstBrace = cleaned.indexOf("{");
+    const lastBrace = cleaned.lastIndexOf("}");
+
+    if (firstBrace !== -1 && lastBrace !== -1) {
+      cleaned = cleaned.slice(firstBrace, lastBrace + 1);
+    }
+
+    return cleaned;
+  }
+
+  /* =========================
+     JSON VALIDATION
+  ========================= */
+
+  function validateNote(note) {
+    if (!note || typeof note !== "object" || Array.isArray(note)) {
+      throw new Error("FAI returned an invalid note structure.");
+    }
+
+    if (!Object.keys(note).length) {
+      throw new Error("The generated note is empty.");
+    }
+
+    return true;
+  }
+
+  /* =========================
+     STATUS
+  ========================= */
+
+  function showStatus(message, type = "info") {
+    status.textContent = message;
+    status.className = "status " + type;
+  }
+
+  /* =========================
+     GENERATE NOTE
+  ========================= */
+
+  generateBtn.addEventListener("click", async () => {
 
     const topicValue = topic.value.trim();
     const contentValue = noteContent.value.trim();
 
     if (!topicValue) {
-      showStatus("Please enter the topic.", true);
-      topic.focus();
+      showStatus("Please enter a topic.", "error");
       return;
     }
 
     if (!contentValue && selectedFiles.length === 0) {
-      showStatus("Paste your notes or select a file.", true);
+      showStatus("Please paste your notes or upload a file.", "error");
       return;
     }
 
-    sendButton.disabled = true;
+    generateBtn.disabled = true;
 
-    const buttonText =
-      sendButton.querySelector("span:first-child");
-
-    if (buttonText) {
-      buttonText.textContent = "Preparing materials...";
-    }
+    showStatus("FAI is studying your materials...", "info");
 
     try {
 
-      const files = [];
+      const university =
+        localStorage.getItem("studying_uni") || "";
+
+      const universityData =
+        JSON.parse(
+          localStorage.getItem("studying_uni_data") || "{}"
+        );
+
+      const formData = new FormData();
+
+      formData.append("university", university);
+      formData.append("course", "");
+      formData.append("topic", topicValue);
+      formData.append("title", topicValue);
+      formData.append("uploaded_by", "Student");
+      formData.append("note_content", contentValue);
+      formData.append("mode", "generate_note");
 
       for (const file of selectedFiles) {
-        files.push(await readFile(file));
+        const processedFile = await compressImage(file);
+
+        formData.append(
+          "files",
+          processedFile,
+          processedFile.name
+        );
       }
 
-      const noteInput = {
-        mode: "student_note",
+      const response = await fetch(
+        window.CONFIG.API_URL + "/fai",
+        {
+          method: "POST",
+          body: formData
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("FAI could not process your materials.");
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+
+      let answer = "";
+      let buffer = "";
+
+      while (true) {
+        const { value, done } = await reader.read();
+
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+
+        const lines = buffer.split("\n");
+
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data:")) continue;
+
+          const rawData = line.slice(5).trim();
+
+          if (!rawData) continue;
+
+          let event;
+
+          try {
+            event = JSON.parse(rawData);
+          } catch {
+            continue;
+          }
+
+          if (event.type === "chunk") {
+            answer += event.text || "";
+          }
+
+          if (event.type === "error") {
+            throw new Error(
+              event.message || "FAI generation failed."
+            );
+          }
+        }
+      }
+
+      if (!answer.trim()) {
+        throw new Error("FAI returned an empty response.");
+      }
+
+      showStatus("Preparing your study note...", "info");
+
+      const noteData = JSON.parse(cleanJson(answer));
+
+      validateNote(noteData);
+
+      /* =========================
+         SAVE IMAGE REFERENCES
+      ========================= */
+
+      const noteFiles = [];
+
+      for (const file of selectedFiles) {
+        if (file.type.startsWith("image/")) {
+          const imageId = await saveImageToDB(file);
+
+          noteFiles.push({
+            id: imageId,
+            name: file.name,
+            type: file.type,
+            size: file.size
+          });
+        }
+      }
+
+      /* =========================
+         GENERATED NOTE
+      ========================= */
+
+      const generatedNote = {
+        ...noteData,
+        university: university,
+        university_data: universityData,
         topic: topicValue,
-        content: contentValue,
-        files,
+        files: noteFiles,
         created_at: new Date().toISOString()
       };
 
       localStorage.setItem(
-        "fStudyNoteInput",
-        JSON.stringify(noteInput)
+        "fStudyGeneratedNote",
+        JSON.stringify(generatedNote)
       );
 
-      // Hand materials to the existing FAI page.
-      window.location.href = "/fai";
+      showStatus("Your study note is ready!", "success");
+
+      location.href = "/view-note";
 
     } catch (error) {
 
-      console.error(error);
+      console.error("FStudy note generation error:", error);
 
       showStatus(
-        error.message || "Unable to prepare your notes.",
-        true
+        error.message || "Something went wrong. Please try again.",
+        "error"
       );
 
-      sendButton.disabled = false;
-
-      if (buttonText) {
-        buttonText.textContent = "Send to FAI";
-      }
-
+      generateBtn.disabled = false;
     }
 
   });
