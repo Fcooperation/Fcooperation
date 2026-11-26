@@ -318,7 +318,7 @@ const result = {
 
   id: "R" + Date.now(),
 
-  school: "EBSU",
+  school: university || "",
 
   course: studying
     ? studying.replace("(quiz)", "")
